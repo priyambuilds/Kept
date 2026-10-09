@@ -34,7 +34,8 @@ import type { Audience } from "@/state/settings";
 import { TabScreen } from "../tabs/TabScreen";
 
 const pinnedOne = metrics.button.height + metrics.pinned.bottom;
-const SOCIAL_ICON: Record<string, IconName> = { x: "twitter", telegram: "send", discord: "forum-outline", farcaster: "alpha-f-box" };
+/** X shows its letter glyph (Design.pdf I2 / I1), not the old bird. */
+const SOCIAL_ICON: Record<string, IconName> = { x: "alpha-x", telegram: "send", discord: "forum-outline", farcaster: "alpha-f-box" };
 const banner = (p: Profile) => Math.min(4, Math.max(0, p.banner)) as 0 | 1 | 2 | 3 | 4;
 const rateLine = (rate: number | null, days: number) => ({ percent: rate === null ? null : Math.round(rate * 100), line: t("screens.I1.b2.line", { n: days }), isNew: rate === null });
 const AUDIENCE = (a: Audience) => t(`screens.I7.b2.seg.${a}` as CopyKey);

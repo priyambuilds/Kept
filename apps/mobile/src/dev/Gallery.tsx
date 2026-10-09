@@ -252,7 +252,7 @@ export function Gallery() {
 
         <Section title="ProfileCard · KeptRateRing · IdentityRow">
           <ProfileCard name={k("screens.I1.b1.name")} handle={k("screens.I1.b1.handle")} avatar={avatar} bio={k("screens.I1.b1.bio")} verified
-            socials={[{ icon: "twitter", text: k("screens.I1.b1.social.0"), onPress: noop }]}
+            socials={[{ icon: "alpha-x", text: k("screens.I1.b1.social.0"), onPress: noop }]}
             actions={[{ label: k("screens.I1.b1.act.0"), icon: "pencil-outline", onPress: noop }, { label: k("screens.I1.b1.act.1"), icon: "share-variant-outline", onPress: noop }]} />
           <KeptRateRing percent={91} line={k("screens.I1.b2.line")} />
           <KeptRateRing percent={null} isNew line={t("common.keptRateNote")} />
