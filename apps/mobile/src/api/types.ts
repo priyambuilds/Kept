@@ -3,6 +3,8 @@
 // rematch and bounties.
 import type { Balances, InboxItem, InviteResolve, Me, OathRead, Price, Profile } from "@kept/shared";
 import type { OathFacts } from "@/features/oaths/model";
+import type { BountyFacts } from "@/features/bounties/mockStore";
+import type { ReviewFacts } from "@/features/reviews/mockStore";
 
 export interface AuthApi {
   /** The exact message the wallet must sign (POST /api/auth/nonce). */
@@ -17,7 +19,12 @@ export interface WalletApi {
   price(): Promise<Price>;
   /** Devnet faucet; `amount` in base units. */
   faucet(): Promise<{ signature: string; amount: bigint }>;
+  /** SOL → SKR. Mock only on Devnet (DECISIONS D-21). Amounts in base units. */
+  swap(lamports: bigint): Promise<{ skr: bigint }>;
+  /** W3: what `lamports` buys, the rate (SKR per 1 SOL, whole) and the network fee in lamports. */
+  quote(lamports: bigint): Promise<SwapQuote>;
 }
+export interface SwapQuote { skr: bigint; skrPerSol: number; feeLamports: bigint }
 
 export interface InboxApi {
   list(): Promise<{ items: InboxItem[]; unread: number }>;
@@ -37,6 +44,58 @@ export interface NotifyApi {
 export interface ProfileApi {
   mine(): Promise<Profile>;
   save(patch: Partial<Pick<Profile, "name" | "avatar" | "banner" | "bio" | "socials" | "visibility">>): Promise<Profile>;
+  /** Someone else's public profile (fields per their visibility). */
+  get(wallet: string): Promise<Profile>;
+  /** My counts for I1 / B2 / F5 (BACKEND_GAPS P1-16). */
+  stats(): Promise<MyStats>;
+  activity(): Promise<ActivityItem[]>;
+  /** A Bounty host's page (I3). */
+  creator(name: string): Promise<CreatorProfile>;
+}
+
+export interface MyStats {
+  streak: number;
+  bestStreak: number;
+  keptRate: number | null;
+  rateDays: number;
+  oaths: { kept: number; broken: number };
+  bounties: { survived: number; out: number };
+}
+/** `day` is a display group ("TODAY", "MON 6 OCT"); amount is pre-signed text or null. */
+export interface ActivityItem { id: string; day: string; title: string; sub: string; amount: string | null; kind: "money" | "proof" | "oath" }
+export interface CreatorProfile {
+  name: string; logo: string; palette: number; verified: boolean; bio: string; tagline: string;
+  hosted: number; paidOut: bigint; followers: number; links: { title: string; kind: string }[];
+}
+
+export interface BountiesApi {
+  list(): Promise<BountyFacts[]>;
+  get(id: string): Promise<BountyFacts>;
+  /** Join (free): returns my participation, an Oath on the Bounty's days. */
+  join(id: string, wallet: string): Promise<OathFacts>;
+  /** My participation in a Bounty, if any. */
+  mine(id: string, wallet: string): Promise<OathFacts | null>;
+  create(d: BountyDraftInput, wallet: string): Promise<BountyFacts>;
+}
+export interface BountyDraftInput {
+  name: string; objectId: number; numDays: number; pool: bigint; joinWindowHours: number | null;
+  message: string; link: string | null; minKeptRate: number | null; tokenHeld: { symbol: string; amount: number } | null;
+}
+
+export interface RematchApi {
+  /** The broken Oath, its Rematch if anyone opened one, and when the window closes. */
+  offer(sourceId: string): Promise<{ rematch: OathFacts | null; closesAt: number }>;
+  join(sourceId: string, wallet: string): Promise<OathFacts>;
+}
+
+export interface ReviewsApi {
+  request(oath: OathFacts, by: string, dayIndex: number, gesture: ReviewFacts["gesture"]): Promise<ReviewFacts>;
+  get(id: string, me: string): Promise<ReviewFacts>;
+  /** My own review for today, if I asked for one. */
+  mine(oathId: string, me: string, dayIndex: number): Promise<ReviewFacts | null>;
+  /** Reviews on an Oath waiting for my vote. */
+  openFor(oathId: string, me: string): Promise<ReviewFacts[]>;
+  vote(id: string, me: string, approve: boolean): Promise<void>;
 }
 
 export interface OathsApi {
@@ -72,6 +131,9 @@ export interface ProofApi {
 export interface KeptApi {
   oaths: OathsApi;
   proof: ProofApi;
+  bounties: BountiesApi;
+  rematch: RematchApi;
+  reviews: ReviewsApi;
   auth: AuthApi;
   wallet: WalletApi;
   inbox: InboxApi;
@@ -81,13 +143,16 @@ export interface KeptApi {
 }
 
 export type Slice = keyof KeptApi;
-export const SLICES: readonly Slice[] = ["oaths", "proof", "auth", "wallet", "inbox", "invites", "notify", "profile"];
+export const SLICES: readonly Slice[] = ["oaths", "proof", "bounties", "rematch", "reviews", "auth", "wallet", "inbox", "invites", "notify", "profile"];
 export type SliceMode = "http" | "mock";
 
 /** Which slices the backend supports today (docs/API.md); `hybrid` uses http for these only. */
 export const BACKEND_HAS: Record<Slice, boolean> = {
   oaths: true,    // program accounts over RPC + /api/oaths/:oath/details
   proof: true,    // photo 2 via POST /api/proof; photo 1 is always mocked (D-23)
+  bounties: false, // BACKEND_GAPS P1-10
+  rematch: false,  // BACKEND_GAPS P1-2
+  reviews: false,  // BACKEND_GAPS P1-1
   auth: true,
   wallet: true,   // price + faucet routes; balances from RPC
   inbox: false,   // BACKEND_GAPS P1-11

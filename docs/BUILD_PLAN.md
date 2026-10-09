@@ -64,6 +64,19 @@ Real where the backend and program support it, mock elsewhere:
 ## Phase 4: R, G, H, K, I, N, W, M (mostly mock)
 Rematch, group review, Bounties (feed, detail, join, eliminated, ended, my Bounty), Create a Bounty, Profiles + Settings + avatar builder, Inbox, Wallet (W2 faucet real, swap mock), system screens M2–M4 wired globally. Real where available: faucet, price, push registration, balances. Each gap recorded.
 
+**Status: done** (2026-10-09). Typecheck, lint and tests green (mobile: 82 tests, with end-to-end runs for Rematch, group review from the inbox, Bounty join and swap, plus a pass that opens every Phase 4 screen). Android bundle builds. All 116 design ids now have a screen. Not yet run on a phone.
+
+| Feature | Mode in `hybrid` | Notes |
+|---|---|---|
+| Rematch R1–R4·lost, L6 | **mock** (offer, join, recovery); D3 / L3 / L4·b open R1 | P1-2, D-53 |
+| Group review G1–G3·no | **mock**; F4a·g → G2, inbox → G1 | P1-1, D-54 |
+| Bounties H1–H7, L5 | **mock** feed, detail, join, elimination, results, my Bounty stats | P1-10 |
+| Create a Bounty K1–K5·ok | **mock** funding transaction + publish | P1-10, D-27, D-61 |
+| Profiles, settings I1–I9 | **mock** profile, stats, activity, creator; settings on the device | P1-8, P1-9, P1-16, D-61 |
+| Inbox N1, M1 | **mock** inbox; every item opens its screen | P1-11, D-56 |
+| Wallet W1–W4 | balances **real** (RPC), faucet **real**, price **real**; swap **mock** | P1-12, D-59 |
+| M2–M4 | global: offline → M2, not enough SOL → M3, not enough SKR → M4 (from the wallet or an API code) | P1-14 |
+
 **Phone milestone:** walk all 116 screens on the device in mock mode via scenarios; real faucet top-up from W2; real push for a nudge and the 2 h reminder (if FCM is configured).
 
 ## Phase 5: Motion, haptics, Keeper, accessibility, performance, E2E

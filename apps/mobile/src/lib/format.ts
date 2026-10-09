@@ -43,3 +43,16 @@ export function shortDuration(seconds: number): string {
   const m = Math.floor((s % 3600) / 60);
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
+/** Seconds since → "20m", "2h", "3d" (inbox times). */
+export function ago(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  if (s < 3600) return `${Math.max(1, Math.floor(s / 60))}m`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h`;
+  return `${Math.floor(s / 86400)}d`;
+}
+/** Lamports → "0.84", "0.000005", "1" (SOL amounts, no trailing zeros). */
+export function formatSol(lamports: bigint): string {
+  const whole = lamports / 1_000_000_000n;
+  const frac = (lamports % 1_000_000_000n).toString().padStart(9, "0").replace(/0+$/, "");
+  return frac ? `${whole}.${frac}` : whole.toString();
+}

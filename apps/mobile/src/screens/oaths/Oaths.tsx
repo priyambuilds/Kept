@@ -28,6 +28,7 @@ import { useUi } from "@/state/ui";
 import { TabScreen } from "../tabs/TabScreen";
 import { SigningScreen } from "../shared/Signing";
 import { useResultMoments } from "../results/Results";
+import { recoveryLine } from "../rematch/Rematch";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const rateText = (m: MemberView) => (m.facts.keptRate === null ? t("common.keptRateNew") : t("screens.D1.b3.seat0", { rate: Math.round(m.facts.keptRate * 100) }));
@@ -46,9 +47,10 @@ export function OathsTab() {
   const k = keeperLines("D0");
   useResultMoments(views);
   if (isLoading) return <TabScreen tab="oaths"><Skeleton height={140} /><Skeleton height={140} /><Skeleton height={60} /></TabScreen>;
-  const active = views.filter((v) => v.life === "active" || v.life === "waiting" || v.life === "over");
-  const open = views.filter((v) => v.life === "open");
-  const done = views.filter((v) => v.life === "settled" || v.life === "broken" || v.life === "cancelled");
+  const oaths = views.filter((v) => !v.facts.bountyId); // Bounties live on the Bounties tab
+  const active = oaths.filter((v) => v.life === "active" || v.life === "waiting" || v.life === "over");
+  const open = oaths.filter((v) => v.life === "open");
+  const done = oaths.filter((v) => v.life === "settled" || v.life === "broken" || v.life === "cancelled");
   const open1 = (v: OathView) => go(screenFor(v), { id: v.facts.id });
   return (
     <TabScreen tab="oaths">
@@ -253,6 +255,12 @@ function Active({ v }: { v: OathView }) {
         {canProve ? <Button kind="p" icon="camera" label={proveLabel} onPress={() => go(myPhoto1 ? "F4" : "F1", { id: f.id })} /> : null}
         {pending.length && !f.isSolo ? <Button kind="s" icon="bell-ring-outline" label={pending.length === 1 ? t("screens.D2.pin.1", { name: memberName(pending[0]!) }) : t("screens.D2·low.pin.1", { names: listNames(pending.map(memberName)) })} onPress={() => { void nudge(); }} /> : null}
       </> : undefined}>
+      {f.rematchOf ? (
+        <ChipRow>
+          <Chip text={t("screens.R·act.b0.chip.0")} icon="sword-cross" tone="ora" />
+          <Chip text={t("screens.R·act.b0.chip.1")} icon="lock-outline" tone="grey" />
+        </ChipRow>
+      ) : null}
       <HPPanel hp={v.hp} lostToday={v.hpLostLastDay} {...(lostNote ? { note: lostNote } : {})} {...(low ? { warn: t("screens.D2·low.b0.warn") } : {})} />
       {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={t("additions.waiting.startsTonight")} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
       {v.life === "over" ? <Over v={v} /> : null}
@@ -263,7 +271,7 @@ function Active({ v }: { v: OathView }) {
       {reviewer ? <Banner tone="vio" icon="eye-outline" title={t("screens.D2.b5.title")} sub={t("screens.D2.b5.sub")} onPress={() => go("G1", { id: f.id })} /> : null}
       <RowList label={t("screens.D2.b6.label")} rows={v.members.map((m): RowProps => ({
         title: memberName(m),
-        sub: m.facts.keptRate === null ? t("common.keptRateNew") : t("screens.D2.b6.r0.s", { rate: Math.round(m.facts.keptRate * 100), days: m.facts.rateDays }),
+        sub: f.rematchOf ? recoveryLine(v, m.index) : m.facts.keptRate === null ? t("common.keptRateNew") : t("screens.D2.b6.r0.s", { rate: Math.round(m.facts.keptRate * 100), days: m.facts.rateDays }),
         leading: m.facts.avatar ? { kind: "avatar", config: m.facts.avatar } : { kind: "initial", initial: memberInitial(m), bg: memberColor(m) },
         value: t("screens.D2.b6.r0.r", { amount: skrWhole(m.balance) }),
         valueSub: m.missed.length === 0 ? t("screens.D2.b6.r0.rs") : m.missed.length === 1 ? t("screens.D2.b6.r2.rs", { day: m.missed[0]! + 1 }) : t("screens.D2·low.b3.r2.rs", { n: m.missed.length }),

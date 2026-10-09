@@ -34,6 +34,8 @@ const useProof = create<{ challenges: Record<string, Challenge>; image: string |
   challenges: {}, image: null, set: (p) => set(p),
 }));
 const key = (id: string, photo: 1 | 2) => `${id}:${photo}`;
+/** Today's challenge for a photo, if one was issued on this run (G2 sends photo 2's to the group). */
+export const challengeFor = (id: string, photo: 1 | 2): Challenge | undefined => useProof.getState().challenges[key(id, photo)];
 
 type P = { id: string; photo: string };
 function useProofScreen() {

@@ -50,4 +50,13 @@ Deep link test: `adb shell am start -a android.intent.action.VIEW -d "kept://joi
 - **On Devnet (two phones or two wallets, `hybrid` mode):** both wallets need devnet SOL and SKR (`POST /api/faucet` gives 5,000 SKR once). Phone 1: + → Start an Oath → Group → Sign & stake → Invite (QR). Phone 2: + → Join with code → scan → Join & stake. Phone 1: Start. Both: take photo 1 and photo 2 (photo 2 is checked by the API). For a quick settle, run the API against a program built with `debug-tools` and set `EXPO_PUBLIC_DAY_SECONDS=120` on both phones; after the last day, open the Oath and tap **Settle now** (or wait for the scheduler), then claim.
 - Solo Oaths in `hybrid` stay on the mock so they can carry a stake (D-30).
 
+### Testing Rematch, review, Bounties, profiles, inbox and wallet (Phase 4)
+These run on the mock in every mode until the backend adds them (`docs/BACKEND_GAPS.md`), so no API is needed. Dev menu → Mock wallet on, then pick a scenario:
+- **Rematch:** `broken` → the result screen (or Oaths → Guitar Days) → **Rematch · win back 500** (R1) → Join → R3 lobby → Start. `rematchActive` shows a Rematch on day 3 (R·act); **End day** through its last day for R4 / L6.
+- **Group review:** `activeGroup` → bell → **Review photo** (G1) → Approve or Reject. To ask for one yourself: an "AI + group review" Oath → photo 2 → `proofFail` three times → **Ask your group to review** (G2), and the other members vote after about 20 seconds.
+- **Bounties:** Bounties tab → any Bounty → **Join free** → H3. `bountyOut` shows H4 (out), `bountyJoined` shows a finished one (H5 → claim). Bounties tab → **Created** → **Create a Bounty** (K1–K5) → Fund → K5·ok → H6 stats.
+- **Profiles:** Profile tab (I1) → Edit (I8), avatar (I9), Settings (I4), visibility (I7), activity (I5); tap a member on D2 for I2.
+- **Inbox:** the bell (N1). Every item opens its screen; Accept / Decline / Mark all read clear it.
+- **Wallet:** the balance chip (W1) → Add SKR (W2) → Swap (W3, mock) or the real faucet in `hybrid`; Receive (W4) shows your real address as a QR. `noSol` shows M3 on a swap.
+
 See `docs/ARCHITECTURE.md` and `docs/BUILD_PLAN.md`.

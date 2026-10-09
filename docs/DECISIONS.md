@@ -3,7 +3,7 @@
 Every open decision from `design/rules.md`, plus everything else I found ambiguous, with the assumption I'll build with.
 **Status:** `DECIDED` = answered by the product owner (2026-10-09) · `ACCEPTED` = my assumption, accepted by the product owner on 2026-10-09 · `ASSUMED` = made during a build phase, not yet reviewed · `ASK` = still open. Where the build differs from the design, it's also in `BACKEND_GAPS.md`.
 
-All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. Phase 2 added D-35 to D-42 (section E) and Phase 3 added D-43 to D-52 (section F) for review. D-52 (new copy) needs your OK.
+All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. Phase 2 added D-35 to D-42 (section E), Phase 3 added D-43 to D-52 (section F) and Phase 4 added D-53 to D-63 (section G) for review. D-52 and D-60 (new copy) and D-55 (the design's broken example) need your OK.
 
 ## Rules amendments (owner-approved, 2026-10-09)
 `design/` is read-only in this repo (CLAUDE.md), so these amendments to `design/rules.md` live here. They override rules.md where they conflict, and `packages/engine` implements them.
@@ -18,7 +18,8 @@ These strings aren't in `design/copy.json`. They go in `apps/mobile/src/copy/add
 - `"Starts tonight at midnight"`: D1 / D2 / B1 state between Start and day 1 (amendment 1).
 - `"Win back half of what you had left."`: R1 Rematch offer (amendment 3).
 - `additions.core.*`: Phase 3 strings for cases the design only shows one sample of (D-52). **Please review.**
-- `additions.placeholder.*`: dev-only note on screens not built yet (D-36). Removed once every screen exists.
+- `additions.placeholder.*`: dev-only note on screens not built yet (D-36). Every screen is built now, so only unknown ids would show it.
+- `additions.bounty.*`, `additions.wallet.*`, `additions.profile.privateOaths`: Phase 4 strings (D-60). **Please review.**
 - Rename: creator action on D1 (sheet title, field label, save button), plus the generated-name word table (D-16). Exact wording to be proposed in Phase 3 for your review.
 
 ---
@@ -58,7 +59,7 @@ These strings aren't in `design/copy.json`. They go in `apps/mobile/src/copy/add
 | D-18 | Non-Seekers (A3·no "Solo Oaths only") | They get the full app. Group create (C4 "Group" option), Join (E1) and Bounty join show the designed not-eligible states (disabled option, E3·elig, H2·no). | ACCEPTED |
 | D-25 | A2 lists Seeker Wallet / Phantom / Solflare | MWA lets Android choose the wallet. Every row opens the same MWA authorize; the rows describe options, they aren't separate integrations. | ACCEPTED |
 | D-26 | Notifications screen M1 (lock-screen mock) | Not a real screen. It's our push content and channel spec; the Gallery shows it for review. | ACCEPTED |
-| D-27 | Bounty requirement "token held" | Mock only: any SPL mint address plus a minimum amount, checked against the user's token accounts client-side. | ACCEPTED |
+| D-27 | Bounty requirement "token held" | Mock only: any SPL mint address plus a minimum amount, checked against the user's token accounts client-side. **Phase 4:** K4's switch is shown but there's no mint picker yet, so new Bounties go out with no token requirement. | ACCEPTED |
 | D-28 | HoldToConfirm | **Not built** (components.md marks it optional; stakes confirm with the wallet signature). | ACCEPTED |
 | D-29 | "Results shown once" (L screens) | Per device, keyed `oathId:outcome` in AsyncStorage; D3/D4 always show the outcome after that. | ACCEPTED |
 
@@ -105,3 +106,19 @@ New assumptions made while building Phase 2. None touches money logic; all are e
 | D-51 | The settle fallback | When a real Oath's last day is over and it isn't settled, D2 shows "The last day is over" with a **Settle now** button (permissionless `settle_oath`). | ASSUMED |
 | D-52 | New copy for cases the design shows only one sample of | `additions.core.*`: neutral D4 sub ("{names} missed some days. Their lost SKR went to everyone who kept."), "Everyone kept every day.", cancel when alone, "SKR · down {n}", settling title/sub, "Settle now", "Day 1 starts in {time}", lower-case names of the two backend-only gestures, list words. | ASK |
 
+## G. Phase 4 (Rematch, group review, Bounties, profiles, inbox, wallet)
+Everything here runs on the mock until the backend lands the matching BACKEND_GAPS item.
+
+| # | Question | Build with | Status |
+|---|---|---|---|
+| D-53 | How the app models a Rematch and a Bounty entry | Both are ordinary Oaths in the app. A Rematch has `rematchOf` (the broken Oath) and `recovery` (wallet → held amount). A Bounty entry is a stake-0 solo Oath with `bountyId`. Proof, the grid, D2 and claims are the same screens, and the engine computes the numbers. | ASSUMED |
+| D-54 | Group review rules | Voters are the other members. A majority of them approves; it's rejected once a majority rejects or everyone has voted without a majority, so a tie rejects. After 48 h with no decision it expires and counts as a miss. On the mock, simulated members vote about 20 s after the request, so G2 → G3 can be seen. | ASSUMED |
+| D-55 | **The design's broken example can't reach 0 HP.** "Dev missed day 5, Arjun day 6" with four members never empties the bar, because each day heals +10 after −20 per miss. | The `broken` scenario uses Arjun missing days 2, 4, 6 and Dev days 2, 4, 5, 6, so Guitar Days breaks on day 6 as the design says. This is fixture data only; the rules are unchanged. **Please confirm** the design example just needs different numbers. | ASSUMED |
+| D-56 | Where inbox items lead | invite → E2 (Accept marks it done; Decline marks it done and shows "Invite declined") · review → G1 · claim → J1 · rematch / broken → R1 · nudge / deadline → D2 · recap → B5 · started → H3 · new Bounty → H2. The bell count is items that need you and aren't done. "Mark all read" marks the NEW section done. | ASSUMED |
+| D-57 | Number words in copy ("Seven days kept", "Three misses") | Shown as digits ("7 days kept"). Words would need a number-to-word table for each length. | ASSUMED |
+| D-58 | I2·p "Arjun keeps **his** Oaths private" | The app can't know anyone's pronouns, so it says "{name} keeps **their** Oaths private" (`additions.profile.privateOaths`). | ASSUMED |
+| D-59 | Swap quote on Devnet (W3) | Mock: 1 SOL ≈ 9,900 SKR, network fee 0.000005 SOL, amounts 0.1 / 0.25 / 0.5 / 1 SOL, starting on 0.5 like the design. Not enough SOL opens M3. | ASSUMED |
+| D-60 | Copy for cases the design shows one sample of | `additions.bounty.*` (no Bounties joined, unverified creator, joins closed, no stats yet, cover upload later, no requirements, live until day 1), `additions.wallet.*` (faucet already used, "SKR available" while the price loads, "{amount} SKR · 1 Oath"), `additions.profile.privateOaths` (D-58). | ASSUMED |
+| D-61 | Things the backend can't store yet | Settings (I4 notifications, I7 visibility, socials, follows) are kept on the device. The K3 cover upload shows a "coming later" toast and the brand gradient. G1 shows the challenge frame where the photo goes. | ASSUMED |
+| D-62 | W1 totals | "Locked in Oaths" is my balance across Open and running Oaths (not Rematches or Bounties); "In a Rematch" is shown only when there is one. Both come from the engine views, not the API. | ASSUMED |
+| D-63 | M1 | A static screen with the design's push texts, for checking how pushes read. Real pushes use expo-notifications once the backend sends them (P1-11). | ASSUMED |

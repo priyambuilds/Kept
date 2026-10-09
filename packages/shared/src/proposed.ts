@@ -143,7 +143,8 @@ export const InboxItem = z.object({
   createdAt: IsoTime,
   needsAction: z.boolean(),
   done: z.boolean(),
-  ref: z.object({ oath: Address.optional(), bounty: z.string().optional(), review: z.string().optional() }),
+  /** What the item opens. `oath` is the Oath account address (any id string on the mock); `code` is the invite code. */
+  ref: z.object({ oath: z.string().optional(), code: z.string().optional(), bounty: z.string().optional(), review: z.string().optional() }),
 });
 export type InboxItem = z.infer<typeof InboxItem>;
 export const InboxResponse = z.object({ items: z.array(InboxItem), unread: z.number().int() });

@@ -1079,5 +1079,829 @@
   "sample": {
    "have": "620"
   }
+ },
+ "screens.B1.b4.meta": {
+  "template": "Bounty by {brand} · Day {day}/{length}",
+  "sample": {
+   "brand": "Drift",
+   "day": "3",
+   "length": "7"
+  }
+ },
+ "screens.G1.b0.title": {
+  "template": "{name} wants your vote.",
+  "sample": {
+   "name": "Dev"
+  }
+ },
+ "screens.G1.b0.sub": {
+  "template": "{oath} · day {day} · photo 2 needs a {object} and {gesture}.",
+  "sample": {
+   "oath": "Iron Week",
+   "day": "3",
+   "object": "dumbbell",
+   "gesture": "an open palm"
+  }
+ },
+ "screens.G1.b1.label": {
+  "template": "{name}'s photo · AI failed 3 times",
+  "sample": {
+   "name": "Dev"
+  }
+ },
+ "screens.G1.b2.chip.0": {
+  "template": "{n} of {total} votes",
+  "sample": {
+   "n": "1",
+   "total": "3"
+  }
+ },
+ "screens.G1.b2.chip.1": {
+  "template": "{name} approved",
+  "sample": {
+   "name": "Riya"
+  }
+ },
+ "screens.G1.b2.chip.2": {
+  "template": "{time} left",
+  "sample": {
+   "time": "41h"
+  }
+ },
+ "screens.G2.b1.value": {
+  "template": "{n} of {total}",
+  "sample": {
+   "n": "2",
+   "total": "3"
+  }
+ },
+ "screens.G3.b1.chip": {
+  "template": "Approved {yes}–{no}",
+  "sample": {
+   "yes": "2",
+   "no": "1"
+  }
+ },
+ "screens.G3.b2.title": {
+  "template": "Day {day} counts as kept.",
+  "sample": {
+   "day": "3"
+  }
+ },
+ "screens.G3.b2.sub": {
+  "template": "{names} backed you. Your {amount} SKR is safe tonight.",
+  "sample": {
+   "names": "Riya and Dev",
+   "amount": "1,000"
+  }
+ },
+ "screens.G3.pin.0": {
+  "template": "Back to {name}",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.G3·no.b2.title": {
+  "template": "Rejected {yes}–{no}.\nDay {day} counts as missed.",
+  "sample": {
+   "yes": "1",
+   "no": "2",
+   "day": "3"
+  }
+ },
+ "screens.G3·no.b3.row0.v": {
+  "template": "−{cost} SKR",
+  "sample": {
+   "cost": "143"
+  }
+ },
+ "screens.G3·no.b3.row1.v": {
+  "template": "−{hp} at midnight",
+  "sample": {
+   "hp": "20"
+  }
+ },
+ "screens.G3·no.pin.0": {
+  "template": "Back to {name}",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.H1.b1.placeholder": {
+  "template": "Search {n} Bounties",
+  "sample": {
+   "n": "1,240"
+  }
+ },
+ "screens.H1.b3.tag.1": {
+  "template": "closes in {time}",
+  "sample": {
+   "time": "5h"
+  }
+ },
+ "screens.H1.b4.i0.s": {
+  "template": "{brand} · closes in {time}",
+  "sample": {
+   "brand": "Drift",
+   "time": "5h"
+  }
+ },
+ "screens.H1.b4.i0.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "50,000"
+  }
+ },
+ "screens.H1·c.b1.meta": {
+  "template": "You funded {amount} SKR · Day {day}/{length}",
+  "sample": {
+   "amount": "20,000",
+   "day": "4",
+   "length": "14"
+  }
+ },
+ "screens.H1·c.b1.tag.0": {
+  "template": "{n} joined",
+  "sample": {
+   "n": "58"
+  }
+ },
+ "screens.H1·c.b1.tag.1": {
+  "template": "{n} still in",
+  "sample": {
+   "n": "41"
+  }
+ },
+ "screens.H1·j.b1.meta": {
+  "template": "{brand} · Day {day}/{length}",
+  "sample": {
+   "brand": "Drift",
+   "day": "3",
+   "length": "7"
+  }
+ },
+ "screens.H1·j.b1.tag.1": {
+  "template": "{n} of {total} in",
+  "sample": {
+   "n": "31",
+   "total": "40"
+  }
+ },
+ "screens.H1·j.b2.meta": {
+  "template": "{brand} · out on day {day}",
+  "sample": {
+   "brand": "Northbound",
+   "day": "3"
+  }
+ },
+ "screens.H1·j.b3.meta": {
+  "template": "{brand} · ended",
+  "sample": {
+   "brand": "@riffs"
+  }
+ },
+ "screens.H1·j.b3.tag.1": {
+  "template": "Claim {amount} SKR",
+  "sample": {
+   "amount": "1,666"
+  }
+ },
+ "screens.H2.b2.row0.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "50,000"
+  }
+ },
+ "screens.H2.b2.row2.v": {
+  "template": "{n} days",
+  "sample": {
+   "n": "7"
+  }
+ },
+ "screens.H2.b2.row3.v": {
+  "template": "in {time}",
+  "sample": {
+   "time": "5h 40m"
+  }
+ },
+ "screens.H2.b3.chip.1": {
+  "template": "{min}%+ kept rate · you {you}",
+  "sample": {
+   "min": "70",
+   "you": "91%"
+  }
+ },
+ "screens.H2·no.b3.sub": {
+  "template": "Needs an {min}% kept rate. Keep 6 more days in a row to get there.",
+  "sample": {
+   "min": "80"
+  }
+ },
+ "screens.H3.b0.title": {
+  "template": "You're in.\n{n} of {total} still standing.",
+  "sample": {
+   "n": "31",
+   "total": "40"
+  }
+ },
+ "screens.H3.b1.meta": {
+  "template": "{object} · 2 photos",
+  "sample": {
+   "object": "Water bottle"
+  }
+ },
+ "screens.H3.b1.tag.0": {
+  "template": "{n} of 2",
+  "sample": {
+   "n": "0"
+  }
+ },
+ "screens.H3.b1.tag.1": {
+  "template": "{time} left",
+  "sample": {
+   "time": "14h"
+  }
+ },
+ "screens.H3.b3.r0.s": {
+  "template": "missed day {day}",
+  "sample": {
+   "day": "2"
+  }
+ },
+ "screens.H3.b4.caption": {
+  "template": "SKR each if {n} finish",
+  "sample": {
+   "n": "31"
+  }
+ },
+ "screens.H3.b4.value": {
+  "template": "≈ {amount}",
+  "sample": {
+   "amount": "1,613"
+  }
+ },
+ "screens.H4.b2.title": {
+  "template": "Missed day {day}.\nYou're out of the pool.",
+  "sample": {
+   "day": "3"
+  }
+ },
+ "screens.H4.b3.r0.rs": {
+  "template": "{n} days",
+  "sample": {
+   "n": "65"
+  }
+ },
+ "screens.H5.b0.title": {
+  "template": "{n} survived.\nYou're one of them.",
+  "sample": {
+   "n": "27"
+  }
+ },
+ "screens.H5.b1.caption": {
+  "template": "SKR, your share of {pool}",
+  "sample": {
+   "pool": "45,000"
+  }
+ },
+ "screens.H5.b1.value": {
+  "template": "+{amount}",
+  "sample": {
+   "amount": "1,666"
+  }
+ },
+ "screens.H5.b3.btn.1": {
+  "template": "Follow {name}",
+  "sample": {
+   "name": "@riffs"
+  }
+ },
+ "screens.H5.brand.stamp": {
+  "template": "{name} · SURVIVED",
+  "sample": {
+   "name": "STRUM DAILY"
+  }
+ },
+ "screens.H5.pin.0": {
+  "template": "Claim {amount} SKR",
+  "sample": {
+   "amount": "1,666"
+  }
+ },
+ "screens.H6.b0.title": {
+  "template": "{n} of {total} still reading.",
+  "sample": {
+   "n": "41",
+   "total": "58"
+  }
+ },
+ "screens.H6.b2.row0.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "20,000"
+  }
+ },
+ "screens.H6.b2.row1.v": {
+  "template": "{pct}%",
+  "sample": {
+   "pct": "62"
+  }
+ },
+ "screens.H6.b2.row2.v": {
+  "template": "≈ {amount} SKR",
+  "sample": {
+   "amount": "556"
+  }
+ },
+ "screens.H6.b3.r0.s": {
+  "template": "{n} of {total} days",
+  "sample": {
+   "n": "4",
+   "total": "4"
+  }
+ },
+ "screens.H7.b4.text": {
+  "template": "{n} live Bounties",
+  "sample": {
+   "n": "1,240"
+  }
+ },
+ "screens.H7.b5.r0.s": {
+  "template": "{brand} · {n} in · closes in {time}",
+  "sample": {
+   "brand": "SkipLab",
+   "n": "120",
+   "time": "3h"
+  }
+ },
+ "screens.I1.b2.line": {
+  "template": "{n} days · kept rate",
+  "sample": {
+   "n": "64"
+  }
+ },
+ "screens.I1.b4.r0.s": {
+  "template": "Best: {n} days",
+  "sample": {
+   "n": "21"
+  }
+ },
+ "screens.I1.b4.r1.s": {
+  "template": "{kept} kept · {broken} broken",
+  "sample": {
+   "kept": "41",
+   "broken": "9"
+  }
+ },
+ "screens.I1.b4.r2.s": {
+  "template": "{survived} survived · {out} out",
+  "sample": {
+   "survived": "2",
+   "out": "1"
+  }
+ },
+ "screens.I1.b5.r0.s": {
+  "template": "Oaths: {who}",
+  "sample": {
+   "who": "Oath partners only"
+  }
+ },
+ "screens.I2.b2.r1.s": {
+  "template": "With you · Day {day}/{length}",
+  "sample": {
+   "day": "3",
+   "length": "7"
+  }
+ },
+ "screens.I2.b4.chip.0": {
+  "template": "{n} Oaths together",
+  "sample": {
+   "n": "3"
+  }
+ },
+ "screens.I2·me.b3.title": {
+  "template": "Oaths: {who}",
+  "sample": {
+   "who": "only Oath partners"
+  }
+ },
+ "screens.I3.b2.row1.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "310,400"
+  }
+ },
+ "screens.I3.b4.r0.s": {
+  "template": "{amount} SKR · joins close 5h",
+  "sample": {
+   "amount": "50,000"
+  }
+ },
+ "screens.I3.pin.0": {
+  "template": "Follow {name}",
+  "sample": {
+   "name": "Drift"
+  }
+ },
+ "screens.I4.b0.r3.s": {
+  "template": "{n} finished",
+  "sample": {
+   "n": "50"
+  }
+ },
+ "screens.I4.b2.r0.s": {
+  "template": "Seeker Wallet · {address}",
+  "sample": {
+   "address": "7xKp…3F9q"
+  }
+ },
+ "screens.K2.b1.value": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "50,000"
+  }
+ },
+ "screens.K2.b3.row0.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "50,000"
+  }
+ },
+ "screens.K2.b3.row1.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "5,000"
+  }
+ },
+ "screens.K2.b3.row2.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "55,000"
+  }
+ },
+ "screens.K5.b1.msg": {
+  "template": "{name}\n{message}",
+  "sample": {
+   "name": "Dawn Pages",
+   "message": "Read before your phone."
+  }
+ },
+ "screens.K5.b2.row2.v": {
+  "template": "{hours} h after launch",
+  "sample": {
+   "hours": "24"
+  }
+ },
+ "screens.K5.b2.row3.v": {
+  "template": "{pct}%+ kept rate",
+  "sample": {
+   "pct": "70"
+  }
+ },
+ "screens.K5.b2.row4.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "20,000"
+  }
+ },
+ "screens.K5.b2.row5.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "2,000"
+  }
+ },
+ "screens.K5.b2.row6.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "22,000"
+  }
+ },
+ "screens.K5·ok.b1.chip": {
+  "template": "{amount} SKR pool",
+  "sample": {
+   "amount": "20,000"
+  }
+ },
+ "screens.K5·ok.b2.sub": {
+  "template": "It's in Discover now. Joins close in {hours} hours.",
+  "sample": {
+   "hours": "24"
+  }
+ },
+ "screens.K5·ok.b2.title": {
+  "template": "{name} is live.",
+  "sample": {
+   "name": "Dawn Pages"
+  }
+ },
+ "screens.K5·p.b2.sub": {
+  "template": "{amount} SKR into the pool and fee.",
+  "sample": {
+   "amount": "22,000"
+  }
+ },
+ "screens.K5·p.b2.title": {
+  "template": "Fund {name}",
+  "sample": {
+   "name": "Dawn Pages"
+  }
+ },
+ "screens.L5.b1.r0.s": {
+  "template": "{name} · +{amount} SKR",
+  "sample": {
+   "name": "Sol Strings",
+   "amount": "1,666"
+  }
+ },
+ "screens.L5.b1.r1.s": {
+  "template": "{name} · out on day {day}",
+  "sample": {
+   "name": "Hydrate Week",
+   "day": "3"
+  }
+ },
+ "screens.L6.b1.sub": {
+  "template": "{n} days kept. The Rematch held.",
+  "sample": {
+   "n": "Seven"
+  }
+ },
+ "screens.L6.b2.caption": {
+  "template": "SKR recovered from {name}",
+  "sample": {
+   "name": "Guitar Days"
+  }
+ },
+ "screens.L6.b2.value": {
+  "template": "+{amount}",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.L6.b3.row0.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "1,129"
+  }
+ },
+ "screens.L6.b3.row1.v": {
+  "template": "+{amount}",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.L6.b3.row2.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,629"
+  }
+ },
+ "screens.L6.pin.0": {
+  "template": "Claim {amount} SKR",
+  "sample": {
+   "amount": "1,629"
+  }
+ },
+ "screens.N1.b1.label": {
+  "template": "NEEDS YOU · {n}",
+  "sample": {
+   "n": "4"
+  }
+ },
+ "screens.R1.b0.chip.0": {
+  "template": "+{amount} SKR",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.R1.b0.chip.1": {
+  "template": "{time} left",
+  "sample": {
+   "time": "6d 23h"
+  }
+ },
+ "screens.R1.b1.title": {
+  "template": "Win back {amount} SKR.",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.R1.b2.row0.v": {
+  "template": "{name} · {n} days · {object}",
+  "sample": {
+   "name": "Guitar Days",
+   "n": "7",
+   "object": "Guitar"
+  }
+ },
+ "screens.R1.b2.row1.v": {
+  "template": "−{amount} SKR",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.R1.b2.row2.v": {
+  "template": "+{amount} SKR",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.R1.b2.row3.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.R1.b2.row4.v": {
+  "template": "{time} to start",
+  "sample": {
+   "time": "6d 23h"
+  }
+ },
+ "screens.R1.b3.text": {
+  "template": "IN THE REMATCH · {n} OF {total}",
+  "sample": {
+   "n": "2",
+   "total": "4"
+  }
+ },
+ "screens.R2.b2.sub": {
+  "template": "{amount} SKR into the {name} Rematch.",
+  "sample": {
+   "amount": "1,000",
+   "name": "Guitar Days"
+  }
+ },
+ "screens.R3.b0.chip.1": {
+  "template": "{name} · {n} days",
+  "sample": {
+   "name": "Guitar Days",
+   "n": "7"
+  }
+ },
+ "screens.R3.b1.title": {
+  "template": "{n} of {total} back\nat the table.",
+  "sample": {
+   "n": "3",
+   "total": "4"
+  }
+ },
+ "screens.R3.b3.r0.s": {
+  "template": "Hasn't joined · window {time}",
+  "sample": {
+   "time": "6d 22h"
+  }
+ },
+ "screens.R4.b0.sub": {
+  "template": "You kept all {n} days. The Rematch held.",
+  "sample": {
+   "n": "7"
+  }
+ },
+ "screens.R4.b2.sub": {
+  "template": "Half of what {name} cost you.",
+  "sample": {
+   "name": "Guitar Days"
+  }
+ },
+ "screens.R4.b2.title": {
+  "template": "+{amount} SKR recovered from your broken Oath",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.R4.pin.0": {
+  "template": "Claim {amount} SKR",
+  "sample": {
+   "amount": "1,629"
+  }
+ },
+ "screens.R4·lost.b1.row1.l": {
+  "template": "Lost ({days})",
+  "sample": {
+   "days": "day 2"
+  }
+ },
+ "screens.R4·lost.b2.title": {
+  "template": "Recovery lost: you missed {days}",
+  "sample": {
+   "days": "day 2"
+  }
+ },
+ "screens.R·act.b4.r0.s": {
+  "template": "Recovery: {amount} SKR on the line",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.R·act.b4.r1.s": {
+  "template": "Recovery lost · missed day {day}",
+  "sample": {
+   "day": "2"
+  }
+ },
+ "screens.W1.b1.caption": {
+  "template": "SKR available · {usd}",
+  "sample": {
+   "usd": "≈ $42.80"
+  }
+ },
+ "screens.W1.b3.name": {
+  "template": "{amount} SKR to claim",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.W1.b3.meta": {
+  "template": "{name} ended {when}",
+  "sample": {
+   "name": "Hydra 14",
+   "when": "Sunday"
+  }
+ },
+ "screens.W1.b4.row0.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "4,280"
+  }
+ },
+ "screens.W1.b4.row1.v": {
+  "template": "{amount} SKR · {n} Oaths",
+  "sample": {
+   "amount": "1,500",
+   "n": "2"
+  }
+ },
+ "screens.W1.b4.row2.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.W1.b4.row3.v": {
+  "template": "{sol} SOL",
+  "sample": {
+   "sol": "0.84"
+  }
+ },
+ "screens.W3.b2.value": {
+  "template": "+{amount}",
+  "sample": {
+   "amount": "4,950"
+  }
+ },
+ "screens.W3.b3.row0.v": {
+  "template": "{sol} SOL",
+  "sample": {
+   "sol": "0.5"
+  }
+ },
+ "screens.W3.b3.row1.v": {
+  "template": "1 SOL ≈ {rate} SKR",
+  "sample": {
+   "rate": "9,900"
+  }
+ },
+ "screens.W3.b3.row2.v": {
+  "template": "{sol} SOL",
+  "sample": {
+   "sol": "0.000005"
+  }
+ },
+ "screens.W3.b3.row3.v": {
+  "template": "{sol} SOL",
+  "sample": {
+   "sol": "0.84"
+  }
+ },
+ "screens.W3·ok.b2.sub": {
+  "template": "Your balance is now {amount} SKR.",
+  "sample": {
+   "amount": "4,280"
+  }
+ },
+ "toasts.6": {
+  "template": "Invite sent to {name}",
+  "sample": {
+   "name": "Arjun"
+  }
+ },
+ "toasts.10": {
+  "template": "Following {name}",
+  "sample": {
+   "name": "@riffs"
+  }
+ },
+ "toasts.13": {
+  "template": "Opening {name}",
+  "sample": {
+   "name": "drift.water"
+  }
+ },
+ "toasts.16": {
+  "template": "Following {name}",
+  "sample": {
+   "name": "Drift"
+  }
  }
 }

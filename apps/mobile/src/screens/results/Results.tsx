@@ -99,6 +99,10 @@ export function J1f() {
 export function resultScreen(v: OathView): DesignId | null {
   if (v.me < 0) return null;
   const missedMe = v.members[v.me]!.missed.length > 0;
+  // A Bounty: out the day after a miss (H4), or survived at the end (H5). Solo HP doesn't apply.
+  if (v.facts.bountyId) return missedMe ? "H4" : v.life === "settled" ? "H5" : null;
+  // A Rematch: kept every day of one that held → L6; otherwise the recovery is lost.
+  if (v.facts.rematchOf && (v.life === "settled" || v.life === "broken")) return !missedMe && v.life === "settled" ? "L6" : "R4·lost";
   if (v.life === "broken") return v.facts.isSolo ? "L4·b" : "L3";
   if (v.life !== "settled") return null;
   if (v.facts.isSolo) return missedMe ? "L4·m" : "L4";
@@ -116,7 +120,8 @@ export function useResultMoments(views: OathView[]) {
       const k = `${v.facts.id}:${to}`;
       if (shown.includes(k)) continue;
       useDeviceOaths.getState().markShown(k);
-      go(to, { id: v.facts.id });
+      // Bounty screens take the Bounty's id; everything else the Oath's.
+      go(to, { id: v.facts.bountyId ?? v.facts.id });
       return;
     }
   }, [views, shown, go]);
