@@ -21,6 +21,7 @@ import { useDeviceOaths } from "@/features/oaths/device";
 import { listNames, memberColor, memberInitial, memberName, objectIcon, skrWhole, weekday } from "@/features/oaths/present";
 import { TabScreen } from "../tabs/TabScreen";
 import { useResultMoments } from "../results/Results";
+import { useBounties } from "@/features/phase4";
 
 const myToday = (v: OathView) => (v.me >= 0 ? v.members[v.me]! : null);
 const keptToday = (v: OathView) => myToday(v)?.pendingToday === false;
@@ -64,7 +65,9 @@ export function TodayTab() {
 function Active({ items, pending, claim }: { items: OathView[]; pending: OathView[]; claim: OathView | undefined }) {
   const { go } = useGo();
   const k = keeperLines("B1");
-  const main = pending.find((v) => !v.facts.isSolo) ?? pending[0];
+  const brands = useBrands();
+  // The main card is an Oath (a group one first); Bounties show as rows.
+  const main = pending.find((v) => !v.facts.isSolo && !v.facts.bountyId) ?? pending.find((v) => !v.facts.bountyId) ?? pending[0];
   const rest = items.filter((v) => v !== main);
   const reset = Math.min(...items.map((v) => v.secondsToReset ?? Infinity));
   return (
@@ -76,7 +79,7 @@ function Active({ items, pending, claim }: { items: OathView[]; pending: OathVie
       ) : null}
       {main ? <KeeperPlacement mood={k[1]!.mood} line={k[1]!.line} size={96} side="r" height={120} /> : null}
       {main ? <TodayCard v={main} /> : null}
-      {rest.length ? <RowList rows={rest.map(rowOf(go))} /> : null}
+      {rest.length ? <RowList rows={rest.map(rowOf(go, brands))} /> : null}
     </TabScreen>
   );
 }
@@ -110,19 +113,21 @@ function TodayCard({ v, urgent }: { v: OathView; urgent?: boolean }) {
   );
 }
 
-const rowOf = (go: ReturnType<typeof useGo>["go"]) => (v: OathView): RowProps => ({
+const rowOf = (go: ReturnType<typeof useGo>["go"], brands: Map<string, string>) => (v: OathView): RowProps => ({
   title: v.facts.name,
-  sub: v.facts.isSolo ? t("screens.B1.b5.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }) : t("screens.B2.b3.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }),
+  sub: v.facts.bountyId ? t("screens.B1.b4.meta", { brand: brands.get(v.facts.bountyId) ?? "", day: v.dayNumber, length: v.facts.numDays })
+    : v.facts.isSolo ? t("screens.B1.b5.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }) : t("screens.B2.b3.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }),
   leading: { kind: "icon", icon: objectIcon(v.facts.objectId) },
   value: keptToday(v) ? t("screens.B2.b3.r0.rs") : shortDuration(v.secondsToReset ?? 0),
   valueColor: keptToday(v) ? color.lime.base : color.text.secondary,
   chevron: true,
-  onPress: () => go("D2", { id: v.facts.id }),
+  onPress: () => (v.facts.bountyId ? go("H3", { id: v.facts.bountyId }) : go("D2", { id: v.facts.id })),
 });
 
 // ── B2 ──
 function AllDone({ items }: { items: OathView[] }) {
   const { go } = useGo();
+  const brands = useBrands();
   const k = keeperLines("B2")[0]!;
   const reset = Math.min(...items.map((v) => v.secondsToReset ?? Infinity));
   const safe = items.map((v) => skrWhole(myToday(v)!.balance)).join(" + ");
@@ -131,7 +136,7 @@ function AllDone({ items }: { items: OathView[] }) {
       <BodyText text={t("screens.B2.b0.text", { kept: items.length, total: items.length, time: `<m>${hms(reset)}</m>` })} />
       <KeeperPlacement mood={k.mood} line={k.line} size={120} side="c" height={200} />
       <Title heading={t("screens.B2.b2.title")} sub={t("screens.B2.b2.sub", { amounts: safe })} />
-      <RowList rows={items.map(rowOf(go))} />
+      <RowList rows={items.map(rowOf(go, brands))} />
     </TabScreen>
   );
 }
@@ -207,6 +212,12 @@ export function RecapSheet() {
       </BottomSheet>
     </View>
   );
+}
+
+/** Bounty id → host name, for "Bounty by Drift · Day 3/7" rows. */
+function useBrands(): Map<string, string> {
+  const { data } = useBounties();
+  return new Map((data ?? []).map((b) => [b.id, b.brand.name]));
 }
 
 const endOf = (v: OathView) => (v.facts.day1StartsAt ?? v.facts.createdAt) + v.facts.numDays * v.facts.daySeconds;

@@ -120,5 +120,19 @@
     "startsNow": "Day 1 begins now.",
     "personMissed": "{name} missed {days}.",
     "it": "it"
+  },
+  "bounty": {
+    "$source": "phase 4: states the design doesn't draw (DECISIONS › Copy additions)",
+    "noneJoined": "No Bounties yet. Discover has free ones to join.",
+    "creatorUnverified": "Creator",
+    "closed": "Closed",
+    "noStatsYet": "Stats start after day 1.",
+    "coverLater": "Cover images arrive with Bounty hosting on the server.",
+    "noRequirements": "Verified Seeker only",
+    "liveUntilDay1": "It's in Discover now. Joins close when day 1 ends."
+  },
+  "wallet": {
+    "$source": "phase 4",
+    "faucetUsed": "The faucet gives 5,000 SKR once per wallet."
   }
 }
