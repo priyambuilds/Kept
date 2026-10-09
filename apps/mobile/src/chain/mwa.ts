@@ -110,6 +110,7 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
       if (!key.equals(payer)) throw new Error(`Wallet switched accounts: expected ${payer.toBase58()}, got ${key.toBase58()}`);
       return w.signAndSendTransactions({ transactions: [tx], minContextSlot }); // Phantom rejects without minContextSlot
     });
+    if (!signature) throw new Error("The wallet returned no signature");
     try {
       const res = await c.confirmTransaction({ signature, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, "confirmed");
       if (res.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(res.value.err)}`);
