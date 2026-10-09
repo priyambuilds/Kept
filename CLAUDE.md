@@ -10,11 +10,26 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 - **Kept rate:** a public trust score.
 - **The Keeper:** a half-warden, half-bookie mascot that comments at key moments.
 
+## ⚠️ Scope: FRONTEND ONLY
+**Your job is the mobile app (`apps/mobile`) and the frontend packages it uses.** The backend and program belong to the backend developer.
+
+- **Do not write or change code in `apps/api` or `programs/kept`.** That includes no new routes, no migrations, no "small fixes" and no refactors. The only exceptions are a task where I explicitly say "merge phase" or "you may edit the backend", or a dependency bump needed to keep the workspace installing (ask first).
+- **Read the backend freely** to understand the API, IDL, PDAs, auth and data shapes.
+- **If the app needs something the backend doesn't have** (a route, a field, a rule), build the app against `KeptApi`/`TxService` with the **mock** for that feature, and write exactly what's needed into `docs/BACKEND_GAPS.md`, with the request/response shape you coded against.
+- **Use the real backend only where it already works today** (sign-in, Genesis status, invites, create/join/start/cancel/claim on chain, nudge, push token, price, faucet).
+- **Don't put computed views in the API.** Compute Oath views (HP, grid, balances) in the app with `packages/engine`, from data the backend already returns, or from the mock.
+- **Merge phase (later, only when I say so):** switch features from mock to http one by one as the backend developer closes the gaps, and fix contract mismatches on the app side.
+
 ## What's in this folder today
 | Path | What it is | Status |
 |---|---|---|
-| `design/` | The final handoff from Claude Design: `README.md`, `DESIGN.md`, `tokens.json`, `components.md`, `screens.md` (116 screens, A0–W4), `flows.md`, `copy.json`, `motion.md`, `rules.md`, `assets/`, `reference/` (HTML prototype) | **Source of truth for UI and product rules.** Read-only. |
-| `backend/` | The existing V4 prototype: Express + Prisma + Postgres API (`src/`), Anchor program (`kept-example/program`), a test-harness Expo app (`kept-example/app`), and V3/Aura `legacy/` | Working Devnet prototype, but **behind the design** in many places (see `docs/BACKEND_GAPS.md`) |
+| `design/` | The final handoff from Claude Design: `README.md`, `DESIGN.md`, `tokens.json`, `components.md`, `screens.md` (116 screens, A0–W4), `flows.md`, `copy.json`, `motion.md`, `rules.md`, `assets/`, `reference/` (HTML prototype) | **Source of truth for UI and product rules.** Read-only. Rule changes live in `docs/DECISIONS.md` › Rules amendments. |
+| `apps/api` | The existing Express + Prisma + Postgres API (moved from `backend/`) | Backend developer's code. **Read-only for you.** |
+| `programs/kept` | The Anchor program (`kept_test`) | Backend developer's code. **Read-only for you.** Never deploy with the local keypair in `target/deploy`. |
+| `apps/mobile` | The new app (Phase 1+) | **Your work.** |
+| `packages/*` | config, shared (schemas, contract), engine, chain (IDL + account reading) | **Your work** (frontend-side, consumed by the app). |
+| `legacy/` | The old harness app, V3/Aura code and docs | Reference only. |
+| `docs/` | ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API | Keep them updated. |
 
 ## Precedence rules
 1. **Product behavior and UI:** `design/rules.md` and `design/screens.md` win. If the backend or program does something different, build the frontend to the design and **record the difference in `docs/BACKEND_GAPS.md`**. Never silently change the design to match the backend.
@@ -23,9 +38,9 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 4. When the design and rules contradict each other, or something is truly ambiguous, **ask**. Don't guess on money logic.
 
 ## Your goals
-1. **Restructure the repo** into a clean monorepo (structure below). Propose it before moving anything.
-2. **Build the new mobile app** from `design/`, from scratch. The test-harness app is reference only, for wallet, chain and IDL helpers.
-3. **Merge with the backend.** Wire the app to the real API and program where the backend already supports a feature; use a typed mock where it doesn't.
+1. ~~Restructure the repo~~ (done in Phase 0).
+2. **Build the new mobile app** from `design/`, from scratch. The legacy harness app is reference only, for wallet, chain and IDL helpers.
+3. **Connect it to the backend** where the backend already supports a feature, using the mock everywhere else. The full merge happens later, only when I say so.
 4. **Keep `docs/BACKEND_GAPS.md` current.** It's the handoff for the backend developer: every place the backend or program must change to match the design.
 
 ## Target structure (proposed; refine it and justify any changes)
@@ -76,10 +91,9 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 - **Kept rate and odds:** per `rules.md` §7–8.
 - **Required test:** 4 × 1,000 SKR over 3 days with the pattern in rules.md → 1,468.75 / 779.17 / 1,468.75 / 166.67, fee 116.67. Export the test vectors as JSON so the Rust program can be tested against the same numbers later.
 
-## Backend work in this repo
-- Move the backend into `apps/api` with its tests passing. Don't change its behavior unless a task says so.
-- You may add **read-only aggregation routes** the app needs (e.g. `GET /api/me/oaths`, an Oath view with grid, HP and balances computed by `packages/engine`). Put them behind clear names and list them in `docs/API.md`.
-- **Don't change the Anchor program or money-moving logic.** Write the needed change into `docs/BACKEND_GAPS.md` for the backend developer.
+## Backend in this repo
+- See **Scope** at the top: `apps/api` and `programs/kept` are read-only for you.
+- Every backend need goes into `docs/BACKEND_GAPS.md`. `docs/API.md` documents what exists today; mark proposed routes as **proposed**.
 
 ## Definition of done (per screen)
 - matches the design
