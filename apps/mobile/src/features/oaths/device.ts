@@ -3,7 +3,7 @@
 // recaps were already shown (D-8, D-29).
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { persistStorage } from "@/state/storage";
+import { registerScoped, scopedPersist } from "@/state/storage";
 import type { ReviewMode } from "./model";
 import { useEffect, useState } from "react";
 
@@ -34,8 +34,10 @@ export interface DeviceOathState {
   seeHp(id: string, hp: number): void;
 }
 
+const EMPTY = { names: {}, reviewModes: {}, goals: {}, codes: {}, photo1: {}, fails: {}, shownResults: [], recapShownOn: null, known: [], seenHp: {} };
+
 export const useDeviceOaths = create<DeviceOathState>()(persist((set, get) => ({
-  names: {}, reviewModes: {}, goals: {}, codes: {}, photo1: {}, fails: {}, shownResults: [], recapShownOn: null, known: [], seenHp: {},
+  ...EMPTY,
   remember: (id, extra = {}) => set((s) => ({
     known: s.known.includes(id) ? s.known : [...s.known, id],
     ...(extra.name ? { names: { ...s.names, [id]: extra.name } } : {}),
@@ -54,7 +56,8 @@ export const useDeviceOaths = create<DeviceOathState>()(persist((set, get) => ({
   markShown: (key) => set((s) => ({ shownResults: s.shownResults.includes(key) ? s.shownResults : [...s.shownResults, key] })),
   markRecap: (date) => set({ recapShownOn: date }),
   seeHp: (id, hp) => set((s) => (s.seenHp[id] === hp ? s : { seenHp: { ...s.seenHp, [id]: hp } })),
-}), { name: "kept.oaths.device", storage: persistStorage }));
+}), scopedPersist<DeviceOathState>("kept.oaths.device", EMPTY)));
+registerScoped(useDeviceOaths);
 
 /**
  * The HP this device last showed for an Oath, when it differs from `hp` (an unseen change: the panel

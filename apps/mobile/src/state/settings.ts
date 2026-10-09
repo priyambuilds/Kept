@@ -2,7 +2,7 @@
 // Push preferences would live with the push token on the server (BACKEND_GAPS P1-11).
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { persistStorage } from "./storage";
+import { registerScoped, scopedPersist } from "./storage";
 
 export type Audience = 0 | 1 | 2; // Everyone · Oath partners · Only me (I7 segments)
 
@@ -22,7 +22,9 @@ export interface SettingsState {
   follow(name: string): void;
 }
 
-export const useSettings = create<SettingsState>()(persist((set) => ({
+type SettingsData = Omit<SettingsState, "setNotify" | "setVisibility" | "set" | "follow">;
+
+const DEFAULTS: SettingsData = {
   notify: { nudges: true, deadline: true, reviews: true, results: true },
   visibility: { oaths: 1, bounties: 0, socials: 1 },
   findByName: true,
@@ -30,8 +32,13 @@ export const useSettings = create<SettingsState>()(persist((set) => ({
   socials: { x: true, telegram: false, discord: false, farcaster: false },
   following: [],
   profileTipSeen: false,
+};
+
+export const useSettings = create<SettingsState>()(persist((set) => ({
+  ...DEFAULTS,
   setNotify: (k, on) => set((s) => ({ notify: { ...s.notify, [k]: on } })),
   setVisibility: (k, a) => set((s) => ({ visibility: { ...s.visibility, [k]: a } })),
   set: (p) => set(p),
   follow: (name) => set((s) => ({ following: s.following.includes(name) ? s.following : [...s.following, name] })),
-}), { name: "kept.settings", storage: persistStorage }));
+}), scopedPersist<SettingsState>("kept.settings", DEFAULTS)));
+registerScoped(useSettings);

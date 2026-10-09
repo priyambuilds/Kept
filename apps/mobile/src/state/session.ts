@@ -1,7 +1,8 @@
-// Who is signed in, and onboarding progress. Persisted so a restart skips onboarding.
+// Who is signed in, and onboarding progress. Persisted so a restart skips onboarding; Demo and Live
+// each have their own (state/storage.ts).
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { persistStorage } from "./storage";
+import { registerScoped, scopedPersist } from "./storage";
 
 export interface SessionState {
   /** Backend bearer token (7 days) or a mock token. */
@@ -22,11 +23,14 @@ export interface SessionState {
   signOut(): void;
 }
 
+const EMPTY = { token: null, wallet: null, genesis: false, onboarded: false, avatar: null, invite: null };
+
 export const useSession = create<SessionState>()(persist((set) => ({
-  token: null, wallet: null, genesis: false, onboarded: false, avatar: null, invite: null,
+  ...EMPTY,
   signIn: ({ token, wallet, genesis }) => set({ token, wallet, genesis }),
   setGenesis: (genesis) => set({ genesis }),
   finishOnboarding: (avatar) => set({ onboarded: true, avatar }),
   setInvite: (invite) => set({ invite }),
   signOut: () => set({ token: null, wallet: null, genesis: false }),
-}), { name: "kept.session", storage: persistStorage }));
+}), scopedPersist<SessionState>("kept.session", EMPTY)));
+registerScoped(useSession);

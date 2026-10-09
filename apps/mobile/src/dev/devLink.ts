@@ -28,6 +28,8 @@ import { ROUTES, designIdOf, presentation } from "@/app/routes";
 import type { DesignId } from "@/app/routes";
 import { __resetSeenKeeperLines } from "@/components/keeper/ScreenKeeper";
 import { useSettings } from "@/state/settings";
+import { useMode } from "@/state/mode";
+import { setStorageScope } from "@/state/storage";
 
 const W = MOCK_WALLET;
 /** The user's seeded Oath with this name; a running or finished one before an Open one ("Iron Week" is both). */
@@ -115,7 +117,9 @@ export function openDevLink(url: string): boolean {
 
   // `quiet=1` (the shoot script): no LogBox toasts over the screenshot; errors still go to logcat.
   if (q.quiet === "1") LogBox.ignoreAllLogs(true);
-  // A clean mock world on the scenario.
+  // A clean mock world on the scenario, in Demo (its own storage scope; every store is set below).
+  useMode.setState({ mode: "demo" });
+  setStorageScope("demo");
   useDevHold.setState({ hold: q.hold === "1", still: q.still === "1" });
   useDev.setState({ scenario, mockWallet: true, ...(q.mode === "mock" || !q.mode ? { overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])) } : {}) });
   clock.reset();
@@ -155,7 +159,7 @@ export function openDevLink(url: string): boolean {
 /** Opens a dev link once navigation is ready and the persisted stores have loaded (cold starts). */
 export function openDevLinkWhenReady(url: string): boolean {
   if (!/^kept:\/\/dev\//.test(url)) return false;
-  const stores = [useSession, useDev, useDraft, useDeviceOaths];
+  const stores = [useMode, useSession, useDev, useDraft, useDeviceOaths];
   const tryOpen = () => {
     if (navigationRef.isReady() && stores.every((s) => s.persist.hasHydrated())) openDevLink(url);
     else setTimeout(tryOpen, 100);

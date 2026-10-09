@@ -6,7 +6,7 @@ import { createHttpClient } from "@/api/http/client";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import type { Scenario } from "@/api/mock/scenarios";
 import { clock } from "@/api/mock/clock";
-import { BACKEND_HAS, SLICES } from "@/api/types";
+import { SLICES } from "@/api/types";
 import { classifyTxError } from "@/chain/classify";
 import { createMockWallet } from "@/chain/mock";
 import { signIn } from "@/features/auth";
@@ -60,10 +60,10 @@ describe("createApi", () => {
 });
 
 describe("flags", () => {
-  it("hybrid uses http exactly where the backend has the routes", () => {
-    const f = defaultFlags("hybrid");
-    for (const s of SLICES) expect(f[s]).toBe(BACKEND_HAS[s] ? "http" : "mock");
-    expect(Object.values(defaultFlags("mock")).every((m) => m === "mock")).toBe(true);
+  it("Demo is the mock for every slice; Live and not-chosen are http for every slice", () => {
+    expect(SLICES.every((s) => defaultFlags("demo")[s] === "mock")).toBe(true);
+    expect(SLICES.every((s) => defaultFlags("live")[s] === "http")).toBe(true);
+    expect(SLICES.every((s) => defaultFlags(null)[s] === "http")).toBe(true);
   });
 });
 

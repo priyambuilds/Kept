@@ -60,21 +60,18 @@ function withName(f: OathFacts, names: Record<string, string>, me?: { wallet: st
 export const refreshOaths = () => queryClient.invalidateQueries({ queryKey: oathKeys.all });
 
 /**
- * Where a new Oath is created (docs/BUILD_PLAN.md › Phase 3, DECISIONS D-30): the mock when the oaths
- * slice is mock; in hybrid, solo Oaths stay on the mock so they can carry a stake; otherwise the chain.
+ * Where a new Oath is created: the mock in Demo, the program in Live (a development build's Dev menu can
+ * point the oaths slice at either). On chain a solo Oath has no stake (D-30, BACKEND_GAPS P0-7).
  */
-export function createSource(d: OathDraft): OathSource {
-  const f = flags();
-  if (f.oaths === "mock") return "mock";
-  if (d.isSolo && useDev.getState().overrides.oaths !== "http") return "mock";
-  return "chain";
+export function createSource(): OathSource {
+  return flags().oaths === "mock" ? "mock" : "chain";
 }
 
 const tzOffset = () => -new Date().getTimezoneOffset();
 
 export const oathActions = {
   async create(d: OathDraft): Promise<{ id: string; code: string | null }> {
-    const source = createSource(d);
+    const source = createSource();
     const goal = d.goal.trim();
     const { oath } = await getTx(source).createOath({
       objectId: d.objectId, numDays: d.numDays, stake: BigInt(d.stakeSkr) * SKR_UNIT, goalText: goal, tzOffsetMinutes: tzOffset(), isSolo: d.isSolo, reviewMode: d.reviewMode,

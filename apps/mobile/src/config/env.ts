@@ -1,14 +1,10 @@
 // Every build-time setting in one place. Expo inlines `process.env.EXPO_PUBLIC_*` only when read with
 // this exact dot syntax, so each one is spelled out. Defaults target a local API on Devnet.
-export type ApiMode = "mock" | "hybrid" | "http";
 export type Cluster = "devnet" | "testnet" | "mainnet-beta";
 
-const mode = (process.env.EXPO_PUBLIC_API_MODE ?? "hybrid") as ApiMode;
 const cluster = (process.env.EXPO_PUBLIC_CLUSTER ?? "devnet") as Cluster;
 
 export const env = {
-  /** Default per-slice mode (docs/ARCHITECTURE.md §6); the Dev menu can override any slice. */
-  apiMode: (["mock", "hybrid", "http"] as const).includes(mode) ? mode : "hybrid",
   /** `adb reverse tcp:3000 tcp:3000` makes localhost on the phone reach the API on your computer. */
   apiUrl: (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000").replace(/\/$/, ""),
   cluster,

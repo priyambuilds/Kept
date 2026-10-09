@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ReviewMode } from "@/features/oaths/model";
-import { persistStorage } from "./storage";
+import { registerScoped, scopedPersist } from "./storage";
 
 export interface OathDraft {
   goal: string;
@@ -16,8 +16,11 @@ export interface OathDraft {
 
 export const EMPTY_DRAFT: OathDraft = { goal: "", objectId: 0, numDays: 7, isSolo: false, stakeSkr: 1000, reviewMode: "ai_group" };
 
-export const useDraft = create<{ draft: OathDraft; set(p: Partial<OathDraft>): void; reset(): void }>()(persist((set) => ({
+interface DraftState { draft: OathDraft; set(p: Partial<OathDraft>): void; reset(): void }
+
+export const useDraft = create<DraftState>()(persist((set) => ({
   draft: EMPTY_DRAFT,
   set: (p) => set((s) => ({ draft: { ...s.draft, ...p } })),
   reset: () => set({ draft: EMPTY_DRAFT }),
-}), { name: "kept.draft", storage: persistStorage }));
+}), scopedPersist<DraftState>("kept.draft", { draft: EMPTY_DRAFT })));
+registerScoped(useDraft);

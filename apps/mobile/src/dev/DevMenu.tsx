@@ -15,8 +15,9 @@ import { SCENARIOS } from "@/api/mock/scenarios";
 import { getWallet } from "@/chain";
 import { useNow } from "@/features/time";
 import { env } from "@/config/env";
-import type { ApiMode } from "@/config/env";
 import { flags, useDev } from "@/state/dev";
+import type { SliceMode } from "@/api/types";
+import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 import { useUi } from "@/state/ui";
 import { navigateTo, navigationRef } from "@/app/nav";
@@ -24,7 +25,7 @@ import { ROUTES } from "@/app/routes";
 import type { DesignId } from "@/app/routes";
 import { CommonActions } from "@react-navigation/native";
 
-const MODES: ApiMode[] = ["mock", "hybrid", "http"];
+const MODES: SliceMode[] = ["mock", "http"];
 
 function Label({ text }: { text: string }) {
   return <Text variant="monoLabel" color={color.lime.base} style={{ marginTop: space[8] }}>{text}</Text>;
@@ -49,7 +50,8 @@ export function DevMenu() {
   const toast = useToast();
   // useNow follows the virtual clock (a useSyncExternalStore on clock.now looped: it changes every call).
   const now = useNow() * 1000;
-  const f = flags(dev);
+  const mode = useMode((s) => s.mode);
+  const f = flags(dev, mode);
 
   const refresh = () => { void qc.resetQueries(); };
   const jump = (id: DesignId) => { setOpen(false); navigateTo(id); };
@@ -66,13 +68,13 @@ export function DevMenu() {
   return (
     <BottomSheet visible={open} onClose={() => setOpen(false)}>
       <Text variant="headerTitle">Dev menu</Text>
-      <Text variant="caption" color={color.text.tertiary}>{`API ${env.apiUrl} · build mode ${env.apiMode} · ${session.wallet ?? "signed out"}`}</Text>
+      <Text variant="caption" color={color.text.tertiary}>{`API ${env.apiUrl} · app mode ${mode ?? "not chosen"} · ${session.wallet ?? "signed out"}`}</Text>
 
       <Label text="API MODE (ALL SLICES)" />
       <Segmented items={MODES} value={-1} onChange={(i) => { dev.setAll(MODES[i]!); refresh(); }} />
       <RowList rows={SLICES.map((s) => ({
         title: s, value: f[s], valueColor: f[s] === "http" ? color.lime.base : color.text.secondary,
-        sub: dev.overrides[s] ? "override" : "build default",
+        sub: dev.overrides[s] ? "override" : "app mode default",
         onPress: () => { dev.setSlice(s, f[s] === "http" ? "mock" : "http"); refresh(); },
       }))} />
       <RowList rows={[{ title: "Mock wallet", sub: "Use instead of MWA (no wallet app needed). Pair with mock auth.", toggle: { on: dev.mockWallet, onChange: dev.setMockWallet } }]} />

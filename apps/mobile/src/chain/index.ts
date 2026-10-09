@@ -1,6 +1,7 @@
-// The wallet and TxService the app uses. The wallet is MWA unless the Dev menu picks the mock. A
-// transaction goes to the program for chain Oaths and to the mock store for mock Oaths.
-import { useDev } from "@/state/dev";
+// The wallet and TxService the app uses. The wallet is the mock in Demo and MWA in Live (a development
+// build's Dev menu can swap in the mock). A transaction goes to the program for chain Oaths and to the
+// mock store for mock Oaths; Demo only has mock Oaths, Live only chain ones.
+import { useDev, mockWalletOn } from "@/state/dev";
 import { useSession } from "@/state/session";
 import type { OathSource } from "@/features/oaths/model";
 import { createMockTx, createMockWallet } from "./mock";
@@ -16,7 +17,7 @@ const mockWallet = createMockWallet(scenario);
 const mockTx = createMockTx(scenario, () => useSession.getState().wallet);
 
 export function getWallet(): WalletSession {
-  return useDev.getState().mockWallet ? mockWallet : mwaWallet;
+  return mockWalletOn() ? mockWallet : mwaWallet;
 }
 
 export function getTx(source: OathSource): TxService {

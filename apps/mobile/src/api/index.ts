@@ -1,7 +1,9 @@
-// createApi composes one implementation per slice from the flags (docs/ARCHITECTURE.md §6).
-// useApi() rebuilds it when the Dev menu changes a flag or the scenario.
+// createApi composes one implementation per slice from the flags (docs/ARCHITECTURE.md §6): the app
+// mode's (Demo: mock, Live: http), plus the Dev menu's overrides in development builds. useApi()
+// rebuilds it when the mode or an override changes.
 import { useMemo } from "react";
 import { useDev, flags as currentFlags } from "@/state/dev";
+import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 import { createHttpClient } from "./http/client";
 import { httpAuth, httpBounties, httpInbox, httpInvites, httpNotify, httpProfile, httpRematch, httpReviews, httpWallet } from "./http/slices";
@@ -58,5 +60,6 @@ export function getApi(): KeptApi {
 /** The API as a hook; a new instance whenever the Dev menu changes a flag (QueryProvider then resets queries). */
 export function useApi(): KeptApi {
   const overrides = useDev((s) => s.overrides);
-  return useMemo(() => createApi(currentFlags({ overrides }), mockApi, getToken), [overrides]);
+  const mode = useMode((s) => s.mode);
+  return useMemo(() => createApi(currentFlags({ overrides }, mode), mockApi, getToken), [overrides, mode]);
 }
