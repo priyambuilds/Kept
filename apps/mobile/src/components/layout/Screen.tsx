@@ -2,7 +2,7 @@
 // status bar, a NavBar (flows) or AppHeader (tabs) bar, a scroll column 20 from the edges with gap 14,
 // and pinned actions 34 from the bottom. Each screen hosts its own Keeper (ScreenKeeper): the note drops
 // under the bar and closes when the screen loses focus, so it can never leak onto another screen.
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -81,7 +81,10 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   // motion.md › Screen-level choreography: block i enters at 40 + 65·i ms (a Keeper that moved into the
   // mark takes no slot); pinned actions at 200 ms. Tab screens stay mounted, so they replay on focus.
   const replay = useFocusReplay(kind === "tab");
-  const blocks = flattenBlocks(children).filter((c) => !isNoteOnlyKeeper(c, kind));
+  const all = flattenBlocks(children);
+  const blocks = all.filter((c) => !isNoteOnlyKeeper(c, kind));
+  // A Keeper that moved into the mark still mounts (it registers its line) but takes no slot or gap.
+  const noteOnly = all.filter((c) => isNoteOnlyKeeper(c, kind));
   const entered = blocks.map((c, i) => <Enter key={c.key ?? `b${i}`} index={i} replay={replay}>{c}</Enter>);
   const pinnedBlocks = pinned ? flattenBlocks(pinned).map((c, i) => <Enter key={c.key ?? `p${i}`} delay={PINNED_ENTER + 65 * i} replay={replay}>{c}</Enter>) : null;
   const noteTop = insets.top + (devnet ? metrics.statusBar.badgeRow : 0) + m.barGap + (kind === "tab" ? k.topHeader : k.topNav) - metrics.header.top;
@@ -104,9 +107,10 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
           {entered}
         </ScrollView>
       ) : (
-        <View style={{ flex: 1, paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, gap: m.gap }}>{top}{children}</View>
+        <View style={{ flex: 1, paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, gap: m.gap }}>{top}{blocks.map((c, i) => <Fragment key={c.key ?? `b${i}`}>{c}</Fragment>)}</View>
       )}
       {pinned ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinnedBlocks}</PinnedActions> : null}
+      {bare ? null : noteOnly.map((c, i) => <Fragment key={c.key ?? `k${i}`}>{c}</Fragment>)}
       {keeper.note ? <View pointerEvents="box-none" style={{ position: "absolute", left: 0, right: 0, top: noteTop, zIndex: 45 }}>{keeper.note}</View> : null}
     </View>
     </keeper.Provider>
