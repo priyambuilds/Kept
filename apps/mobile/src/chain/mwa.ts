@@ -102,13 +102,16 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
     const sim = await c.simulateTransaction(tx);
     if (sim.value.err) throw new Error(`Simulation failed: ${JSON.stringify(sim.value.err)}\n${(sim.value.logs ?? []).join("\n")}`);
     const minContextSlot = await c.getSlot("confirmed");
+    const latest = await c.getLatestBlockhash("confirmed");
+    tx.recentBlockhash = latest.blockhash;
+    tx.lastValidBlockHeight = latest.lastValidBlockHeight;
     const [signature] = await run(async (w) => {
       const key = await authorize(w);
       if (!key.equals(payer)) throw new Error(`Wallet switched accounts: expected ${payer.toBase58()}, got ${key.toBase58()}`);
       return w.signAndSendTransactions({ transactions: [tx], minContextSlot }); // Phantom rejects without minContextSlot
     });
     if (!signature) throw new Error("Wallet returned no signature");
-    const res = await c.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, "confirmed");
+    const res = await c.confirmTransaction({ signature, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, "confirmed");
     if (res.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(res.value.err)}`);
     return signature;
   } catch (e) {
