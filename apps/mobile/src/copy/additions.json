@@ -94,5 +94,10 @@
     "colour": "Colour {n}",
     "banner": "Banner {n}",
     "unread": "{n} unread"
+  },
+  "placeholder": {
+    "$source": "dev: shown on screens not built yet (Phase 2 shell)",
+    "note": "Built in a later phase. Tap through to the screens it leads to.",
+    "leadsTo": "LEADS TO"
   }
 }

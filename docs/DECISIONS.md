@@ -1,9 +1,9 @@
 # KEPT: Decisions and assumptions
 
 Every open decision from `design/rules.md`, plus everything else I found ambiguous, with the assumption I'll build with.
-**Status:** `DECIDED` = answered by the product owner (2026-10-09) · `ACCEPTED` = my assumption, accepted by the product owner on 2026-10-09 · `ASK` = still open. Where the build differs from the design, it's also in `BACKEND_GAPS.md`.
+**Status:** `DECIDED` = answered by the product owner (2026-10-09) · `ACCEPTED` = my assumption, accepted by the product owner on 2026-10-09 · `ASSUMED` = made during a build phase, not yet reviewed · `ASK` = still open. Where the build differs from the design, it's also in `BACKEND_GAPS.md`.
 
-All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. No open items.
+All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. Phase 2 added D-35 to D-42 (section E) for review.
 
 ## Rules amendments (owner-approved, 2026-10-09)
 `design/` is read-only in this repo (CLAUDE.md), so these amendments to `design/rules.md` live here. They override rules.md where they conflict, and `packages/engine` implements them.
@@ -17,6 +17,7 @@ All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24)
 These strings aren't in `design/copy.json`. They go in `apps/mobile/src/copy/additions.json`, which `t()` reads alongside copy.json. Each one is listed here and nowhere else:
 - `"Starts tonight at midnight"`: D1 / D2 / B1 state between Start and day 1 (amendment 1).
 - `"Win back half of what you had left."`: R1 Rematch offer (amendment 3).
+- `additions.placeholder.*`: dev-only note on screens not built yet (D-36). Removed once every screen exists.
 - Rename: creator action on D1 (sheet title, field label, save button), plus the generated-name word table (D-16). Exact wording to be proposed in Phase 3 for your review.
 
 ---
@@ -74,3 +75,18 @@ These strings aren't in `design/copy.json`. They go in `apps/mobile/src/copy/add
 | D-32 | Reanimated version | v4 (what SDK 57 ships). motion.md's APIs are unchanged. | ACCEPTED |
 | D-33 | The Keeper character | Phases 1–4 use the supplied PNG busts and poses (`assets/keeper/png`). Phase 5 ports the parametric rig from `reference/Keeper.dc.html` to `react-native-svg`, with the PNGs as the Reduce Motion / low-end fallback. | ACCEPTED |
 | D-34 | MWA 3.0 vs 2.3 | Start on 3.0 (latest, peer `@solana/web3.js ^1.99`); fall back to 2.3 if the Seeker wallet misbehaves. | ACCEPTED |
+
+## E. Phase 2 (navigation shell, mock API, sign-in)
+New assumptions made while building Phase 2. None touches money logic; all are easy to change.
+
+| # | Question | Build with | Status |
+|---|---|---|---|
+| D-35 | Where the DEVNET badge sits on a real phone (components.md: "keep the badge as an overlay row under" the real status bar) | A 24 dp row under the system status bar on every screen, badge on the left. Long-press opens the Dev menu in development builds. | ASSUMED |
+| D-36 | Unbuilt screens | Every one of the 116 ids is registered. Unbuilt ones show their id, name and a row per screen they lead to (from flows.md), so the full map can be walked on a phone. Copy for that note is in `additions.placeholder` (dev-only). | ASSUMED |
+| D-37 | A `kept://join/<code>` link while signed in | Opens E1 with the code directly on top of the current stack. While signed out the code is kept and the `cont:` rule opens E1 after A4 (flows.md). | ASSUMED |
+| D-38 | Sign-in round trips | Two wallet hand-offs like the harness: connect (to learn the address the nonce is for), then sign. Silent re-authorization makes the second one a single approval. Folding both into one session would need the nonce fetched while the wallet is in front, which the harness found unreliable on Android. | ASSUMED |
+| D-39 | Errors on A2·s other than a declined signature or no network | Back to A2 with a toast carrying the backend's message (there's no designed screen for e.g. a 500 during sign-in). | ASSUMED |
+| D-40 | The avatar picked on A4 | Saved on the device (session store) and in the mock profile until profiles exist (BACKEND_GAPS P1-9). | ASSUMED |
+| D-41 | Mock wallet | The Dev menu can swap MWA for a mock wallet (for emulators with no wallet app). It only pairs with mock auth: the real backend rejects its signature. | ASSUMED |
+| D-42 | ESLint version | ESLint 9 in `apps/mobile`: `eslint-config-expo` 57 crashes on ESLint 10. | ASSUMED |
+

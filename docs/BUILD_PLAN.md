@@ -30,6 +30,8 @@ Each phase ends with: `pnpm typecheck && pnpm lint && pnpm test` green, exact st
 **Phone milestone:** install the dev build; the app opens straight into the **Gallery**. Scroll every component and state on the device: buttons, OathCard, HPPanel at 100/40/20, DayMemberGrid 7 and 14 days, ProofCamera states, SignStatus, sheets, toasts, KeeperNote.
 
 ## Phase 2: Navigation shell, mock API, real sign-in
+**Status: done** (2026-10-09). Typecheck, lint and tests green (mobile: 56 tests, including an onboarding run through the real navigator on mocks). Android bundle builds. Real sign-in is coded against the backend but not yet tried on a device with a wallet.
+
 - React Navigation tree per flows.md: Tabs with the custom TabBar, PlusButton → `+` sheet, Bell → N1 stub, BalanceChip → W1 stub, KeeperMark → KeeperNote host, Toast/FX/Offline hosts, the `kept://join/<code>` deep link, `useSigningFlow` replace semantics. Every route ID registered (unbuilt screens render a labelled placeholder).
 - `KeptApi` with `http` and `mock` slices, flags, Dev menu (long-press DEVNET), scenarios and the virtual clock.
 - `TxService` interface with the mock implementation, and the real MWA session.

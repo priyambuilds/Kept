@@ -2,7 +2,7 @@
 
 **For:** the backend / Solana program developer.
 **Source of truth:** `design/rules.md` and `design/screens.md`. Where the backend differs, the backend should change unless we agree otherwise (decisions in `docs/DECISIONS.md`).
-**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1: components and Gallery only, no app-to-backend calls yet, so no new gaps). Every item below was checked by reading the file and line cited.
+**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1; updated at the end of Phase 2, when the app started calling the backend for sign-in). Every item below was checked by reading the file and line cited.
 
 **Paths.** Phase 0 moved the code with `git mv` and didn't change it, so line numbers are unchanged:
 `backend/src` → `apps/api/src` · `backend/prisma` → `apps/api/prisma` · `backend/scripts` → `apps/api/scripts` · `backend/kept-example/program` → `programs/kept` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `apps/api/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `programs/kept/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `apps/api/prisma/schema.prisma`. Other `backend/…` paths below map the same way.
@@ -93,6 +93,7 @@
   - `GET /api/me/oaths` → `{ oaths: Array<{ oath: string; role: "creator"|"member"; status: "open"|"waiting"|"active"|"settled"|"cancelled"|"broken"; isSolo: boolean; name: string|null; goalText: string|null; objectId: number; numDays: number; stake: string; startsAt: string|null }> }`. Can be built from program events or `getProgramAccounts` with a memcmp on the four member slots (offset `139 + 44·i`). Until it exists the app reads Oath accounts from RPC itself (as the harness did) for the Oaths it created or joined on this device.
   - `GET /api/oaths/:oath` (members) → `{ oath: OathRead & { tzOffsetMinutes, stake, isSolo }, details: { goalText, name, reviewMode }, today: { dayIndex, dayEndsAt, proof: Record<wallet, "none"|"photo1"|"kept"|"review"> } }`. Extends the existing `GET /api/oaths/:oath/details`.
   - `GET /api/balances` → `{ skr: string; sol: string }` (base units). Optional: the app can read these from RPC directly, and will until this exists.
+  - **App today (Phase 2):** the BalanceChip reads SOL and SKR from RPC (`getParsedTokenAccountsByOwner` on the stake mint, so SPL and Token-2022 both work). That needs the mint in the app's env (`EXPO_PUBLIC_STAKE_MINT`); a balances route would remove that coupling.
 - Settlement numbers on J1, D4 and L1–L6 come from the on-chain `member.payout` (D-14), so no settlement route is needed.
 
 ### P0-11. Proof photos are stored, and members can view each other's · CONFIRMED (privacy)
@@ -156,6 +157,7 @@
 - **Now:** only `GET /api/me` (Genesis status, `v4.ts:40-48`).
 - **Design** (I1–I9): my profile and someone else's, a creator profile (bio, links, verified, hosted Bounties, total paid out, follow), activity (I5), visibility (I7), edit (I8), avatar builder (I9, 8-digit avatar config).
 - **Change:** a `Profile` table (name, handle, avatar config, banner, bio, socials, visibility) and routes `GET /api/profiles/:wallet`, `PATCH /api/me/profile`, `GET /api/me/activity`, follow/unfollow.
+- **App today (Phase 2):** the avatar picked on A4 is kept on the device and in the mock profile (`ProfileApi.save`, coded against the `Profile` schema in `packages/shared/src/proposed.ts`). Once `PATCH /api/me/profile` exists, onboarding saves it there.
 
 ### P1-10. Bounties · CONFIRMED
 - **Now:** none in this code (program or API).
@@ -173,6 +175,7 @@
 - **Done:** FCM v1 sending (`v4.ts:231-262`), device token registration (`v4.ts:195-199`), nudge push with one-per-day dedupe (`v4.ts:201-215`, `schema:49-57`), and the 2-hour deadline reminder (`v4.ts:286-294`). This matches the design's 2 h threshold. FCM delivery is still unverified per the README.
 - **Missing:** an inbox store with done/undone state (N1), and these pushes: review requested, Oath started, daily recap ready, Oath broken, Rematch available (+ reminder 1 day before the window closes), someone joined your Rematch, ready to claim, Bounty start/end, followed creator posted a Bounty.
 - **Change:** a `Notification` table, `GET /api/inbox`, `POST /api/inbox/:id/done`, and the push types above, sent from the same events.
+- **App today (Phase 2):** the bell count on every tab header is `unread` from the mock inbox (`InboxResponse` in `packages/shared/src/proposed.ts`: `{items: InboxItem[], unread: number}`, `unread` = items with `needsAction`).
 
 ### P1-12. Wallet screens (W1–W4) · PARTLY DONE
 - **Done:** a 5,000 SKR Devnet faucet (`v4.ts:73-98`).
@@ -204,6 +207,7 @@
 5. **Legacy V3 surface** · CONFIRMED. `migrate_keeper` and the Keeper streak counters (`lib.rs:217-223`, `state.rs:18-27`), dead uncompiled V3 Rust files in `programs/kept_test/src/` (`constants.rs`, `day.rs`, `errors.rs`, `events.rs`, `instructions/`; `lib.rs:4` only declares `mod state`), V3 Prisma migrations for `Payment`, `User`, `AuraMint` that the schema no longer models, and a stale crate description "Keeper XP, streak and Soul" (`Cargo.toml:4`, copied into the IDL metadata). XP, levels, ranks and NFTs aren't in the app (rules.md §9).
 6. **Stale code in the harness chain folder** · NEW. `chain/idl.ts` embeds the old V3 IDL (`buy_soul`, `check_in`), `chain/errors.ts` only maps V3 errors, `constants.ts` is V3, and `chain/oaths.ts:4` imports `@noble/hashes` without declaring it. The JSON IDL `chain/idl/kept_test.json` **is** V4. The new `packages/chain` uses only the JSON IDL.
 7. **Android app identity drift** · NEW. Three package names in three places: `assetlinks.ts` serves `com.kept.backendtest`, `backend/assetlinks.json` lists `app.kept.mobile` and `com.kept.testharness`, and the harness `app.json` uses `com.kept.backendtest`. The new app's package name and debug and release fingerprints must be added (DECISIONS D-22).
+   **Phase 2 impact:** the new app (`app.kept.mobile`) now signs in through MWA with identity URI `EXPO_PUBLIC_APP_IDENTITY_URI`. Until the served `/.well-known/assetlinks.json` (`apps/api/src/routes/assetlinks.ts:10-18`) lists `app.kept.mobile` with the debug-keystore fingerprint (`FA:C6:17:45:…:3B:9C`, the same Expo debug key), wallets show "identity could not be verified" and may not re-authorize silently, so every transaction asks to connect again.
 8. **Thin tests** · NEW. `backend/test/v4.test.ts` has 3 tests, all on pure helpers (`auth`, `proofRejection`, `nudgeRejection`). No route, scheduler or decoder tests. The program has LiteSVM tests (`tests/v4.test.ts`, 14 cases) and 6 Rust unit tests for the payout function that will be replaced (`lib.rs:252-261`).
 9. **Duplicated hand-written decoders** · NEW. The Oath account layout is decoded by byte offset in the API (`v4.ts:362-376`) and the app (`oaths.ts:20-27`), with hand-hashed discriminators (`v4.ts:326, 379`). Any layout change (P0-5, P1-1, P1-2) breaks both silently. Use the IDL coder (`packages/chain`).
 10. **Odds:** display-only, computed in the app from the kept rate (rules.md §8). No backend work.

@@ -7,3 +7,7 @@ jest.mock("react-native-reanimated", () => {
   // every component renders its end state and no count-up or loop schedules frames.
   return { ...mock, useReducedMotion: () => true };
 });
+
+// Native modules the Phase 2 shell touches.
+jest.mock("@react-native-async-storage/async-storage", () => require("@react-native-async-storage/async-storage/jest/async-storage-mock"));
+jest.mock("@solana-mobile/mobile-wallet-adapter-protocol-web3js", () => ({ transact: jest.fn(() => Promise.reject(new Error("MWA is not available in tests"))) }));
