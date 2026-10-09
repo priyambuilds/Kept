@@ -84,6 +84,8 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
     if (!nav) return;
     const a = nav.addListener("focus", () => setFocused(true));
     const b = nav.addListener("blur", () => { setFocused(false); close(); });
+    // The first focus can fire before this subscribes (a reset, a deep link): read it once now.
+    setFocused(nav.isFocused());
     return () => { a(); b(); };
   }, [nav, close]);
   useEffect(() => disarm, [disarm]);
