@@ -258,8 +258,8 @@ export function I7() {
       <BodyText mono text={t("screens.I7.b5.text")} />
       {seg("socials", 6)}
       <RowList rows={[
-        { title: t("screens.I7.b7.r0.t"), sub: t("screens.I7.b7.r0.s"), toggle: { on: s.findByName, onChange: (findByName) => s.set({ findByName }) } },
-        { title: t("screens.I7.b7.r1.t"), sub: t("screens.I7.b7.r1.s"), toggle: { on: s.anyoneInvite, onChange: (anyoneInvite) => s.set({ anyoneInvite }) } },
+        { title: t("screens.I7.b7.r0.t"), sub: t("screens.I7.b7.r0.s"), leading: { kind: "icon", icon: "magnify" }, toggle: { on: s.findByName, onChange: (findByName) => s.set({ findByName }) } },
+        { title: t("screens.I7.b7.r1.t"), sub: t("screens.I7.b7.r1.s"), leading: { kind: "icon", icon: "email-outline" }, toggle: { on: s.anyoneInvite, onChange: (anyoneInvite) => s.set({ anyoneInvite }) } },
         { title: t("screens.I7.b8.r0.t"), leading: { kind: "icon", icon: "eye-outline" }, chevron: true, onPress: () => go("I2·me") },
       ]} />
     </Screen>
