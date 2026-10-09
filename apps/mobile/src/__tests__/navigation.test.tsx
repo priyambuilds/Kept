@@ -126,7 +126,7 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("screens.C6.b1.row0.v", { goal: "read 20 pages" }))).toBeTruthy();
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.C6.pin.0") }));
     expect(await screen.findByText(t("screens.C7·ok.b2.title", { amount: "1,000" }), {}, slow)).toBeTruthy();
-    expect(useUi.getState().fx?.kind).toBe("coins");
+    expect(useUi.getState().fx?.feel).toBe("payout");
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.C7·ok.pin.0") }));
     expect(await screen.findByText(t("screens.C8.b0.title"))).toBeTruthy();
     // The moment's coins stay with it: leaving C7·ok clears the FX layer.

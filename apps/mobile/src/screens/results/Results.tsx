@@ -71,7 +71,7 @@ export function J1ok() {
   const { amount = "" } = useParams<{ amount: string }>();
   const playFx = useUi((s) => s.playFx);
   const k = keeperLines("J1·ok")[0]!;
-  useEffect(() => { playFx("coins", [{ text: `+${amount} ${t("common.currency")}`, icon: "sack" }]); }, [playFx, amount]);
+  useEffect(() => { playFx(undefined, [{ text: `+${amount} ${t("common.currency")}`, icon: "sack" }], "payout"); }, [playFx, amount]);
   return (
     <Screen bar={<NavBar onBack={() => reset("B1")} close />} bottomInset={pinned(1)}
       pinned={<><Button kind="p" label={t("screens.J1·ok.pin.0")} onPress={() => reset("B1")} /></>}>
@@ -151,7 +151,7 @@ function useResult() {
 function GroupSettled({ missed }: { missed: boolean }) {
   const { go } = useGo();
   const { view, mine, playFx } = useResult();
-  useEffect(() => { if (view && !missed) playFx("coins", [{ text: `+${skrWhole(mine?.won ?? 0n)} ${t("common.currency")}`, icon: "sack" }]); }, [view, missed, mine, playFx]);
+  useEffect(() => { if (view && !missed) playFx(undefined, [{ text: `+${skrWhole(mine?.won ?? 0n)} ${t("common.currency")}`, icon: "sack" }], "payout"); }, [view, missed, mine, playFx]);
   if (!view || !mine) return null;
   const id = missed ? "L2" : "L1";
   const k = keeperLines(id)[0]!;
@@ -208,7 +208,7 @@ export function L3() {
 function SoloSettled({ missed }: { missed: boolean }) {
   const { go } = useGo();
   const { view, mine, playFx } = useResult();
-  useEffect(() => { if (view && !missed) playFx("coins"); }, [view, missed, playFx]);
+  useEffect(() => { if (view && !missed) playFx(undefined, [], "payout"); }, [view, missed, playFx]);
   if (!view || !mine) return null;
   const id = missed ? "L4·m" : "L4";
   const k = keeperLines(id)[0]!;

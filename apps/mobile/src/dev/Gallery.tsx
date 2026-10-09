@@ -292,14 +292,13 @@ export function Gallery() {
           <Button kind="s" label={k("screens.+._name")} onPress={() => setSheet(true)} />
           <Button kind="s" label={t("toasts.0")} onPress={() => toast(t("toasts.0"))} />
           <ButtonRow>
-            <Button kind="l" size="row" label="coins" onPress={() => setFx((f) => ({ kind: "coins", n: (f?.n ?? 0) + 1 }))} />
             <Button kind="d" size="row" label="embers" onPress={() => setFx((f) => ({ kind: "embers", n: (f?.n ?? 0) + 1 }))} />
           </ButtonRow>
           <Button kind="t" label={k("screens.+.b3.btn.0")} onPress={() => setFx(null)} />
         </Section>
       </ScrollView>
 
-      {fx ? <FxLayer key={fx.n} kind={fx.kind} pills={fx.kind === "coins" ? [{ text: "+43 SKR", icon: "sack" }, { text: k("screens.F5.b3.chip.2"), icon: "fire" }] : []} /> : null}
+      {fx ? <FxLayer key={fx.n} kind={fx.kind} pills={[{ text: "+43 SKR", icon: "sack" }, { text: k("screens.F5.b3.chip.2"), icon: "fire" }]} /> : null}
       {note ? <KeeperNote mood={line.mood} line={line.line} onClose={() => setNote(false)} top={insets.top + metrics.keeperNote.topHeader - metrics.header.top} /> : null}
       <BottomSheet visible={sheet} onClose={() => setSheet(false)} bottomInset={insets.bottom}>
         <Title heading={k("screens.+.b0.title")} pt={space[4]} fs={26} />

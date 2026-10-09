@@ -163,7 +163,7 @@ export function W3ok() {
   const { replace } = useGo();
   const balances = useBalances();
   const playFx = useUi((s) => s.playFx);
-  useEffect(() => { playFx("coins", [{ text: t("screens.W3·ok.b1.chip"), icon: "sack" }]); }, [playFx]);
+  useEffect(() => { playFx(undefined, [{ text: t("screens.W3·ok.b1.chip"), icon: "sack" }], "payout"); }, [playFx]);
   return (
     <Screen bar={<NavBar onBack={() => replace("W1")} close />} bottomInset={pinned(2)} pinned={<>
       <Button kind="p" label={t("screens.W3·ok.pin.0")} onPress={() => replace("W1")} />

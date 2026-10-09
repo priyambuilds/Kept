@@ -178,7 +178,7 @@ export function C7ok() {
   const stake = view ? skrWhole(view.facts.stake) : "";
   useEffect(() => {
     reset();
-    playFx("coins", [{ text: t("screens.C7·ok.b1.chip", { amount: stake }), icon: "sack" }]);
+    playFx(undefined, [{ text: t("screens.C7·ok.b1.chip", { amount: stake }), icon: "sack" }], "payout");
   }, [reset, playFx, stake]);
   const solo = view?.facts.isSolo;
   return (

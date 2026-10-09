@@ -64,7 +64,7 @@ export const metrics = {
   brand: { splashTile: 112, splashRadius: 28, splashMark: 90, word: 32, stampTile: 22, stampMark: 18, lockTile: 44, lockRadius: 13, lockMark: 36 },
   note: { icon: 14, padX: 12 },
   decor: [{ x: -26, y: 120, s: 130, r: -14 }, { x: 290, y: 420, s: 96, r: 12 }, { x: 30, y: 660, s: 70, r: 8 }] as const,
-  fx: { coinBurst: 14, coinFall: 12, embers: 22, origin: { x: 183, y: 430 }, coin: 24, coinSizes: [20, 26, 32] as const, emberSizes: [4, 6, 8] as const,
+  fx: { embers: 22, emberSizes: [4, 6, 8] as const,
     pill: { h: 42, padL: 11, padR: 17, icon: 17, gap: 6, rise: 60 } },
   hitSlop: 44,
   minTouch: 48,

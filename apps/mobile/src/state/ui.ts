@@ -25,7 +25,7 @@ export const useUi = create<UiState>()((set) => ({
   fx: null, devMenu: false,
   playFx: (kind, pills = [], feel, route) => set((s) => ({
     fx: {
-      ...(kind ? { kind } : {}), pills, feel: feel ?? (kind === "coins" ? "payout" : kind === "embers" ? "broken" : "none"), id: (s.fx?.id ?? 0) + 1,
+      ...(kind ? { kind } : {}), pills, feel: feel ?? (kind === "embers" ? "broken" : "none"), id: (s.fx?.id ?? 0) + 1,
       ...(route ?? currentRouteKey() ? { route: route ?? currentRouteKey()! } : {}),
     },
   })),
