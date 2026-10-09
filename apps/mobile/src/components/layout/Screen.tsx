@@ -37,7 +37,10 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
       ) : null}
       {bar ? <View style={{ paddingHorizontal: m.padX, marginTop: m.barGap }}>{bar}</View> : null}
       {bare ? <View style={{ flex: 1 }}>{children}</View> : scroll ? (
-        <ScrollView contentContainerStyle={{ paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, paddingBottom: insets.bottom + bottomInset + m.gap, gap: m.gap }} keyboardShouldPersistTaps="handled">
+        // With pinned actions the column ends 14 above them, like the prototype, so content is clipped
+        // there instead of scrolling behind (and showing between) the buttons.
+        <ScrollView style={pinned ? { marginBottom: insets.bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap, gap: m.gap }}>
           {children}
         </ScrollView>
       ) : (

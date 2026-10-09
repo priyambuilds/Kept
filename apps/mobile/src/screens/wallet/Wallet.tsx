@@ -166,7 +166,7 @@ export function W3ok() {
   return (
     <Screen bar={<NavBar onBack={() => replace("W1")} close />} bottomInset={pinned(2)} pinned={<>
       <Button kind="p" label={t("screens.W3·ok.pin.0")} onPress={() => replace("W1")} />
-      <Button kind="s" label={t("screens.W3·ok.pin.1")} onPress={() => replace("C1")} />
+      <Button kind="t" label={t("screens.W3·ok.pin.1")} onPress={() => replace("C1")} />
     </>}>
       <SignStatus state="success" chip={t("screens.W3·ok.b1.chip")} />
       <Title heading={t("screens.W3·ok.b2.title")} sub={balances.data ? t("screens.W3·ok.b2.sub", { amount: skrWhole(balances.data.skr) }) : undefined} align="center" />

@@ -1,5 +1,5 @@
 // Screenshots every design screen from the running dev build (Phase 4.5).
-//   node scripts/shoot.ts [--ids A0,B1,C7·no] [--settle 2200] [--out ../../artifacts/screens]
+//   node scripts/shoot.mts [--ids A0,B1,C7·no] [--settle 2200] [--out ../../artifacts/screens]
 // Needs an emulator or phone on adb with the dev build installed and Metro running. For each id it
 // opens kept://dev/open/<route>?…, waits for the screen to settle, saves <id>.png and records the
 // logcat errors (JS console.error, red boxes, native crashes) in report.json next to them.
@@ -11,8 +11,9 @@ const here = path.dirname(new URL(import.meta.url).pathname);
 const root = path.resolve(here, "../../..");
 const arg = (name: string, d: string) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1]! : d; };
 const out = path.resolve(arg("out", path.join(root, "artifacts/screens")));
-const settle = Number(arg("settle", "2200"));
+const settle = Number(arg("settle", "3500"));
 const PKG = "app.kept.mobile";
+const DEV_CLIENT = "exp+kept://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081";
 const sdk = process.env.ANDROID_HOME ?? path.join(process.env.HOME!, "Library/Android/sdk");
 const ADB = path.join(sdk, "platform-tools/adb");
 
@@ -27,9 +28,11 @@ const HOLD = new Set(["A0", "A2·s", "C7", "D1·go", "D1·xs", "E2·s", "R2", "J
 const adb = (...a: string[]) => execFileSync(ADB, a, { encoding: "utf8", maxBuffer: 64 << 20 });
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const pidOf = () => spawnSync(ADB, ["shell", "pidof", PKG], { encoding: "utf8" }).stdout.trim();
+/** The app (not the dev client's launcher) is on top. */
+const appOnTop = () => /topResumedActivity=.*app\.kept\.mobile\/\.MainActivity/.test(adb("shell", "dumpsys", "activity", "activities"));
 
 function errorsSince(): string[] {
-  const log = adb("logcat", "-d", "-v", "brief", "ReactNativeJS:E", "ReactNative:E", "AndroidRuntime:E", "unknown:ReactNative:E", "*:S");
+  const log = adb("logcat", "-d", "-v", "brief", "ReactNativeJS:E", "ReactNative:E", "AndroidRuntime:E", "*:S");
   return log.split("\n").filter((l) => /^[EF]\//.test(l)).map((l) => l.trim());
 }
 
@@ -40,11 +43,17 @@ async function main() {
     // Camera permission: revoked for F1·perm, granted for everything else (either kills the app).
     const perm = id === "F1·perm" ? "revoke" : "grant";
     spawnSync(ADB, ["shell", "pm", perm, PKG, "android.permission.CAMERA"]);
-    const cold = !pidOf();
+    if (!pidOf() || !appOnTop()) {
+      // The dev client needs the bundle URL first; a kept:// link alone opens its launcher.
+      adb("reverse", "tcp:8081", "tcp:8081");
+      adb("reverse", "tcp:3000", "tcp:3000");
+      adb("shell", "am", "start", "-a", "android.intent.action.VIEW", "-d", `'${DEV_CLIENT}'`, PKG);
+      await sleep(12000);
+    }
     adb("logcat", "-c");
     const url = `kept://dev/open/${encodeURIComponent(routeName(id))}?mode=mock&quiet=1${HOLD.has(id) ? "&hold=1" : ""}`;
     adb("shell", "am", "start", "-W", "-a", "android.intent.action.VIEW", "-d", `'${url}'`, PKG);
-    await sleep(settle + (cold ? 6000 : 0));
+    await sleep(settle);
     const png = execFileSync(ADB, ["exec-out", "screencap", "-p"], { maxBuffer: 64 << 20 });
     writeFileSync(path.join(out, `${id}.png`), png);
     const errors = errorsSince();

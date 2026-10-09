@@ -51,8 +51,8 @@ export function G1() {
   const k = keeperLines("G1")[0]!;
   return (
     <Screen bar={<NavBar onBack={back} close title={t("screens.G1.nav.title")} />} bottomInset={pinned(2)} pinned={<>
-      <Button kind="l" icon="check-bold" label={t("screens.G1.pin.0")} disabled={busy} onPress={() => { void vote(true); }} />
-      <Button kind="d" icon="close-thick" label={t("screens.G1.pin.1")} disabled={busy} onPress={() => { void vote(false); }} />
+      <Button kind="l" icon="check" label={t("screens.G1.pin.0")} disabled={busy} onPress={() => { void vote(true); }} />
+      <Button kind="d" icon="close" label={t("screens.G1.pin.1")} disabled={busy} onPress={() => { void vote(false); }} />
     </>}>
       <Title heading={t("screens.G1.b0.title", { name: who })}
         sub={t("screens.G1.b0.sub", { oath: view.facts.name, day: r.dayIndex + 1, object: objectName(r.objectId).toLowerCase(), gesture: gestureText(r.gesture) })} />

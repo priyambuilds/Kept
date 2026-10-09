@@ -41,7 +41,7 @@ export function J1() {
   const amount = view.claimable;
   return (
     <Screen bar={<NavBar onBack={back} close title={t("screens.J1.nav.title")} />} bottomInset={amount > 0n ? pinned(1) : 0}
-      pinned={amount > 0n ? <Button kind="l" icon="sack" label={t("screens.J1.pin.0")} onPress={() => replace("J1·p", { id })} /> : undefined}>
+      pinned={amount > 0n ? <Button kind="l" icon="hand-coin-outline" label={t("screens.J1.pin.0")} onPress={() => replace("J1·p", { id })} /> : undefined}>
       <MoneyMoment value={t("screens.J1.b1.value", { amount: skrWhole(amount) })} caption={amount > 0n ? t("screens.J1.b1.caption") : t("additions.core.nothingToClaim")} tone="lime" />
       <Breakdown label={t("screens.J1.b2.label", { name: view.facts.name.toUpperCase() })} rows={[
         { label: t("screens.J1.b2.row0.l"), value: t("screens.J1.b2.row0.v", { amount: skrWhole(mine.start) }) },
@@ -155,7 +155,7 @@ function GroupSettled({ missed }: { missed: boolean }) {
   const k = keeperLines(id)[0]!;
   const me = view.members[view.me]!;
   const net = mine.final - mine.start;
-  const claim = <Button kind="l" icon="sack" label={t("screens.L1.pin.0", { amount: skrWhole(view.claimable || mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />;
+  const claim = <Button kind={missed ? "p" : "l"} icon="hand-coin-outline" label={t("screens.L1.pin.0", { amount: skrWhole(view.claimable || mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />;
   return (
     <Moment v={view} pins={claim} stamp={missed ? t("screens.L2.brand.stamp", { name: view.facts.name.toUpperCase() }) : t("screens.L1.brand.stamp", { name: view.facts.name.toUpperCase(), kept: me.keptDays, total: view.facts.numDays })}>
       <KeeperPlacement mood={k.mood} line={k.line} size={120} side="r" height={150} />
@@ -188,8 +188,8 @@ export function L3() {
   const dmg = view.facts.isSolo ? 35 : 20;
   return (
     <Moment v={view} pins={<>
-      <Button kind="l" label={t("screens.L3.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
-      <Button kind="s" label={t("screens.L3.pin.1")} onPress={() => go("C1")} />
+      <Button kind="l" icon="sword-cross" label={t("screens.L3.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
+      <Button kind="t" label={t("screens.L3.pin.1")} onPress={() => go("C1")} />
     </>}>
       <KeeperPlacement mood={k.mood} line={k.line} size={120} side="c" height={170} />
       <Title heading={t("screens.L3.b1.title")} sub={t("screens.L3.b1.sub", { name: view.facts.name, day })} />
@@ -210,7 +210,7 @@ function SoloSettled({ missed }: { missed: boolean }) {
   const id = missed ? "L4·m" : "L4";
   const k = keeperLines(id)[0]!;
   const me = view.members[view.me]!;
-  const claim = <Button kind="l" icon="sack" label={t("screens.L4.pin.0", { amount: skrWhole(view.claimable || mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />;
+  const claim = <Button kind={missed ? "p" : "l"} icon="hand-coin-outline" label={t("screens.L4.pin.0", { amount: skrWhole(view.claimable || mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />;
   return (
     <Moment v={view} pins={claim}>
       <KeeperPlacement mood={k.mood} line={k.line} size={120} side="r" height={150} />
@@ -246,8 +246,8 @@ export function L4b() {
   const held = view.state.held[view.me] ?? 0n;
   return (
     <Moment v={view} pins={<>
-      <Button kind="l" label={t("screens.L4·b.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
-      <Button kind="s" label={t("screens.L4·b.pin.1")} onPress={() => go("C1")} />
+      <Button kind="l" icon="sword-cross" label={t("screens.L4·b.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
+      <Button kind="t" label={t("screens.L4·b.pin.1")} onPress={() => go("C1")} />
     </>}>
       <KeeperPlacement mood={k.mood} line={k.line} size={120} side="c" height={170} />
       <Title heading={t("screens.L4·b.b1.title", { name: view.facts.name, day: (view.state.brokeOnDay ?? 0) + 1 })}

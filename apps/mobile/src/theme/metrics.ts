@@ -5,7 +5,7 @@ export const metrics = {
   contentWidth: 350,
   statusBar: { height: 48, padX: 30, badgeH: 18, badgePadX: 6, badgeRadius: 5, badgeRow: 24 },
   /** Scroll column (screens.md › Common layout): x 20–370, gap 14; content starts 10 below the bar. */
-  screen: { padX: 20, gap: 14, barGap: 8, contentTop: 10, plainTop: 10 },
+  screen: { padX: 20, gap: 14, barGap: 8, contentTop: 10, plainTop: 10, contentBottom: 28 },
   header: { top: 56, height: 42, gap: 8, markSize: 36, markRadius: 12, markIcon: 25, dot: 11, dotRing: 2.5, titleMargin: 2,
     chipH: 36, chipPadL: 9, chipPadR: 11, chipIcon: 17, chipPlus: 15, bell: 36, bellIcon: 19, badgeMin: 19, badgeRadius: 10, badgeOffset: -4, extra: 34, extraIcon: 18 },
   nav: { height: 42, gap: 12, back: 40, backIcon: 22, rightMin: 40, step: { h: 5, radius: 3, gap: 4 } },

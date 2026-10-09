@@ -125,7 +125,7 @@ export function E2() {
   const firstMiss = skrWhole(missCost(f.stake, f.numDays, 0));
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.E2.nav.title")} />} bottomInset={pinned(1)}
-      pinned={<Button kind="l" icon="sack" label={t("screens.E2.pin.0", { amount: skrWhole(f.stake) })} onPress={() => go("E2·s", { id, code })} />}>
+      pinned={<Button kind="l" icon="draw-pen" label={t("screens.E2.pin.0", { amount: skrWhole(f.stake) })} onPress={() => go("E2·s", { id, code })} />}>
       <BodyText mono text={t("screens.E2.b0.text", { name: cName.toUpperCase() })} />
       <OathCard icon={objectIcon(f.objectId)} name={f.name}
         meta={t("screens.E2.b1.meta", { name: cName, n: f.numDays, review: reviewText(f.reviewMode) })}
@@ -169,7 +169,7 @@ function E3({ id, title, sub, pins }: { id: ScreenId; title: string; sub: string
   const k = keeperLines(id)[0]!;
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.E1.nav.title")} />} bottomInset={pinned(pins.length)} pinned={<>
-      {pins.map((p, i) => <Button key={p.label} kind={i === 0 ? "p" : "s"} label={p.label} onPress={() => replace(p.to, p.params)} />)}
+      {pins.map((p, i) => <Button key={p.label} kind={i === 0 ? "p" : "t"} label={p.label} onPress={() => replace(p.to, p.params)} />)}
     </>}>
       <KeeperPlacement mood={k.mood} line={k.line} size={150} side="c" height={230} />
       <Title heading={title} sub={sub} />

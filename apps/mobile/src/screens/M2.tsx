@@ -28,7 +28,7 @@ export function M2() {
     <Screen
       bar={<NavBar onBack={() => { onlineManager.setOnline(true); back(); }} close />}
       bottomInset={metrics.button.height + metrics.pinned.bottom}
-      pinned={<Button kind="p" label={t("screens.M2.pin.0")} onPress={() => { void retry(); }} />}
+      pinned={<Button kind="p" icon="wifi-refresh" label={t("screens.M2.pin.0")} onPress={() => { void retry(); }} />}
     >
       <KeeperPlacement mood={k.mood} line={k.line} size={150} side="c" height={230} />
       <Title heading={t("screens.M2.b2.title")} sub={t("screens.M2.b2.sub")} />

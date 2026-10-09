@@ -173,7 +173,7 @@ export function H2() {
       : el.ok ? <Button kind="l" icon="trophy-outline" label={t("screens.H2.pin.0")} disabled={!open} loading={busy} onPress={() => { void join(); }} />
       : <>
         <Button kind="p" label={t("screens.H2·no.pin.0")} onPress={() => go("H1")} />
-        <Button kind="s" label={t("screens.H2·no.pin.1")} onPress={() => go("I1")} />
+        <Button kind="t" label={t("screens.H2·no.pin.1")} onPress={() => go("I1")} />
       </>}>
       <BountyCover brand={b.brand.name} logo={b.brand.logo} verified={b.brand.verified} colors={coverColors(b)} icon={objectIcon(b.objectId)} message={b.detail} />
       <RowList rows={[{ title: b.brand.name, sub: b.brand.verified ? t("screens.H2.b1.r0.s") : t("additions.bounty.creatorUnverified"), leading: { kind: "initial", initial: b.brand.logo, bg: coverColors(b)[0] }, chevron: true, onPress: () => go("I3", { name: b.brand.name }) }]} />
@@ -274,7 +274,7 @@ export function H5() {
   return (
     <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={pinned(1, true)}
       pinned={<>
-        {v.claimable > 0n ? <Button kind="l" icon="sack" label={t("screens.H5.pin.0", { amount: skrWhole(v.claimable) })} onPress={() => go("J1", { id: v.facts.id })} /> : null}
+        {v.claimable > 0n ? <Button kind="l" icon="hand-coin-outline" label={t("screens.H5.pin.0", { amount: skrWhole(v.claimable) })} onPress={() => go("J1", { id: v.facts.id })} /> : null}
         <BrandStamp text={t("screens.H5.brand.stamp", { name: b.name.toUpperCase() })} />
       </>}>
       <Title heading={t("screens.H5.b0.title", { n: b.remaining })} align="center" />
@@ -302,7 +302,7 @@ export function H6() {
   const perFinisher = b.remaining ? b.pool / BigInt(b.remaining) : 0n;
   return (
     <Screen bar={<NavBar onBack={back} title={b.name} {...(started ? { right: t("screens.D2.nav.right", { day, length: b.numDays }) } : {})} />} bottomInset={pinned(1)}
-      pinned={<Button kind="s" icon="download" label={t("screens.H6.pin.0")} disabled={!b.finishersOptIn.length} onPress={() => toast(t("toasts.11"))} />}>
+      pinned={<Button kind="p" icon="export-variant" label={t("screens.H6.pin.0")} disabled={!b.finishersOptIn.length} onPress={() => toast(t("toasts.11"))} />}>
       <Title heading={t("screens.H6.b0.title", { n: b.remaining, total: b.entrants })} />
       {b.stillInByDay.length ? <BarChart label={t("screens.H6.b1.label")} bars={b.stillInByDay.map((value, i) => ({ label: String(i + 1), value }))} /> : <Note text={t("additions.bounty.noStatsYet")} />}
       <Breakdown rows={[

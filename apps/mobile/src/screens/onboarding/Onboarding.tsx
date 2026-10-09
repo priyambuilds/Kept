@@ -67,7 +67,7 @@ export function A1() {
       bottomInset={metrics.button.height * 2 + metrics.pinned.gap + metrics.pinned.bottom}
       pinned={<>
         <Button kind="p" label={t("screens.A1.pin.0")} onPress={() => go("A2")} />
-        <Button kind="s" label={t("screens.A1.pin.1")} onPress={() => { setInvite(useSession.getState().invite ?? ""); go("A2"); }} />
+        <Button kind="t" label={t("screens.A1.pin.1")} onPress={() => { setInvite(useSession.getState().invite ?? ""); go("A2"); }} />
       </>}
     >
       <KeeperPlacement mood={k.mood} line={k.line} size={170} side="l" height={280} chips={[
@@ -135,7 +135,7 @@ export function A2e() {
       pinned={<>
         <Button kind="p" label={t("screens.A2·e.pin.0")} onPress={() => go("A2")} />
         {/* Forget the remembered authorization so the wallet chooser opens again. */}
-        <Button kind="s" label={t("screens.A2·e.pin.1")} onPress={() => { void getWallet().forget().then(() => go("A2")); }} />
+        <Button kind="t" label={t("screens.A2·e.pin.1")} onPress={() => { void getWallet().forget().then(() => go("A2")); }} />
       </>}
     >
       <KeeperPlacement mood={k.mood} line={k.line} size={150} side="c" height={230} />
@@ -188,7 +188,7 @@ export function A4() {
       bottomInset={metrics.button.height * 2 + metrics.pinned.gap + metrics.pinned.bottom}
       pinned={<>
         <Button kind="p" label={t("screens.A4.pin.0")} onPress={done} />
-        <Button kind="s" label={t("screens.A4.pin.1")} onPress={() => go("I9")} />
+        <Button kind="t" label={t("screens.A4.pin.1")} onPress={() => go("I9")} />
       </>}
     >
       <Title heading={t("screens.A4.b0.title")} sub={t("screens.A4.b0.sub")} />

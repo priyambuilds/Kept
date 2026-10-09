@@ -42,7 +42,7 @@ function Step({ n, children, next, label, disabled, close }: { n: number; childr
   const { back } = useGo();
   return (
     <Screen bar={<NavBar onBack={back} steps={[n, STEPS]} {...(close ? { close: true } : {})} />} bottomInset={pinnedOne}
-      pinned={<Button kind={n === STEPS ? "l" : "p"} label={label ?? t("screens.K1.pin.0")} onPress={next} {...(disabled ? { disabled: true } : {})} />}>
+      pinned={<Button kind={n === STEPS ? "l" : "p"} {...(n === STEPS ? { icon: "draw-pen" as const } : {})} label={label ?? t("screens.K1.pin.0")} onPress={next} {...(disabled ? { disabled: true } : {})} />}>
       {children}
     </Screen>
   );
@@ -159,7 +159,7 @@ export function K5ok() {
   const hours = WINDOWS[d.window];
   return (
     <Screen bar={<NavBar onBack={() => { reset(); replace("H1·c"); }} close />} bottomInset={pinnedOne}
-      pinned={<Button kind="p" icon="chart-bar" label={t("screens.K5·ok.pin.0")} onPress={() => { reset(); replace("H6", { id: id! }); }} />}>
+      pinned={<Button kind="p" label={t("screens.K5·ok.pin.0")} onPress={() => { reset(); replace("H6", { id: id! }); }} />}>
       <SignStatus state="success" chip={t("screens.K5·ok.b1.chip", { amount: b ? skrWhole(b.pool) : "" })} />
       <Title heading={t("screens.K5·ok.b2.title", { name: b?.name ?? "" })} sub={hours === null ? t("additions.bounty.liveUntilDay1") : t("screens.K5·ok.b2.sub", { hours: hours ?? 24 })} align="center" />
       <ButtonRow><Button kind="s" size="row" icon="share-variant" label={t("screens.K5·ok.b3.btn.0")} onPress={() => { void Share.share({ message: b?.name ?? "" }); }} /></ButtonRow>

@@ -164,7 +164,7 @@ export function F2a() {
   const k = keeperLines("F2a")[0]!;
   return (
     <Screen bar={<NavBar onBack={back} close title={navTitle(view, photo)} />} bottomInset={pinned(1)}
-      pinned={<Button kind="p" icon="camera" label={t("screens.F2a.pin.0")} onPress={() => replace(photo === 2 ? "F4" : "F1", { id, photo })} />}>
+      pinned={<Button kind="p" icon="camera-retake-outline" label={t("screens.F2a.pin.0")} onPress={() => replace(photo === 2 ? "F4" : "F1", { id, photo })} />}>
       <ProofCamera photo={photo} state="fail" object={view ? objectIcon(view.facts.objectId) : "camera"} label={c ? t("screens.F2a.b0.label", { gesture: gestureText(c.gesture) }) : ""} {...(c && gestureKey(c.gesture) ? { gesture: gestureKey(c.gesture)! } : {})} />
       <KeeperPlacement mood={k.mood} line={k.line} size={96} side="r" height={120} />
     </Screen>
@@ -193,7 +193,7 @@ export function F2c() {
   const c = useChallenge(view, photo, true);
   return (
     <Screen bar={<NavBar onBack={back} close title={view ? t("screens.F2b.nav.title", { name: view.facts.name }) : ""} />} bottomInset={pinned(1)}
-      pinned={<Button kind="p" label={t("screens.F2c.pin.0")} disabled={!c} onPress={() => replace(photo === 2 ? "F4" : "F1", { id, photo })} />}>
+      pinned={<Button kind="p" icon="refresh" label={t("screens.F2c.pin.0")} disabled={!c} onPress={() => replace(photo === 2 ? "F4" : "F1", { id, photo })} />}>
       <Title heading={t("screens.F2c.b0.title")} sub={t("screens.F2c.b0.sub")} />
       <ProofCamera photo={photo} state="idle" object={view ? objectIcon(view.facts.objectId) : "camera"} height={300}
         label={c ? t("screens.F2c.b1.label", { object: objectName(c.objectId).toLowerCase(), gesture: gestureText(c.gesture) }) : ""} {...(c && gestureKey(c.gesture) ? { gesture: gestureKey(c.gesture)! } : {})} />
@@ -208,7 +208,7 @@ export function F3() {
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(2)} pinned={<>
       <Button kind="p" icon="camera" label={t("screens.F3.pin.0")} onPress={() => replace("F4", { id, photo: 2 })} />
-      <Button kind="s" label={t("screens.F3.pin.1")} onPress={() => reset("B1")} />
+      <Button kind="t" label={t("screens.F3.pin.1")} onPress={() => reset("B1")} />
     </>}>
       <SignStatus state="success" chip={t("screens.F3.b1.chip")} />
       <Title heading={t("screens.F3.b2.title")} sub={t("screens.F3.b2.sub", { task: t("additions.core.it") })} align="center" />
@@ -244,8 +244,8 @@ export function F4ag() {
   const others = view ? view.members.filter((m) => !m.isMe).map(memberName) : [];
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(2)} pinned={<>
-      <Button kind="p" icon="account-group" label={t("screens.F4a·g.pin.0")} onPress={() => replace("G2", { id })} />
-      <Button kind="s" label={t("screens.F4a·g.pin.1")} onPress={() => reset("B1")} />
+      <Button kind="p" icon="account-group-outline" label={t("screens.F4a·g.pin.0")} onPress={() => replace("G2", { id })} />
+      <Button kind="t" label={t("screens.F4a·g.pin.1")} onPress={() => reset("B1")} />
     </>}>
       <ProofCamera state="review" object={view ? objectIcon(view.facts.objectId) : "camera"} label={t("screens.F4a·g.b0.label")} height={260} />
       <Title heading={t("screens.F4a·g.b1.title")} sub={t("screens.F4a·g.b1.sub", { names: listNames(others) })} />
@@ -267,7 +267,7 @@ export function F5() {
   const time = new Date().toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
   return (
     <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1) + 40}
-      pinned={<><Button kind="l" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.F5.brand.stamp", { day, time })} /></>}>
+      pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.F5.brand.stamp", { day, time })} /></>}>
       <KeeperPlacement mood={k.mood} line={k.line} size={130} side="c" height={190} />
       <Title heading={t("screens.F5.b1.title", { day })} align="center" fs={40} />
       {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => String(i + 1))} /> : null}

@@ -26,7 +26,11 @@ import { ROUTES, designIdOf, presentation } from "@/app/routes";
 import type { DesignId } from "@/app/routes";
 
 const W = MOCK_WALLET;
-const oath = (name: string) => mockOaths.byName(name, W)?.id ?? "";
+/** The user's seeded Oath with this name; a running or finished one before an Open one ("Iron Week" is both). */
+const oath = (name: string) => {
+  const all = mockOaths.list(W, { seeded: true }).filter((o) => o.name === name && !o.bountyId && !o.rematchOf);
+  return (all.find((o) => o.status !== "open") ?? all[0])?.id ?? "";
+};
 const bounty = (name: string) => mockBounties.byName(name)?.id ?? "";
 const rematch = () => mockOaths.rematchFor(oath("Guitar Days"))?.id ?? "";
 /** Today's day index of a running Oath (for review fixtures). */

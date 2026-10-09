@@ -95,7 +95,7 @@ export function I2() {
   if (!p) return <Screen bar={<NavBar onBack={back} title="" />}><Skeleton height={260} /></Screen>;
   const first = (p.name.split(/[.\s]/)[0] ?? p.name).replace(/^./, (c) => c.toUpperCase());
   const ring = <KeptRateRing {...rateLine(p.keptRate.rate, p.keptRate.days)} />;
-  const pin = <Button kind="p" icon="plus" label={t("screens.I2.pin.0")} onPress={() => go("C1")} />;
+  const pin = <Button kind="p" icon="account-plus-outline" label={t("screens.I2.pin.0")} onPress={() => go("C1")} />;
   if (p.visibility === "private") {
     return (
       <Screen bar={<NavBar onBack={back} title={first} />} bottomInset={pinnedOne} pinned={pin}>
@@ -150,7 +150,7 @@ export function I3() {
   const colors = tokens.color.banner[2];
   return (
     <Screen bar={<NavBar onBack={back} title={c.name} />} bottomInset={pinnedOne}
-      pinned={<Button kind={following.includes(c.name) ? "s" : "p"} icon="account-plus" label={t("screens.I3.pin.0", { name: c.name })} onPress={() => { follow(c.name); toast(t("toasts.16", { name: c.name })); }} />}>
+      pinned={<Button kind={following.includes(c.name) ? "s" : "p"} icon="account-plus-outline" label={t("screens.I3.pin.0", { name: c.name })} onPress={() => { follow(c.name); toast(t("toasts.16", { name: c.name })); }} />}>
       <BountyCover brand={c.name} logo={c.logo} verified={c.verified} colors={[colors[0]!, colors[1]!]} icon="bottle-soda-outline" message={c.tagline} />
       {c.bio ? <BodyText text={c.bio} /> : null}
       <Breakdown rows={[
@@ -302,7 +302,7 @@ export function I9() {
   const k = keeperLines("I9")[0]!;
   return (
     <Screen bar={<NavBar onBack={back} close title={t("screens.I9.nav.title")} />} bottomInset={pinnedOne}
-      pinned={<Button kind="p" label={t("screens.I9.pin.0")} onPress={() => { void profileActions.save({ avatar: config }).then(back); }} />}>
+      pinned={<Button kind="p" icon="check" label={t("screens.I9.pin.0")} onPress={() => { void profileActions.save({ avatar: config }).then(back); }} />}>
       <KeeperPlacement mood={k.mood} line={k.line} size={80} side="r" height={96} />
       <AvatarBuilder config={config} onChange={setConfig} tab={tab} onTab={setTab} onShuffle={() => setConfig(String(Math.floor(Math.random() * 1e8)).padStart(8, "0"))} />
     </Screen>

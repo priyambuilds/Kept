@@ -113,7 +113,7 @@ export function R3() {
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.R3.nav.title")} />} bottomInset={pinned(2)} pinned={<>
       <Button kind="l" icon="play" label={t("screens.R3.pin.0")} disabled={!canStart} onPress={() => go("D1·go", { id: f.id })} />
-      {out.length ? <Button kind="s" label={t("screens.R3.pin.1")} onPress={() => toast(t("toasts.6", { name: listNames(out.map(memberName)) }))} /> : null}
+      {out.length ? <Button kind="t" label={t("screens.R3.pin.1")} onPress={() => toast(t("toasts.6", { name: listNames(out.map(memberName)) }))} /> : null}
     </>}>
       <ChipRow>
         <Chip text={t("screens.R3.b0.chip.0")} icon="sword-cross" tone="ora" />
@@ -157,7 +157,7 @@ export function L6() {
   const k = keeperLines("L6")[0]!;
   return (
     <Screen bar={<NavBar onBack={() => replace("D4", { id: view.facts.id })} close />} bottomInset={pinned(1, true)}
-      pinned={<><Button kind="l" icon="sack" label={t("screens.L6.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} /><BrandStamp text={t("screens.L6.brand.stamp")} /></>}>
+      pinned={<><Button kind="l" icon="hand-coin-outline" label={t("screens.L6.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} /><BrandStamp text={t("screens.L6.brand.stamp")} /></>}>
       <KeeperPlacement mood={k.mood} line={k.line} size={120} side="r" height={150} />
       <Title heading={t("screens.L6.b1.title")} sub={t("screens.L6.b1.sub", { n: view.facts.numDays })} />
       <MoneyMoment value={t("screens.L6.b2.value", { amount: signed(recovered) })} caption={t("screens.L6.b2.caption", { name: source?.facts.name ?? view.facts.name })} tone="lime" />
@@ -187,7 +187,7 @@ function RematchResult({ lost }: { lost: boolean }) {
   ];
   return (
     <Screen bar={<NavBar onBack={back} close title={t("screens.R4.nav.title")} />} bottomInset={pinned(1)}
-      pinned={<Button kind="l" icon="sack" label={t("screens.R4.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />}>
+      pinned={<Button kind={lost ? "p" : "l"} icon="hand-coin-outline" label={t("screens.R4.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />}>
       <Title heading={t(`screens.${id}.b0.title`)} {...(!lost ? { sub: t("screens.R4.b0.sub", { n: view.facts.numDays }) } : {})} />
       <Breakdown rows={rows} />
       {lost

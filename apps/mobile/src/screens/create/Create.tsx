@@ -40,7 +40,7 @@ function Step({ n, children, next, nextLabel, disabled, close }: { n: number; ch
   const { back } = useGo();
   return (
     <Screen bar={<NavBar onBack={back} steps={[n, STEPS]} {...(close ? { close: true } : {})} />} bottomInset={pinnedOne}
-      pinned={<Button kind={n === STEPS ? "l" : "p"} label={nextLabel ?? t("screens.C1.pin.0")} onPress={next} {...(disabled ? { disabled: true } : {})} />}>
+      pinned={<Button kind={n === STEPS ? "l" : "p"} {...(n === STEPS ? { icon: "draw-pen" as const } : {})} label={nextLabel ?? t("screens.C1.pin.0")} onPress={next} {...(disabled ? { disabled: true } : {})} />}>
       {children}
     </Screen>
   );
@@ -114,7 +114,7 @@ export function C4() {
       <BodyText mono text={t("screens.C4.b2.text")} />
       <OptionGrid mode="big" small value={STAKES_SKR.indexOf(draft.stakeSkr as (typeof STAKES_SKR)[number])} onChange={(i) => set({ stakeSkr: STAKES_SKR[i]! })}
         items={STAKES_SKR.map((s, i) => ({ title: t(`screens.C4.b3.o${i}.t` as CopyKey), ...(price.data ? { sub: formatUsd(units(s), price.data.usdPerSkr) } : {}) }))} />
-      <Banner tone="ora" icon="trending-down" title={t("screens.C4.b4.title", { cost: costs[0]! })} sub={t("screens.C4.b4.sub", { second: costs[1]!, third: costs[2]! })} />
+      <Banner tone="lime" icon="sack" title={t("screens.C4.b4.title", { cost: costs[0]! })} sub={t("screens.C4.b4.sub", { second: costs[1]!, third: costs[2]! })} />
     </Step>
   );
 }
@@ -184,7 +184,7 @@ export function C7ok() {
   return (
     <Screen bottomInset={metrics.button.height * 2 + metrics.pinned.gap + metrics.pinned.bottom} pinned={<>
       {!solo ? <Button kind="p" icon="account-multiple-plus" label={t("screens.C7·ok.pin.0")} onPress={() => replace("C8", { id: id! })} /> : null}
-      <Button kind={solo ? "p" : "s"} label={t("screens.C7·ok.pin.1")} onPress={() => view && replace(screenFor(view), { id: id! })} />
+      <Button kind={solo ? "p" : "t"} label={t("screens.C7·ok.pin.1")} onPress={() => view && replace(screenFor(view), { id: id! })} />
     </>}>
       <SignStatus state="success" chip={t("screens.C7·ok.b1.chip", { amount: stake })} />
       <Title heading={t("screens.C7·ok.b2.title", { amount: stake })} sub={view ? t("screens.C7·ok.b2.sub", { name: view.facts.name }) : undefined} align="center" />

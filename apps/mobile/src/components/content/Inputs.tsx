@@ -70,7 +70,7 @@ export function OptionGrid({ items, value, onChange, mode, cols, small }: { item
                 }}>
                   {it.icon && iconSize ? <Icon name={it.icon} size={iconSize} color={fg} /> : null}
                   <View style={{ flex: mode === "row" ? 1 : 0, minWidth: 0 }}>
-                    <Text color={fg} align={m.align === "center" ? "center" : "left"} style={{ fontFamily: fontFamily("sans", 600), fontSize: fs, lineHeight: Math.round(fs * 1.1), letterSpacing: m.ls }}>{it.title}</Text>
+                    <Text color={fg} align={m.align === "center" && mode !== "row" ? "center" : "left"} style={{ fontFamily: fontFamily("sans", 600), fontSize: fs, lineHeight: Math.round(fs * 1.1), letterSpacing: m.ls }}>{it.title}</Text>
                     {it.sub ? <Text variant="caption" color={fg} style={{ opacity: 0.65, marginTop: 3 }}>{it.sub}</Text> : null}
                   </View>
                   {mode === "row" ? <Icon name={on ? "check-circle" : "circle-outline"} size={20} color={fg} /> : null}

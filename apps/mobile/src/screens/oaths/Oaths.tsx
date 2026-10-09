@@ -164,7 +164,7 @@ function OpenMember({ v }: { v: OathView }) {
   };
   return (
     <Screen bar={<NavBar onBack={back} title={f.name} />} bottomInset={f.source === "mock" ? pinned(1) : 0}
-      pinned={f.source === "mock" ? <Button kind="s" label={t("screens.D1·m.pin.0", { amount: skrWhole(f.stake) })} onPress={() => { void leave(); }} /> : undefined}>
+      pinned={f.source === "mock" ? <Button kind="d" icon="logout" label={t("screens.D1·m.pin.0", { amount: skrWhole(f.stake) })} onPress={() => { void leave(); }} /> : undefined}>
       <OpenHeader v={v} member />
       <Banner tone="vio" icon="flag-checkered" title={t("screens.D1·m.b2.title", { name: creatorName })} sub={t("screens.D1·m.b2.sub", { name: creatorName })} />
       <SeatSlots seats={seatsOf(v, true)} />
@@ -252,7 +252,7 @@ function Active({ v }: { v: OathView }) {
     <Screen bar={<NavBar onBack={back} title={f.name} right={v.life === "active" ? t("screens.D2.nav.right", { day: v.dayNumber, length: f.numDays }) : undefined} />}
       bottomInset={nPins ? pinned(nPins) : 0}
       pinned={nPins ? <>
-        {canProve ? <Button kind="p" icon="camera" label={proveLabel} onPress={() => go(myPhoto1 ? "F4" : "F1", { id: f.id })} /> : null}
+        {canProve ? <Button kind={low ? "l" : "p"} icon="camera" label={proveLabel} onPress={() => go(myPhoto1 ? "F4" : "F1", { id: f.id })} /> : null}
         {pending.length && !f.isSolo ? <Button kind="s" icon="bell-ring-outline" label={pending.length === 1 ? t("screens.D2.pin.1", { name: memberName(pending[0]!) }) : t("screens.D2·low.pin.1", { names: listNames(pending.map(memberName)) })} onPress={() => { void nudge(); }} /> : null}
       </> : undefined}>
       {f.rematchOf ? (
@@ -332,8 +332,8 @@ function Broken({ v }: { v: OathView }) {
   useEffect(() => { playFx("embers"); }, [playFx]);
   return (
     <Screen bar={<NavBar onBack={back} title={f.name} />} bottomInset={pinned(2)} pinned={<>
-      <Button kind="l" label={t("screens.D3.pin.0", { amount: skrWhole(myHeld) })} onPress={() => go("R1", { id: f.id })} />
-      <Button kind="s" label={t("screens.D3.pin.1")} onPress={() => go("C1")} />
+      <Button kind="l" icon="sword-cross" label={t("screens.D3.pin.0", { amount: skrWhole(myHeld) })} onPress={() => go("R1", { id: f.id })} />
+      <Button kind="t" label={t("screens.D3.pin.1")} onPress={() => go("C1")} />
     </>}>
       <HPPanel hp={0} lostToday={v.lastDay?.hpBefore ?? 0} note={t("screens.D3.b0.note", { day: broke })} />
       <Title heading={t("screens.D3.b1.title")} sub={t("screens.D3.b1.sub", { missed: missedText })} />
@@ -358,7 +358,7 @@ function Ended({ v }: { v: OathView }) {
   const slipped = v.members.filter((m) => m.missed.length);
   return (
     <Screen bar={<NavBar onBack={back} title={f.name} />} bottomInset={v.claimable > 0n ? pinned(1) : 0}
-      pinned={v.claimable > 0n ? <Button kind="l" icon="sack" label={t("screens.D4.pin.0", { amount: skrWhole(v.claimable) })} onPress={() => go("J1", { id: f.id })} /> : undefined}>
+      pinned={v.claimable > 0n ? <Button kind="l" icon="hand-coin-outline" label={t("screens.D4.pin.0", { amount: skrWhole(v.claimable) })} onPress={() => go("J1", { id: f.id })} /> : undefined}>
       <ChipRow>
         <Chip text={t("screens.D4.b0.chip.0", { date: shortDate(endOf(v)) })} icon="flag-checkered" tone="grey" />
         <Chip text={t("screens.D4.b0.chip.1", { hp: v.hp })} icon="heart-pulse" tone="g" />

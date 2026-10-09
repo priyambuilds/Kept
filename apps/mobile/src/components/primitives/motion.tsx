@@ -102,14 +102,18 @@ export interface PressScaleProps extends Omit<PressableProps, "style" | "childre
 }
 
 /** Pressable that scales down while pressed and never has a hit area under 48 dp. */
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export function PressScale({ children, style, scale = metrics.button.pressScale, hit, disabled, ...rest }: PressScaleProps) {
   const reduce = useReducedMotion();
   const s = useSharedValue(1);
   const a = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
   const min = metrics.minTouch;
   const slop = hit ? { top: Math.max(0, (min - hit.h) / 2), bottom: Math.max(0, (min - hit.h) / 2), left: Math.max(0, (min - hit.w) / 2), right: Math.max(0, (min - hit.w) / 2) } : undefined;
+  // The style goes on the pressable itself: on an inner view, layout styles like `flex: 1` would size
+  // the child while the Pressable (the row item) shrank to its content.
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
@@ -117,8 +121,9 @@ export function PressScale({ children, style, scale = metrics.button.pressScale,
       onPressIn={() => { if (!reduce) s.set(withTiming(scale, { duration: metrics.press.inMs })); }}
       onPressOut={() => { s.set(withTiming(1, { duration: metrics.press.outMs })); }}
       {...rest}
+      style={[style, a]}
     >
-      <Animated.View style={[style, a]}>{children}</Animated.View>
-    </Pressable>
+      {children}
+    </AnimatedPressable>
   );
 }

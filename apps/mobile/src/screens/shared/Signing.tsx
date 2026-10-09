@@ -70,7 +70,7 @@ export function C7no() {
   return (
     <Screen bottomInset={metrics.button.height * 2 + metrics.pinned.gap + metrics.pinned.bottom} pinned={<>
       <Button kind="p" label={t("screens.C7·no.pin.0")} onPress={() => replace(retry as DesignId, rest)} />
-      <Button kind="s" label={t("screens.C7·no.pin.1")} onPress={() => replace(edit as DesignId, rest)} />
+      <Button kind="t" label={t("screens.C7·no.pin.1")} onPress={() => replace(edit as DesignId, rest)} />
     </>}>
       <KeeperPlacement mood={k.mood} line={k.line} size={150} side="c" height={230} />
       <Title heading={t("screens.C7·no.b2.title")} sub={t("screens.C7·no.b2.sub")} />
@@ -86,7 +86,7 @@ export function C7fail() {
   return (
     <Screen bottomInset={metrics.button.height * 2 + metrics.pinned.gap + metrics.pinned.bottom} pinned={<>
       <Button kind="p" label={t("screens.C7·fail.pin.0")} onPress={() => replace(retry as DesignId, rest)} />
-      <Button kind="s" label={t("screens.C7·fail.pin.1")} onPress={() => replace(edit as DesignId, rest)} />
+      <Button kind="t" label={t("screens.C7·fail.pin.1")} onPress={() => replace(edit as DesignId, rest)} />
     </>}>
       <SignStatus state="fail" chip={t("screens.C7·fail.b1.chip")} />
       <Title heading={t("screens.C7·fail.b2.title")} sub={t("screens.C7·fail.b2.sub")} align="center" />

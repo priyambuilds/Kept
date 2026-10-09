@@ -1,7 +1,12 @@
 // Formatting at the edge. Amounts arrive as bigint base units and are only turned into text here.
 import { SKR_DECIMALS, SKR_UNIT } from "@kept/config";
 
-const grouped = new Intl.NumberFormat("en-US");
+/**
+ * 1234567n → "1,234,567". By hand: Hermes' Intl.NumberFormat throws on BigInt ("Cannot convert
+ * BigInt to number"), unlike Node, so Jest never saw it.
+ */
+const groupBig = (n: bigint): string => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const grouped = { format: (n: number | bigint) => groupBig(typeof n === "bigint" ? n : BigInt(Math.round(n))) };
 
 /** 1_043_000_000n → "1,043"; 779_166_667n → "779.17" (2 dp only when not whole, rounded half-up). */
 export function formatSkr(units: bigint, opts: { dp?: 0 | 2 | "auto"; sign?: boolean } = {}): string {
