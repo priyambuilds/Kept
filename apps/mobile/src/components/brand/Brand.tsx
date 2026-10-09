@@ -5,7 +5,7 @@ import Svg, { Path } from "react-native-svg";
 import { t } from "@/copy";
 import { color, duration, easing, fontFamily, gradient, metrics, space } from "@/theme";
 import { haptic } from "@/lib/haptics";
-import { CheckK, FadeIn, Pop, Surface, Text } from "../primitives";
+import { CheckK, FadeIn, Pop, Surface, Text, useAnimationLifecycle } from "../primitives";
 
 const APath = Animated.createAnimatedComponent(Path);
 /** Length of the check stroke M23 44L40 60L78 24 in the 100-unit mark. */
@@ -19,21 +19,24 @@ function CheckKReveal({ size }: { size: number }) {
   const draw = useSharedValue(reduce ? 1 : 0);
   const stem = useSharedValue(reduce ? 1 : 0);
   const leg = useSharedValue(reduce ? 1 : 0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([draw, stem, leg], () => {
     if (reduce) return;
     const ease = easing("enter");
     draw.value = withDelay(SPLASH.check, withTiming(1, { duration: duration.drawCheck, easing: ease }));
     stem.value = withDelay(SPLASH.stem, withTiming(1, { duration: SPLASH.inMs, easing: ease }));
     leg.value = withDelay(SPLASH.leg, withTiming(1, { duration: SPLASH.inMs, easing: ease }));
+  }, [reduce]);
+  useEffect(() => {
+    if (reduce) return;
     const id = setTimeout(haptic.light, SPLASH.check);
     return () => clearTimeout(id);
-  }, [reduce, draw, stem, leg]);
+  }, [reduce]);
   const checkP = useAnimatedProps(() => ({ strokeDashoffset: CHECK_LEN * (1 - draw.value) }));
   const stemP = useAnimatedProps(() => ({ opacity: stem.value }));
   const legP = useAnimatedProps(() => ({ opacity: leg.value }));
   const ink = color.text.onLime;
   return (
-    <Svg viewBox="0 0 100 100" width={size} height={size} accessible={false}>
+    <Svg onLayout={onLayout} viewBox="0 0 100 100" width={size} height={size} accessible={false}>
       <APath animatedProps={legP} d="M54 45L78 76" fill="none" stroke={ink} strokeWidth={15} strokeLinecap="round" />
       <APath animatedProps={checkP} d="M23 44L40 60L78 24" fill="none" stroke={ink} strokeWidth={15} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={`${CHECK_LEN} ${CHECK_LEN}`} />
       <APath animatedProps={stemP} d="M23 24V76" fill="none" stroke={ink} strokeWidth={15} strokeLinecap="round" />

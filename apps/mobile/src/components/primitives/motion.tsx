@@ -4,16 +4,18 @@
 //   Knock (kKnock), Shake (proof fail), Loop (beat, breath, float, spin, pulse, ping, glow)
 // - CountText: the 900 ms ease-out-cubic count-up as a leaf Text, so only the number re-renders
 // - PressScale: pressed scale with a 48 dp hit area
-import { Children, Fragment, isValidElement, useEffect, useState } from "react";
+import { Children, Fragment, isValidElement, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactElement, ReactNode } from "react";
 import { Pressable } from "react-native";
 import type { PressableProps, StyleProp, TextStyle, ViewStyle } from "react-native";
 import Animated, {
   Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming,
 } from "react-native-reanimated";
+import type { SharedValue } from "react-native-reanimated";
 import { duration, easing, metrics } from "@/theme";
 import type { EasingName } from "@/theme";
 import { groupDigits } from "@/lib/format";
+import { useScreenFocused } from "@/lib/focus";
 import { Text } from "./Text";
 import type { TextProps } from "./Text";
 
@@ -21,22 +23,51 @@ export { useReducedMotion };
 
 const inOut = Easing.inOut(Easing.ease);
 
+/**
+ * The lifecycle every animated view here follows (audit P-6). Reanimated 4 writes animated props straight
+ * to the native view; an update for a view that isn't mounted yet, or was just deleted, fails, is retried
+ * every frame and logs a stack trace each time on the UI thread (thousands per screen change, one ANR).
+ * So:
+ * - `start` runs on the view's first layout (it exists natively by then) and again when `deps` change;
+ * - every value in `values` is cancelled in a layout-effect cleanup: that runs in the same commit that
+ *   deletes the view, so the cancel reaches the UI thread before the deletion does;
+ * - with `pauseOnBlur`, loops stop while their screen is covered and start again on focus.
+ * Returns the `onLayout` to put on the animated view.
+ */
+export function useAnimationLifecycle(values: SharedValue<number>[], start: () => void, deps: unknown[], opts?: { pauseOnBlur?: boolean }): (() => void) | undefined {
+  const focused = useScreenFocused();
+  const live = !opts?.pauseOnBlur || focused;
+  const startRef = useRef(start);
+  const valuesRef = useRef(values);
+  useLayoutEffect(() => { startRef.current = start; valuesRef.current = values; });
+  useEffect(() => {
+    if (!live) { valuesRef.current.forEach(cancelAnimation); return; }
+    // One frame after the commit that mounted (or changed) the view.
+    const id = requestAnimationFrame(() => startRef.current());
+    return () => cancelAnimationFrame(id);
+    // `deps` are the caller's inputs; start/values are read through refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live, ...deps]);
+  useLayoutEffect(() => () => { valuesRef.current.forEach(cancelAnimation); }, []);
+  return undefined;
+}
+
 /** kPop: scale .4 → 1.08 (65 %) → 1, opacity 0 → 1 (65 %). `ease`: spring (default) or springHard. */
 export function Pop({ children, delay = 0, ms = duration.pop, ease = "spring", style }: { children: ReactNode; delay?: number; ms?: number; ease?: EasingName; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(reduce ? 1 : 0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     // Two segments like the CSS keyframes, each with the token's curve.
     const e = easing(ease);
     p.value = withDelay(delay, withSequence(withTiming(0.65, { duration: ms * 0.65, easing: e }), withTiming(1, { duration: ms * 0.35, easing: e })));
-  }, [reduce, delay, ms, ease, p]);
+  }, [reduce, delay, ms, ease]);
   const a = useAnimatedStyle(() => {
     const v = p.value;
     const scale = v <= 0.65 ? 0.4 + (0.68 * v) / 0.65 : 1.08 - (0.08 * (v - 0.65)) / 0.35;
     return { opacity: Math.min(1, v / 0.65), transform: [{ scale }] };
   });
-  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
 /** kInA: opacity 0 → 1, translateY 16 → 0, scale .98 → 1 over 500 ms `enter` (block i waits 40 + 65·i ms). */
@@ -44,59 +75,59 @@ export function Enter({ children, index = 0, delay, replay = 0, style }: { child
   const reduce = useReducedMotion();
   const p = useSharedValue(reduce ? 1 : 0);
   const wait = delay ?? enterDelay(index);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     p.value = 0;
     p.value = withDelay(wait, withTiming(1, { duration: duration.enter, easing: easing("enter") }));
-  }, [reduce, wait, p, replay]);
+  }, [reduce, wait, replay]);
   const a = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ translateY: 16 * (1 - p.value) }, { scale: 0.98 + 0.02 * p.value }] }));
-  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 /** motion.md › Screen-level choreography: block i enters at 40 + 65·i ms. */
 export const enterDelay = (i: number) => 40 + 65 * i;
 
 /** kIn: opacity 0 → 1, translateY 10 → 0 (250–400 ms ease-out). */
-export function FadeIn({ children, delay = 0, ms = 300, style }: { children: ReactNode; delay?: number; ms?: number; style?: StyleProp<ViewStyle> }) {
+export function FadeIn({ children, delay = 0, ms = 300, rise = 10, style }: { children: ReactNode; delay?: number; ms?: number; rise?: number; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(reduce ? 1 : 0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     p.value = withDelay(delay, withTiming(1, { duration: ms, easing: Easing.out(Easing.ease) }));
-  }, [reduce, delay, ms, p]);
-  const a = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ translateY: 10 * (1 - p.value) }] }));
-  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+  }, [reduce, delay, ms]);
+  const a = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ translateY: rise * (1 - p.value) }] }));
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
 /** kBub (scale .6 + translateY 8 → none) or kBubR (scale .6 rotate −6° → rotate 4°); springHard. */
 export function Bubble({ children, delay = 0, ms = duration.bubble, tilted, style }: { children: ReactNode; delay?: number; ms?: number; tilted?: boolean; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(reduce ? 1 : 0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     p.value = withDelay(delay, withTiming(1, { duration: ms, easing: easing("springHard") }));
-  }, [reduce, delay, ms, p]);
+  }, [reduce, delay, ms]);
   const a = useAnimatedStyle(() => {
     const v = p.value;
     return tilted
       ? { opacity: Math.min(1, v), transform: [{ scale: 0.6 + 0.4 * v }, { rotate: `${-6 + 10 * v}deg` }] }
       : { opacity: Math.min(1, v), transform: [{ translateY: 8 * (1 - v) }, { scale: 0.6 + 0.4 * v }] };
   });
-  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
 /** kDrop (the KeeperNote): translateY −16, scale .72, opacity 0 → none, 420 ms springSoft from `origin`. */
 export function NoteDrop({ children, origin, style }: { children: ReactNode; origin: string; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(reduce ? 1 : 0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     p.value = withTiming(1, { duration: duration.note, easing: easing("springSoft") });
-  }, [reduce, p]);
+  }, [reduce]);
   const a = useAnimatedStyle(() => ({
     opacity: Math.min(1, p.value),
     transform: [{ translateY: -16 * (1 - p.value) }, { scale: 0.72 + 0.28 * p.value }],
   }));
-  return <Animated.View style={[{ transformOrigin: origin }, style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[{ transformOrigin: origin }, style, a]}>{children}</Animated.View>;
 }
 
 /**
@@ -106,29 +137,28 @@ export function NoteDrop({ children, origin, style }: { children: ReactNode; ori
 export function Knock({ active, children, style }: { active: boolean; children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
   const r = useSharedValue(0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([r], () => {
     if (!active || reduce) { cancelAnimation(r); r.value = 0; return; }
     const seg = (duration.glow * 0.06);
     const t = (to: number) => withTiming(to, { duration: seg, easing: inOut });
     const once = withSequence(t(-14), t(11), t(-6), t(0), withTiming(0, { duration: duration.glow - 4 * seg }));
     r.value = withDelay(800, withRepeat(once, 3, false));
-    return () => cancelAnimation(r);
-  }, [active, reduce, r]);
+  }, [active, reduce], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
-  return <Animated.View style={[{ transformOrigin: "50% 90%" }, style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[{ transformOrigin: "50% 90%" }, style, a]}>{children}</Animated.View>;
 }
 
 /** Proof fail: translateX 0 → −6 → 6 → −3 → 0 over 300 ms, each time `trigger` changes (not on mount at 0). */
 export function Shake({ trigger, children, style }: { trigger: number; children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
   const x = useSharedValue(0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([x], () => {
     if (!trigger || reduce) return;
     const t = (to: number) => withTiming(to, { duration: 75 });
     x.value = withSequence(t(-6), t(6), t(-3), t(0));
-  }, [trigger, reduce, x]);
+  }, [trigger, reduce]);
   const a = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
-  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
 export type LoopKind = "beat" | "breath" | "float" | "spin" | "pulse" | "ping" | "glow";
@@ -140,7 +170,7 @@ export function Loop({ kind, period, delay = 0, children, style, paused }: { kin
   const reduce = useReducedMotion();
   const v = useSharedValue(0);
   const ms = period ?? { beat: duration.beat, breath: duration.breath, float: duration.float, spin: duration.spin, pulse: metrics.skeletonPulseMs, ping: duration.ping, glow: duration.glow }[kind];
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([v], () => {
     if (reduce || paused) { cancelAnimation(v); return; }
     if (kind === "spin") {
       v.value = withDelay(delay, withRepeat(withTiming(1, { duration: ms, easing: Easing.linear }), -1, false));
@@ -150,8 +180,7 @@ export function Loop({ kind, period, delay = 0, children, style, paused }: { kin
       const half = { duration: ms / 2, easing: inOut };
       v.value = withDelay(delay, withRepeat(withSequence(withTiming(1, half), withTiming(0, half)), -1, false));
     }
-    return () => cancelAnimation(v);
-  }, [reduce, paused, kind, ms, delay, v]);
+  }, [reduce, paused, kind, ms, delay], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => {
     switch (kind) {
       case "beat": return { opacity: 1 - 0.6 * v.value };
@@ -163,7 +192,7 @@ export function Loop({ kind, period, delay = 0, children, style, paused }: { kin
       case "glow": return { opacity: 0.14 * (1 - Math.abs(2 * v.value - 1)), transform: [{ scale: 1 + 0.28 * v.value }] };
     }
   });
-  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
 /** countUp: from → target over 900 ms, ease-out cubic `1 − (1 − t)³`. Returns the number to show. */
@@ -190,9 +219,9 @@ export function useCountUp(target: number, ms = 900, from = 0, delay = 0): numbe
 export function Tilt({ deg, children, style, ms = duration.optionTilt, ease = "spring" }: { deg: number; children?: ReactNode; style?: StyleProp<ViewStyle>; ms?: number; ease?: EasingName }) {
   const reduce = useReducedMotion();
   const r = useSharedValue(deg);
-  useEffect(() => { r.value = reduce ? deg : withTiming(deg, { duration: ms, easing: easing(ease) }); }, [deg, reduce, ms, ease, r]);
+  const onLayout = useAnimationLifecycle([r], () => { r.value = reduce ? deg : withTiming(deg, { duration: ms, easing: easing(ease) }); }, [deg, reduce, ms, ease]);
   const a = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
-  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
 /** Counts up the number inside a display string, keeping prefix/suffix ("+186", "1,186", "−1,000"). */
@@ -229,6 +258,8 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export function PressScale({ children, style, scale = metrics.button.pressScale, hit, disabled, ...rest }: PressScaleProps) {
   const reduce = useReducedMotion();
   const s = useSharedValue(1);
+  // Presses only start after mount; a press-out that's still running when the screen goes is cancelled.
+  useLayoutEffect(() => () => cancelAnimation(s), [s]);
   const a = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
   const min = metrics.minTouch;
   const slop = hit ? { top: Math.max(0, (min - hit.h) / 2), bottom: Math.max(0, (min - hit.h) / 2), left: Math.max(0, (min - hit.w) / 2), right: Math.max(0, (min - hit.w) / 2) } : undefined;

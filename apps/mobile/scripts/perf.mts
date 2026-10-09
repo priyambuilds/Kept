@@ -4,7 +4,10 @@
 // Build the APK with mock data so it reaches the tabs without a wallet app:
 //   EXPO_PUBLIC_API_MODE=mock ./gradlew assembleRelease   (in apps/mobile/android)
 // Uses `am start -W` (TotalTime) and `dumpsys gfxinfo` (janky frames, frame-time percentiles).
-import { execFileSync, spawnSync } from "node:child_process";
+// Also watches logcat for the whole run (audit P-6): Reanimated's "synchronouslyUpdateUIProps failed"
+// lines (an animated-props update for a view that isn't mounted, logged with a stack trace on the UI
+// thread) and ANRs. The run fails when there's an ANR or more failures than --max-sync-failures (50).
+import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -15,9 +18,29 @@ const ADB = path.join(sdk, "platform-tools/adb");
 const PKG = "app.kept.mobile";
 const adb = (...a: string[]) => execFileSync(ADB, a, { encoding: "utf8", maxBuffer: 64 << 20 });
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const apk = process.argv[2];
+const apk = process.argv[2]?.endsWith(".apk") ? process.argv[2] : undefined;
 const outArg = process.argv.indexOf("--out");
 const out = outArg > 0 ? path.resolve(process.argv[outArg + 1]!) : path.join(root, "artifacts/perf/run.json");
+const maxArg = process.argv.indexOf("--max-sync-failures");
+const MAX_SYNC_FAILURES = maxArg > 0 ? Number(process.argv[maxArg + 1]) : 50;
+
+/** Streams logcat (the ring buffer overflows at these volumes) and counts P-6 failures and ANRs. */
+function watchLogcat() {
+  spawnSync(ADB, ["logcat", "-c"]);
+  const counts = { syncFailures: 0, anrs: 0 };
+  const proc = spawn(ADB, ["logcat", "-v", "brief", "Reanimated:W", "ActivityManager:E", "*:S"]);
+  let rest = "";
+  proc.stdout.setEncoding("utf8");
+  proc.stdout.on("data", (chunk: string) => {
+    const lines = (rest + chunk).split("\n");
+    rest = lines.pop() ?? "";
+    for (const l of lines) {
+      if (l.includes("synchronouslyUpdateUIProps failed")) counts.syncFailures++;
+      else if (l.includes(`ANR in ${PKG}`)) counts.anrs++;
+    }
+  });
+  return { counts, stop: () => proc.kill() };
+}
 
 interface Node { text: string; desc: string; x: number; y: number }
 function dump(): Node[] {
@@ -67,16 +90,24 @@ function tabAt(i: number, active: number): [number, number] {
   return [Math.round(x * dp), 2208];
 }
 
+let phaseCounts: { syncFailures: number } | null = null;
+/** Sync-props failures since the last call (per phase). */
+let lastSync = 0;
+function syncSince(): number { const n = phaseCounts ? phaseCounts.syncFailures - lastSync : 0; lastSync += n; return n; }
+
 async function measure(name: string, act: () => Promise<void>) {
   adb("shell", "dumpsys", "gfxinfo", PKG, "reset");
+  syncSince();
   await act();
-  const s = frameStats();
+  const s = { ...frameStats(), syncFailures: syncSince() };
   console.log(name.padEnd(16), JSON.stringify(s));
   return s;
 }
 
 async function main() {
   if (apk) adb("install", "-r", "-d", apk);
+  const log = watchLogcat();
+  phaseCounts = log.counts;
   const W = Number(adb("shell", "wm", "size").match(/(\d+)x(\d+)/)![1]);
   const H = Number(adb("shell", "wm", "size").match(/(\d+)x(\d+)/)![2]);
   for (const k of ["window_animation_scale", "transition_animation_scale", "animator_duration_scale"]) adb("shell", "settings", "put", "global", k, "1");
@@ -90,7 +121,7 @@ async function main() {
     cold.push(Number(r.match(/TotalTime: (\d+)/)?.[1] ?? NaN));
     await sleep(3500);
   }
-  console.log("cold start (ms)", cold);
+  console.log("cold start (ms)", cold, "sync-props failures", syncSince());
   // Onboard on the mock wallet: A1 → A2 → A2·s → A3 → A4 → Today.
   await tap("Get started", [540, 2046]);
   await sleep(2500);
@@ -100,6 +131,7 @@ async function main() {
   await sleep(2500);
   await tap("Looks like me", [540, 2081]);
   await sleep(4000);
+  console.log("onboarding       sync-props failures", syncSince());
   let active = 0;
   const tab = async (i: number) => { await tap(TAB_NAMES[i]!, tabAt(i, active)); active = i; };
   const tabs = await measure("tab switches", async () => {
@@ -121,10 +153,18 @@ async function main() {
       await sleep(1500);
     }
   });
-  const res = { apk, date: new Date().toISOString(), coldStartMs: cold, tabs, scroll, push };
+  await sleep(1500);
+  log.stop();
+  const { syncFailures, anrs } = log.counts;
+  console.log("sync-props failures", syncFailures, "ANRs", anrs);
+  const res = { apk, date: new Date().toISOString(), coldStartMs: cold, tabs, scroll, push, syncFailures, anrs };
   mkdirSync(path.dirname(out), { recursive: true });
   writeFileSync(out, JSON.stringify(res, null, 1));
   console.log(`wrote ${out}`);
+  if (anrs > 0 || syncFailures > MAX_SYNC_FAILURES) {
+    console.error(`FAIL: ${anrs} ANR(s), ${syncFailures} sync-props failures (max ${MAX_SYNC_FAILURES}); see docs/FIDELITY_AUDIT.md › P-6`);
+    process.exitCode = 1;
+  }
 }
 
 void main();

@@ -1,13 +1,13 @@
 // Overlays (components.md › BottomSheet, Toast): the sheet slides up over a scrim and closes on scrim tap,
 // swipe down or its own button; the toast pops in at the top and hides itself after 1.9 s.
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, { runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { cancelAnimation, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, easing, metrics, shadow, space, z } from "@/theme";
-import { Icon, Pop, Text } from "../primitives";
+import { Icon, Pop, Text, useAnimationLifecycle } from "../primitives";
 
 // ── BottomSheet ──
 export interface BottomSheetProps {
@@ -34,14 +34,14 @@ export function BottomSheet({ visible, onClose, children, bottomInset = 0, onHid
   if (visible && !mounted) setMounted(true);
   const hide = useCallback(() => { setMounted(false); onHidden?.(); }, [onHidden]);
 
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p, drag], () => {
     if (visible) {
       drag.value = 0;
       p.value = withTiming(1, { duration: ms, easing: easing("enter") });
     } else if (mounted) {
       p.value = withTiming(0, { duration: ms, easing: easing("enter") }, (done) => { if (done) runOnJS(hide)(); });
     }
-  }, [visible, mounted, ms, p, drag, hide]);
+  }, [visible, mounted, ms, hide]);
 
   const pan = useMemo(() => Gesture.Pan()
     .onUpdate((e) => { drag.set(Math.max(0, e.translationY)); })
@@ -55,7 +55,7 @@ export function BottomSheet({ visible, onClose, children, bottomInset = 0, onHid
   if (!mounted) return null;
   const s = metrics.sheet;
   return (
-    <View style={[StyleSheet.absoluteFill, { zIndex: z.scrim }]} accessibilityViewIsModal>
+    <View onLayout={onLayout} style={[StyleSheet.absoluteFill, { zIndex: z.scrim }]} accessibilityViewIsModal>
       <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: color.scrim }, scrim]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel={t("additions.a11y.close")} />
       </Animated.View>
@@ -87,6 +87,7 @@ export function Toast({ text, onHide, holdMs = duration.toastHold }: { text: str
     }, holdMs);
     return () => clearTimeout(id);
   }, [text, onHide, holdMs, reduce, fade]);
+  useLayoutEffect(() => () => cancelAnimation(fade), [fade]);
   const out = useAnimatedStyle(() => ({ opacity: fade.value }));
   const m = metrics.toast;
   return (

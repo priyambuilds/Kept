@@ -1,10 +1,10 @@
 // TabBar + PlusButton + the fade under them (components.md › TabBar + PlusButton).
-import { useEffect } from "react";
+
 import { View } from "react-native";
-import Animated, { Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, gradient, metrics, shadow, z } from "@/theme";
-import { Gradient, Icon, PressScale, Text } from "../primitives";
+import { Gradient, Icon, PressScale, Text, useAnimationLifecycle, FadeIn } from "../primitives";
 import type { IconName } from "../primitives";
 
 export type TabKey = "today" | "oaths" | "bounties" | "profile";
@@ -35,20 +35,20 @@ function TabItem({ icon, label, on, onPress }: { icon: IconName; label: string; 
   const reduce = useReducedMotion();
   // flex 1 ↔ 1.7 over 200 ms and the label fades in (motion.md › Tab change).
   const p = useSharedValue(on ? 1 : 0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     p.value = reduce ? (on ? 1 : 0) : withTiming(on ? 1 : 0, { duration: duration.flex });
-  }, [on, reduce, p]);
+  }, [on, reduce]);
   const grow = useAnimatedStyle(() => ({ flex: 1 + (m.activeFlex - 1) * p.value }));
   const fill = useAnimatedStyle(() => ({ opacity: p.value }));
-  const fade = useAnimatedStyle(() => ({ opacity: p.value }));
   const fg = on ? color.text.onLime : color.text.secondary;
   return (
-    <Animated.View style={grow}>
+    <Animated.View onLayout={onLayout} style={grow}>
       <PressScale onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={label} style={{ flex: 1 }}>
         <View style={{ height: m.item, borderRadius: m.itemRadius, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: m.labelGap, overflow: "hidden" }}>
           <Animated.View pointerEvents="none" style={[{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, borderRadius: m.itemRadius, backgroundColor: color.text.primary }, fill]} />
           <Icon name={icon} size={m.icon} color={fg} />
-          {on ? <Animated.View style={fade}><Text variant="tab" color={fg} numberOfLines={1}>{label}</Text></Animated.View> : null}
+          {/* The label mounts with the active state and fades in on its own (never driven while it unmounts). */}
+          {on ? <FadeIn ms={duration.flex} delay={0} rise={0}><Text variant="tab" color={fg} numberOfLines={1}>{label}</Text></FadeIn> : null}
         </View>
       </PressScale>
     </Animated.View>
@@ -60,16 +60,15 @@ export function PlusButton({ onPress }: { onPress: () => void }) {
   const m = metrics.tabBar;
   const reduce = useReducedMotion();
   const g = useSharedValue(0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([g], () => {
     if (reduce) return;
     g.value = withRepeat(withTiming(1, { duration: duration.glow, easing: Easing.inOut(Easing.ease) }), -1, false);
-    return () => cancelAnimation(g);
-  }, [reduce, g]);
+  }, [reduce], { pauseOnBlur: true });
   // kGlow: box-shadow 0 0 0 0 → 0 0 0 9px rgba(lime,.14) at 50 % → 0: a ring growing out and back.
   const ring = useAnimatedStyle(() => { const k = 1 - Math.abs(2 * g.value - 1); return { transform: [{ scale: 1 + (9 * 2 * k) / m.plus }], opacity: 0.14 * k }; });
   return (
     <PressScale onPress={onPress} scale={0.95} accessibilityLabel={t("additions.a11y.newMenu")}>
-      <Animated.View pointerEvents="none" style={[{ position: "absolute", width: m.plus, height: m.plus, borderRadius: m.plus / 2, backgroundColor: color.lime.base }, ring]} />
+      <Animated.View onLayout={onLayout} pointerEvents="none" style={[{ position: "absolute", width: m.plus, height: m.plus, borderRadius: m.plus / 2, backgroundColor: color.lime.base }, ring]} />
       <View style={{ width: m.plus, height: m.plus, borderRadius: m.plus / 2, backgroundColor: color.lime.base, alignItems: "center", justifyContent: "center", ...shadow("plus") }}>
         <Icon name="plus" size={m.plusIcon} color={color.text.onLime} />
       </View>

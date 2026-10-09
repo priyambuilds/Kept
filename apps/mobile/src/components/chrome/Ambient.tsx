@@ -1,12 +1,12 @@
 // The light behind a screen (DESIGN.md §2.8–2.9): a full-screen tone wash, two blurred orbs drifting
 // in the screen's ambient colour, an optional beam from the top, and huge decor icons. Drawn under the
 // content, never touchable. Which of these a screen gets comes from app/layout.gen.json.
-import { useEffect } from "react";
+
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import Svg, { Circle, Defs, Ellipse, FeGaussianBlur, Filter, LinearGradient, Polygon, RadialGradient, Rect, Stop } from "react-native-svg";
 import { color, duration, metrics, svgStop as stop } from "@/theme";
-import { Icon } from "../primitives";
+import { Icon, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 
 export type Tone = "lime" | "red" | "ember" | "grey" | "lock";
@@ -47,16 +47,16 @@ function ToneWash({ tone, w, h }: { tone: Tone; w: number; h: number }) {
 function Orb({ size, c, ms, delayMs, reverse, style }: { size: number; c: string; ms: number; delayMs: number; reverse?: boolean; style: object }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(reverse ? 1 : 0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     const half = { duration: ms / 2, easing: Easing.inOut(Easing.ease) };
     p.set(withDelay(delayMs, withRepeat(withSequence(withTiming(reverse ? 0 : 1, half), withTiming(reverse ? 1 : 0, half)), -1)));
-  }, [reduce, p, ms, delayMs, reverse]);
+  }, [reduce, ms, delayMs, reverse], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({
     transform: [{ translateX: A.drift.dx * p.value }, { translateY: A.drift.dy * p.value }, { scale: 1 + (A.drift.scale - 1) * p.value }],
   }));
   return (
-    <Animated.View style={[{ position: "absolute", width: size, height: size }, style, a]}>
+    <Animated.View onLayout={onLayout} style={[{ position: "absolute", width: size, height: size }, style, a]}>
       <Svg width={size} height={size}>
         <Defs><RadialGradient id="orb" cx="50%" cy="50%" r="50%">
           <Stop offset="0" {...stop(c)} /><Stop offset="1" {...stop(c, 0)} />
@@ -70,11 +70,11 @@ function Orb({ size, c, ms, delayMs, reverse, style }: { size: number; c: string
 function Beam({ w }: { w: number }) {
   const reduce = useReducedMotion();
   const o = useSharedValue(1);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([o], () => {
     if (reduce) return;
     const half = { duration: duration.beam / 2 };
     o.set(withRepeat(withSequence(withTiming(A.beam.opacityMin, half), withTiming(1, half)), -1));
-  }, [reduce, o]);
+  }, [reduce], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({ opacity: o.value }));
   const b = A.beam;
   const pad = b.blur * 3; // room for the blur inside the canvas
@@ -82,7 +82,7 @@ function Beam({ w }: { w: number }) {
   const pts = `${pad + b.width * b.clipL},${pad} ${pad + b.width * b.clipR},${pad} ${pad + b.width},${pad + b.height} ${pad},${pad + b.height}`;
   return (
     <>
-      <Animated.View style={[{ position: "absolute", left: w / 2 - cw / 2, top: b.top - pad, width: cw, height: b.height + pad * 2 }, a]}>
+      <Animated.View onLayout={onLayout} style={[{ position: "absolute", left: w / 2 - cw / 2, top: b.top - pad, width: cw, height: b.height + pad * 2 }, a]}>
         <Svg width={cw} height={b.height + pad * 2}>
           <Defs>
             <LinearGradient id="beam" x1="0" y1={pad} x2="0" y2={pad + b.height} gradientUnits="userSpaceOnUse">

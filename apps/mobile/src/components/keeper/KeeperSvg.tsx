@@ -2,9 +2,9 @@
 // once; the moving parts (bob, blink, head tilt, glints, hands, sleeves, the flipped coin) are animated
 // props fed by one UI-thread frame (rig.ts › keeperFrame) from Reanimated's frame callback. Reduce
 // Motion, `animate={false}` or an unfocused screen hold the still pose (t = 0).
-import { memo, useContext, useEffect, useId, useMemo } from "react";
+import { memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
 import type { ComponentClass } from "react";
-import { NavigationContext } from "@react-navigation/native";
+import { useScreenFocused } from "@/lib/focus";
 import Animated, { useAnimatedProps, useDerivedValue, useFrameCallback, useReducedMotion, useSharedValue } from "react-native-reanimated";
 import Svg, { Circle, ClipPath, Defs, Ellipse, G, Path, Rect, Text as SvgText } from "react-native-svg";
 import type { GProps } from "react-native-svg";
@@ -40,7 +40,6 @@ function phaseOf(key: string): number {
 
 export const KeeperSvg = memo(function KeeperSvg({ mood, prop = "none", anim = "idle", hand, size, bust = false, animate = true }: KeeperSvgProps) {
   const reduce = useReducedMotion();
-  const nav = useContext(NavigationContext);
   const rid = useId();
   const id = useMemo(() => `k${rid.replace(/[^a-zA-Z0-9]/g, "")}`, [rid]);
   const face = useMemo(() => keeperFace(mood, prop, bust), [mood, prop, bust]);
@@ -49,15 +48,23 @@ export const KeeperSvg = memo(function KeeperSvg({ mood, prop = "none", anim = "
   const offset = useMemo(() => (anim === "peek" || anim === "popin" ? 0 : phaseOf(rid)), [anim, rid]);
   const t = useSharedValue(0);
   const cb = useFrameCallback((f) => { t.value = Math.max(0.001, f.timeSinceFirstFrame / 1000 + offset); }, false);
+  // Frames run only while the drawing is mounted (from its first layout), its screen is focused and it's
+  // live; they stop in the commit that removes it (audit P-6: no updates to views that don't exist).
+  const focused = useScreenFocused();
+  const run = live && focused;
+  const laidOut = useRef(false);
+  const runRef = useRef(run);
+  useLayoutEffect(() => { runRef.current = run; });
   useEffect(() => {
-    if (!live) { cb.setActive(false); t.set(0); return; }
-    // Pause while the screen is covered (no off-screen frame work).
-    cb.setActive(nav ? nav.isFocused() : true);
-    if (!nav) return;
-    const a = nav.addListener("focus", () => cb.setActive(true));
-    const b = nav.addListener("blur", () => cb.setActive(false));
-    return () => { a(); b(); cb.setActive(false); };
-  }, [live, nav, cb, t]);
+    if (!live) t.set(0);
+    if (laidOut.current) cb.setActive(run);
+  }, [run, live, cb, t]);
+  useLayoutEffect(() => () => cb.setActive(false), [cb]);
+  const onLayout = useCallback(() => {
+    if (laidOut.current) return;
+    laidOut.current = true;
+    cb.setActive(runRef.current);
+  }, [cb]);
 
   const tilt = face.tilt, gx0 = face.gx, gy0 = face.gyBase;
   const fr = useDerivedValue(() => keeperFrame(mood, prop, anim, hand ?? null, tilt, gx0, gy0, t.value));
@@ -81,7 +88,7 @@ export const KeeperSvg = memo(function KeeperSvg({ mood, prop = "none", anim = "
   const w = size, h = bust ? size : Math.round((size * 180) / 160);
   const sw = size >= 60 ? 1 : 1.2; // hairline strokes stay visible on tiny busts
   return (
-    <Svg width={w} height={h} viewBox={bust ? "28 4 104 104" : "0 0 160 180"} style={{ overflow: bust ? "hidden" : "visible" }}>
+    <Svg onLayout={onLayout} width={w} height={h} viewBox={bust ? "28 4 104 104" : "0 0 160 180"} style={{ overflow: bust ? "hidden" : "visible" }}>
       <Defs>
         <ClipPath id={`${id}M`}><Path d={face.mouth ?? "M0 0"} /></ClipPath>
       </Defs>

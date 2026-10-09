@@ -7,7 +7,7 @@ import { GESTURES } from "@kept/config";
 import type { GestureKey } from "@kept/config";
 import { t } from "@/copy";
 import { color, duration, metrics, space } from "@/theme";
-import { Icon, Loop, PressScale, Shake, Text } from "../primitives";
+import { Icon, Loop, PressScale, Shake, Text, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 import { haptic } from "@/lib/haptics";
 
@@ -24,12 +24,12 @@ const STATE: Record<CameraState, { corner: string; pillBg: string; pillFg: strin
 function ScanLine({ height }: { height: number }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     p.value = withRepeat(withTiming(1, { duration: duration.scan, easing: Easing.inOut(Easing.ease) }), -1, true);
-  }, [reduce, p]);
+  }, [reduce], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({ top: height * (0.14 + 0.7 * p.value) }));
-  return <Animated.View pointerEvents="none" style={[{ position: "absolute", left: metrics.camera.scanInset, right: metrics.camera.scanInset, height: 2, backgroundColor: color.lime.base, boxShadow: `0 0 16px 4px ${color.lime.ring45}` }, a]} />;
+  return <Animated.View onLayout={onLayout} pointerEvents="none" style={[{ position: "absolute", left: metrics.camera.scanInset, right: metrics.camera.scanInset, height: 2, backgroundColor: color.lime.base, boxShadow: `0 0 16px 4px ${color.lime.ring45}` }, a]} />;
 }
 
 /**

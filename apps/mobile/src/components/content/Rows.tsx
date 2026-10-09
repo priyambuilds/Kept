@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
-import Animated, { useAnimatedStyle, useReducedMotion, withTiming } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
 import { color, duration, metrics, space } from "@/theme";
 import { Avatar } from "../avatar/Avatar";
-import { CheckK, Icon, InitialTile, PressScale, Text } from "../primitives";
+import { CheckK, Icon, InitialTile, PressScale, Text, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 import { tileForIcon } from "@/theme";
 import { Gradient } from "../primitives";
@@ -82,11 +82,13 @@ export function RowList({ rows, label }: { rows: RowProps[]; label?: string }) {
 /** Toggle: 46×28, knob 22 at x 3 / 21, 150 ms. */
 export function Toggle({ on, onChange, label }: { on: boolean; onChange: (on: boolean) => void; label: string }) {
   const reduce = useReducedMotion();
-  const knob = useAnimatedStyle(() => ({ left: reduce ? (on ? metrics.toggle.on : metrics.toggle.inset) : withTiming(on ? metrics.toggle.on : metrics.toggle.inset, { duration: duration.toggle }) }), [on, reduce]);
+  const k = useSharedValue(on ? 1 : 0);
+  const onLayout = useAnimationLifecycle([k], () => { k.value = reduce ? (on ? 1 : 0) : withTiming(on ? 1 : 0, { duration: duration.toggle }); }, [on, reduce]);
+  const knob = useAnimatedStyle(() => ({ left: metrics.toggle.inset + (metrics.toggle.on - metrics.toggle.inset) * k.value }));
   return (
     <Pressable accessibilityRole="switch" accessibilityState={{ checked: on }} accessibilityLabel={label} onPress={() => onChange(!on)} hitSlop={10}>
       <View style={{ width: metrics.toggle.w, height: metrics.toggle.h, borderRadius: metrics.toggle.radius, backgroundColor: on ? color.lime.base : color.line.toggleOff }}>
-        <Animated.View style={[{ position: "absolute", top: metrics.toggle.inset, width: metrics.toggle.knob, height: metrics.toggle.knob, borderRadius: metrics.toggle.knob / 2, backgroundColor: on ? color.text.onLime : color.extra.toggleKnobOff }, knob]} />
+        <Animated.View onLayout={onLayout} style={[{ position: "absolute", top: metrics.toggle.inset, width: metrics.toggle.knob, height: metrics.toggle.knob, borderRadius: metrics.toggle.knob / 2, backgroundColor: on ? color.text.onLime : color.extra.toggleKnobOff }, knob]} />
       </View>
     </Pressable>
   );

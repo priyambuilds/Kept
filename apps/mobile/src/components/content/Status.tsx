@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, metrics, space, type as typeStyles } from "@/theme";
-import { Icon, InitialTile, Loop, Pop, Text, CountText } from "../primitives";
+import { Icon, InitialTile, Loop, Pop, Text, CountText, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 import { Chip } from "./Basics";
 import type { ChipTone } from "./Basics";
@@ -28,13 +28,13 @@ function arcPath(size: number, frac: number) {
 function Ping({ delay }: { delay: number }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(0);
-  useEffect(() => {
+  const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     p.value = withDelay(delay, withRepeat(withTiming(1, { duration: duration.ping, easing: Easing.out(Easing.ease) }), -1));
-  }, [reduce, delay, p]);
+  }, [reduce, delay], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({ opacity: 0.7 * (1 - p.value), transform: [{ scale: 1 + 0.7 * p.value }] }));
   if (reduce) return null;
-  return <Animated.View pointerEvents="none" style={[{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, borderRadius: metrics.sign.size / 2, boxShadow: `0 0 0 3px ${color.lime.base}` }, a]} />;
+  return <Animated.View onLayout={onLayout} pointerEvents="none" style={[{ position: "absolute", left: 0, top: 0, right: 0, bottom: 0, borderRadius: metrics.sign.size / 2, boxShadow: `0 0 0 3px ${color.lime.base}` }, a]} />;
 }
 
 export function SignStatus({ state, chip }: { state: SignState; chip: string }) {
