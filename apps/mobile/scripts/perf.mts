@@ -162,7 +162,7 @@ async function main() {
   writeFileSync(out, JSON.stringify(res, null, 1));
   console.log(`wrote ${out}`);
   if (anrs > 0 || syncFailures > MAX_SYNC_FAILURES) {
-    console.error(`FAIL: ${anrs} ANR(s), ${syncFailures} sync-props failures (max ${MAX_SYNC_FAILURES}); see docs/FIDELITY_AUDIT.md › P-6`);
+    console.error(`FAIL: ${anrs} ANR(s), ${syncFailures} sync-props failures (max ${MAX_SYNC_FAILURES}); see docs/notes/FIDELITY_AUDIT.md › P-6`);
     process.exitCode = 1;
   }
 }

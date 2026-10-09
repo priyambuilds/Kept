@@ -5,7 +5,7 @@ Paste the prompt below into a **new Claude Code session** at the repo root.
 ---
 
 ```
-Read CLAUDE.md, docs/SESSION_HANDOFF.md, docs/SHAKEDOWN.md, docs/DECISIONS.md, then the WHOLE design folder: design/Design.pdf (all pages), README.md, DESIGN.md, tokens.json, components.md, screens.md, flows.md, motion.md, copy.json, assets.md, and the prototype in design/reference/ (KEPT Play.dc.html, kept-kit.js, kept-screens-1…6.js, Keeper.dc.html).
+Read CLAUDE.md, docs/notes/SESSION_HANDOFF.md, docs/notes/SHAKEDOWN.md, docs/DECISIONS.md, then the WHOLE design folder: design/Design.pdf (all pages), README.md, DESIGN.md, tokens.json, components.md, screens.md, flows.md, motion.md, copy.json, assets.md, and the prototype in design/reference/ (KEPT Play.dc.html, kept-kit.js, kept-screens-1…6.js, Keeper.dc.html).
 
 The owner has used the app and says it is NOT 1:1 with the design: visuals differ, motion and transitions are missing, states aren't smooth, and some things don't work. This session is a fidelity, motion, performance and logic pass. Frontend only, as always. Commit in small steps on local main and push. Don't open PRs.
 
@@ -37,7 +37,7 @@ The owner has used the app and says it is NOT 1:1 with the design: visuals diffe
 4. Missing motion and transitions: implement design/motion.md in full (see below).
 5. Things that aren't smooth or don't work: find and fix them (see the audit below).
 
-## Step 1: audit (write docs/FIDELITY_AUDIT.md before fixing)
+## Step 1: audit (write docs/notes/FIDELITY_AUDIT.md before fixing)
 Use the existing tooling (dev deep link, shoot script, compare page) and extend it:
 - Render every page of Design.pdf to PNG (pdftoppm or similar), and map pages to screen ids. Add them as a third column on artifacts/compare.
 - For EVERY screen id, list the differences between the app and Design.pdf/prototype:
@@ -101,9 +101,9 @@ Rank every finding P0 (broken or wrong) / P1 (visibly off) / P2 (polish).
 - Re-shoot all screens, update artifacts/compare (app | prototype | PDF), and re-record the motion moments.
 - Add automated route tests generated from flows.md (every edge), plus tests for KeeperNote behaviour (opens and closes per the rules, never leaks across navigation).
 - typecheck, lint, all tests, the release bundle, and a release build on the emulator.
-- Update docs/FIDELITY_AUDIT.md (fixed / remaining), SHAKEDOWN.md, BUILD_PLAN.md (this replaces most of Phase 5's motion and Keeper work) and DECISIONS.md.
+- Update docs/notes/FIDELITY_AUDIT.md (fixed / remaining), SHAKEDOWN.md, BUILD_PLAN.md (this replaces most of Phase 5's motion and Keeper work) and DECISIONS.md.
 
-Work through the whole list without stopping, committing as you go. If you run low on context, write the exact next steps into docs/FIDELITY_AUDIT.md so a fresh session can continue. At the end, give me a short summary, the compare page path, and what's left.
+Work through the whole list without stopping, committing as you go. If you run low on context, write the exact next steps into docs/notes/FIDELITY_AUDIT.md so a fresh session can continue. At the end, give me a short summary, the compare page path, and what's left.
 ```
 
 ---

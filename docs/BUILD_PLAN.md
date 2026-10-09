@@ -80,7 +80,7 @@ Rematch, group review, Bounties (feed, detail, join, eliminated, ended, my Bount
 **Phone milestone:** walk all 116 screens on the device in mock mode via scenarios; real faucet top-up from W2; real push for a nudge and the 2 h reminder (if FCM is configured).
 
 ## Phase 4.5: Device shakedown
-**Status: done, partly** (2026-10-09). First run on a device since Phase 1 (Pixel 8 emulator, API 34). Details, every fix and what's left: `docs/SHAKEDOWN.md`.
+**Status: done, partly** (2026-10-09). First run on a device since Phase 1 (Pixel 8 emulator, API 34). Details, every fix and what's left: `docs/notes/SHAKEDOWN.md`.
 
 - Dev-only deep link `kept://dev/open/<screen>?scenario=…` (dropped from release bundles), screenshot scripts for the app and the prototype, `artifacts/compare/index.html` (gitignored).
 - 116 / 116 screens with no logcat errors or crashes; 14 / 14 flows.md happy paths pass with adb taps (`scripts/drive.mts`).
@@ -91,6 +91,6 @@ Rematch, group review, Bounties (feed, detail, join, eliminated, ended, my Bount
 ## Phase 5: Motion, haptics, Keeper, accessibility, performance, E2E
 Signature animations from motion.md (HP damage/heal, money, day kept, broken, payout, Rematch) with haptics; the parametric Keeper in `react-native-svg`; Reduce Motion fallbacks; labels and 48 dp targets audited; list virtualization and a startup-time pass; Maestro smoke flows (onboarding, create, join, proof, claim) on mock scenarios.
 
-**Mostly replaced by the fidelity pass (docs/FIDELITY_PASS.md, checklist in docs/FIDELITY_AUDIT.md):** the parametric Keeper (rig.ts + KeeperSvg), the per-screen KeeperMark/KeeperNote host, screen-enter choreography, the motion primitives (Pop, Enter, Bubble, NoteDrop, Knock, Shake, Tilt, Loop, CountText), the splash sequence, sheet close, haptics per motion.md and route / KeeperNote tests are done there. What stays in Phase 5: HP damage / heal on an unseen change and the BalanceChip count (S20), the accessibility audit, Maestro flows.
+**Mostly replaced by the fidelity pass (docs/notes/FIDELITY_PASS.md, checklist in docs/notes/FIDELITY_AUDIT.md):** the parametric Keeper (rig.ts + KeeperSvg), the per-screen KeeperMark/KeeperNote host, screen-enter choreography, the motion primitives (Pop, Enter, Bubble, NoteDrop, Knock, Shake, Tilt, Loop, CountText), the splash sequence, sheet close, haptics per motion.md and route / KeeperNote tests are done there. What stays in Phase 5: HP damage / heal on an unseen change and the BalanceChip count (S20), the accessibility audit, Maestro flows.
 
 **Phone milestone:** the full app with motion; `maestro test .maestro/` runs green against your connected phone (Maestro install needed).

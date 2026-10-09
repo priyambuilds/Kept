@@ -10,16 +10,16 @@
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",
     "build": "pnpm -r --if-present build",
-    "api:dev": "pnpm --filter @kept/api dev",
-    "api:test": "pnpm --filter @kept/api test",
+    "api:dev": "pnpm --filter kept-backend dev",
+    "api:test": "pnpm --filter kept-backend test",
     "mobile:start": "pnpm --filter @kept/mobile start",
     "mobile:android": "pnpm --filter @kept/mobile android",
     "theme:gen": "pnpm --filter @kept/mobile theme:gen",
     "idl:sync": "pnpm --filter @kept/chain idl:sync",
     "program:build": "pnpm --filter @kept/program build",
     "program:test": "pnpm --filter @kept/program test:all",
-    "db:up": "docker compose up -d postgres",
-    "db:down": "docker compose down"
+    "db:up": "docker compose -f infra/docker-compose.yml up -d postgres",
+    "db:down": "docker compose -f infra/docker-compose.yml down"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

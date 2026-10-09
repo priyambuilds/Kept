@@ -29,7 +29,8 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 | `apps/mobile` | The new app (Phase 1+) | **Your work.** |
 | `packages/*` | config, shared (schemas, contract), engine, chain (IDL + account reading) | **Your work** (frontend-side, consumed by the app). |
 | `legacy/` | The old harness app, V3/Aura code and docs | Reference only. |
-| `docs/` | ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API | Keep them updated. |
+| `docs/` | ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API; `docs/notes/` for session reports and plans | Keep them updated. |
+| `infra/` | `docker-compose.yml` (local Postgres for `apps/api`) | Dev infrastructure. |
 
 ## Precedence rules
 1. **Product behavior and UI:** `design/rules.md` and `design/screens.md` win. If the backend or program does something different, build the frontend to the design and **record the difference in `docs/BACKEND_GAPS.md`**. Never silently change the design to match the backend.

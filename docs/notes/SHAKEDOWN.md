@@ -44,7 +44,7 @@ node apps/mobile/scripts/drive.mts          # flows.md happy paths with adb taps
 20. H5 survivors (no blank tiles), lime totals (J1, K5, I3, C6 stake), C3 / C4 banners.
 
 ## Remaining differences (not fixed, lower severity)
-- ~~**Keeper:** PNG fallback (D-33)…~~ Done in the fidelity pass: the parametric Keeper and the per-screen KeeperMark / KeeperNote (docs/FIDELITY_AUDIT.md).
+- ~~**Keeper:** PNG fallback (D-33)…~~ Done in the fidelity pass: the parametric Keeper and the per-screen KeeperMark / KeeperNote (docs/notes/FIDELITY_AUDIT.md).
 - **Sample data differs from the design** where the engine is the source of truth: claim amounts (1,054 vs 1,186), Rematch recovery (716 vs 500), W1 "Locked in Oaths", solo examples (D-65). Status-bar clock and real Android status bar vs the mock "9:41".
 - N1 leading tiles are icons, the design uses avatars / Keeper faces; I5 activity icons; I7 row icons; W1 claim card and recent-row icons.
 - C8 / D1 show `kept://join/…` instead of `kept.app/o/…` (D-68).

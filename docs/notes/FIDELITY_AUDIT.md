@@ -1,6 +1,6 @@
 # Fidelity audit (2026-10-09)
 
-The checklist for the fidelity, motion, performance and logic pass (`docs/FIDELITY_PASS.md`). Written **before** fixing; each item is ticked or moved to "Remaining" as it lands. Ranks: **P0** broken or wrong · **P1** visibly off · **P2** polish.
+The checklist for the fidelity, motion, performance and logic pass (`docs/notes/FIDELITY_PASS.md`). Written **before** fixing; each item is ticked or moved to "Remaining" as it lands. Ranks: **P0** broken or wrong · **P1** visibly off · **P2** polish.
 
 ## Tooling
 | What | Command | Output |

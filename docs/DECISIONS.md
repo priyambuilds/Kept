@@ -134,7 +134,7 @@ Everything here runs on the mock until the backend lands the matching BACKEND_GA
 | D-69 | Per-screen atmosphere | Tone wash, ambient orbs, beam and decor icons generated from screens.md and the prototype (`scripts/gen-layout.mjs` → `app/layout.gen.json`), as are hero offsets and Keeper size/side/pose. | ASSUMED |
 
 ## I. Fidelity pass (2026-10-09)
-Design.pdf is the final visual reference and the prototype the reference for behaviour (FIDELITY_PASS.md). Where they and the written spec disagree, the build follows the PDF and the prototype; each conflict is listed here.
+Design.pdf is the final visual reference and the prototype the reference for behaviour (notes/FIDELITY_PASS.md). Where they and the written spec disagree, the build follows the PDF and the prototype; each conflict is listed here.
 
 ### Keeper placement (owner report 2)
 Read from Design.pdf screen by screen and checked against the prototype's rule (`renderVals`: a `kp` block smaller than 120 dp leaves the content and becomes the KeeperNote behind the mark; sheets keep theirs). **Inline** = the character is drawn in the layout; **mark** = KeeperMark + KeeperNote only; **—** = no Keeper line.

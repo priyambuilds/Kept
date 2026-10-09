@@ -12,9 +12,11 @@
 /                         pnpm workspace root (package.json, pnpm-workspace.yaml, .npmrc, .gitignore)
 ├─ apps/
 │  ├─ mobile/             NEW Expo app (TypeScript strict, Android only), built from design/
-│  └─ api/                Express + Prisma backend   ← backend/{src,prisma,test,scripts,package.json,tsconfig.json,.env.example,assetlinks.json,temp_public}
+│  └─ api/                Express + Prisma backend   ← backend/{src,prisma,test,scripts,package.json,tsconfig.json,.env.example}
+│                         (assetlinks.json and temp_public/ now live in apps/api/static/)
 ├─ programs/
 │  └─ kept/               Anchor workspace           ← backend/kept-example/program (Anchor.toml, Cargo.*, programs/kept_test, tests/)
+│                         (ad-hoc devnet scripts test_*.ts now live in programs/kept/scripts/)
 ├─ packages/
 │  ├─ config/             constants (objects, gestures, stakes, lengths, limits) + tsconfig / eslint presets
 │  ├─ engine/             pure TS rules: HP, miss cost, daily distribution, Rematch recovery, kept rate, odds
@@ -22,12 +24,14 @@
 │  ├─ shared/             zod schemas + API contract types (requests, responses, error codes)
 │  └─ chain/              NEW: program client: IDL, PDAs, account decoder, instruction builders, error map
 ├─ design/                unchanged, read-only
+├─ infra/                 local dev infrastructure (docker-compose.yml: Postgres 16 for apps/api)
 ├─ docs/                  ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API (added in Phase 0)
+│  └─ notes/              session reports and plans (fidelity audit/pass, shakedown, live/demo plan, handoff)
 └─ legacy/                kept for reference, not built, not in the workspace
    ├─ harness-app/        ← backend/kept-example/app
-   ├─ v3-app/             ← backend/kept-example/legacy-app
-   ├─ v3-aura/            ← backend/legacy
-   ├─ v3-program-tests.ts ← backend/kept-example/legacy-program-tests-v3.ts
+   ├─ v3/app/             ← backend/kept-example/legacy-app
+   ├─ v3/aura/            ← backend/legacy
+   ├─ v3/program-tests.ts ← backend/kept-example/legacy-program-tests-v3.ts
    └─ docs/               ← backend/BACKEND_PART_1.md, backend/kept_backend.md, backend/README.md, backend/kept-example/README.md
 ```
 

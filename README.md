@@ -2,15 +2,19 @@
 
 Android app for the Solana Seeker: swear daily Oaths, stake SKR, prove each day with two photos.
 
-| Path | What |
-|---|---|
-| `apps/api` | Express + Prisma backend (V4 Devnet prototype) |
-| `apps/mobile` | the new Expo app (from Phase 1) |
-| `programs/kept` | Anchor program `kept_test` (`6iXXBqsdiCnUTSVf8CW3Uuw8c7iYvZSj5haz64QMuMUh`) |
-| `packages/*` | shared config, engine, schemas, chain client (from Phase 1) |
-| `design/` | the design handoff (read-only source of truth) |
-| `docs/` | architecture, backend gaps, decisions, build plan, API |
-| `legacy/` | the old harness app, V3 code and docs (reference only, not built) |
+| Path | Layer | What |
+|---|---|---|
+| `apps/mobile` | UI | the Expo app (Android, Solana Seeker) |
+| `apps/api` | Node backend | Express + Prisma backend (V4 Devnet prototype) |
+| `programs/kept` | On-chain (Rust) | Anchor program `kept_test` (`6iXXBqsdiCnUTSVf8CW3Uuw8c7iYvZSj5haz64QMuMUh`) |
+| `packages/*` | shared TS | config, engine, schemas, chain client |
+| `infra/` | infra | `docker-compose.yml` (local Postgres) |
+| `design/` | design | the design handoff (read-only source of truth) |
+| `docs/` | docs | architecture, backend gaps, decisions, build plan, API; `docs/notes/` for session reports |
+| `legacy/` | reference | the old harness app, V3 code and docs (not built) |
+| `patches/` | tooling | pnpm dependency patches |
+
+Each top-level folder has a `README.md` describing its contents.
 
 ## Setup
 Requires Node ≥ 20, pnpm, Docker (local Postgres). For the program: Rust, Solana CLI (Agave), Anchor 1.2.0.
@@ -19,7 +23,7 @@ Requires Node ≥ 20, pnpm, Docker (local Postgres). For the program: Rust, Sola
 pnpm install
 pnpm db:up                       # Postgres 16 on localhost:5432 (user/pass/db: kept)
 cp apps/api/.env.example apps/api/.env   # then fill it in (see apps/api/.env.example)
-pnpm --filter @kept/api exec prisma migrate deploy
+pnpm --filter kept-backend exec prisma migrate deploy
 pnpm api:dev                     # http://localhost:3000
 ```
 

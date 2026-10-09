@@ -126,7 +126,7 @@ Tool: `knip@5` per workspace, plus reference greps. Sizes from the release mock 
 | Unused exported types (knip) | — | 29, mostly props types | Leave (harmless) unless the file is touched |
 | Copy | — | `additions.avatarBuilder.options.*` (35) look unused but are read with a computed key; 15 templates (R4 rows, B2.b3.r1.s, C8.b1.link, F4.b0.label, L2.b2.caption, H3.b3.r1.r) need a per-key check | Phase 6, per key |
 | Dependencies | — | knip flags `buffer` and `expo-constants`: both used (polyfill, Expo peer). `expo-updates` / `expo-system-ui` named in app.json but not installed (config only) | None |
-| Stale docs | — | `docs/SESSION_HANDOFF.md` (superseded by FIDELITY_AUDIT); ARCHITECTURE §6 and the BUILD_PLAN table describe `hybrid`; CLAUDE.md says proof photos are "checked by AI on the server" (now on the device); BACKEND_GAPS P0-1 / P0-2 / P0-3 / P1-1 / P1-11 predate the new routes | Update in Phase 5; ask before deleting SESSION_HANDOFF |
+| Stale docs | — | `docs/notes/SESSION_HANDOFF.md` (superseded by FIDELITY_AUDIT); ARCHITECTURE §6 and the BUILD_PLAN table describe `hybrid`; CLAUDE.md says proof photos are "checked by AI on the server" (now on the device); BACKEND_GAPS P0-1 / P0-2 / P0-3 / P1-1 / P1-11 predate the new routes | Update in Phase 5; ask before deleting SESSION_HANDOFF |
 | Native size | ~98 MB of the APK | 4 ABIs, R8 off (see the size note from the previous session) | Not in scope unless you want it (Q7) |
 
 ---
@@ -168,7 +168,7 @@ recency-weighted and shows "New" under 10 days. In Live, show the backend's numb
 
 **Q5 (deletions).** Delete (a) the Keeper PNG fallbacks (~4.8 MB repo, also shrinks the APK), (b) the
 unused object, gesture, coin and mark PNGs plus their lines in `sync-assets.mjs`, (c) `legacy/`,
-(d) `docs/SESSION_HANDOFF.md`?
+(d) `docs/notes/SESSION_HANDOFF.md`?
 
 **Q6 (demo fast-forward).** Cheap: the mock already has a virtual clock with "end the day", and it settles
 with `packages/engine`. Proposal: in Demo, Profile › Settings gets one row, "Skip to tomorrow". It ends the
