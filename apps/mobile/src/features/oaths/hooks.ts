@@ -33,7 +33,8 @@ export function useOathList() {
   const q = useQuery({ queryKey: [...oathKeys.list(wallet), scenario], queryFn: () => api.oaths.list(wallet!), enabled: !!wallet, refetchInterval: REFRESH_MS });
   const now = useNow(1000);
   const names = useDeviceOaths((s) => s.names);
-  const views = useMemo(() => (q.data ?? []).map((f) => oathView(withName(f, names), now, wallet)), [q.data, now, wallet, names]);
+  const avatar = useSession((s) => s.avatar);
+  const views = useMemo(() => (q.data ?? []).map((f) => oathView(withName(f, names, { wallet, avatar }), now, wallet)), [q.data, now, wallet, names, avatar]);
   return { ...q, views };
 }
 
@@ -44,11 +45,17 @@ export function useOath(id: string | undefined) {
   const q = useQuery({ queryKey: [...oathKeys.one(id ?? ""), scenario], queryFn: () => api.oaths.get(id!), enabled: !!id, refetchInterval: REFRESH_MS });
   const now = useNow(1000);
   const names = useDeviceOaths((s) => s.names);
-  const view = useMemo(() => (q.data ? oathView(withName(q.data, names), now, wallet) : null), [q.data, now, wallet, names]);
+  const avatar = useSession((s) => s.avatar);
+  const view = useMemo(() => (q.data ? oathView(withName(q.data, names, { wallet, avatar }), now, wallet) : null), [q.data, now, wallet, names, avatar]);
   return { ...q, view };
 }
 
-const withName = (f: OathFacts, names: Record<string, string>): OathFacts => (names[f.id] ? { ...f, name: names[f.id]! } : f);
+/** Device-side facts: a local name (P1-7), and my avatar from this device (D-40) when the data has none. */
+function withName(f: OathFacts, names: Record<string, string>, me?: { wallet: string | null; avatar: string | null }): OathFacts {
+  const named = names[f.id] ? { ...f, name: names[f.id]! } : f;
+  if (!me?.wallet || !me.avatar || !named.members.some((m) => m.wallet === me.wallet && !m.avatar)) return named;
+  return { ...named, members: named.members.map((m) => (m.wallet === me.wallet && !m.avatar ? { ...m, avatar: me.avatar } : m)) };
+}
 
 export const refreshOaths = () => queryClient.invalidateQueries({ queryKey: oathKeys.all });
 

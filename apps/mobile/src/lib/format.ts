@@ -41,10 +41,11 @@ export function clock(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));
   return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
 }
-/** 33522 → "9h 18m"; 600 → "10m" (card tags, D2). */
+/** 33522 → "9h 18m"; 600 → "10m"; 601200 → "6d 23h" (card tags, D2, Rematch windows). */
 export function shortDuration(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));
   const h = Math.floor(s / 3600);
+  if (h >= 24) return `${Math.floor(h / 24)}d ${h % 24}h`;
   const m = Math.floor((s % 3600) / 60);
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }

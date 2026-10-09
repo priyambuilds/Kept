@@ -70,7 +70,7 @@ export function R1() {
       <Title heading={t("screens.R1.b1.title", { amount: skrWhole(held) })} sub={t("additions.rematch.winBackHalf")} />
       <Breakdown rows={[
         { label: t("screens.R1.b2.row0.l"), value: t("screens.R1.b2.row0.v", { name: f.name, n: f.numDays, object: objectName(f.objectId) }) },
-        { label: t("screens.R1.b2.row1.l"), value: t("screens.R1.b2.row1.v", { amount: skrWhole(-lost) }), color: color.red.base },
+        { label: t("screens.R1.b2.row1.l"), value: t("screens.R1.b2.row1.v", { amount: skrWhole(lost) }), color: color.red.base },
         { label: t("screens.R1.b2.row2.l"), value: t("screens.R1.b2.row2.v", { amount: skrWhole(held) }), color: color.lime.base },
         { label: t("screens.R1.b2.row3.l"), value: t("screens.R1.b2.row3.v", { amount: skrWhole(f.stake) }) },
         { label: t("screens.R1.b2.row4.l"), value: t("screens.R1.b2.row4.v", { time: shortDuration(left) }) },
@@ -104,13 +104,15 @@ export function R3() {
   const { id } = useParams<{ id: string }>();
   const { view } = useOath(id);
   const { view: source } = useOath(view?.facts.rematchOf);
+  const offer = useRematch(view?.facts.rematchOf);
   const now = useNow(60_000);
   if (!view) return <Screen bar={<NavBar onBack={back} title={t("screens.R3.nav.title")} />}><Skeleton height={200} /></Screen>;
   const f = view.facts;
   const out = source ? source.members.filter((m) => !view.members.some((x) => x.facts.wallet === m.facts.wallet)) : [];
   const total = source?.members.length ?? MAX_MEMBERS;
   const canStart = view.members.length >= 2;
-  const left = Math.max(0, f.createdAt + 7 * 86_400 - now);
+  // One window for everyone: 7 days from the break (rules.md §4), the same clock R1 shows.
+  const left = Math.max(0, (offer.data?.closesAt ?? now) - now);
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.R3.nav.title")} />} bottomInset={pinned(2)} pinned={<>
       <Button kind="l" icon="play" label={t("screens.R3.pin.0")} disabled={!canStart} onPress={() => go("D1·go", { id: f.id })} />
@@ -182,7 +184,8 @@ function RematchResult({ lost }: { lost: boolean }) {
     { label: t(`screens.${id}.b1.row0.l`), value: t(`screens.${id}.b1.row0.v`, { amount: skrWhole(mine.start) }) },
     { label: lost ? t("screens.R4·lost.b1.row1.l", { days: dayList(me.missed.map((d) => d + 1)) }) : t("screens.R4.b1.row1.l"), value: t(`screens.${id}.b1.row1.v`, { amount: mine.lost > 0n ? skrWhole(-mine.lost) : "0" }) },
     { label: t(`screens.${id}.b1.row2.l`, { name: listNames(view.members.filter((m) => m.missed.length && !m.isMe).map(memberName)) }), value: t(`screens.${id}.b1.row2.v`, { amount: signed(mine.won) }) },
-    { label: t(`screens.${id}.b1.row3.l`), value: t(`screens.${id}.b1.row3.v`) },
+    // The fee comes out of the money lost (rules.md §3), so it isn't charged again here (DECISIONS D-64).
+    { label: t(`screens.${id}.b1.row3.l`), value: lost ? t("screens.R4·lost.b1.row3.v", { amount: "0" }) : t("screens.R4.b1.row3.v") },
     { label: t(`screens.${id}.b1.row4.l`, { name: source?.facts.name ?? "" }), value: t(`screens.${id}.b1.row4.v`, { amount: signed(recovered) }) },
     { label: t(`screens.${id}.b1.row5.l`), value: t(`screens.${id}.b1.row5.v`, { amount: skrWhole(mine.final) }), total: true },
   ];

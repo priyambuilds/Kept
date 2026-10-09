@@ -40,7 +40,8 @@ export function mockRematchApi(ctx: MockContext): RematchApi {
       const source = mockOaths.get(sourceId);
       if (!source || source.day1StartsAt === null) throw notFound("broken Oath");
       // The window opens when the Oath breaks (midnight after the breaking day) and lasts 7 days.
-      const brokeAt = source.day1StartsAt + Math.min(source.numDays, Math.ceil((clock.now() / 1000 - source.day1StartsAt) / source.daySeconds)) * source.daySeconds;
+      // The last day boundary already passed (ceil put it a day in the future: 8 days left on R1).
+      const brokeAt = source.day1StartsAt + Math.min(source.numDays, Math.floor((clock.now() / 1000 - source.day1StartsAt) / source.daySeconds)) * source.daySeconds;
       return { rematch: mockOaths.rematchFor(sourceId), closesAt: brokeAt + REMATCH_WINDOW };
     },
     join: async (sourceId, wallet) => { await delay(ctx); return mockOaths.joinRematch(sourceId, wallet); },

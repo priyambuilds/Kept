@@ -18,7 +18,7 @@ import { SignStatus } from "@/components/content/Status";
 import { KeeperPlacement } from "@/components/keeper/KeeperUI";
 import { Screen } from "@/components/layout/Screen";
 import { formatUsd } from "@/lib/format";
-import { metrics } from "@/theme";
+import { color, metrics } from "@/theme";
 import { useApi } from "@/api";
 import { qk } from "@/api/queries";
 import { useGo, useParams } from "@/app/nav";
@@ -87,7 +87,7 @@ export function C3() {
       <Title heading={t("screens.C3.b0.title")} sub={t("screens.C3.b0.sub")} />
       <OptionGrid mode="big" value={LENGTHS.indexOf(draft.numDays)} onChange={(i) => set({ numDays: LENGTHS[i]! })}
         items={[0, 1, 2].map((i) => ({ title: t(`screens.C3.b1.o${i}.t` as CopyKey), sub: t(`screens.C3.b1.o${i}.s` as CopyKey) }))} />
-      <Banner tone="vio" icon="calendar-check-outline"
+      <Banner tone="grey" icon="calendar-check"
         title={t("screens.C3.b2.title", { date: new Date(ends * 1000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }).replace(",", "") })}
         sub={t("screens.C3.b2.sub")} />
     </Step>
@@ -143,7 +143,7 @@ export function C6() {
     { label: t("screens.C6.b1.row0.l"), value: t("screens.C6.b1.row0.v", { goal: draft.goal.trim() }) },
     { label: t("screens.C6.b1.row1.l"), value: objectName(draft.objectId) },
     { label: t("screens.C6.b1.row2.l"), value: t(`common.lengths.${LENGTHS.indexOf(draft.numDays)}` as CopyKey) },
-    { label: t("screens.C6.b1.row3.l"), value: t("screens.C6.b1.row3.v", { amount: skrWhole(stake) }) },
+    { label: t("screens.C6.b1.row3.l"), value: t("screens.C6.b1.row3.v", { amount: skrWhole(stake) }), color: color.lime.base },
     ...(draft.isSolo ? [] : [{ label: t("screens.C6.b1.row4.l"), value: reviewText(draft.reviewMode) }]),
   ];
   return (
@@ -151,10 +151,10 @@ export function C6() {
       <Title heading={t("screens.C6.b0.title")} />
       <Breakdown rows={rows} />
       <RowList label={t("screens.C6.b2.label")} rows={[
-        { title: t("screens.C6.b2.r0.t"), sub: t("screens.C6.b2.r0.s"), leading: { kind: "icon", icon: "heart-pulse" } },
-        { title: t("screens.C6.b2.r1.t"), sub: t("screens.C6.b2.r1.s"), leading: { kind: "icon", icon: "fire" } },
-        { title: t("screens.C6.b2.r2.t", { cost: costs[0]! }), sub: t("screens.C6.b2.r2.s", { second: costs[1]!, third: costs[2]! }), leading: { kind: "icon", icon: "sack" } },
-        { title: t("screens.C6.b2.r3.t"), sub: t("screens.C6.b2.r3.s"), leading: { kind: "icon", icon: "percent" } },
+        { title: t("screens.C6.b2.r0.t"), sub: t("screens.C6.b2.r0.s"), leading: { kind: "icon", icon: "heart-pulse", fg: color.text.primary } },
+        { title: t("screens.C6.b2.r1.t"), sub: t("screens.C6.b2.r1.s"), leading: { kind: "icon", icon: "fire", fg: color.red.base } },
+        { title: t("screens.C6.b2.r2.t", { cost: costs[0]! }), sub: t("screens.C6.b2.r2.s", { second: costs[1]!, third: costs[2]! }), leading: { kind: "icon", icon: "sack", fg: color.lime.base } },
+        { title: t("screens.C6.b2.r3.t"), sub: t("screens.C6.b2.r3.s"), leading: { kind: "icon", icon: "percent-outline", fg: color.text.primary } },
       ]} />
     </Step>
   );

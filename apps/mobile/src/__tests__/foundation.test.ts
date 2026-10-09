@@ -77,5 +77,20 @@ describe("format", () => {
     expect(formatUsd(1_000_000_000n, 0.01)).toBe("≈ $10");
     expect(clock(33522)).toBe("09:18:42");
     expect(shortDuration(33522)).toBe("9h 18m");
+    expect(shortDuration(6 * 86400 + 23 * 3600 + 120)).toBe("6d 23h");
+  });
+  it("groups bigint amounts without Intl (Hermes' NumberFormat throws on BigInt)", () => {
+    const real = Intl.NumberFormat;
+    // Hermes behaviour: format(bigint) throws "Cannot convert BigInt to number".
+    Intl.NumberFormat = function () { return { format: (v: unknown) => { if (typeof v === "bigint") throw new TypeError("Cannot convert BigInt to number"); return String(v); } }; } as unknown as typeof Intl.NumberFormat;
+    try {
+      jest.isolateModules(() => {
+        const f = require("@/lib/format") as typeof import("@/lib/format");
+        expect(f.formatSkr(1_234_567_000_000n)).toBe("1,234,567");
+        expect(f.formatSkr(1_468_750_000n)).toBe("1,468.75");
+      });
+    } finally {
+      Intl.NumberFormat = real;
+    }
   });
 });

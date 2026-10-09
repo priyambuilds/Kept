@@ -1903,5 +1903,83 @@
   "sample": {
    "name": "Drift"
   }
+ },
+ "screens.R4.b1.row0.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.R4.b1.row1.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "0"
+  }
+ },
+ "screens.R4.b1.row2.l": {
+  "template": "Won from {name}",
+  "sample": {
+   "name": "Riya"
+  }
+ },
+ "screens.R4.b1.row2.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "+129"
+  }
+ },
+ "screens.R4.b1.row4.l": {
+  "template": "Recovered from {name}",
+  "sample": {
+   "name": "Guitar Days"
+  }
+ },
+ "screens.R4.b1.row4.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "+500"
+  }
+ },
+ "screens.R4.b1.row5.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,629"
+  }
+ },
+ "screens.R4·lost.b1.row0.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.R4·lost.b1.row1.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "−143"
+  }
+ },
+ "screens.R4·lost.b1.row2.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "+86"
+  }
+ },
+ "screens.R4·lost.b1.row4.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "0"
+  }
+ },
+ "screens.R4·lost.b1.row5.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "929"
+  }
+ },
+ "screens.R4·lost.b1.row3.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "−14"
+  }
  }
 }

@@ -74,7 +74,7 @@ export function OathsTab() {
       })}
       {open.length ? <RowList label={t("screens.D0.b4.label")} rows={open.map((v) => ({
         title: t("screens.D0.b4.r0.t", { name: v.facts.name }), sub: t("screens.D0.b4.r0.s", { joined: v.members.length, cap: v.facts.isSolo ? 1 : MAX_MEMBERS }),
-        value: t("screens.D0.b4.r0.r"), leading: { kind: "icon" as const, icon: objectIcon(v.facts.objectId) }, chevron: true, onPress: () => open1(v),
+        value: t("screens.D0.b4.r0.r"), leading: { kind: "icon" as const, icon: "timer-sand" }, chevron: true, onPress: () => open1(v),
       }))} /> : null}
       {done.length ? <RowList label={t("screens.D0.b5.label")} rows={done.map((v): RowProps => {
         const mine = v.me >= 0 ? v.results[v.me]! : null;
@@ -84,7 +84,9 @@ export function OathsTab() {
           sub: v.life === "broken" ? t("screens.D0.b5.r1.s", { day: (v.state.brokeOnDay ?? 0) + 1 }) : t("screens.D0.b5.r0.s", { when: weekday(endOf(v)).slice(0, 3) }),
           value: t("screens.D0.b5.r0.r", { delta: skrWhole(delta) === "0" ? "±0" : delta > 0n ? `+${skrWhole(delta)}` : skrWhole(delta) }),
           valueColor: delta > 0n ? color.lime.base : delta < 0n ? color.red.base : color.text.secondary,
-          leading: { kind: "icon", icon: objectIcon(v.facts.objectId) }, chevron: true, onPress: () => open1(v),
+          // reference/kept-screens-2.js › D0: finished rows show the outcome, not the object.
+          leading: v.life === "broken" ? { kind: "icon", icon: "fire", fg: color.red.base } : { kind: "icon", icon: "trophy-outline", fg: color.lime.base },
+          chevron: true, onPress: () => open1(v),
         };
       })} /> : null}
       <RowList rows={[{ title: t("screens.D0.b6.r0.t"), sub: t("screens.D0.b6.r0.s"), leading: { kind: "icon", icon: "history" }, chevron: true, onPress: () => go("D5") }]} />
