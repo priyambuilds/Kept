@@ -273,7 +273,7 @@ export function F5() {
   // Someone in group review has done their part (D-47): not "hasn't proved today".
   const pending = view ? view.members.filter((m) => !m.isMe && m.pendingToday && m.facts.proofToday !== "review") : [];
   const day = view?.dayNumber ?? 1;
-  useEffect(() => { playFx(undefined, [{ text: t("screens.F5.b1.title", { day }), icon: "check-bold" }], "kept"); }, [playFx, day]);
+  useEffect(() => { playFx(undefined, "kept"); }, [playFx, day]);
   const time = new Date().toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
   return (
     <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1)}

@@ -16,6 +16,4 @@ export const haptic = {
   broken: () => { haptic.error(); later(150, haptic.heavy); },
   /** motion.md §8 comeback: notificationSuccess, then impactMedium 250 ms later ("double knock"). */
   comeback: () => { haptic.success(); later(250, haptic.medium); },
-  /** One impactLight per value pill at its delay (motion.md §4/§7). */
-  pills: (delays: number[]) => { for (const d of delays) later(d, haptic.light); },
 };

@@ -277,7 +277,7 @@ export function H5() {
   const playFx = useUi((s) => s.playFx);
   const avatar = useSession((s) => s.avatar);
   const payout = v ? v.results[v.me]?.final ?? 0n : 0n;
-  useEffect(() => { if (payout > 0n) playFx(undefined, [{ text: `+${skrWhole(payout)}`, icon: "trophy-outline" }], "payout"); }, [payout, playFx]);
+  useEffect(() => { if (payout > 0n) playFx(undefined, "payout"); }, [payout, playFx]);
   if (!b || !v) return null;
   // Who else survived isn't known yet (BACKEND_GAPS P1-20): me, then the rest as a count.
   const seats: Seat[] = [{ kind: "member", name: t("screens.D2.b6.r0.t"), initial: "Y", color: color.member.you, ...(avatar ? { avatar } : {}), status: `+${skrWhole(payout)}` }];

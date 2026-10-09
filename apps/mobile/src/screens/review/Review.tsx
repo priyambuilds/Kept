@@ -20,7 +20,6 @@ import { gestureKey, gestureText, listNames, memberColor, memberInitial, memberN
 import { reviewActions, useOpenReviews, useReview } from "@/features/phase4";
 import type { ReviewFacts } from "@/features/reviews/mockStore";
 import { useNow } from "@/features/time";
-import { useUi } from "@/state/ui";
 import { challengeFor } from "../proof/Proof";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
@@ -120,8 +119,6 @@ function useDecided() {
 export function G3() {
   const { replace } = useGo();
   const { id, view, r, yes, no } = useDecided();
-  const playFx = useUi((s) => s.playFx);
-  useEffect(() => { if (r) playFx(undefined, [{ text: t("screens.G3.b1.chip", { yes, no }), icon: "check-bold" }]); }, [playFx, r, yes, no]);
   if (!view || !r) return null;
   const backers = Object.entries(r.votes).filter(([, v]) => v).map(([w]) => nameOf(view, w));
   const me = view.me >= 0 ? view.members[view.me]! : null;

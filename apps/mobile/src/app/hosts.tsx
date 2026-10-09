@@ -2,7 +2,7 @@
 // watcher. (The Keeper's note lives in each Screen.) ToastHost wraps the app in App.tsx.
 import { useEffect, useRef } from "react";
 import { onlineManager } from "@tanstack/react-query";
-import { FxLayer, PILL_DELAYS } from "@/components/chrome";
+import { FxLayer } from "@/components/chrome";
 import { haptic } from "@/lib/haptics";
 import { useUi } from "@/state/ui";
 import { navigateTo, navigationRef } from "./nav";
@@ -27,11 +27,10 @@ export function FxHost() {
     else if (cur.feel === "payout") at(200, haptic.success);
     else if (cur.feel === "broken") haptic.broken();
     else if (cur.feel === "comeback") haptic.comeback();
-    cur.pills.slice(0, 3).forEach((_, i) => at(PILL_DELAYS[i]!, haptic.light));
     return () => timers.forEach(clearTimeout);
   }, [id]);
   if (!fx) return null;
-  return <FxLayer key={fx.id} {...(fx.kind ? { kind: fx.kind } : {})} pills={fx.pills} />;
+  return <FxLayer key={fx.id} {...(fx.kind ? { kind: fx.kind } : {})} />;
 }
 
 /** M2: when a call fails for lack of network, show "You're offline." once per outage. */

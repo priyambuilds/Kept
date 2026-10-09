@@ -152,7 +152,7 @@ export function L6() {
   const { go, replace } = useGo();
   const { view, source, mine, recovered } = useRematchResult();
   const playFx = useUi((s) => s.playFx);
-  useEffect(() => { if (recovered > 0n) playFx(undefined, [{ text: signed(recovered), icon: "sack" }], "comeback"); }, [recovered, playFx]);
+  useEffect(() => { if (recovered > 0n) playFx(undefined, "comeback"); }, [recovered, playFx]);
   if (!view || !mine) return null;
   const k = keeperLines("L6")[0]!;
   return (

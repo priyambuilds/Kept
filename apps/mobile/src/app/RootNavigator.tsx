@@ -10,7 +10,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import * as Linking from "expo-linking";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { PILL_DELAYS, TabBar } from "@/components/chrome";
+import { TabBar } from "@/components/chrome";
 import type { TabKey } from "@/components/chrome";
 import { color } from "@/theme";
 import { Gallery } from "@/dev/Gallery";
@@ -86,8 +86,8 @@ function Tabs() {
   );
 }
 
-/** A moment has settled once its last value pill has risen (motion.md §5/§7: pills at .6 / 1.1 / 1.6 s). */
-export const MOMENT_SETTLE_MS = PILL_DELAYS[PILL_DELAYS.length - 1]!;
+/** A moment has settled 1.6 s in (D-74: where motion.md's choreography ends). */
+export const MOMENT_SETTLE_MS = 1600;
 
 /** Moments (L1–L6, F5, …) have no back until the screen settles (flows.md); then back works as usual. */
 function blockBack<P extends object>(C: ComponentType<P>): ComponentType<P> {
