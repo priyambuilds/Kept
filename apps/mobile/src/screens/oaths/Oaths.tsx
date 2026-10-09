@@ -1,5 +1,6 @@
 // D · Oaths (screens.md D0–D5). Every number here comes from the engine view (features/oaths/model);
 // screens only lay it out.
+import type { IconName } from "@/components/primitives";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import * as Clipboard from "expo-clipboard";
@@ -93,6 +94,12 @@ export function OathsTab() {
     </TabScreen>
   );
 }
+
+/** Icons for the sample history (reference/kept-kit.js › HIST; copy.json's sampleData has none). Mock until P1-16. */
+const HISTORY_ICON: Record<string, IconName> = {
+  "Hydra 14": "trophy-outline", "Pages Sprint · Rematch": "sword-cross", "Guitar Days": "guitar-acoustic", "Iron Week": "dumbbell",
+  "Dawn Run": "shoe-sneaker", "Cold Showers": "water-outline", "Read 20 pages": "book-open-variant", "Mat Mornings": "yoga",
+};
 
 const endOf = (v: OathView) => (v.facts.day1StartsAt ?? v.facts.createdAt) + v.facts.numDays * v.facts.daySeconds;
 
@@ -396,7 +403,7 @@ export function D5() {
       {months.map((m) => (
         <RowList key={m} label={m.toUpperCase()} rows={sampleData.history.filter((h) => h.month === m && filter(h.delta)).map((h) => ({
           title: h.name, sub: h.sub, value: h.delta, valueColor: h.delta.startsWith("−") ? color.red.base : h.delta.startsWith("+") ? color.lime.base : color.text.secondary,
-          leading: { kind: "icon" as const, icon: OBJECTS[0].icon },
+          leading: { kind: "icon" as const, icon: HISTORY_ICON[h.name] ?? OBJECTS[0].icon },
         }))} />
       ))}
       <RowList rows={[{ title: t("screens.D5.b5.r0.t"), sub: t("screens.D5.b5.r0.s"), onPress: () => toast(t("toasts.24")) }]} />

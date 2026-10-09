@@ -50,7 +50,7 @@ interface Shot {
 const iron = () => ({ id: oath("Iron Week") });
 const ironOpen = () => ({ id: mockOaths.byCode("IRON-7K2Q")?.id ?? "", code: "IRON-7K2Q" });
 const proof = (photo: 1 | 2, name = "Iron Week") => () => ({ id: oath(name), photo });
-const fail = (retry: DesignId, edit: DesignId) => () => ({ retry, edit, need: "1000" });
+const fail = (retry: DesignId, edit: DesignId) => () => ({ retry, edit, need: "1,000" });
 const invite = () => { mockOaths.inviteFor("IRON-7K2Q", W); };
 const joined = () => { mockOaths.join(mockOaths.byCode("DAWN-R7Q2")!.id, W); };
 const dawn = () => ({ id: mockOaths.byCode("DAWN-R7Q2")?.id ?? "" });
@@ -89,7 +89,7 @@ const SHOTS: Partial<Record<DesignId, Shot>> = {
   L1: { scenario: "settledKept", params: iron }, L2: { scenario: "settledMissed", params: iron }, L3: { scenario: "broken", params: () => ({ id: oath("Guitar Days") }) },
   L4: { scenario: "soloKept", params: () => ({ id: oath("Read 20 pages") }) }, "L4·m": { scenario: "soloMissed", params: () => ({ id: oath("Read 20 pages") }) },
   "L4·b": { scenario: "soloBroken", params: () => ({ id: oath("Read 20 pages") }) },
-  M3: { params: fail("C7", "C6") }, M4: { params: fail("C7", "C6") }, "W3·s": { params: () => ({ lamports: "500000000" }) },
+  M3: { scenario: "noSol", params: fail("C7", "C6") }, M4: { scenario: "noSkr", params: fail("C7", "C6") }, "W3·s": { params: () => ({ lamports: "500000000" }) },
 };
 
 const TODAY_STATES = new Set<string>(["B2", "B3", "B4"]);

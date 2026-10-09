@@ -13,6 +13,7 @@ import { mockBounties } from "@/features/bounties/mockStore";
 import { PEOPLE, mockOaths } from "@/features/oaths/mockStore";
 import { ApiError } from "../errors";
 import type { ActivityItem, AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
+import { devWait } from "@/state/dev";
 import { clock } from "./clock";
 import type { Scenario } from "./scenarios";
 
@@ -66,6 +67,7 @@ export function mockWallet(ctx: MockContext): WalletApi {
     },
     swap: async (lamports) => {
       await ack(ctx);
+      await devWait(0); // W3·s held open by the dev deep link
       if (ctx.scenario() === "noSol" || lamports > 840_000_000n - spentLamports) throw new ApiError("INSUFFICIENT_SOL", "mock: not enough SOL", 400);
       const out = (lamports * MOCK_SKR_PER_SOL * SKR_UNIT) / 1_000_000_000n;
       spentLamports += lamports;
