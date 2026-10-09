@@ -24,7 +24,7 @@ export function PlusSheet() {
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
-        <Title heading={t("screens.+.b0.title")} pt={0} />
+        <Title heading={t("screens.+.b0.title")} pt={0} fs={26} />
         <RowList rows={ITEMS.map((i) => ({
           title: t(`screens.+.b1.r${i.key}.t`), sub: t(`screens.+.b1.r${i.key}.s`), chevron: true,
           leading: i.key === 0 ? { kind: "icon" as const, icon: i.icon, bg: color.chipTone.white.bg, fg: color.text.onLime } : { kind: "icon" as const, icon: i.icon },

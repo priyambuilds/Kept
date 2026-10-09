@@ -108,7 +108,7 @@ export function W2() {
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
-        <Title heading={t("screens.W2.b0.title")} sub={t("screens.W2.b0.sub")} pt={0} />
+        <Title heading={t("screens.W2.b0.title")} sub={t("screens.W2.b0.sub")} pt={0} fs={26} />
         <RowList rows={[
           { title: t("screens.W2.b1.r0.t"), sub: t("screens.W2.b1.r0.s"), leading: { kind: "icon", icon: "swap-horizontal" }, chevron: true, onPress: () => replace("W3") },
           { title: t("screens.W2.b1.r1.t"), sub: t("screens.W2.b1.r1.s"), leading: { kind: "icon", icon: "qrcode" }, chevron: true, onPress: () => replace("W4") },

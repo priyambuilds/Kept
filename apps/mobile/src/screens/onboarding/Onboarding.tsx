@@ -78,7 +78,7 @@ export function A1() {
         { text: t("screens.A1.b1.chip.0"), icon: "sack", x: 200, y: 150, tilt: 4, tone: "lime" },
         { text: t("screens.A1.b1.chip.1"), icon: "cards-playing-outline", x: 190, y: 200, tilt: -3, tone: "white" },
       ]} />
-      <Enter index={1}><Title heading={t("screens.A1.b2.title")} sub={t("screens.A1.b2.sub")} fs={40} /></Enter>
+      <Enter index={1}><Title heading={t("screens.A1.b2.title")} sub={t("screens.A1.b2.sub")} fs={32} /></Enter>
     </Screen>
   );
 }

@@ -382,7 +382,7 @@ export function L5() {
   };
   return (
     <Screen bar={<NavBar onBack={back} close />}>
-      <Title heading={t("screens.L5.b0.title")} />
+      <Title heading={t("screens.L5.b0.title")} fs={26} />
       {done.length ? <RowList rows={done.map(row)} /> : <Note text={t("additions.bounty.noneJoined")} />}
     </Screen>
   );

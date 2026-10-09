@@ -19,6 +19,7 @@ import { useDeviceOaths } from "@/features/oaths/device";
 import { mockReviews } from "@/features/reviews/mockStore";
 import { useDev, useDevHold } from "@/state/dev";
 import { useDraft } from "@/state/drafts";
+import { useBountyDraft } from "@/screens/bounties/CreateBounty";
 import { useSession } from "@/state/session";
 import { useUi } from "@/state/ui";
 import { navigationRef, target } from "@/app/nav";
@@ -93,6 +94,8 @@ const SHOTS: Partial<Record<DesignId, Shot>> = {
 
 const TODAY_STATES = new Set<string>(["B2", "B3", "B4"]);
 const ONBOARDING = new Set<string>(["A0", "A1", "A2", "A2·s", "A2·e", "A3", "A3·no", "A4"]);
+/** The prototype's Bounty draft (K1–K5). */
+const SAMPLE_BOUNTY = { name: "Dawn Pages", message: "Read before your phone. 14 mornings.", link: "dawnpages.xyz" };
 /** The prototype's "You" avatar (reference/kept-kit.js › P.Y). */
 const SAMPLE_AVATAR = "13050010";
 const SAMPLE_DRAFT = { goal: "lift for 20 minutes", objectId: 0, numDays: 7 as const, isSolo: false, stakeSkr: 1000, reviewMode: "ai_group" as const };
@@ -120,6 +123,8 @@ export function openDevLink(url: string): boolean {
   queryClient.clear();
   useUi.setState({ keeperNote: null, fx: null, devMenu: false });
   useDraft.setState({ draft: SAMPLE_DRAFT });
+  useBountyDraft.getState().reset();
+  if (id.startsWith("K")) useBountyDraft.getState().set(SAMPLE_BOUNTY);
   const signedOut = ONBOARDING.has(id);
   useSession.setState(signedOut
     ? { token: null, wallet: null, genesis: false, onboarded: false, avatar: null, invite: null }

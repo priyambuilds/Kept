@@ -125,7 +125,7 @@ function OpenHeader({ v, member }: { v: OathView; member?: boolean }) {
         <Chip text={member ? t("screens.D1·m.b0.chip.2", { amount: skrWhole(f.stake) }) : t("screens.D1.b0.chip.2", { amount: skrWhole(f.stake) })} icon="sack" tone="lime" tilt={-1} />
         {!f.isSolo && !member ? <Chip text={reviewText(f.reviewMode)} icon="account-group-outline" tilt={2} /> : null}
       </ChipRow>
-      <Title heading={t("screens.D1.b1.title", { goal: f.goal ?? f.name })} {...(!member ? { sub: t("screens.D1.b1.sub", { object: objectName(f.objectId) }) } : {})} />
+      <Title heading={t("screens.D1.b1.title", { goal: f.goal ?? f.name })} {...(!member ? { sub: t("screens.D1.b1.sub", { object: objectName(f.objectId) }) } : {})} fs={28} />
     </>
   );
 }
@@ -187,7 +187,7 @@ export function D1x() {
     <View style={{ flex: 1 }}>
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
         <Title heading={t("screens.D1·x.b0.title", { name: f.name })} pt={0}
-          sub={others.length ? t("screens.D1·x.b0.sub", { names: listNames(others), amount: skrWhole(f.stake) }) : t("additions.core.cancelAlone", { amount: skrWhole(f.stake) })} />
+          sub={others.length ? t("screens.D1·x.b0.sub", { names: listNames(others), amount: skrWhole(f.stake) }) : t("additions.core.cancelAlone", { amount: skrWhole(f.stake) })} fs={26} />
         <ButtonRow direction="column">
           <Button kind="d" label={t("screens.D1·x.b1.btn.0")} onPress={() => replace("D1·xs", { id: f.id })} />
           <Button kind="s" label={t("screens.D1·x.b1.btn.1")} onPress={back} />

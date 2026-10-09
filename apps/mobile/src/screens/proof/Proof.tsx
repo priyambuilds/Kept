@@ -251,7 +251,7 @@ export function F4ag() {
       <Button kind="t" label={t("screens.F4a·g.pin.1")} onPress={() => reset("B1")} />
     </>}>
       <ProofCamera photo={2} state="fail" object={view ? objectIcon(view.facts.objectId) : "camera"} {...(gk ? { gesture: gk } : {})} label={t("screens.F4a·g.b0.label")} height={260} />
-      <Title heading={t("screens.F4a·g.b1.title")} sub={t("screens.F4a·g.b1.sub", { names: listNames(others) })} />
+      <Title heading={t("screens.F4a·g.b1.title")} sub={t("screens.F4a·g.b1.sub", { names: listNames(others) })} fs={28} />
     </Screen>
   );
 }

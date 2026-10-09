@@ -20,7 +20,7 @@ import type { DesignId } from "@/app/routes";
 import { oathActions, useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { useDeviceOaths } from "@/features/oaths/device";
-import { dayList, memberName, skrWhole } from "@/features/oaths/present";
+import { dayList, memberColor, memberInitial, memberName, skrWhole } from "@/features/oaths/present";
 import { screenFor } from "@/features/oaths/route";
 import { useUi } from "@/state/ui";
 import { SigningScreen } from "../shared/Signing";
@@ -162,7 +162,7 @@ function GroupSettled({ missed }: { missed: boolean }) {
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(id)} />
       <Title heading={missed ? t("screens.L2.b1.title", { name: view.facts.name }) : t("screens.L1.b1.title", { name: view.facts.name })}
         {...(missed ? { sub: t("screens.L2.b1.sub", { days: dayList(me.missed.map((d) => d + 1)) }) } : {})} align="center" />
-      <MoneyMoment value={t("screens.L1.b2.value", { amount: skrWhole(mine.final) })} tone="lime"
+      <MoneyMoment value={t("screens.L1.b2.value", { amount: skrWhole(mine.final) })} tone={missed ? "white" : "lime"}
         caption={net >= 0n ? t("screens.L1.b2.caption", { amount: skrWhole(net) }) : t("additions.core.down", { amount: skrWhole(-net) })} />
       <Breakdown rows={[
         { label: t("screens.L1.b3.row0.l"), value: skrWhole(mine.start) },
@@ -193,10 +193,11 @@ export function L3() {
       <Button kind="t" label={t("screens.L3.pin.1")} onPress={() => go("C1")} />
     </>}>
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("L3")} />
-      <Title heading={t("screens.L3.b1.title")} sub={t("screens.L3.b1.sub", { name: view.facts.name, day })} align="center" />
+      <Title heading={t("screens.L3.b1.title")} sub={t("screens.L3.b1.sub", { name: view.facts.name, day })} align="center" fs={48} />
       <MoneyMoment value={t("screens.L3.b2.value", { amount: skrWhole(-myLost) })} caption={t("screens.L3.b2.caption")} tone="red" />
       <RowList label={t("screens.L3.b3.label")} rows={view.members.filter((m) => m.missed.length).map((m) => ({
         title: memberName(m), sub: t("screens.L3.b3.r0.s", { days: dayList(m.missed.map((d) => d + 1)) }), value: t("screens.L3.b3.r0.r", { hp: dmg * m.missed.length }), valueColor: color.red.base,
+        leading: m.facts.avatar ? { kind: "avatar" as const, config: m.facts.avatar } : { kind: "initial" as const, initial: memberInitial(m), bg: memberColor(m) },
       }))} />
     </Moment>
   );

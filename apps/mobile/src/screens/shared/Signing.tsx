@@ -106,7 +106,7 @@ export function M3() {
     <View style={{ flex: 1 }}>
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
         <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("M3")} />
-        <Title heading={t("screens.M3.b1.title")} sub={t("screens.M3.b1.sub", { sol })} pt={0} />
+        <Title heading={t("screens.M3.b1.title")} sub={t("screens.M3.b1.sub", { sol })} pt={0} fs={26} />
         <ButtonRow direction="column">
           <Button kind="p" label={t("screens.M3.b2.btn.0")} onPress={() => replace("W2")} />
           <Button kind="t" label={t("screens.M3.b2.btn.1")} onPress={back} />
@@ -126,7 +126,7 @@ export function M4() {
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
-        <Title heading={t("screens.M4.b0.title", { amount: p.need ?? "" })} sub={t("screens.M4.b0.sub", { have })} pt={0} />
+        <Title heading={t("screens.M4.b0.title", { amount: p.need ?? "" })} sub={t("screens.M4.b0.sub", { have })} pt={0} fs={26} />
         <ButtonRow direction="column">
           <Button kind="l" label={t("screens.M4.b1.btn.0")} onPress={() => replace("I4")} />
           <Button kind="s" label={t("screens.M4.b1.btn.1")} onPress={() => replace("C4")} />

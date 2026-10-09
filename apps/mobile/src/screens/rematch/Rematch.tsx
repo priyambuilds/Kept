@@ -163,10 +163,10 @@ export function L6() {
       pinned={<><Button kind="l" icon="hand-coin-outline" label={t("screens.L6.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} /><BrandStamp text={t("screens.L6.brand.stamp")} /></>}>
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("L6")} />
       <Title heading={t("screens.L6.b1.title")} sub={t("screens.L6.b1.sub", { n: view.facts.numDays })} align="center" />
-      <MoneyMoment value={t("screens.L6.b2.value", { amount: signed(recovered) })} caption={t("screens.L6.b2.caption", { name: source?.facts.name ?? view.facts.name })} tone="lime" />
+      <MoneyMoment value={t("screens.L6.b2.value", { amount: skrWhole(recovered) })} caption={t("screens.L6.b2.caption", { name: source?.facts.name ?? view.facts.name })} tone="lime" />
       <Breakdown rows={[
         { label: t("screens.L6.b3.row0.l"), value: t("screens.L6.b3.row0.v", { amount: skrWhole(mine.final - recovered) }) },
-        { label: t("screens.L6.b3.row1.l"), value: t("screens.L6.b3.row1.v", { amount: signed(recovered) }), color: color.lime.base },
+        { label: t("screens.L6.b3.row1.l"), value: t("screens.L6.b3.row1.v", { amount: skrWhole(recovered) }), color: color.lime.base },
         { label: t("screens.L6.b3.row2.l"), value: t("screens.L6.b3.row2.v", { amount: skrWhole(mine.final) }), total: true },
       ]} />
     </Screen>

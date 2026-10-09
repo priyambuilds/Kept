@@ -27,12 +27,12 @@ const WINDOWS = [12, 24, 48, null] as const; // null = "Day 1 ends"
 const RATES = [0.6, 0.7, 0.8, 0.9] as const;
 const pinnedOne = metrics.button.height + metrics.pinned.bottom;
 
-interface BountyDraft {
+export interface BountyDraft {
   name: string; objectId: number; numDays: 3 | 7 | 14; window: number; poolIndex: number; message: string; link: string;
   minRateOn: boolean; rateIndex: number; tokenOn: boolean;
 }
 const EMPTY: BountyDraft = { name: "", objectId: 1, numDays: 14, window: 1, poolIndex: 2, message: "", link: "", minRateOn: true, rateIndex: 1, tokenOn: false };
-const useBountyDraft = create<{ d: BountyDraft; set(p: Partial<BountyDraft>): void; reset(): void }>()((set) => ({
+export const useBountyDraft = create<{ d: BountyDraft; set(p: Partial<BountyDraft>): void; reset(): void }>()((set) => ({
   d: EMPTY, set: (p) => set((s) => ({ d: { ...s.d, ...p } })), reset: () => set({ d: EMPTY }),
 }));
 const poolOf = (d: BountyDraft) => BigInt(POOLS[d.poolIndex]!) * SKR_UNIT;
@@ -105,9 +105,9 @@ export function K4() {
   return (
     <Step n={4} next={() => go("K5")}>
       <Title heading={t("screens.K4.b0.title")} sub={t("screens.K4.b0.sub")} />
-      <RowList rows={[{ title: t("screens.K4.b1.r0.t"), sub: t("screens.K4.b1.r0.s"), toggle: { on: d.minRateOn, onChange: (minRateOn) => set({ minRateOn }) } }]} />
+      <RowList rows={[{ title: t("screens.K4.b1.r0.t"), sub: t("screens.K4.b1.r0.s"), leading: { kind: "icon", icon: "shield-check-outline", fg: color.text.primary }, toggle: { on: d.minRateOn, onChange: (minRateOn) => set({ minRateOn }) } }]} />
       {d.minRateOn ? <OptionGrid mode="chip" value={d.rateIndex} onChange={(rateIndex) => set({ rateIndex })} items={[0, 1, 2, 3].map((i) => ({ title: t(`screens.K4.b2.o${i}.t` as CopyKey) }))} /> : null}
-      <RowList rows={[{ title: t("screens.K4.b3.r0.t"), sub: t("screens.K4.b3.r0.s"), toggle: { on: d.tokenOn, onChange: (tokenOn) => set({ tokenOn }) } }]} />
+      <RowList rows={[{ title: t("screens.K4.b3.r0.t"), sub: t("screens.K4.b3.r0.s"), leading: { kind: "icon", icon: "key-variant", fg: color.text.primary }, toggle: { on: d.tokenOn, onChange: (tokenOn) => set({ tokenOn }) } }]} />
     </Step>
   );
 }
@@ -129,9 +129,9 @@ export function K5() {
         { label: t("screens.K5.b2.row1.l"), value: t(`common.lengths.${LENGTHS.indexOf(d.numDays)}` as CopyKey) },
         { label: t("screens.K5.b2.row2.l"), value: windowText(d) },
         { label: t("screens.K5.b2.row3.l"), value: requirementText(d) },
-        { label: t("screens.K5.b2.row4.l"), value: t("screens.K5.b2.row4.v", { amount: skrWhole(f.pool) }) },
+        { label: t("screens.K5.b2.row4.l"), value: t("screens.K5.b2.row4.v", { amount: skrWhole(f.pool) }), color: color.lime.base },
         { label: t("screens.K5.b2.row5.l"), value: t("screens.K5.b2.row5.v", { amount: skrWhole(f.fee) }) },
-        { label: t("screens.K5.b2.row6.l"), value: t("screens.K5.b2.row6.v", { amount: skrWhole(f.total) }), total: true, color: color.lime.base },
+        { label: t("screens.K5.b2.row6.l"), value: t("screens.K5.b2.row6.v", { amount: skrWhole(f.total) }), total: true },
       ]} />
     </Step>
   );
