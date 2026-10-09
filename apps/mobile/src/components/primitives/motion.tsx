@@ -224,7 +224,10 @@ export function Loop({ kind, period, delay = 0, children, style, paused }: { kin
 }
 
 /** countUp: from → target over 900 ms, ease-out cubic `1 − (1 − t)³`. Returns the number to show. */
-export function useCountUp(target: number, ms = 900, from = 0, delay = 0): number {
+/** How long a number counts up (motion.md › count-up). */
+export const COUNT_UP_MS = 900;
+
+export function useCountUp(target: number, ms = COUNT_UP_MS, from = 0, delay = 0): number {
   const reduce = useReducedMotion();
   const [n, setN] = useState(from);
   useEffect(() => {
@@ -257,7 +260,7 @@ export function useCountUpText(text: string, from?: string): string {
   const m = text.match(/^([^\d]*)([\d,]+)(.*)$/);
   const target = m ? parseInt(m[2]!.replace(/,/g, ""), 10) : 0;
   const start = from ? parseInt(from.replace(/[^\d]/g, "") || "0", 10) : 0;
-  const n = useCountUp(target, 900, start);
+  const n = useCountUp(target, COUNT_UP_MS, start);
   if (!m || /:/.test(text)) return text;
   return m[1] + groupDigits(String(n)) + m[3];
 }

@@ -21,6 +21,7 @@ import { Ambient } from "../chrome/Ambient";
 import { Spacer } from "../content/Basics";
 import { DevnetBadge } from "../chrome/Header";
 import { PinnedActions } from "../actions";
+import { momentSettleMs, pinnedDelay, useBackBlockedFor } from "./moment";
 
 export interface ScreenProps {
   /** NavBar or AppHeader element; omitted for Plain layouts (A0, A1). */
@@ -42,8 +43,6 @@ export interface ScreenProps {
   keeperIdle?: KeeperLine;
 }
 
-
-const PINNED_ENTER = 200;
 
 /** A counter that bumps each time the screen regains focus (after the first), when `on`. */
 function useFocusReplay(on: boolean): number {
@@ -86,7 +85,9 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   // A Keeper that moved into the mark still mounts (it registers its line) but takes no slot or gap.
   const noteOnly = all.filter((c) => isNoteOnlyKeeper(c, kind));
   const entered = blocks.map((c, i) => <Enter key={c.key ?? `b${i}`} index={i} replay={replay}>{c}</Enter>);
-  const pinnedBlocks = pinned ? flattenBlocks(pinned).map((c, i) => <Enter key={c.key ?? `p${i}`} delay={PINNED_ENTER + 65 * i} replay={replay}>{c}</Enter>) : null;
+  const pinnedAll = pinned ? flattenBlocks(pinned) : [];
+  const pinnedBlocks = pinned ? pinnedAll.map((c, i) => <Enter key={c.key ?? `p${i}`} delay={pinnedDelay(i)} replay={replay}>{c}</Enter>) : null;
+  useBackBlockedFor(momentSettleMs(blocks.length, pinnedAll.length), !!routeId && presentation(routeId) === "moment");
   const noteTop = insets.top + (devnet ? metrics.statusBar.badgeRow : 0) + m.barGap + (kind === "tab" ? k.topHeader : k.topNav) - metrics.header.top;
   return (
     <keeper.Provider value={keeper.value}>

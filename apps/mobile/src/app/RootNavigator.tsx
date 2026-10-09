@@ -1,9 +1,7 @@
 // The navigation tree from design/flows.md › Navigation model (docs/ARCHITECTURE.md §5).
 // Every design id is registered: built screens use their component, the rest render Placeholder.
-import { useCallback } from "react";
 import type { ComponentType } from "react";
-import { BackHandler } from "react-native";
-import { NavigationContainer, DarkTheme, StackActions, useFocusEffect } from "@react-navigation/native";
+import { NavigationContainer, DarkTheme, StackActions } from "@react-navigation/native";
 import type { LinkingOptions, ParamListBase } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -86,27 +84,9 @@ function Tabs() {
   );
 }
 
-/** A moment has settled 1.6 s in (D-74: where motion.md's choreography ends). */
-export const MOMENT_SETTLE_MS = 1600;
-
-/** Moments (L1–L6, F5, …) have no back until the screen settles (flows.md); then back works as usual. */
-function blockBack<P extends object>(C: ComponentType<P>): ComponentType<P> {
-  return function Moment(props: P) {
-    useFocusEffect(useCallback(() => {
-      let settled = false;
-      const id = setTimeout(() => { settled = true; }, MOMENT_SETTLE_MS);
-      const sub = BackHandler.addEventListener("hardwareBackPress", () => !settled);
-      return () => { clearTimeout(id); sub.remove(); };
-    }, []));
-    return <C {...props} />;
-  };
-}
-
 const flowIds = ROUTES.filter((r) => !["tab", "sheet", "moment"].includes(presentation(r.id)));
 const sheetIds = ROUTES.filter((r) => presentation(r.id) === "sheet");
 const momentIds = ROUTES.filter((r) => presentation(r.id) === "moment");
-/** Built once: wrapping inside render would remount every moment on each navigator render. */
-const MOMENTS = new Map(momentIds.map((r) => [r.id, blockBack(BUILT[r.id] ?? Placeholder)]));
 
 /**
  * `kept://join/<code>`: signed-in and onboarded users land on E1 with the code. Otherwise the code is
@@ -164,7 +144,7 @@ export function RootNavigator({ onReady }: { onReady?: () => void }) {
             options={r.id === "A0" ? { animation: "fade" } : presentation(r.id) === "modal" ? { animation: "slide_from_bottom" } : {}} />
         ))}
         <Stack.Group screenOptions={{ animation: "fade", gestureEnabled: false }}>
-          {momentIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={MOMENTS.get(r.id)!} />)}
+          {momentIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={BUILT[r.id] ?? Placeholder} />)}
         </Stack.Group>
         {/* Sheets draw their own scrim and slide (BottomSheet), over the screen below. */}
         <Stack.Group screenOptions={{ presentation: "transparentModal", animation: "none", contentStyle: { backgroundColor: "transparent" } }}>
