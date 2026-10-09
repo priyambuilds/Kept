@@ -82,6 +82,8 @@ export function A1() {
 
 // ── A2 Connect wallet ── every row opens the same MWA authorize; Android picks the wallet (D-25).
 const WALLETS = [0, 1, 2] as const;
+/** reference/kept-screens-1.js › A2: each wallet's own glyph (Seeker, Phantom's ghost, Solflare's sun). */
+const WALLET_ICONS = ["cellphone-key", "ghost-outline", "white-balance-sunny"] as const;
 export function A2() {
   const { go, back } = useGo();
   return (
@@ -89,7 +91,7 @@ export function A2() {
       <Title heading={t("screens.A2.b0.title")} sub={t("screens.A2.b0.sub")} />
       <RowList rows={WALLETS.map((i) => ({
         title: t(`screens.A2.b1.r${i}.t`), sub: t(`screens.A2.b1.r${i}.s`), chevron: true,
-        leading: { kind: "icon" as const, icon: i === 0 ? "cellphone-key" : "wallet-outline", ...(i === 0 ? { bg: color.lime.base, fg: color.text.onLime } : {}) },
+        leading: { kind: "icon" as const, icon: WALLET_ICONS[i], ...(i === 0 ? { bg: color.lime.base, fg: color.text.onLime } : {}) },
         ...(i === 0 ? { value: t("screens.A2.b1.r0.r"), valueColor: color.lime.base } : {}),
         onPress: () => go("A2·s", { wallet: i }),
       }))} />
