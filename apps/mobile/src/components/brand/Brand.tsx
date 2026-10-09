@@ -1,20 +1,58 @@
+import { useEffect } from "react";
 import { View } from "react-native";
+import Animated, { useAnimatedProps, useReducedMotion, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
+import Svg, { Path } from "react-native-svg";
 import { t } from "@/copy";
-import { color, fontFamily, gradient, metrics, space } from "@/theme";
-import { CheckK, Pop, Surface, Text } from "../primitives";
+import { color, duration, easing, fontFamily, gradient, metrics, space } from "@/theme";
+import { haptic } from "@/lib/haptics";
+import { CheckK, FadeIn, Pop, Surface, Text } from "../primitives";
 
-/** Splash: 112 lime tile + ink Check-K 90, "KEPT" wordmark, tagline (A0). Phase 5 adds the draw sequence. */
+const APath = Animated.createAnimatedComponent(Path);
+/** Length of the check stroke M23 44L40 60L78 24 in the 100-unit mark. */
+const CHECK_LEN = 76;
+/** motion.md §1 splash timeline (ms). */
+const SPLASH = { check: 350, stem: 600, leg: 750, word: 900, tagline: 1050, inMs: 250, textMs: 400 };
+
+/** The ink Check-K drawn in: check stroke `draw` 320 ms, then the stem and leg fade in (motion.md §1). */
+function CheckKReveal({ size }: { size: number }) {
+  const reduce = useReducedMotion();
+  const draw = useSharedValue(reduce ? 1 : 0);
+  const stem = useSharedValue(reduce ? 1 : 0);
+  const leg = useSharedValue(reduce ? 1 : 0);
+  useEffect(() => {
+    if (reduce) return;
+    const ease = easing("enter");
+    draw.value = withDelay(SPLASH.check, withTiming(1, { duration: duration.drawCheck, easing: ease }));
+    stem.value = withDelay(SPLASH.stem, withTiming(1, { duration: SPLASH.inMs, easing: ease }));
+    leg.value = withDelay(SPLASH.leg, withTiming(1, { duration: SPLASH.inMs, easing: ease }));
+    const id = setTimeout(haptic.light, SPLASH.check);
+    return () => clearTimeout(id);
+  }, [reduce, draw, stem, leg]);
+  const checkP = useAnimatedProps(() => ({ strokeDashoffset: CHECK_LEN * (1 - draw.value) }));
+  const stemP = useAnimatedProps(() => ({ opacity: stem.value }));
+  const legP = useAnimatedProps(() => ({ opacity: leg.value }));
+  const ink = color.text.onLime;
+  return (
+    <Svg viewBox="0 0 100 100" width={size} height={size} accessible={false}>
+      <APath animatedProps={legP} d="M54 45L78 76" fill="none" stroke={ink} strokeWidth={15} strokeLinecap="round" />
+      <APath animatedProps={checkP} d="M23 44L40 60L78 24" fill="none" stroke={ink} strokeWidth={15} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={`${CHECK_LEN} ${CHECK_LEN}`} />
+      <APath animatedProps={stemP} d="M23 24V76" fill="none" stroke={ink} strokeWidth={15} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+/** Splash: 112 lime tile + ink Check-K 90, "KEPT" wordmark, tagline (A0), revealed per motion.md §1. */
 export function BrandSplash() {
   const b = metrics.brand;
   return (
     <View style={{ alignItems: "center", gap: space[18] }} accessibilityRole="header" accessibilityLabel={`${t("common.brand")}. ${t("common.tagline")}`}>
-      <Pop ms={550}>
+      <Pop ms={duration.splashTile}>
         <Surface radius={b.splashRadius} gradient={gradient("brandTile")} shadow={`inset 0 1.5px 0 rgba(255,255,255,0.6), inset 0 -6px 0 rgba(0,0,0,0.14), 0 24px 60px ${color.lime.glow22}`} style={{ width: b.splashTile, height: b.splashTile, alignItems: "center", justifyContent: "center" }}>
-          <CheckK size={b.splashMark} variant="ink" />
+          <CheckKReveal size={b.splashMark} />
         </Surface>
       </Pop>
-      <Text variant="wordmark">{t("common.brand")}</Text>
-      <Text variant="label" color={color.text.secondary} style={{ fontSize: 15 }}>{t("common.tagline")}</Text>
+      <FadeIn delay={SPLASH.word} ms={SPLASH.textMs}><Text variant="wordmark">{t("common.brand")}</Text></FadeIn>
+      <FadeIn delay={SPLASH.tagline} ms={SPLASH.textMs}><Text variant="label" color={color.text.secondary} style={{ fontSize: 15 }}>{t("common.tagline")}</Text></FadeIn>
     </View>
   );
 }
