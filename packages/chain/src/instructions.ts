@@ -1,6 +1,6 @@
 // Instruction builders for the Oath lifecycle. Pure: no RPC. Account order and signer/writable flags
 // come from the IDL, so a program change that reorders accounts breaks the tests, not production.
-import { BN } from "@anchor-lang/core";
+import BN from "bn.js";
 import { PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import type { AccountMeta } from "@solana/web3.js";
 import { sha256 } from "@noble/hashes/sha2";
