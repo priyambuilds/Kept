@@ -2,6 +2,7 @@
 // status bar, a NavBar (flows) or AppHeader (tabs) bar, a scroll column 20 from the edges with gap 14,
 // and pinned actions 34 from the bottom. Each screen hosts its own Keeper (ScreenKeeper): the note drops
 // under the bar and closes when the screen loses focus, so it can never leak onto another screen.
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,11 +11,12 @@ import { env } from "@/config/env";
 import { color, metrics } from "@/theme";
 import { useUi } from "@/state/ui";
 import { useContext } from "react";
-import { NavigationRouteContext } from "@react-navigation/native";
+import { NavigationContext, NavigationRouteContext } from "@react-navigation/native";
 import { layoutOf } from "@/app/layout";
 import { designIdOf, presentation } from "@/app/routes";
 import type { KeeperLine } from "@/copy";
-import { useKeeperHost } from "../keeper/ScreenKeeper";
+import { isNoteOnlyKeeper, useKeeperHost } from "../keeper/ScreenKeeper";
+import { Enter, flattenBlocks } from "../primitives";
 import { Ambient } from "../chrome/Ambient";
 import { Spacer } from "../content/Basics";
 import { DevnetBadge } from "../chrome/Header";
@@ -41,6 +43,20 @@ export interface ScreenProps {
 }
 
 
+const PINNED_ENTER = 200;
+
+/** A counter that bumps each time the screen regains focus (after the first), when `on`. */
+function useFocusReplay(on: boolean): number {
+  const nav = useContext(NavigationContext);
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!on || !nav) return;
+    let first = true;
+    return nav.addListener("focus", () => { if (first) { first = false; return; } setN((x) => x + 1); });
+  }, [on, nav]);
+  return n;
+}
+
 /** The route's design id, or none outside a navigator (tests, the Gallery). */
 function useDesignId(): string | undefined {
   const route = useContext(NavigationRouteContext);
@@ -62,6 +78,12 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   const keeper = useKeeperHost(routeId, kind, keeperIdle ?? null);
   // The note drops from just under the bar (components.md › KeeperNote: top 106 header / 104 nav, bar at 56).
   const k = metrics.keeperNote;
+  // motion.md › Screen-level choreography: block i enters at 40 + 65·i ms (a Keeper that moved into the
+  // mark takes no slot); pinned actions at 200 ms. Tab screens stay mounted, so they replay on focus.
+  const replay = useFocusReplay(kind === "tab");
+  const blocks = flattenBlocks(children).filter((c) => !isNoteOnlyKeeper(c, kind));
+  const entered = blocks.map((c, i) => <Enter key={c.key ?? `b${i}`} index={i} replay={replay}>{c}</Enter>);
+  const pinnedBlocks = pinned ? flattenBlocks(pinned).map((c, i) => <Enter key={c.key ?? `p${i}`} delay={PINNED_ENTER + 65 * i} replay={replay}>{c}</Enter>) : null;
   const noteTop = insets.top + (devnet ? metrics.statusBar.badgeRow : 0) + m.barGap + (kind === "tab" ? k.topHeader : k.topNav) - metrics.header.top;
   return (
     <keeper.Provider value={keeper.value}>
@@ -79,12 +101,12 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
         <ScrollView style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap, gap: m.gap }}>
           {top}
-          {children}
+          {entered}
         </ScrollView>
       ) : (
         <View style={{ flex: 1, paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, gap: m.gap }}>{top}{children}</View>
       )}
-      {pinned ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinned}</PinnedActions> : null}
+      {pinned ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinnedBlocks}</PinnedActions> : null}
       {keeper.note ? <View pointerEvents="box-none" style={{ position: "absolute", left: 0, right: 0, top: noteTop, zIndex: 45 }}>{keeper.note}</View> : null}
     </View>
     </keeper.Provider>

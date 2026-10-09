@@ -6,7 +6,7 @@
 // - flow screens open the note once on entry and close it after 4.8 s; the nav bar then shows the mark;
 // - the note always closes on blur (navigation, tab change, a sheet opening, back) and lives inside its
 //   screen, so it can never stay up on another screen.
-import { createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import { create } from "zustand";
@@ -61,7 +61,14 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
   const [index, setIndex] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoOpened = useRef(false);
-  const [focused, setFocused] = useState(() => (nav ? nav.isFocused() : true));
+  // Read through a store so a focus that fires before any listener subscribes (a reset, a deep link) is seen.
+  const subscribe = useCallback((cb: () => void) => {
+    if (!nav) return () => {};
+    const a = nav.addListener("focus", cb);
+    const b = nav.addListener("blur", cb);
+    return () => { a(); b(); };
+  }, [nav]);
+  const focused = useSyncExternalStore(subscribe, () => (nav ? nav.isFocused() : true));
   const key = lines && id ? lineKey(id, lines) : null;
   const seen = useSeen((s) => (key ? !!s.seen[key] : true));
   const markSeen = useSeen((s) => s.mark);
@@ -82,11 +89,7 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
   // Always closes when the screen loses focus (navigation, tab change, sheet, back).
   useEffect(() => {
     if (!nav) return;
-    const a = nav.addListener("focus", () => setFocused(true));
-    const b = nav.addListener("blur", () => { setFocused(false); close(); });
-    // The first focus can fire before this subscribes (a reset, a deep link): read it once now.
-    setFocused(nav.isFocused());
-    return () => { a(); b(); };
+    return nav.addListener("blur", close);
   }, [nav, close]);
   useEffect(() => disarm, [disarm]);
 
