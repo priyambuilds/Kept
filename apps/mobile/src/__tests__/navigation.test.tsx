@@ -221,6 +221,8 @@ describe("Phase 4 on mocks", () => {
   it("group review: the inbox opens G1 and a vote goes back to D2", async () => {
     await signedIn("activeGroup");
     await act(async () => { navigateTo("N1"); });
+    // Item ages come from createdAt (the sample says Dev asked 3h ago); they used to all read "1m".
+    expect(await screen.findByText("3h", {}, slow)).toBeTruthy();
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.N1.b1.rev1.btn0") }, slow));
     expect(await screen.findByText(t("screens.G1.b0.title", { name: "Dev" }), {}, slow)).toBeTruthy();
     await fireEvent.press(screen.getByRole("button", { name: t("screens.G1.pin.0") }));

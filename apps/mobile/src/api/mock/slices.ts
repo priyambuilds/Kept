@@ -117,6 +117,8 @@ function inboxRef(id: string, wallet: string): InboxItem["ref"] | null {
   }
 }
 
+const INBOX_ACTOR: Record<string, string> = { inv1: PEOPLE.riya.wallet, rev1: PEOPLE.dev.wallet, ng1: PEOPLE.riya.wallet };
+
 export function mockInbox(ctx: MockContext): InboxApi {
   const done = new Set<string>();
   const wire = () => {
@@ -129,7 +131,8 @@ export function mockInbox(ctx: MockContext): InboxApi {
       return [{
         id: n.id,
         type: INBOX_TYPE[n.id.replace(/\d+$/, "")] ?? "recap",
-        actor: null,
+        // reference/kept-kit.js › INBOX: Riya invites and nudges, Dev asks for the vote.
+        actor: INBOX_ACTOR[n.id] ?? null,
         title: n.title,
         body: n.body,
         createdAt: new Date(clock.now() - ago(n.time) * 1000).toISOString(),

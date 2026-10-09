@@ -4,7 +4,8 @@ import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { InboxItem } from "@kept/shared";
 import { keeperLines, t } from "@/copy";
-import type { CopyKey } from "@/copy";
+import type { CopyKey, KeeperMood } from "@/copy";
+import { usePeople } from "@/features/phase4";
 import { NavBar, useToast } from "@/components/chrome";
 import { Note, Skeleton, Title } from "@/components/content/Basics";
 import { RowList } from "@/components/content/Rows";
@@ -52,6 +53,13 @@ const LEAD: Record<Kind, { icon: IconName; palette: PaletteName }> = {
   bounty: { icon: "bullhorn-outline", palette: "sky" },
   followed: { icon: "account-heart-outline", palette: "pink" },
 };
+const BADGE: Partial<Record<Kind, { icon: IconName; palette: PaletteName }>> = {
+  invite: { icon: "email-outline", palette: "vio" },
+  review: { icon: "eye-outline", palette: "vio" },
+  nudge: { icon: "bell-ring", palette: "lime" },
+  followed: { icon: "account-heart-outline", palette: "pink" },
+};
+const KEEPER_LEAD: Partial<Record<Kind, KeeperMood>> = { claim: "smug", rematch: "wink", recap: "side" };
 /** The design's button labels per item type (N1 copy). */
 const ACTIONS: Partial<Record<Kind, CopyKey[]>> = {
   invite: ["screens.N1.b1.inv1.btn0", "screens.N1.b1.inv1.btn1"],
@@ -73,19 +81,31 @@ export function N1() {
   }, [api, qc]);
 
   const items = inbox.data?.items ?? [];
+  const people = usePeople(items.flatMap((i) => (i.actor ? [i.actor] : [])));
+  // reference/kept-kit.js › INBOX: people's items show their avatar with a small badge; the Keeper's own
+  // items (claim, Rematch, the recap) show his face; the rest an icon tile.
+  const leadOf = (it: InboxItem): InboxLead => {
+    const avatar = it.actor ? people.get(it.actor)?.avatar : undefined;
+    if (avatar) return { kind: "avatar", config: avatar };
+    const mood = KEEPER_LEAD[it.type];
+    if (mood) return { kind: "keeper", mood };
+    return { kind: "icon", ...LEAD[it.type] };
+  };
   const view = (it: InboxItem): InboxItemView => {
     const to = targetOf(it);
     const open = to ? () => go(to[0], to[1]) : undefined;
     const labels = it.done ? [] : (ACTIONS[it.type] ?? []);
-    const lead: InboxLead = { kind: "icon", ...LEAD[it.type] };
+    const lead = leadOf(it);
+    const badge = it.actor ? BADGE[it.type] : undefined;
     return {
-      id: it.id, title: it.title, sub: it.body, time: ago(now / 1000 - it.createdAt), lead,
-      needsAction: it.needsAction, done: it.done, unread: !it.done && !it.needsAction,
+      id: it.id, title: it.title, sub: it.body, time: ago(now - it.createdAt), lead, ...(badge ? { badge } : {}),
+      needsAction: it.needsAction, done: it.done, unread: !it.done,
       ...(open ? { onPress: open } : {}),
       actions: labels.map((label, i) => {
         // Invites: Accept opens E2, Decline stays (toast); both mark the item done.
         if (it.type === "invite" && i === 1) return { label: t(label), kind: "s" as const, onPress: () => { void markDone([it.id]); toast(t("toasts.20")); } };
-        return { label: t(label), kind: it.type === "claim" ? ("l" as const) : ("p" as const), onPress: () => { if (it.type === "invite") void markDone([it.id]); open?.(); } };
+        // reference › N1: Accept and Claim lime, Review photo white, See Rematch secondary.
+        return { label: t(label), kind: it.type === "claim" || it.type === "invite" ? ("l" as const) : it.type === "rematch" ? ("s" as const) : ("p" as const), onPress: () => { if (it.type === "invite") void markDone([it.id]); open?.(); } };
       }),
     };
   };

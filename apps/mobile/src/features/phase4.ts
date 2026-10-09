@@ -1,6 +1,6 @@
 // Queries and actions for Bounties, Rematch, group review, profiles and the wallet (Phase 4).
 // All of these run on the mock until the backend adds them (BACKEND_GAPS P1-1, P1-2, P1-9, P1-10).
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { getApi, useApi } from "@/api";
 import type { BountyDraftInput } from "@/api";
 import { queryClient } from "@/api/queries";
@@ -97,6 +97,14 @@ export const reviewActions = {
 // ── Profiles ──
 export function useMyProfile() { const api = useApi(); return useScoped(k.profile, () => api.profile.mine()); }
 export function usePerson(wallet: string | undefined) { const api = useApi(); return useScoped(k.person(wallet ?? ""), () => api.profile.get(wallet!), { enabled: !!wallet }); }
+/** Profiles for several wallets at once (N1's avatars), wallet → profile once loaded. */
+export function usePeople(wallets: string[]) {
+  const api = useApi();
+  const scenario = useDev((s) => s.scenario);
+  const unique = [...new Set(wallets)];
+  const results = useQueries({ queries: unique.map((w) => ({ queryKey: [...k.person(w), scenario], queryFn: () => api.profile.get(w) })) });
+  return new Map(unique.flatMap((w, i) => (results[i]?.data ? [[w, results[i]!.data!] as const] : [])));
+}
 export function useStats() { const api = useApi(); return useScoped(k.stats, () => api.profile.stats()); }
 export function useActivity() { const api = useApi(); return useScoped(k.activity, () => api.profile.activity()); }
 export function useCreator(name: string | undefined) { const api = useApi(); return useScoped(k.creator(name ?? ""), () => api.profile.creator(name!), { enabled: !!name }); }
