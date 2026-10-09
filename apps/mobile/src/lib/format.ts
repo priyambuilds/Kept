@@ -1,0 +1,45 @@
+// Formatting at the edge. Amounts arrive as bigint base units and are only turned into text here.
+import { SKR_DECIMALS, SKR_UNIT } from "@kept/config";
+
+const grouped = new Intl.NumberFormat("en-US");
+
+/** 1_043_000_000n → "1,043"; 779_166_667n → "779.17" (2 dp only when not whole, rounded half-up). */
+export function formatSkr(units: bigint, opts: { dp?: 0 | 2 | "auto"; sign?: boolean } = {}): string {
+  const dp = opts.dp ?? "auto";
+  const neg = units < 0n;
+  const abs = neg ? -units : units;
+  let body: string;
+  if (dp === 0) {
+    body = grouped.format((abs + SKR_UNIT / 2n) / SKR_UNIT);
+  } else {
+    const cents = (abs * 100n + SKR_UNIT / 2n) / SKR_UNIT; // whole hundredths, half-up
+    const frac = Number(cents % 100n);
+    body = grouped.format(cents / 100n) + (dp === 2 || frac !== 0 ? "." + String(frac).padStart(2, "0") : "");
+  }
+  // Design uses the true minus sign "−" (U+2212) for losses.
+  const prefix = neg ? "−" : opts.sign && units > 0n ? "+" : "";
+  return prefix + body;
+}
+
+/** Whole SKR (number) → base units. */
+export const skr = (whole: number): bigint => BigInt(Math.round(whole * 100)) * (SKR_UNIT / 100n);
+
+/** "≈ $10" from base units and the price API's usdPerSkr. */
+export function formatUsd(units: bigint, usdPerSkr: number): string {
+  const usd = (Number(units) / 10 ** SKR_DECIMALS) * usdPerSkr;
+  return "≈ $" + (usd >= 100 ? grouped.format(Math.round(usd)) : usd.toFixed(usd % 1 === 0 ? 0 : 2));
+}
+
+const pad2 = (n: number) => String(n).padStart(2, "0");
+/** 33522 → "09:18:42" (B1 "resets in"). */
+export function clock(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
+}
+/** 33522 → "9h 18m"; 600 → "10m" (card tags, D2). */
+export function shortDuration(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}

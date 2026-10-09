@@ -1,0 +1,17 @@
+{
+  "$meta": {
+    "note": "Data-bearing copy keys mapped to templates. `sample` holds the values that, interpolated into `template`, must reproduce design/copy.json exactly (enforced by copy.test.ts)."
+  },
+  "screens.D2.b1.text": { "template": "{timeLeft} left today · first miss −{cost} SKR", "sample": { "timeLeft": "9h 18m", "cost": "143" } },
+  "screens.D2.b0.note": { "template": "{name} missed day {day}: −{damage}, then +{heal} heal.", "sample": { "name": "Arjun", "day": "2", "damage": "20", "heal": "10" } },
+  "screens.D2.b6.r0.s": { "template": "{rate}% · {days} days", "sample": { "rate": "91", "days": "64" } },
+  "screens.D2.b6.r0.r": { "template": "{amount} SKR", "sample": { "amount": "1,043" } },
+  "screens.B1.b0.text": { "template": "{left} of {total} left · resets in {time}", "sample": { "left": "2", "total": "3", "time": "09:18:42" } },
+  "screens.B1.b3.meta": { "template": "with {names} · Day {day}/{length}", "sample": { "names": "Riya, Arjun, Dev", "day": "3", "length": "7" } },
+  "screens.B1.b3.tag.0": { "template": "{amount} SKR", "sample": { "amount": "1,043" } },
+  "screens.B1.b3.tag.1": { "template": "{time} left", "sample": { "time": "9h 18m" } },
+  "screens.B1.b3.float": { "template": "{name} kept {time}", "sample": { "name": "Riya", "time": "07:12" } },
+  "screens.D2.b4.chip.0": { "template": "{name} 1-to-{n}", "sample": { "name": "Riya", "n": "9" } },
+  "screens.D2.b4.chip.1": { "template": "{name} {n}-to-1 to miss", "sample": { "name": "Arjun", "n": "3" } },
+  "screens.D2.b4.chip.2": { "template": "{name} in review", "sample": { "name": "Dev" } }
+}

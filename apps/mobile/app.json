@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "KEPT",
+    "slug": "kept",
+    "scheme": "kept",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/brand/kept-app-icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#131313",
+    "platforms": [
+      "android"
+    ],
+    "android": {
+      "package": "app.kept.mobile",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/brand/kept-app-icon.png",
+          "imageWidth": 112,
+          "backgroundColor": "#131313"
+        }
+      ]
+    ]
+  }
+}

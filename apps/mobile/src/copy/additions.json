@@ -1,0 +1,98 @@
+{
+  "$meta": {
+    "note": "Copy not in design/copy.json. 'owner' entries were approved by the product owner; 'prototype' entries are lifted verbatim from design/reference/KEPT Play.dc.html where copy.json missed them; 'a11y' are screen-reader labels for icon-only controls. All listed in docs/DECISIONS.md › Copy additions."
+  },
+  "waiting": {
+    "startsTonight": "Starts tonight at midnight"
+  },
+  "rematch": {
+    "winBackHalf": "Win back half of what you had left."
+  },
+  "oathName": {
+    "pattern": "{word} {length}",
+    "week": "Week",
+    "words": {
+      "iron": "Iron",
+      "page": "Page",
+      "hydrate": "Hydrate",
+      "riff": "Riff",
+      "stride": "Stride",
+      "green": "Green",
+      "skip": "Skip",
+      "flow": "Flow"
+    }
+  },
+  "avatarBuilder": {
+    "$source": "prototype: KEPT Play.dc.html › AVT + avb buttons",
+    "build": "Build avatar",
+    "usePhoto": "Use NFT or photo",
+    "shuffle": "Shuffle",
+    "banner": "Banner",
+    "options": {
+      "base": [
+        "Human",
+        "Fox",
+        "Cat",
+        "Frog",
+        "Bear",
+        "Bot",
+        "Skull",
+        "Alien"
+      ],
+      "eyes": [
+        "Classic",
+        "Sleepy",
+        "Laser",
+        "Shades"
+      ],
+      "hat": [
+        "None",
+        "Beanie",
+        "Cap",
+        "Crown",
+        "Halo",
+        "Visor"
+      ],
+      "fit": [
+        "Hoodie",
+        "Tee",
+        "Chain",
+        "Jacket",
+        "Turtleneck"
+      ],
+      "extra": [
+        "None",
+        "Ace card",
+        "Earring",
+        "Bandage"
+      ],
+      "back": [
+        "Lime",
+        "Violet",
+        "Sky",
+        "Pink",
+        "Sun",
+        "Mint",
+        "Night",
+        "Ember"
+      ]
+    }
+  },
+  "a11y": {
+    "$source": "a11y: screen-reader labels (no visible text)",
+    "back": "Back",
+    "close": "Close",
+    "loading": "Loading",
+    "keeper": "The Keeper",
+    "inbox": "Inbox",
+    "wallet": "Wallet",
+    "newMenu": "New",
+    "settings": "Settings",
+    "shutter": "Take photo",
+    "flash": "Flash",
+    "flip": "Flip camera",
+    "colour": "Colour {n}",
+    "banner": "Banner {n}",
+    "unread": "{n} unread"
+  }
+}
