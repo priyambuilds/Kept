@@ -61,3 +61,8 @@ node apps/mobile/scripts/drive.mts          # flows.md happy paths with adb taps
 - Found on the emulator during the perf run and fixed: the FX layer was global and never cleared, so a moment's falling coins (C7·ok, F5, J1·ok, …) kept looping on every later screen. FX now clear when the screen that played them stops being current (test in navigation.test).
 - Found by the new KeeperNote test and fixed: after the enter choreography landed, note-only Keepers weren't mounted, so marks had no dot and notes no line.
 - Release perf (mock APK, Pixel 8 AVD): see FIDELITY_AUDIT.md §7.
+
+## Fidelity pass, session 3 (2026-10-10)
+- `pnpm --filter @kept/mobile shoot`: **116 / 116** screens, 0 with logcat errors or crashes; `compare` regenerated.
+- Release perf (emulator): the Reanimated failure flood behind the ANR is gone (56k lines per run → 0 in 7 runs), no ANR (FIDELITY_AUDIT.md §7, P-6).
+- Found and fixed: N1 item ages all read "1m"; B2 listed a free Bounty's "+ 0"; main twice failed typecheck after backend commits to `chain/mwa.ts`.

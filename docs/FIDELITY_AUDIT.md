@@ -206,6 +206,8 @@ Measured with `adb shell dumpsys gfxinfo app.kept.mobile` (janky frames over a s
 | Bounties scroll, janky (p95 / p99) | 4.0–4.2 % (36–40 / 300–500 ms) | 0.2 % (18–23 / 19–26 ms) |
 | Push / back ×4, janky (p99) | 4.1–4.2 % (300–400 ms) | 1.2–1.8 % (40–48 ms) |
 
+End of session 3, after S20 and the P2 rows (`final-1..2.json`): 0 failure lines, 0 ANRs, tab switches 1.1 % janky, scroll 0.2 %, push / back 1.2–1.5 % (p99 38–44 ms), cold start 278–327 ms.
+
 (Session 2's cold starts of 1.2–1.6 s were measured right after an install; this session's runs reuse the dex-compiled app, so cold start isn't comparable across sessions, only within this table.)
 
 **P-6 (P1): fixed.** Cause, confirmed from the ANR trace (dropbox `data_app_anr`): the main thread was in `Log.w` → `Throwable.printStackTrace`, called from Reanimated's `NativeProxy.synchronouslyUpdateUIProps` → `MountingManager.updatePropsSynchronously` ("Unable to find SurfaceMountingManager for tag"). Reanimated re-sends every pending animated-props entry on each dispatched event (touch, layout, react-native-svg `setClientRect` while an SVG draws); entries for views of a screen that was just removed stay pending for up to ~2 s, so every event failed and logged a stack trace for each of them. Senders, named by tagging every animated view in a release build: the coin splash (`Fx › BurstCoin`, `FallingCoin`, `ValuePill`: ~80 % after a payout moment), then the removed screen's `Enter` blocks, skeleton `Loop`s, `PressScale`, `Ambient › Orb`, `Pop`, `Knock`, `Status › Ping`. Fixes: (1) `useAnimationLifecycle` in `primitives/motion.tsx` for every animated view (start a frame after mount, cancel in a layout-effect cleanup, loops pause while covered), the Keeper SVG frame callback stops on unmount/blur, StepBar/Toggle don't tween inside mappers; (2) coin splash removed (D-78); (3) the Reanimated patch skips views that don't exist before the call (D-79). (1)+(2) alone took a run from 40,804 to 18,260 lines; (3) takes it to 0. `perf.mts` now streams logcat, reports failures per phase and fails a run on any ANR or more than 50 lines (`--max-sync-failures`).
@@ -221,7 +223,41 @@ Findings from the code:
 
 ---
 
-## Status after session 2 (2026-10-10)
+## Status after session 3 (2026-10-10)
+
+### Fixed (session 3)
+| Item | Fix | Commit |
+|---|---|---|
+| P-6 (ANR) | Cause proved from the ANR trace; senders named by tagging every animated view in a release build. `useAnimationLifecycle` for every animated view; coin splash and value pills removed (D-78); Reanimated 4.5.1 patched with pnpm (D-79). Release perf: 56,145–58,268 failure lines per run before, **0 in 5 consecutive runs**, no ANR (emulator only, §7). `perf.mts` fails a run on an ANR or > 50 lines. | P-6: one animation lifecycle…; Patch react-native-reanimated…; Docs: P-6 fixed… |
+| Coins / "+54 SKR" | Owner decision: the coin burst, falling coins and floating value pills are gone everywhere; moments keep their haptics (D-78) | Remove the coin splash…; Remove the floating value pills… |
+| A1, R1 chips | Checked against Design.pdf on the emulator: positions, icons, tilts and copy match (R1's sub is the approved Rematch wording; amounts are D-64 sample data). No change needed. | — |
+| S20 | HP damage / heal from the last-seen HP (device store, `useLastSeenHp`): count from it, lost segments empty + ring + beat + notificationWarning, healed segments pop + impactLight. BalanceChip counts old → new and pops on change. Tests. Re-measured: 0 failure lines. | S20: … |
+| A2 | Wallet glyphs: ghost, sun | A2: … |
+| B2 | Streak / kept-rate chips from the profile stats; free Bounties' 0 left out of the safe amounts (bug). Kept times stay "kept" (D-46). | B2: … |
+| H6 | Finisher initial tiles | H6: … |
+| I2 (+ I1, I8) | X letter glyph | I1 / I2 / I8: … |
+| I3, H1–H3 | Drift's covers blue, @riffs' orange (mock palettes) | Mock brands…; I5: … |
+| I5 | Row icon per activity type (optional `type` on ActivityItem; BACKEND_GAPS updated) | I5: … |
+| I7 | magnify / email-outline icons | I7: … |
+| I8 | "Banner" label (no autofocus, as D-77) | I8: … |
+| L5 | "Eliminated" row (mock: a lost Bounty); prototype icons | L5: … |
+| N1 | Avatars with badges for people, the Keeper for claim / Rematch / recap; **item ages were wrong** (every item read "1m": seconds divided by 1000 twice), test; unread dots; Accept lime, See Rematch secondary | N1: … |
+| main red twice | The backend developer's mwa.ts commits (bfb7344, 851d5ca) broke typecheck on main; fixed on the app side, logic kept. Pushes now go through a gate script that stops on any failing check. | Fix typecheck on main…; Fix main: restore… |
+
+### Remaining
+| # | P | What |
+|---|---|---|
+| Embers | — | Broken-Oath embers still loop while on D3 / L3 / L4·b (the only FX left). Remove too if the owner wants. |
+| Keeper orbs | — | The floating sack / trophy orbs around big Keepers (A1, R1, L1, J1·ok, L6) are the design's; they float in a loop and pause when covered. |
+| D-46 / D-48 | P2 | Kept times on B2 rows and F5 / L4 streak chips need backend data (P0-2, P1-16). |
+| Phone check | — | Every number in §7 is from the emulator; confirm on the Seeker. |
+
+### Next steps, in order
+1. Owner: answer D-52, D-65, D-74–D-77 (still ASK / ASSUMED).
+2. Measure §7 on a phone over adb (`node apps/mobile/scripts/perf.mts <apk>`).
+3. Phase 5 leftovers: accessibility audit, Maestro flows.
+
+## Session 2 status (kept for history)
 
 ### Fixed (session 2, steps 1–11 of the session-1 list)
 | Item | Fix | Commit |
