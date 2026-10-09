@@ -7,6 +7,7 @@ import { supplement } from "./supplement";
 
 export { tokens };
 export { metrics } from "./metrics";
+export { keeperRig } from "./keeperRig";
 export const color = { ...tokens.color, extra: supplement.color };
 export const space = tokens.space;
 export const radius = tokens.radius;

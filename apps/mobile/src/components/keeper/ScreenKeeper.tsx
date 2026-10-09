@@ -12,8 +12,7 @@ import { NavigationContext } from "@react-navigation/native";
 import { create } from "zustand";
 import type { KeeperLine, KeeperMood } from "@/copy";
 import { metrics } from "@/theme";
-import { layoutOf } from "@/app/layout";
-import { keeperAt } from "@/app/layout";
+import { keeperAt, layoutOf } from "@/app/layout";
 import type { KeeperPlacementProps } from "./KeeperUI";
 import { KeeperNote, KeeperPlacement } from "./KeeperUI";
 import type { KeeperAnimName } from "./rig";
@@ -95,27 +94,27 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
   }, []);
   const toggle = useCallback(() => {
     if (key) markSeen(key);
-    setOpen((o) => {
-      if (o) { disarm(); return false; }
-      if (kind === "flow") arm();
-      return true;
-    });
-  }, [key, markSeen, kind, arm, disarm]);
+    if (open) { close(); return; }
+    setOpen(true);
+    if (kind === "flow") arm();
+  }, [key, markSeen, open, close, kind, arm]);
   const cycle = useCallback(() => { setIndex((i) => i + 1); if (kind === "flow") arm(); }, [kind, arm]);
 
   const shown = lines ?? (kind === "tab" && idle ? [idle] : null);
+  const isOpen = open && !!shown;
   const value: Registry = useMemo(() => ({
-    kind, lines, open: open && !!shown, fresh: kind === "tab" && !!lines && !seen && !open, toggle, close, register,
-  }), [kind, lines, open, shown, seen, toggle, close, register]);
+    kind, lines, open: isOpen, fresh: kind === "tab" && !!lines && !seen && !open, toggle, close, register,
+  }), [kind, lines, isOpen, open, seen, toggle, close, register]);
 
   const current = shown ? shown[index % shown.length]! : null;
-  const note = value.open && current ? (
+  const note = isOpen && current ? (
     <KeeperNote
       key={`${current.line}`}
       mood={current.mood}
       line={current.line}
       anim={index ? (["point", "wave", "thumbs", "shrug"] as const)[index % 4]! : anim}
       origin={kind === "tab" ? "left" : "right"}
+      top={0}
       onClose={close}
       {...(shown && shown.length > 1 ? { action: { label: `${(index % shown.length) + 1}/${shown.length}`, onPress: cycle } } : {})}
     />
@@ -146,7 +145,8 @@ export function keeperIsInline(id: string, kind: ScreenKind | undefined): boolea
  */
 export function ScreenKeeper({ id, lines, ...rest }: ScreenKeeperProps) {
   const host = useContext(Ctx);
-  const inline = keeperIsInline(id, host?.kind);
+  // Outside a Screen (sheets, the Gallery) there's no mark to move to: he stays in the content.
+  const inline = !host || keeperIsInline(id, host.kind);
   const register = host?.register;
   const key = lines.map((l) => `${l.mood}:${l.line}`).join("|");
   const anim = rest.anim;

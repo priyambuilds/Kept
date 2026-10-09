@@ -5,7 +5,9 @@ jest.mock("react-native-reanimated", () => {
   const mock = require("react-native-reanimated/mock");
   // The shipped mock leaves out useReducedMotion ("ADD ME IF NEEDED"). Tests run with Reduce Motion on, so
   // every component renders its end state and no count-up or loop schedules frames.
-  return { ...mock, useReducedMotion: () => true };
+  // useFrameCallback isn't in the mock either (the parametric Keeper drives its frames with it).
+  const useFrameCallback = () => ({ setActive: () => {}, isActive: false, callbackId: -1 });
+  return { ...mock, useReducedMotion: () => true, useFrameCallback };
 });
 
 // Native modules the Phase 2 shell touches.

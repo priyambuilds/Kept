@@ -300,7 +300,7 @@ export function Gallery() {
       </ScrollView>
 
       {fx ? <FxLayer key={fx.n} kind={fx.kind} pills={fx.kind === "coins" ? [{ text: "+43 SKR", icon: "sack" }, { text: k("screens.F5.b3.chip.2"), icon: "fire" }] : []} /> : null}
-      {note ? <KeeperNote mood={line.mood} line={line.line} onClose={() => setNote(false)} autoHideMs={metrics.keeperNote.holdMs} top={insets.top + metrics.keeperNote.topHeader - metrics.header.top} /> : null}
+      {note ? <KeeperNote mood={line.mood} line={line.line} onClose={() => setNote(false)} top={insets.top + metrics.keeperNote.topHeader - metrics.header.top} /> : null}
       <BottomSheet visible={sheet} onClose={() => setSheet(false)} bottomInset={insets.bottom}>
         <Title heading={k("screens.+.b0.title")} pt={space[4]} fs={26} />
         <RowList rows={[0, 1, 2].map((i) => ({

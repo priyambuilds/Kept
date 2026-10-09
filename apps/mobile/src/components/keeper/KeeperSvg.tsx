@@ -2,27 +2,23 @@
 // once; the moving parts (bob, blink, head tilt, glints, hands, sleeves, the flipped coin) are animated
 // props fed by one UI-thread frame (rig.ts › keeperFrame) from Reanimated's frame callback. Reduce
 // Motion, `animate={false}` or an unfocused screen hold the still pose (t = 0).
-import { memo, useContext, useEffect, useMemo } from "react";
+import { memo, useContext, useEffect, useId, useMemo } from "react";
+import type { ComponentClass } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import Animated, { useAnimatedProps, useDerivedValue, useFrameCallback, useReducedMotion, useSharedValue } from "react-native-reanimated";
 import Svg, { Circle, ClipPath, Defs, Ellipse, G, Path, Rect, Text as SvgText } from "react-native-svg";
+import type { GProps } from "react-native-svg";
 import type { KeeperMood } from "@/copy";
+import { keeperRig as K } from "@/theme";
 import { keeperFace, keeperFrame, rotAbout } from "./rig";
 import type { HandPose, KeeperAnimName, KeeperPropName } from "./rig";
 
-const AG = Animated.createAnimatedComponent(G);
+// `matrix` is G's native transform prop (react-native-svg fabric/GroupNativeComponent); animating it skips
+// the JS transform parser. The public GProps type doesn't list it.
+const AG = Animated.createAnimatedComponent(G as unknown as ComponentClass<GProps & { matrix?: number[] }>);
 const APath = Animated.createAnimatedComponent(Path);
 const ACircle = Animated.createAnimatedComponent(Circle);
 const AEllipse = Animated.createAnimatedComponent(Ellipse);
-
-// Rig colours: the character's own palette (Keeper.dc.html), not UI tokens.
-const K = {
-  ink: "#0A0A0B", ink2: "#0A0A0C", cloak: "#1A1A1F", cloakHi: "#27272E", sleeve: "#202026", hood: "#232329", hoodHi: "#34343C",
-  face: "#F2EFE6", faceShade: "#D9D4C8", bone2: "#D2CDC1", void: "#050506", rim: "#2E2E36", lime: "#C5F25C", limeDeep: "#7FA02A",
-  limeDark: "#5E7A14", limeMoss: "#3E5410", paper: "#FAF8F2", steel: "#2C2C33", steelHi: "#4A4A52", blade: "#CFCFD6", hilite: "#EFFFC2",
-  white: "#FFFFFF", fistShade: "#141418", seam: "#3A3A42", lens: "#D9D9DE", cupShade: "#D2CDC1", steam: "#5A5A60", sackShade: "#9CC23A",
-  sackDeep: "#7FA02A", ledgerLine: "#BDB8AC", ledgerInk: "#8A8A8A", seal: "#8FB52E", shadesRim: "#2A2A30", shades: "#070707", coinLight: "#F4FFD0",
-};
 
 export interface KeeperSvgProps {
   mood: KeeperMood;
@@ -35,20 +31,26 @@ export interface KeeperSvgProps {
   animate?: boolean;
 }
 
-let uid = 0;
+/** A stable pseudo-random phase in [0, 3) s per Keeper instance. */
+function phaseOf(key: string): number {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return (h % 3000) / 1000;
+}
 
 export const KeeperSvg = memo(function KeeperSvg({ mood, prop = "none", anim = "idle", hand, size, bust = false, animate = true }: KeeperSvgProps) {
   const reduce = useReducedMotion();
   const nav = useContext(NavigationContext);
-  const id = useMemo(() => `k${(uid++).toString(36)}`, []);
+  const rid = useId();
+  const id = useMemo(() => `k${rid.replace(/[^a-zA-Z0-9]/g, "")}`, [rid]);
   const face = useMemo(() => keeperFace(mood, prop, bust), [mood, prop, bust]);
   const live = animate && !reduce && anim !== "none";
   // The prototype starts idles at a random phase so two Keepers never blink together; peek/popin start at 0.
-  const offset = useMemo(() => (anim === "peek" || anim === "popin" ? 0 : Math.random() * 3), [anim]);
+  const offset = useMemo(() => (anim === "peek" || anim === "popin" ? 0 : phaseOf(rid)), [anim, rid]);
   const t = useSharedValue(0);
   const cb = useFrameCallback((f) => { t.value = Math.max(0.001, f.timeSinceFirstFrame / 1000 + offset); }, false);
   useEffect(() => {
-    if (!live) { cb.setActive(false); t.value = 0; return; }
+    if (!live) { cb.setActive(false); t.set(0); return; }
     // Pause while the screen is covered (no off-screen frame work).
     cb.setActive(nav ? nav.isFocused() : true);
     if (!nav) return;
@@ -84,14 +86,14 @@ export const KeeperSvg = memo(function KeeperSvg({ mood, prop = "none", anim = "
         <ClipPath id={`${id}M`}><Path d={face.mouth ?? "M0 0"} /></ClipPath>
       </Defs>
       <AG animatedProps={rootP}>
-        {bust ? null : <Ellipse cx={80} cy={176} rx={54} ry={4} fill="rgba(0,0,0,0.45)" />}
+        {bust ? null : <Ellipse cx={80} cy={176} rx={54} ry={4} fill={K.floor} />}
         {face.props.scythe ? <Scythe /> : null}
         {bust ? null : <Body />}
         {bust ? null : (
           <>
             <APath animatedProps={slP} stroke={K.sleeve} strokeWidth={16} strokeLinecap="round" fill="none" />
             <APath animatedProps={srP} stroke={K.sleeve} strokeWidth={16} strokeLinecap="round" fill="none" />
-            <APath animatedProps={srP} stroke="rgba(255,255,255,0.16)" strokeWidth={1.2} fill="none" transform="translate(5 -2)" />
+            <APath animatedProps={srP} stroke={K.sleeveHi} strokeWidth={1.2} fill="none" transform="translate(5 -2)" />
           </>
         )}
         <AG animatedProps={tiltP}>
@@ -217,17 +219,17 @@ const Palm = () => (
 );
 const Hi = () => <Path d="M-5 -2.5 Q-4 -4.6 -1.8 -5" stroke={K.white} strokeWidth={1.2} fill="none" strokeLinecap="round" />;
 
-const Scythe = memo(() => (
+const Scythe = memo(function Scythe() { return (
   <G>
     <Path d="M126 34 L112 176" stroke={K.steel} strokeWidth={5} strokeLinecap="round" />
-    <Path d="M126 34 L112 176" stroke="rgba(255,255,255,0.18)" strokeWidth={1.2} transform="translate(1.6 0)" />
+    <Path d="M126 34 L112 176" stroke={K.shaftHi} strokeWidth={1.2} transform="translate(1.6 0)" />
     <Path d="M128 38 C104 12 70 10 40 26 C68 22 98 28 120 50 Z" fill={K.blade} />
     <Path d="M40 26 C68 22 98 28 120 50" stroke={K.lime} strokeWidth={2} fill="none" />
     <Path d="M58 22 C80 16 100 20 116 34" stroke={K.white} strokeWidth={1.4} fill="none" opacity={0.6} />
   </G>
-));
+); });
 
-const Body = memo(() => (
+const Body = memo(function Body() { return (
   <G>
     <Path d="M36 104 C27 128 21 150 15 172 L30 165 L40 176 L54 167 L67 177 L80 168 L93 177 L106 167 L120 176 L130 165 L145 172 C139 150 133 128 124 104 Z" fill={K.cloak} />
     <Path d="M36 104 C28 128 22 150 16 171 L30 165 L36 171 C38 148 40 126 46 108 Z" fill={K.cloakHi} />
@@ -238,15 +240,15 @@ const Body = memo(() => (
     <Circle cx={80} cy={127} r={4.4} fill="none" stroke={K.limeDeep} strokeWidth={1.5} />
     <Path d="M76 123 Q78 121 81 121" stroke={K.hilite} strokeWidth={1.3} fill="none" strokeLinecap="round" />
   </G>
-));
+); });
 
-const Head = memo(() => (
+const Head = memo(function Head() { return (
   <G>
     <G transform="rotate(-26 30 40)">
       <Rect x={17} y={20} width={24} height={33} rx={3.5} fill={K.ink} />
       <Rect x={16} y={19} width={24} height={33} rx={3.5} fill={K.paper} />
       <Rect x={18.5} y={21.5} width={19} height={28} rx={2} fill="none" stroke={K.lime} strokeWidth={1.2} />
-      <SvgText x={20.5} y={30} fontFamily="Geist_800ExtraBold" fontSize={8} fill={K.ink}>A</SvgText>
+      <SvgText x={20.5} y={30} fontFamily="Geist_800ExtraBold" fontSize={8} fill={K.ink}>{"A"}</SvgText>
       <Path d="M28 34 C24 38 23 41 26 42 C27 42.5 28 41.6 28 41 L27 45 L29 45 L28 41 C28 41.6 29 42.5 30 42 C33 41 32 38 28 34 Z" fill={K.ink} />
       <Path d="M18 21 L36 21" stroke={K.white} strokeWidth={1} opacity={0.9} />
     </G>
@@ -260,22 +262,22 @@ const Head = memo(() => (
     <Path d="M100 31 C110 40 115 50 115 60 C115 79 104 93 92 99 C88 101 84 101.5 81 101.5 C92 96 104 84 106 66 C107 52 105 40 100 31 Z" fill={K.faceShade} />
     <Path d="M58 33 C64 27 72 25 80 25" stroke={K.white} strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.8} />
     <Path d="M51 76 Q53 86 60 92" stroke={K.white} strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.55} />
-    <Path d="M46 50 Q80 31 114 50 Q80 42 46 54 Z" fill="rgba(140,190,40,0.28)" />
-    <Path d="M33 39 Q80 15 127 39" stroke="#0E0E10" strokeWidth={7} fill="none" strokeLinecap="round" />
+    <Path d="M46 50 Q80 31 114 50 Q80 42 46 54 Z" fill={K.brimShade} />
+    <Path d="M33 39 Q80 15 127 39" stroke={K.brimInk} strokeWidth={7} fill="none" strokeLinecap="round" />
     <Path d="M33 39 Q80 15 127 39" stroke={K.limeDark} strokeWidth={4} fill="none" strokeLinecap="round" />
-    <Path d="M30 43 Q80 19 130 43 Q132 49 125 50 Q80 30 35 50 Q28 49 30 43 Z" fill="rgba(197,242,92,0.62)" stroke={K.lime} strokeWidth={1.4} />
+    <Path d="M30 43 Q80 19 130 43 Q132 49 125 50 Q80 30 35 50 Q28 49 30 43 Z" fill={K.brim} stroke={K.lime} strokeWidth={1.4} />
     <Path d="M38 43 Q80 24 122 43" stroke={K.white} strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.75} />
     <Path d="M36 48 Q80 28 124 48" stroke={K.limeMoss} strokeWidth={1.4} fill="none" opacity={0.7} />
   </G>
-));
+); });
 
-const Shades = memo(() => (
+const Shades = memo(function Shades() { return (
   <G>
     <Path d="M44 57 Q80 51 116 57 Q117 75 101 75 Q88 75 86 64 Q80 61 74 64 Q72 75 59 75 Q43 75 44 57 Z" fill={K.shades} stroke={K.shadesRim} strokeWidth={1.2} />
     <Path d="M53 62 Q58 59 64 60 M89 62 Q94 59 100 60" stroke={K.lime} strokeWidth={2.6} fill="none" strokeLinecap="round" />
     <Path d="M106 60 L110 66 M68 60 L71 64" stroke={K.white} strokeWidth={1.6} strokeLinecap="round" opacity={0.55} />
   </G>
-));
+); });
 
 const Seal = () => (
   <G>
@@ -296,7 +298,7 @@ const Ledger = () => (
 const Lens = () => (
   <G>
     <Path d="M131 104 L127 116" stroke={K.steelHi} strokeWidth={5} strokeLinecap="round" />
-    <Circle cx={137} cy={90} r={13} fill="rgba(197,242,92,0.16)" stroke={K.lens} strokeWidth={4} />
+    <Circle cx={137} cy={90} r={13} fill={K.lensGlass} stroke={K.lens} strokeWidth={4} />
     <Path d="M130 84 Q133 80 138 80" stroke={K.white} strokeWidth={2} fill="none" strokeLinecap="round" />
   </G>
 );

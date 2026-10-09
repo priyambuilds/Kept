@@ -3,6 +3,7 @@
 // as a pure function of t (seconds). Every function is a worklet, so Reanimated computes frames on the
 // UI thread; t = 0 is the still pose (Reduce Motion, `animate={false}`).
 import type { KeeperMood } from "@/copy";
+import { keeperRig } from "@/theme/keeperRig";
 
 export type KeeperPropName = "none" | "seal" | "ledger" | "lens" | "coin" | "sack" | "cup" | "whisper" | "scythe" | "flip";
 export type KeeperAnimName = "idle" | "none" | "peek" | "popin" | "flip" | "wave" | "point" | "tap" | "thumbs" | "jump" | "shrug";
@@ -104,7 +105,7 @@ export function keeperFrame(mood: KeeperMood, prop: KeeperPropName, anim: Keeper
   const back = (p: number) => { const c = 1.9; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
   let ty = live ? S(t * 2.4) * 1.4 : 0, sx = 1, sy = 1, tiltA = 0, hsR = 1, gyA = 0, gxA = 0;
   const wig = live ? S(t * 3) * 3 : 0;
-  const C = { y: -46, ry: 4, ry2: 2, fill: "#C5F25C", face: true, trail: true, ty: 80, ty2: 60 };
+  const C = { y: -46, ry: 4, ry2: 2, fill: keeperRig.lime, face: true, trail: true, ty: 80, ty2: 60 };
   if (live) {
     RHm[1] += S(t * 2.4 + 0.6) * 1.4; LH[1] += S(t * 2.4 + 0.9) * 1.4;
     if (an === "idle" && t % 6.5 > 5.2) gxA = 4;
@@ -113,7 +114,7 @@ export function keeperFrame(mood: KeeperMood, prop: KeeperPropName, anim: Keeper
       if (p < 0.12) RHm[2] = -10 - (p / 0.12) * 30; else if (p < 0.2) RHm[2] = -40 + ((p - 0.12) / 0.08) * 60; else RHm[2] = 20 - Math.min(1, (p - 0.2) / 0.2) * 30;
       if (p > 0.1 && p < 0.9) {
         const qq = (p - 0.1) / 0.8, cy = -60 * 4 * qq * (1 - qq);
-        C.y = cy; C.ry = Math.max(0.8, 10 * Math.abs(Math.cos(qq * Math.PI * 5))); C.fill = Math.cos(qq * Math.PI * 5) > 0 ? "#C5F25C" : "#A9D23E";
+        C.y = cy; C.ry = Math.max(0.8, 10 * Math.abs(Math.cos(qq * Math.PI * 5))); C.fill = Math.cos(qq * Math.PI * 5) > 0 ? keeperRig.lime : keeperRig.coinFlipBack;
         C.ry2 = C.ry * 0.55; C.face = C.ry > 4; C.trail = qq > 0.15 && qq < 0.85; C.ty = 100 + cy * 0.5; C.ty2 = 100 + cy; gyA = cy * 0.05; tiltA = cy * 0.06;
       } else { C.y = 4; C.ry = 10; C.ry2 = 5.5; C.trail = false; if (p >= 0.9) RHm[1] += 3; }
     }

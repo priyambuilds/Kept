@@ -13,7 +13,7 @@ import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
 import { AvatarBuilder, BountyCover, ProfileCard } from "@/components/content/Social";
 import { KeptRateRing } from "@/components/content/Status";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import type { IconName } from "@/components/primitives";
 import { coverColors } from "../bounties/Bounties";
@@ -23,7 +23,6 @@ import type { Profile } from "@kept/shared";
 import { getWallet } from "@/chain";
 import { env } from "@/config/env";
 import { navigationRef, useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
@@ -66,7 +65,7 @@ export function ProfileTab() {
         { label: t("screens.I1.b1.act.1"), icon: "share-variant-outline", onPress: () => { void Clipboard.setStringAsync(p.wallet).then(() => toast(t("toasts.12"))); } },
       ] })}
       <KeptRateRing {...rateLine(s?.keptRate ?? null, s?.rateDays ?? 0)} />
-      <KeeperPlacement mood={k[0]!.mood} lines={k.map((l) => l.line)} {...keeperAt("I1")} />
+      <ScreenKeeper id="I1" lines={k} />
       <RowList rows={[
         { title: t("screens.I1.b4.r0.t"), sub: t("screens.I1.b4.r0.s", { n: s?.bestStreak ?? 0 }), value: String(s?.streak ?? 0), valueSub: t("screens.I1.b4.r0.rs"), leading: { kind: "icon", icon: "fire" } },
         { title: t("screens.I1.b4.r1.t"), sub: t("screens.I1.b4.r1.s", { kept: s?.oaths.kept ?? 0, broken: s?.oaths.broken ?? 0 }), value: String((s?.oaths.kept ?? 0) + (s?.oaths.broken ?? 0)), leading: { kind: "icon", icon: "cards-outline" }, chevron: true, onPress: () => go("D5") },
@@ -311,7 +310,7 @@ export function I9() {
   return (
     <Screen bar={<NavBar onBack={back} close title={t("screens.I9.nav.title")} />} bottomInset={pinnedOne}
       pinned={<Button kind="p" icon="check" label={t("screens.I9.pin.0")} onPress={() => { void profileActions.save({ avatar: config }).then(back); }} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("I9")} />
+      <ScreenKeeper id="I9" lines={[k]} />
       <AvatarBuilder config={config} onChange={setConfig} tab={tab} onTab={setTab} onShuffle={() => setConfig(String(Math.floor(Math.random() * 1e8)).padStart(8, "0"))} />
     </Screen>
   );

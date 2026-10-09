@@ -26,6 +26,7 @@ import { navigationRef, target } from "@/app/nav";
 import type { Params } from "@/app/nav";
 import { ROUTES, designIdOf, presentation } from "@/app/routes";
 import type { DesignId } from "@/app/routes";
+import { __resetSeenKeeperLines } from "@/components/keeper/ScreenKeeper";
 
 const W = MOCK_WALLET;
 /** The user's seeded Oath with this name; a running or finished one before an Open one ("Iron Week" is both). */
@@ -121,7 +122,8 @@ export function openDevLink(url: string): boolean {
   mockReviews.reset();
   resetMockApi();
   queryClient.clear();
-  useUi.setState({ keeperNote: null, fx: null, devMenu: false });
+  useUi.setState({ fx: null, devMenu: false });
+  __resetSeenKeeperLines();
   useDraft.setState({ draft: SAMPLE_DRAFT });
   useBountyDraft.getState().reset();
   if (id.startsWith("K")) useBountyDraft.getState().set(SAMPLE_BOUNTY);

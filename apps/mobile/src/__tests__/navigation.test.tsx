@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import copy from "../../../../design/copy.json";
@@ -263,7 +263,10 @@ describe("Phase 4 on mocks", () => {
   it("wallet: W3 swap → sign → W3·ok", async () => {
     await signedIn("activeGroup");
     await act(async () => { navigateTo("W3"); });
-    await fireEvent.press(await screen.findByRole("button", { name: t("screens.W3.pin.0") }, slow));
+    // The button is disabled until the quote arrives.
+    const swap = await screen.findByRole("button", { name: t("screens.W3.pin.0") }, slow);
+    await waitFor(() => expect(swap).toBeEnabled(), slow);
+    await fireEvent.press(swap);
     expect(await screen.findByText(t("screens.W3·ok.b2.title"), {}, slow)).toBeTruthy();
   }, 30000);
 });

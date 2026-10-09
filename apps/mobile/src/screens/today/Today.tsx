@@ -11,11 +11,10 @@ import { OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
 import { BountyCover } from "@/components/content/Social";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { clock as hms, shortDuration } from "@/lib/format";
 import { color } from "@/theme";
 import { useGo } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { useDeviceOaths } from "@/features/oaths/device";
@@ -78,7 +77,7 @@ function Active({ items, pending, claim }: { items: OathView[]; pending: OathVie
         <Banner tone="lime" icon="sack" title={t("screens.B1.b1.title", { amount: skrWhole(claim.claimable) })}
           sub={t("screens.B1.b1.sub", { name: claim.facts.name, when: weekday(endOf(claim)) })} onPress={() => go("J1", { id: claim.facts.id })} />
       ) : null}
-      {main ? <KeeperPlacement mood={k[1]!.mood} line={k[1]!.line} {...keeperAt("B1")} /> : null}
+      {main ? <ScreenKeeper id="B1" lines={[k[1]!]} /> : null}
       {main ? <TodayCard v={main} /> : null}
       {rest.length ? <RowList rows={rest.map(rowOf(go, brands))} /> : null}
     </TabScreen>
@@ -136,7 +135,7 @@ function AllDone({ items }: { items: OathView[] }) {
   return (
     <TabScreen tab="today" layout="B2">
       <BodyText text={t("screens.B2.b0.text", { kept: items.length, total: items.length, time: `<m>${hms(reset)}</m>` })} />
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("B2")} />
+      <ScreenKeeper id="B2" lines={[k]} />
       <Title heading={t("screens.B2.b2.title")} sub={t("screens.B2.b2.sub", { amounts: safe })} />
       <RowList rows={items.map(rowOf(go, brands))} />
     </TabScreen>
@@ -149,7 +148,7 @@ function Empty() {
   const k = keeperLines("B3")[0]!;
   return (
     <TabScreen tab="today" layout="B3">
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("B3")} chips={[{ text: t("screens.B3.b1.chip.0"), icon: "camera-outline", x: 200, y: 120, tilt: 3, tone: "white" }]} />
+      <ScreenKeeper id="B3" lines={[k]} chips={[{ text: t("screens.B3.b1.chip.0"), icon: "camera-outline", x: 200, y: 120, tilt: 3, tone: "white" }]} />
       <Title heading={t("screens.B3.b2.title")} sub={t("screens.B3.b2.sub")} />
       <ButtonRow><Button kind="p" icon="plus" label={t("screens.B3.b3.btn.0")} onPress={() => go("C1")} /></ButtonRow>
       <BodyText mono text={t("screens.B3.b4.text")} />
@@ -166,7 +165,7 @@ function Deadline({ v, left }: { v: OathView; left: number }) {
     <TabScreen tab="today" layout="B4">
       <BodyText text={t("screens.B4.b0.text", { left, time: `<m class="r">${hms(v.secondsToReset ?? 0)}</m>` })} />
       <TodayCard v={v} urgent />
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("B4")} />
+      <ScreenKeeper id="B4" lines={[k]} />
     </TabScreen>
   );
 }
@@ -193,7 +192,7 @@ export function RecapSheet() {
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
         <BodyText mono text={t("screens.B5.b0.text")} />
         {lead ? <Title heading={t("screens.B5.b1.title", { name: listNames(lead.missed) })} pt={0} fs={28} /> : null}
-        <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("B5")} />
+        <ScreenKeeper id="B5" lines={[k]} />
         <RowList rows={rows.map(({ v, missed, won }) => {
           const d = v.lastDay!;
           return {

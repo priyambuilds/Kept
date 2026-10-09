@@ -15,12 +15,11 @@ import type { Seat } from "@/components/content/Inputs";
 import { DayMemberGrid, HPPanel, OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { shortDuration } from "@/lib/format";
 import { color, metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useOath, useOathList, oathActions } from "@/features/oaths/hooks";
 import type { MemberView, OathView } from "@/features/oaths/model";
 import { isLowHp } from "@/features/oaths/model";
@@ -56,7 +55,7 @@ export function OathsTab() {
   const open1 = (v: OathView) => go(screenFor(v), { id: v.facts.id });
   return (
     <TabScreen tab="oaths">
-      <KeeperPlacement mood={k[0]!.mood} lines={k.map((l) => l.line)} {...keeperAt("D0")} />
+      <ScreenKeeper id="D0" lines={k} />
       {active.length ? <BodyText mono text={t("screens.D0.b1.text", { n: active.length })} /> : <Note text={t("additions.core.noOathsYet")} />}
       {active.map((v) => {
         const me = v.me >= 0 ? v.members[v.me]! : null;
@@ -275,7 +274,7 @@ function Active({ v }: { v: OathView }) {
       {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={startsTitle(v.secondsToStart ?? 0)} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
       {v.life === "over" ? <Over v={v} /> : null}
       {v.life === "active" && me ? <BodyText text={t("screens.D2.b1.text", { timeLeft: `<m${v.deadlineClose ? ' class="r"' : ""}>${shortDuration(v.secondsToReset ?? 0)}</m>`, cost: skrWhole(v.myMissCost) })} /> : null}
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(low ? "D2·low" : "D2")} />
+      <ScreenKeeper id={low ? "D2·low" : "D2"} lines={[k]} />
       <DayMemberGrid days={f.numDays} today={v.dayIndex ?? -1} members={v.members.map((m) => ({ key: m.facts.wallet, name: memberName(m), initial: memberInitial(m), color: memberColor(m), cells: m.cells }))} />
       {!f.isSolo && v.life === "active" ? <ChipRow>{v.members.filter((m) => !m.isMe).map((m) => <Odds key={m.facts.wallet} m={m} />)}</ChipRow> : null}
       {reviewer ? <Banner tone="vio" icon="eye-outline" title={t("screens.D2.b5.title")} sub={t("screens.D2.b5.sub")} onPress={() => go("G1", { id: f.id })} /> : null}

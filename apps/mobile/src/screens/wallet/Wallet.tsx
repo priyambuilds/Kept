@@ -15,7 +15,7 @@ import { MoneyMoment, OptionGrid, QRCard } from "@/components/content/Inputs";
 import { OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
 import { SignStatus } from "@/components/content/Status";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { color, metrics } from "@/theme";
 import { isApiError, useApi } from "@/api";
@@ -23,7 +23,6 @@ import { qk, useBalances } from "@/api/queries";
 import { env } from "@/config/env";
 import { formatSol, formatUsd } from "@/lib/format";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
@@ -62,7 +61,7 @@ export function W1() {
   const b = balances.data;
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.W1.nav.title")} />}>
-      {k ? <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("W1")} /> : null}
+      {k ? <ScreenKeeper id="W1" lines={[k]} /> : null}
       {b ? (
         <MoneyMoment value={skrWhole(b.skr)} caption={price.data ? t("screens.W1.b1.caption", { usd: formatUsd(b.skr, price.data.usdPerSkr) }) : t("additions.wallet.available")} />
       ) : <Skeleton height={120} />}

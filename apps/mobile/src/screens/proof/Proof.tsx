@@ -13,14 +13,13 @@ import { ProofCamera, Shutter } from "@/components/content/Camera";
 import { MoneyMoment } from "@/components/content/Inputs";
 import { RowList } from "@/components/content/Rows";
 import { DayStrip, SignStatus } from "@/components/content/Status";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { clock as hms } from "@/lib/format";
 import { color, metrics } from "@/theme";
 import { getApi, isApiError } from "@/api";
 import type { Challenge, ProofOutcome } from "@/api";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import type { DesignId } from "@/app/routes";
 import { oathActions, refreshOaths, useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
@@ -146,7 +145,7 @@ function Check({ photo }: { photo: 1 | 2 }) {
   return (
     <Screen bar={<NavBar onBack={back} title={navTitle(view, photo)} />}>
       <ProofCamera photo={photo} state="check" object={view ? objectIcon(view.facts.objectId) : "camera"} label={t("screens.F2.b0.label")} {...(c && gestureKey(c.gesture) ? { gesture: gestureKey(c.gesture)! } : {})} />
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(photo === 2 ? "F4·chk" : "F2")} />
+      <ScreenKeeper id={photo === 2 ? "F4·chk" : "F2"} lines={[k]} />
     </Screen>
   );
 }
@@ -173,7 +172,7 @@ export function F2a() {
     <Screen bar={<NavBar onBack={back} close title={navTitle(view, photo)} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" icon="camera-retake-outline" label={t("screens.F2a.pin.0")} onPress={() => replace(photo === 2 ? "F4" : "F1", { id, photo })} />}>
       <ProofCamera photo={photo} state="fail" object={view ? objectIcon(view.facts.objectId) : "camera"} label={c ? t("screens.F2a.b0.label", { gesture: gestureText(c.gesture) }) : ""} {...(c && gestureKey(c.gesture) ? { gesture: gestureKey(c.gesture)! } : {})} />
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F2a")} />
+      <ScreenKeeper id="F2a" lines={[k]} />
     </Screen>
   );
 }
@@ -186,7 +185,7 @@ export function F2b() {
   return (
     <Screen bar={<NavBar onBack={back} close title={view ? t("screens.F2b.nav.title", { name: view.facts.name }) : ""} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" icon="refresh" label={t("screens.F2b.pin.0")} onPress={() => replace(photo === 2 ? "F4·chk" : "F2", { id, photo })} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F2b")} />
+      <ScreenKeeper id="F2b" lines={[k]} />
       <Title heading={t("screens.F2b.b2.title")} sub={t("screens.F2b.b2.sub")} align="center" />
       <MoneyMoment value={t("screens.F2b.b3.value", { time: hms(view?.secondsToReset ?? 0) })} caption={t("screens.F2b.b3.caption")} fs={44} />
     </Screen>
@@ -233,7 +232,7 @@ export function F4a() {
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" label={t("screens.F4a.pin.0")} onPress={() => reset("B1")} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F4a")} />
+      <ScreenKeeper id="F4a" lines={[k]} />
       <Title heading={t("screens.F4a.b2.title")} sub={view ? t("screens.F4a.b2.sub", { name: view.facts.name }) : ""} align="center" />
       <Breakdown rows={[
         { label: t("screens.F4a.b3.row0.l"), value: t("screens.F4a.b3.row0.v", { cost: skrWhole(view?.myMissCost ?? 0n) }), color: color.red.base },
@@ -278,7 +277,7 @@ export function F5() {
   return (
     <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1) + 40}
       pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.F5.brand.stamp", { day, time })} /></>}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F5")} />
+      <ScreenKeeper id="F5" lines={[k]} />
       <Title heading={t("screens.F5.b1.title", { day })} align="center" fs={40} />
       {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => t("additions.core.dayShort", { n: i + 1 }))} /> : null}
       <ChipRow justify="center">

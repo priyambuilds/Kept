@@ -14,7 +14,7 @@ import { RowList } from "@/components/content/Rows";
 import { AvatarBuilder } from "@/components/content/Social";
 import { SignStatus } from "@/components/content/Status";
 import { randomAvatar } from "@/components/avatar/palette";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { Enter } from "@/components/primitives";
 import { color, duration, metrics } from "@/theme";
@@ -23,7 +23,6 @@ import { getWallet, isTxFailure } from "@/chain";
 import { restoreSession, signIn } from "@/features/auth";
 import type { SignInResult } from "@/features/auth";
 import { useContinue, useGo } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useSigningFlow } from "@/app/useSigningFlow";
 import type { SignOutcome } from "@/app/useSigningFlow";
 import { useSession } from "@/state/session";
@@ -74,7 +73,7 @@ export function A1() {
         <Button kind="t" label={t("screens.A1.pin.1")} onPress={() => { setInvite(useSession.getState().invite ?? ""); go("A2"); }} />
       </>}
     >
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("A1")} chips={[
+      <ScreenKeeper id="A1" lines={[k]} chips={[
         { text: t("screens.A1.b1.chip.0"), icon: "sack", x: 200, y: 150, tilt: 4, tone: "lime" },
         { text: t("screens.A1.b1.chip.1"), icon: "cards-playing-outline", x: 190, y: 200, tilt: -3, tone: "white" },
       ]} />
@@ -142,7 +141,7 @@ export function A2e() {
         <Button kind="t" label={t("screens.A2·e.pin.1")} onPress={() => { void getWallet().forget().then(() => go("A2")); }} />
       </>}
     >
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("A2·e")} />
+      <ScreenKeeper id="A2·e" lines={[k]} />
       <Title heading={t("screens.A2·e.b2.title")} sub={t("screens.A2·e.b2.sub")} align="center" />
     </Screen>
   );
@@ -197,7 +196,7 @@ export function A4() {
     >
       <Title heading={t("screens.A4.b0.title")} sub={t("screens.A4.b0.sub")} />
       <AvatarBuilder variant="preview" config={avatar} onChange={setAvatar} onShuffle={() => setAvatar(randomAvatar())} />
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("A4")} />
+      <ScreenKeeper id="A4" lines={[k]} />
       <Note text={t("screens.A4.b3.text")} />
     </Screen>
   );

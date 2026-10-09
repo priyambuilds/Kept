@@ -11,12 +11,11 @@ import { Banner, BodyText, Breakdown, Chip, ChipRow, Note, Skeleton, Title } fro
 import { MoneyMoment, SeatSlots } from "@/components/content/Inputs";
 import type { Seat } from "@/components/content/Inputs";
 import { RowList } from "@/components/content/Rows";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { shortDuration } from "@/lib/format";
 import { color, metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { dayList, listNames, memberColor, memberInitial, memberName, objectName, skrWhole } from "@/features/oaths/present";
@@ -66,7 +65,7 @@ export function R1() {
         <Chip text={t("screens.R1.b0.chip.0", { amount: skrWhole(held) })} icon="sack" tone="lime" />
         <Chip text={t("screens.R1.b0.chip.1", { time: shortDuration(left) })} icon="timer-sand" tone="ora" />
       </ChipRow>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("R1")} />
+      <ScreenKeeper id="R1" lines={[k]} />
       <Title heading={t("screens.R1.b1.title", { amount: skrWhole(held) })} sub={t("additions.rematch.winBackHalf")} />
       <Breakdown rows={[
         { label: t("screens.R1.b2.row0.l"), value: t("screens.R1.b2.row0.v", { name: f.name, n: f.numDays, object: objectName(f.objectId) }) },
@@ -161,7 +160,7 @@ export function L6() {
   return (
     <Screen bar={<NavBar onBack={() => replace("D4", { id: view.facts.id })} close />} bottomInset={pinned(1, true)}
       pinned={<><Button kind="l" icon="hand-coin-outline" label={t("screens.L6.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} /><BrandStamp text={t("screens.L6.brand.stamp")} /></>}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("L6")} />
+      <ScreenKeeper id="L6" lines={[k]} />
       <Title heading={t("screens.L6.b1.title")} sub={t("screens.L6.b1.sub", { n: view.facts.numDays })} align="center" />
       <MoneyMoment value={t("screens.L6.b2.value", { amount: skrWhole(recovered) })} caption={t("screens.L6.b2.caption", { name: source?.facts.name ?? view.facts.name })} tone="lime" />
       <Breakdown rows={[

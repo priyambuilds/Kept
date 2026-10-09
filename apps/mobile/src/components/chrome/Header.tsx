@@ -7,6 +7,7 @@ import { color, duration, metrics, space } from "@/theme";
 import { Icon, Pop, PressScale, Text } from "../primitives";
 import type { IconName } from "../primitives";
 import { KeeperMark } from "../keeper/KeeperUI";
+import { useScreenKeeper } from "../keeper/ScreenKeeper";
 
 // ── DevnetBadge ── 18 h, padding 0/6, radius 5, devnetBadge colours.
 /** Long-press opens the Dev menu in development builds. */
@@ -72,7 +73,8 @@ export interface AppHeaderProps {
   /** Pre-formatted SKR amount (formatSkr at the edge). */
   balance: string;
   unreadCount: number;
-  keeper: { hasNew: boolean; onPress: () => void };
+  /** Defaults to the screen's Keeper (Screen › ScreenKeeper). */
+  keeper?: { hasNew: boolean; onPress: () => void };
   onBalance?: () => void;
   onBell?: () => void;
   extra?: { icon: IconName; label: string; onPress: () => void };
@@ -80,9 +82,11 @@ export interface AppHeaderProps {
 
 export function AppHeader({ title, balance, unreadCount, keeper, onBalance, onBell, extra }: AppHeaderProps) {
   const h = metrics.header;
+  const host = useScreenKeeper();
+  const mark = keeper ?? (host ? { hasNew: host.fresh, onPress: host.toggle } : { hasNew: false, onPress: () => {} });
   return (
     <View style={{ height: h.height, flexDirection: "row", alignItems: "center", gap: h.gap }}>
-      <KeeperMark hasNew={keeper.hasNew} onPress={keeper.onPress} />
+      <KeeperMark hasNew={mark.hasNew} onPress={mark.onPress} open={!!host?.open} />
       <Text variant="headerTitle" numberOfLines={1} accessibilityRole="header" style={{ marginLeft: h.titleMargin, flex: 1 }}>{title}</Text>
       <BalanceChip amount={balance} {...(onBalance ? { onPress: onBalance } : {})} />
       <Bell count={unreadCount} {...(onBell ? { onPress: onBell } : {})} />
@@ -115,12 +119,15 @@ export interface NavBarProps {
   /** Mono label on the right; defaults to "k/n" with steps. */
   right?: string;
   close?: boolean;
+  /** Defaults to the screen's Keeper: the mark shows only when the screen has a line (ScreenKeeper). */
   keeper?: { hasNew: boolean; onPress: () => void };
 }
 
 export function NavBar({ onBack, title, steps, right, close, keeper }: NavBarProps) {
   const n = metrics.nav;
   const label = right ?? (steps ? `${steps[0]}/${steps[1]}` : undefined);
+  const host = useScreenKeeper();
+  const mark = keeper ?? (host?.lines ? { hasNew: host.fresh, onPress: host.toggle } : null);
   return (
     <View style={{ height: n.height, flexDirection: "row", alignItems: "center", gap: n.gap }}>
       <RoundButton icon={close ? "close" : "chevron-left"} size={n.back} iconSize={n.backIcon} label={t(close ? "additions.a11y.close" : "additions.a11y.back")} onPress={onBack} />
@@ -130,7 +137,7 @@ export function NavBar({ onBack, title, steps, right, close, keeper }: NavBarPro
       <View style={{ minWidth: n.rightMin, alignItems: "flex-end" }}>
         {label ? <Text variant="monoLabel" color={color.text.secondary}>{label}</Text> : null}
       </View>
-      {keeper ? <KeeperMark hasNew={keeper.hasNew} onPress={keeper.onPress} /> : null}
+      {mark ? <KeeperMark hasNew={mark.hasNew} onPress={mark.onPress} open={!!host?.open} /> : null}
     </View>
   );
 }

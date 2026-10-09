@@ -12,13 +12,12 @@ import { ProofCamera } from "@/components/content/Camera";
 import { SentenceInput } from "@/components/content/Inputs";
 import { OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { metrics } from "@/theme";
 import { getApi, isApiError } from "@/api";
 import { qk, queryClient, useBalances } from "@/api/queries";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import type { DesignId } from "@/app/routes";
 import { oathActions, useOath } from "@/features/oaths/hooks";
 import { oathView } from "@/features/oaths/model";
@@ -172,7 +171,7 @@ function E3({ id, title, sub, pins }: { id: ScreenId; title: string; sub: string
     <Screen bar={<NavBar onBack={back} title={t("screens.E1.nav.title")} />} bottomInset={pinned(pins.length)} pinned={<>
       {pins.map((p, i) => <Button key={p.label} kind={i === 0 ? "p" : "t"} label={p.label} onPress={() => replace(p.to, p.params)} />)}
     </>}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(id)} />
+      <ScreenKeeper id={id} lines={[k]} />
       <Title heading={title} sub={sub} align="center" />
     </Screen>
   );

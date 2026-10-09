@@ -9,12 +9,11 @@ import { ProofCamera } from "@/components/content/Camera";
 import { MoneyMoment, SeatSlots } from "@/components/content/Inputs";
 import type { Seat } from "@/components/content/Inputs";
 import { SignStatus } from "@/components/content/Status";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { hoursLeft } from "@/lib/format";
 import { metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { gestureKey, gestureText, listNames, memberColor, memberInitial, memberName, objectIcon, objectName, skrWhole } from "@/features/oaths/present";
@@ -64,7 +63,7 @@ export function G1() {
         {approvers.length ? <Chip text={t("screens.G1.b2.chip.1", { name: listNames(approvers) })} icon="check" tone="lime" tilt={1} /> : null}
         <Chip text={t("screens.G1.b2.chip.2", { time: hoursLeft(Math.max(0, r.expiresAt - now)) })} icon="timer-outline" tone="ora" tilt={-1} />
       </ChipRow>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("G1")} />
+      <ScreenKeeper id="G1" lines={[k]} />
     </Screen>
   );
 }
@@ -144,7 +143,7 @@ export function G3no() {
   return (
     <Screen bar={<NavBar onBack={() => replace("D2", { id })} close />} bottomInset={pinned(1)}
       pinned={<Button kind="p" label={t("screens.G3·no.pin.0", { name: view.facts.name })} onPress={() => replace("D2", { id })} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("G3·no")} />
+      <ScreenKeeper id="G3·no" lines={[k]} />
       <Title heading={t("screens.G3·no.b2.title", { yes, no, day: r.dayIndex + 1 })} align="center" />
       <Breakdown rows={[
         { label: t("screens.G3·no.b3.row0.l"), value: t("screens.G3·no.b3.row0.v", { cost: skrWhole(view.myMissCost) }) },

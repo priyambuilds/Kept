@@ -1,6 +1,7 @@
 // The common screen frame (screens.md › Common layout): safe area, the DEVNET row under the system
 // status bar, a NavBar (flows) or AppHeader (tabs) bar, a scroll column 20 from the edges with gap 14,
-// and pinned actions 34 from the bottom.
+// and pinned actions 34 from the bottom. Each screen hosts its own Keeper (ScreenKeeper): the note drops
+// under the bar and closes when the screen loses focus, so it can never leak onto another screen.
 import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +12,9 @@ import { useUi } from "@/state/ui";
 import { useContext } from "react";
 import { NavigationRouteContext } from "@react-navigation/native";
 import { layoutOf } from "@/app/layout";
-import { designIdOf } from "@/app/routes";
+import { designIdOf, presentation } from "@/app/routes";
+import type { KeeperLine } from "@/copy";
+import { useKeeperHost } from "../keeper/ScreenKeeper";
 import { Ambient } from "../chrome/Ambient";
 import { Spacer } from "../content/Basics";
 import { DevnetBadge } from "../chrome/Header";
@@ -33,6 +36,8 @@ export interface ScreenProps {
    * route; set it where one route shows several designed states (Today B1–B4, D2 / D2·low / D3).
    */
   layout?: string;
+  /** Tab screens: the tab's idle line, opened from the mark when the screen has no line of its own. */
+  keeperIdle?: KeeperLine;
 }
 
 
@@ -42,7 +47,7 @@ function useDesignId(): string | undefined {
   return route ? designIdOf(route.name) : undefined;
 }
 
-export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, bare, layout }: ScreenProps) {
+export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, bare, layout, keeperIdle }: ScreenProps) {
   const insets = useSafeAreaInsets();
   // Pinned actions ride above the keyboard (E1 "Find Oath", C1/K1 "Next"); the scroll column follows.
   const kb = useKeyboardHeight();
@@ -53,7 +58,13 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   const openDev = useUi((s) => s.setDevMenu);
   const m = metrics.screen;
   const devnet = env.cluster === "devnet";
+  const kind = routeId && presentation(routeId) === "tab" ? "tab" : "flow";
+  const keeper = useKeeperHost(routeId, kind, keeperIdle ?? null);
+  // The note drops from just under the bar (components.md › KeeperNote: top 106 header / 104 nav, bar at 56).
+  const k = metrics.keeperNote;
+  const noteTop = insets.top + (devnet ? metrics.statusBar.badgeRow : 0) + m.barGap + (kind === "tab" ? k.topHeader : k.topNav) - metrics.header.top;
   return (
+    <keeper.Provider value={keeper.value}>
     <View style={{ flex: 1, backgroundColor: color.bg.app, paddingTop: insets.top }}>
       {l ? <Ambient tone={l.tone} ambient={l.ambient} beam={l.beam} decor={l.decor} /> : null}
       {devnet ? (
@@ -74,6 +85,8 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
         <View style={{ flex: 1, paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, gap: m.gap }}>{top}{children}</View>
       )}
       {pinned ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinned}</PinnedActions> : null}
+      {keeper.note ? <View pointerEvents="box-none" style={{ position: "absolute", left: 0, right: 0, top: noteTop, zIndex: 45 }}>{keeper.note}</View> : null}
     </View>
+    </keeper.Provider>
   );
 }

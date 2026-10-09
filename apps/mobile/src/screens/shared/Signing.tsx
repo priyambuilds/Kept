@@ -9,14 +9,13 @@ import { NavBar } from "@/components/chrome";
 import { BottomSheet } from "@/components/chrome";
 import { Note, Title } from "@/components/content/Basics";
 import { SignStatus } from "@/components/content/Status";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { metrics } from "@/theme";
 import { useBalances } from "@/api/queries";
 import { isApiError } from "@/api";
 import { classifyTxError } from "@/chain";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import type { Params } from "@/app/nav";
 import type { DesignId } from "@/app/routes";
 import { useSigningFlow } from "@/app/useSigningFlow";
@@ -73,7 +72,7 @@ export function C7no() {
       <Button kind="p" label={t("screens.C7·no.pin.0")} onPress={() => replace(retry as DesignId, rest)} />
       <Button kind="t" label={t("screens.C7·no.pin.1")} onPress={() => replace(edit as DesignId, rest)} />
     </>}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("C7·no")} />
+      <ScreenKeeper id="C7·no" lines={[k]} />
       <Title heading={t("screens.C7·no.b2.title")} sub={t("screens.C7·no.b2.sub")} align="center" />
     </Screen>
   );
@@ -105,7 +104,7 @@ export function M3() {
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
-        <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("M3")} />
+        <ScreenKeeper id="M3" lines={[k]} />
         <Title heading={t("screens.M3.b1.title")} sub={t("screens.M3.b1.sub", { sol })} pt={0} fs={26} />
         <ButtonRow direction="column">
           <Button kind="p" label={t("screens.M3.b2.btn.0")} onPress={() => replace("W2")} />

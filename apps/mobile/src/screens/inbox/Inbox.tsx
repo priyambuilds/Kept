@@ -12,14 +12,13 @@ import { InboxList } from "@/components/content/Social";
 import type { InboxItemView, InboxLead } from "@/components/content/Social";
 import type { IconName } from "@/components/primitives";
 import type { PaletteName } from "@/theme";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { ago } from "@/lib/format";
 import { useApi } from "@/api";
 import { qk, useInbox } from "@/api/queries";
 import type { DesignId } from "@/app/routes";
 import type { Params } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import { useGo } from "@/app/nav";
 import { useNow } from "@/features/time";
 
@@ -97,7 +96,7 @@ export function N1() {
 
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.N1.nav.title")} />}>
-      {keeper ? <KeeperPlacement mood={keeper.mood} line={keeper.line} {...keeperAt("N1")} /> : null}
+      {keeper ? <ScreenKeeper id="N1" lines={[keeper]} /> : null}
       {inbox.isLoading ? <><Skeleton height={96} /><Skeleton height={96} /><Skeleton height={96} /></> : null}
       {needs.length ? <InboxList label={t("screens.N1.b1.label", { n: needs.length })} items={needs.map(view)} /> : null}
       {fresh.length ? (

@@ -15,14 +15,13 @@ import { RowList } from "@/components/content/Rows";
 import { BountyCover, HScroller } from "@/components/content/Social";
 import type { HeroItem } from "@/components/content/Social";
 import { BarChart } from "@/components/content/Status";
-import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { ago, shortDuration } from "@/lib/format";
 import { DAY_SECONDS as DAY } from "@kept/engine";
 import { color, metrics, tokens } from "@/theme";
 import type { HeroPaletteName } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
-import { keeperAt } from "@/app/layout";
 import type { DesignId } from "@/app/routes";
 import { CATEGORIES } from "@/features/bounties/mockStore";
 import type { BountyFacts, Category } from "@/features/bounties/mockStore";
@@ -145,7 +144,7 @@ function Created() {
             button={{ label: t("screens.H1·c.b1.btn"), kind: "s", icon: "chart-bar", onPress: () => go("H6", { id: b.id }) }} />
         );
       })}
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H1·c")} />
+      <ScreenKeeper id="H1·c" lines={[k]} />
       <ButtonRow><Button kind="p" icon="plus" label={t("screens.H1·c.b3.btn.0")} onPress={() => go("K1")} /></ButtonRow>
     </>
   );
@@ -228,7 +227,7 @@ export function H3() {
           tags={[{ text: t("screens.H3.b1.tag.0", { n: photos }), icon: "camera-outline", ...(photos === 2 ? { tone: "g" as const } : {}) }, { text: t("screens.H3.b1.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "alarm", tone: "red" }]}
           {...(me.pendingToday ? { button: { label: t("screens.H3.b1.btn"), kind: "p" as const, icon: "camera" as const, onPress: () => go(photos === 1 ? "F4" : "F1", { id: v.facts.id }) } } : {})} />
       ) : null}
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H3")} />
+      <ScreenKeeper id="H3" lines={[k]} />
       {b.recentlyOut.length ? <RowList label={t("screens.H3.b3.label")} rows={b.recentlyOut.map((o) => ({
         title: o.name, sub: t("screens.H3.b3.r0.s", { day: o.day }), valueColor: color.red.base,
         // "2h ago", "yesterday", "3d ago" (reference/kept-screens-4.js › H3).
@@ -252,7 +251,7 @@ export function H4() {
   return (
     <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" label={t("screens.H4.pin.0")} onPress={() => reset("H1")} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H4")} />
+      <ScreenKeeper id="H4" lines={[k]} />
       <Title heading={t("screens.H4.b2.title", { day })} align="center" />
       <RowList rows={[
         { title: t("screens.H4.b3.r0.t"), sub: t("screens.H4.b3.r0.s"), value: s?.keptRate == null ? t("common.keptRateNew") : `${Math.round(s.keptRate * 100)}%`, valueSub: t("screens.H4.b3.r0.rs", { n: s?.rateDays ?? 0 }), leading: { kind: "icon", icon: "shield-check-outline", fg: color.text.primary } },

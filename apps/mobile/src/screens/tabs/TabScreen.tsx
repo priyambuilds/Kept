@@ -1,4 +1,4 @@
-// The shell of a tab screen: AppHeader (Keeper mark → note, balance chip → W1, bell → N1, optional
+// The shell of a tab screen: AppHeader (Keeper mark → the screen's note or the tab's idle line, balance chip → W1, bell → N1, optional
 // settings) over a scroll column that leaves room for the tab bar. Phase 3 fills B1/D0, Phase 4 H1/I1.
 import type { ReactNode } from "react";
 import { keeperIdle, t } from "@/copy";
@@ -9,7 +9,6 @@ import { metrics } from "@/theme";
 import { useBalances, useInbox } from "@/api/queries";
 import { useGo } from "@/app/nav";
 import type { DesignId } from "@/app/routes";
-import { useUi } from "@/state/ui";
 
 export type TabId = "today" | "oaths" | "bounties" | "profile";
 const TAB_SCREEN: Record<TabId, DesignId> = { today: "B1", oaths: "D0", bounties: "H1", profile: "I1" };
@@ -22,19 +21,18 @@ export function TabScreen({ tab, children, layout }: { tab: TabId; children?: Re
   const { go } = useGo();
   const balances = useBalances();
   const inbox = useInbox();
-  const showNote = useUi((s) => s.showKeeperNote);
   const id = TAB_SCREEN[tab];
   const idle = keeperIdle(tab);
   return (
     <Screen
       bottomInset={TAB_BAR_SPACE}
       {...(layout ? { layout } : {})}
+      keeperIdle={idle}
       bar={
         <AppHeader
           title={t(`screens.${id}.header.title` as never)}
           balance={balances.data ? formatSkr(balances.data.skr, { dp: 0 }) : "–"}
           unreadCount={inbox.data?.unread ?? 0}
-          keeper={{ hasNew: false, onPress: () => showNote({ mood: idle.mood, line: idle.line, autoHide: false }) }}
           onBalance={() => go("W1")}
           onBell={() => go("N1")}
           {...(tab === "profile" ? { extra: { icon: "cog-outline" as const, label: t("additions.a11y.settings"), onPress: () => go("I4") } } : {})}
