@@ -10,6 +10,7 @@ import { Banner, BodyText, Skeleton, Title } from "@/components/content/Basics";
 import { OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
+import type { BountyFacts as Bounty } from "@/features/bounties/mockStore";
 import { BountyCover } from "@/components/content/Social";
 import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { clock as hms, shortDuration } from "@/lib/format";
@@ -66,9 +67,11 @@ function Active({ items, pending, claim }: { items: OathView[]; pending: OathVie
   const { go } = useGo();
   const k = keeperLines("B1");
   const brands = useBrands();
-  // The main card is an Oath (a group one first); Bounties show as rows.
+  // The main card is an Oath (a group one first), stacked; pending Bounties follow as small cards
+  // (reference/kept-screens-1.js › B1, D-73); everything else is a row.
   const main = pending.find((v) => !v.facts.isSolo && !v.facts.bountyId) ?? pending.find((v) => !v.facts.bountyId) ?? pending[0];
-  const rest = items.filter((v) => v !== main);
+  const bountyCards = pending.filter((v) => v !== main && v.facts.bountyId);
+  const rest = items.filter((v) => v !== main && !bountyCards.includes(v));
   const reset = Math.min(...items.map((v) => v.secondsToReset ?? Infinity));
   return (
     <TabScreen tab="today">
@@ -78,13 +81,32 @@ function Active({ items, pending, claim }: { items: OathView[]; pending: OathVie
           sub={t("screens.B1.b1.sub", { name: claim.facts.name, when: weekday(endOf(claim)) })} onPress={() => go("J1", { id: claim.facts.id })} />
       ) : null}
       {main ? <ScreenKeeper id="B1" lines={[k[1]!]} /> : null}
-      {main ? <TodayCard v={main} /> : null}
+      {main ? <TodayCard v={main} stack /> : null}
+      {bountyCards.map((v) => <BountyCard key={v.facts.id} v={v} bounty={brands.get(v.facts.bountyId!)} />)}
       {rest.length ? <RowList rows={rest.map(rowOf(go, brands))} /> : null}
     </TabScreen>
   );
 }
 
-function TodayCard({ v, urgent }: { v: OathView; urgent?: boolean }) {
+/** A pending Bounty on Today: small card tilted −1°, "31 of 40 in" · "Not started" · Prove. */
+function BountyCard({ v, bounty }: { v: OathView; bounty: Bounty | undefined }) {
+  const { go } = useGo();
+  const photo1 = myToday(v)?.facts.proofToday === "photo1";
+  return (
+    <OathCard
+      variant="sm" tilt={-1} icon={objectIcon(v.facts.objectId)} name={v.facts.name}
+      meta={t("screens.B1.b4.meta", { brand: bounty?.brand.name ?? "", day: v.dayNumber, length: v.facts.numDays })}
+      onPress={() => go("H3", { id: v.facts.bountyId! })}
+      tags={[
+        ...(bounty ? [{ text: t("screens.B1.b4.tag.0", { remaining: bounty.remaining, joined: bounty.entrants }), icon: "account-group" as const, tone: "grey" as const }] : []),
+        photo1 ? { text: t("screens.B1.b3.tag.2"), icon: "camera" as const, tone: "vio" as const } : { text: t("screens.B1.b4.tag.1"), icon: "circle-outline" as const, tone: "grey" as const },
+      ]}
+      button={{ label: t("screens.B1.b4.btn"), kind: "s", icon: "camera", onPress: () => go(photo1 ? "F4" : "F1", { id: v.facts.id }) }}
+    />
+  );
+}
+
+function TodayCard({ v, urgent, stack }: { v: OathView; urgent?: boolean; stack?: boolean }) {
   const { go } = useGo();
   const mine = myToday(v)!;
   const photo1 = mine.facts.proofToday === "photo1";
@@ -96,7 +118,7 @@ function TodayCard({ v, urgent }: { v: OathView; urgent?: boolean }) {
     : t("screens.B1.b3.meta", { names: listNames(others.map(memberName)), day: v.dayNumber, length: v.facts.numDays });
   return (
     <OathCard
-      icon={objectIcon(v.facts.objectId)} name={v.facts.name} meta={meta} hp={v.hp}
+      icon={objectIcon(v.facts.objectId)} name={v.facts.name} meta={meta} hp={v.hp} {...(stack ? { stack } : {})}
       line={t(photo1 ? "screens.B1.b3.line" : "screens.B4.b1.line", { goal: capitalise(goal) })}
       onPress={() => go("D2", { id: v.facts.id })}
       tags={[
@@ -114,9 +136,9 @@ function TodayCard({ v, urgent }: { v: OathView; urgent?: boolean }) {
   );
 }
 
-const rowOf = (go: ReturnType<typeof useGo>["go"], brands: Map<string, string>) => (v: OathView): RowProps => ({
+const rowOf = (go: ReturnType<typeof useGo>["go"], brands: Map<string, Bounty>) => (v: OathView): RowProps => ({
   title: v.facts.name,
-  sub: v.facts.bountyId ? t("screens.B1.b4.meta", { brand: brands.get(v.facts.bountyId) ?? "", day: v.dayNumber, length: v.facts.numDays })
+  sub: v.facts.bountyId ? t("screens.B1.b4.meta", { brand: brands.get(v.facts.bountyId)?.brand.name ?? "", day: v.dayNumber, length: v.facts.numDays })
     : v.facts.isSolo ? t("screens.B1.b5.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }) : t("screens.B2.b3.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }),
   leading: { kind: "icon", icon: objectIcon(v.facts.objectId) },
   value: keptToday(v) ? t("screens.B2.b3.r0.rs") : shortDuration(v.secondsToReset ?? 0),
@@ -217,9 +239,9 @@ export function RecapSheet() {
 }
 
 /** Bounty id → host name, for "Bounty by Drift · Day 3/7" rows. */
-function useBrands(): Map<string, string> {
+function useBrands(): Map<string, Bounty> {
   const { data } = useBounties();
-  return new Map((data ?? []).map((b) => [b.id, b.brand.name]));
+  return new Map((data ?? []).map((b) => [b.id, b]));
 }
 
 const endOf = (v: OathView) => (v.facts.day1StartsAt ?? v.facts.createdAt) + v.facts.numDays * v.facts.daySeconds;

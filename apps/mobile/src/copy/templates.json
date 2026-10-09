@@ -1993,5 +1993,12 @@
   "sample": {
    "time": "2h"
   }
+ },
+ "screens.B1.b4.tag.0": {
+  "template": "{remaining} of {joined} in",
+  "sample": {
+   "remaining": "31",
+   "joined": "40"
+  }
  }
 }
