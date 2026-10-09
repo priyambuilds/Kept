@@ -17,6 +17,7 @@ import { mockOaths } from "@/features/oaths/mockStore";
 import { mockBounties } from "@/features/bounties/mockStore";
 import type { Scenario } from "@/api/mock/scenarios";
 import { useDraft } from "@/state/drafts";
+import { storeChallenge } from "@/screens/proof/Proof";
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 24, left: 0, right: 0, bottom: 16 } };
 const slow = { timeout: 8000 };
@@ -152,6 +153,23 @@ describe("onboarding on mocks", () => {
     await fireEvent.press(screen.getByRole("button", { name: t("screens.D2.pin.0") }));
     await fireEvent.press(await screen.findByLabelText(t("additions.a11y.shutter")));
     expect(await screen.findByText(t("screens.F5.b1.title", { day: 3 }), {}, slow)).toBeTruthy();
+  }, 30000);
+
+  it("an expired challenge from earlier is replaced, not sent to F2c (found on the emulator)", async () => {
+    useDev.setState({ scenario: "activeGroup" });
+    useSession.setState({ token: "mock.x", wallet: "7xKpQe9mZ3LbVd2RtYc8NfH4uJs6WgA1oPqE5rTk3F9q", genesis: true, onboarded: true });
+    useDeviceOaths.setState({ shownResults: ["mock-oath-4:L1"], recapShownOn: new Date().toDateString() });
+    storeChallenge("mock-oath-1", 2, { photo: 2, dayIndex: 2, objectId: 0, gesture: "victory", expiresAt: Math.floor(Date.now() / 1000) - 60 });
+    await render(<App />);
+    expect(await screen.findByRole("header", { name: t("screens.B1.header.title") }, slow)).toBeTruthy();
+    // From D2, so the Oath is already loaded when F4 mounts (that's when the stale one was picked up).
+    await act(async () => { navigateTo("D2", { id: "mock-oath-1" }); });
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.D2.pin.0") }));
+    expect(await screen.findByText(t("screens.F4.b1.chip.0"))).toBeTruthy();
+    expect(screen.queryByText(t("screens.F2c.b0.title"))).toBeNull();
+    await fireEvent.press(await screen.findByLabelText(t("additions.a11y.shutter")));
+    expect(await screen.findByText(t("screens.F5.b1.title", { day: 3 }), {}, slow)).toBeTruthy();
+    expect(screen.queryByText(t("screens.F2c.b0.title"))).toBeNull();
   }, 30000);
 
   it("joins by code: E1 → E2 → sign → D1·m; a bad code shows E3·code", async () => {

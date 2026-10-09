@@ -46,8 +46,10 @@ export function flags(state: Pick<DevState, "overrides"> = useDev.getState()): R
  * Dev deep link (`kept://dev/open/…&hold=1`): mock signatures and proof checks never finish, so the
  * pending screens (A2·s, C7, F2, …) can be looked at. Not persisted.
  */
-export const useDevHold = create<{ hold: boolean; setHold(hold: boolean): void }>()((set) => ({
+export const useDevHold = create<{ hold: boolean; still: boolean; setHold(hold: boolean): void }>()((set) => ({
   hold: false,
+  /** `still=1`: countdowns stop ticking, so uiautomator can read the screen (scripts/drive.mts). */
+  still: false,
   setHold: (hold) => set({ hold }),
 }));
 /** Waits `ms`, or forever while the dev hold is on. */

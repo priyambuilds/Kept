@@ -79,6 +79,9 @@ export const oathActions = {
     const { oath } = await getTx(source).createOath({
       objectId: d.objectId, numDays: d.numDays, stake: BigInt(d.stakeSkr) * SKR_UNIT, goalText: goal, tzOffsetMinutes: tzOffset(), isSolo: d.isSolo, reviewMode: d.reviewMode,
     });
+    // flows.md: a solo Oath goes C7·ok → D2, with no Start step. The program still needs `start_oath`
+    // (a second signature on chain until BACKEND_GAPS P1-18 starts solo Oaths on create).
+    if (d.isSolo) await getTx(source).startOath(oath);
     useDeviceOaths.getState().remember(oath, { name: oathName(d.objectId, d.numDays), reviewMode: d.reviewMode, goal });
     const api = getApi();
     const facts = await api.oaths.get(oath);

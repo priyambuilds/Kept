@@ -114,7 +114,7 @@ export function openDevLink(url: string): boolean {
   // `quiet=1` (the shoot script): no LogBox toasts over the screenshot; errors still go to logcat.
   if (q.quiet === "1") LogBox.ignoreAllLogs(true);
   // A clean mock world on the scenario.
-  useDevHold.getState().setHold(q.hold === "1");
+  useDevHold.setState({ hold: q.hold === "1", still: q.still === "1" });
   useDev.setState({ scenario, mockWallet: true, ...(q.mode === "mock" || !q.mode ? { overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])) } : {}) });
   clock.reset();
   mockOaths.reset();

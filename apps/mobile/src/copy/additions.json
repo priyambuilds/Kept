@@ -3,7 +3,8 @@
   "note": "Copy not in design/copy.json. 'owner' entries were approved by the product owner; 'prototype' entries are lifted verbatim from design/reference/KEPT Play.dc.html where copy.json missed them; 'a11y' are screen-reader labels for icon-only controls. All listed in docs/DECISIONS.md › Copy additions."
  },
  "waiting": {
-  "startsTonight": "Starts tonight at midnight"
+  "startsTonight": "Starts tonight at midnight",
+  "startsOn": "Day 1 starts {day}"
  },
  "rematch": {
   "winBackHalf": "Win back half of what you had left."

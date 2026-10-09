@@ -79,6 +79,15 @@ Rematch, group review, Bounties (feed, detail, join, eliminated, ended, my Bount
 
 **Phone milestone:** walk all 116 screens on the device in mock mode via scenarios; real faucet top-up from W2; real push for a nudge and the 2 h reminder (if FCM is configured).
 
+## Phase 4.5: Device shakedown
+**Status: done, partly** (2026-10-09). First run on a device since Phase 1 (Pixel 8 emulator, API 34). Details, every fix and what's left: `docs/SHAKEDOWN.md`.
+
+- Dev-only deep link `kept://dev/open/<screen>?scenario=…` (dropped from release bundles), screenshot scripts for the app and the prototype, `artifacts/compare/index.html` (gitignored).
+- 116 / 116 screens with no logcat errors or crashes; 14 / 14 flows.md happy paths pass with adb taps (`scripts/drive.mts`).
+- Fixed: Hermes BigInt formatting crash (every amount), React dev perf-track crash, option tiles and Bounty cards collapsing, expired-challenge jump to F2c, keyboard covering pinned buttons, solo Oaths needing Start, wrong Rematch numbers and window, and the design's atmosphere, offsets, buttons, chips and Keeper placement.
+- Typecheck, lint and tests green (mobile: 84 tests).
+- **Not done:** real wallet / chain flow (needs the Seeker wallet or fakewallet, and the Devnet verifier/faucet key), back button, join link, offline and toast checked one by one on the emulator, and moving the Avatar's colours into theme tokens.
+
 ## Phase 5: Motion, haptics, Keeper, accessibility, performance, E2E
 Signature animations from motion.md (HP damage/heal, money, day kept, broken, payout, Rematch) with haptics; the parametric Keeper in `react-native-svg`; Reduce Motion fallbacks; labels and 48 dp targets audited; list virtualization and a startup-time pass; Maestro smoke flows (onboarding, create, join, proof, claim) on mock scenarios.
 

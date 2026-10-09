@@ -6,6 +6,7 @@ import type { CopyKey } from "@/copy";
 import { color } from "@/theme";
 import type { IconName } from "@/components/primitives";
 import { formatSkr } from "@/lib/format";
+import { nowSeconds } from "@/features/time";
 import type { GestureLabel } from "@/api/types";
 import type { MemberView, ReviewMode } from "./model";
 import { shortWallet } from "./names";
@@ -53,3 +54,11 @@ export function gestureText(g: GestureLabel): string {
 /** Weekday ("Sunday") or short date ("Sun 5 Oct") for unix seconds, in the device locale's English form. */
 export const weekday = (unix: number) => new Date(unix * 1000).toLocaleDateString("en-GB", { weekday: "long" });
 export const shortDate = (unix: number) => new Date(unix * 1000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }).replace(",", "");
+
+/** "Starts tonight at midnight" when day 1 is the coming midnight, else "Day 1 starts Saturday" (Bounties open for days). */
+export function startsTitle(secondsToStart: number): string {
+  const at = new Date((nowSeconds() + secondsToStart) * 1000);
+  const tonight = new Date(nowSeconds() * 1000);
+  tonight.setHours(24, 0, 0, 0);
+  return at.getTime() <= tonight.getTime() + 60_000 ? t("additions.waiting.startsTonight") : t("additions.waiting.startsOn", { day: at.toLocaleDateString("en-GB", { weekday: "long" }) });
+}

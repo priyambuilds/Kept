@@ -4,6 +4,7 @@
 import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useKeyboardHeight } from "@/lib/keyboard";
 import { env } from "@/config/env";
 import { color, metrics } from "@/theme";
 import { useUi } from "@/state/ui";
@@ -43,6 +44,9 @@ function useDesignId(): string | undefined {
 
 export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, bare, layout }: ScreenProps) {
   const insets = useSafeAreaInsets();
+  // Pinned actions ride above the keyboard (E1 "Find Oath", C1/K1 "Next"); the scroll column follows.
+  const kb = useKeyboardHeight();
+  const bottom = Math.max(insets.bottom, kb);
   const routeId = useDesignId();
   const l = layoutOf(layout ?? routeId);
   const top = l?.top ? <Spacer h={l.top} /> : null;
@@ -61,7 +65,7 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
       {bare ? <View style={{ flex: 1 }}>{children}</View> : scroll ? (
         // With pinned actions the column ends 14 above them, like the prototype, so content is clipped
         // there instead of scrolling behind (and showing between) the buttons.
-        <ScrollView style={pinned ? { marginBottom: insets.bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
+        <ScrollView style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap, gap: m.gap }}>
           {top}
           {children}
@@ -69,7 +73,7 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
       ) : (
         <View style={{ flex: 1, paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, gap: m.gap }}>{top}{children}</View>
       )}
-      {pinned ? <PinnedActions bottomInset={insets.bottom}>{pinned}</PinnedActions> : null}
+      {pinned ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinned}</PinnedActions> : null}
     </View>
   );
 }

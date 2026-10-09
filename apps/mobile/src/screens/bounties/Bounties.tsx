@@ -28,7 +28,7 @@ import { CATEGORIES } from "@/features/bounties/mockStore";
 import type { BountyFacts, Category } from "@/features/bounties/mockStore";
 import { useOath, useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
-import { objectIcon, objectName, skrWhole } from "@/features/oaths/present";
+import { objectIcon, objectName, skrWhole, startsTitle } from "@/features/oaths/present";
 import { bountyActions, useBounties, useBounty, useMyBounty, useStats } from "@/features/phase4";
 import { useNow } from "@/features/time";
 import { useSession } from "@/state/session";
@@ -222,7 +222,7 @@ export function H3() {
   return (
     <Screen bar={<NavBar onBack={back} title={b.name} {...(v.life === "active" ? { right: t("screens.D2.nav.right", { day: v.dayNumber, length: b.numDays }) } : {})} />}>
       <Title heading={t("screens.H3.b0.title", { n: b.remaining, total: b.entrants })} />
-      {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={t("additions.waiting.startsTonight")} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
+      {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={startsTitle(v.secondsToStart ?? 0)} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
       {v.life === "active" ? (
         <OathCard icon={objectIcon(b.objectId)} name={t("screens.H3.b1.name")} meta={t("screens.H3.b1.meta", { object: objectName(b.objectId) })}
           tags={[{ text: t("screens.H3.b1.tag.0", { n: photos }), icon: "camera-outline", ...(photos === 2 ? { tone: "g" as const } : {}) }, { text: t("screens.H3.b1.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "alarm", tone: "red" }]}
@@ -280,7 +280,7 @@ export function H5() {
   const payout = v ? v.results[v.me]?.final ?? 0n : 0n;
   useEffect(() => { if (payout > 0n) playFx("coins", [{ text: `+${skrWhole(payout)}`, icon: "trophy-outline" }]); }, [payout, playFx]);
   if (!b || !v) return null;
-  // Who else survived isn't known yet (BACKEND_GAPS P1-10): me, then the rest as a count.
+  // Who else survived isn't known yet (BACKEND_GAPS P1-20): me, then the rest as a count.
   const seats: Seat[] = [{ kind: "member", name: t("screens.D2.b6.r0.t"), initial: "Y", color: color.member.you, ...(avatar ? { avatar } : {}), status: `+${skrWhole(payout)}` }];
   if (b.remaining > 1) seats.push({ kind: "overflow", count: b.remaining - 1 });
   return (

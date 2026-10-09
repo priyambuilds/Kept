@@ -3,7 +3,7 @@
 Every open decision from `design/rules.md`, plus everything else I found ambiguous, with the assumption I'll build with.
 **Status:** `DECIDED` = answered by the product owner (2026-10-09) · `ACCEPTED` = my assumption, accepted by the product owner on 2026-10-09 · `ASSUMED` = made during a build phase, not yet reviewed · `ASK` = still open. Where the build differs from the design, it's also in `BACKEND_GAPS.md`.
 
-All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. Phase 2 added D-35 to D-42 (section E), Phase 3 added D-43 to D-52 (section F) and Phase 4 added D-53 to D-63 (section G) for review. D-52 and D-60 (new copy) and D-55 (the design's broken example) need your OK.
+All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. Phase 2 added D-35 to D-42 (section E), Phase 3 added D-43 to D-52 (section F) Phase 4 added D-53 to D-63 (section G) and Phase 4.5 added D-64 to D-69 (section H) for review. D-52 and D-60 (new copy) and D-55 (the design's broken example) need your OK.
 
 ## Rules amendments (owner-approved, 2026-10-09)
 `design/` is read-only in this repo (CLAUDE.md), so these amendments to `design/rules.md` live here. They override rules.md where they conflict, and `packages/engine` implements them.
@@ -122,3 +122,13 @@ Everything here runs on the mock until the backend lands the matching BACKEND_GA
 | D-61 | Things the backend can't store yet | Settings (I4 notifications, I7 visibility, socials, follows) are kept on the device. The K3 cover upload shows a "coming later" toast and the brand gradient. G1 shows the challenge frame where the photo goes. | ASSUMED |
 | D-62 | W1 totals | "Locked in Oaths" is my balance across Open and running Oaths (not Rematches or Bounties); "In a Rematch" is shown only when there is one. Both come from the engine views, not the API. | ASSUMED |
 | D-63 | M1 | A static screen with the design's push texts, for checking how pushes read. Real pushes use expo-notifications once the backend sends them (P1-11). | ASSUMED |
+
+## H. Phase 4.5 (device shakedown)
+| # | Question | Build with | Status |
+|---|---|---|---|
+| D-64 | R4·lost "Fee −14": the fee comes out of the money lost (rules.md §3), so a member isn't charged a fee on top | R4 / R4·lost show Fee 0; the lost amount already includes it. | ASSUMED |
+| D-65 | The design's solo examples can't happen: L4·m "HP at the end 65" (14 days of +10 heal end at 100) and L4·b "Three misses at −35" (three can't reach 0, like D-55) | Fixtures use the engine's numbers: HP 100 at the end, four misses for the break. Please confirm the design just needs different samples. | ASK |
+| D-66 | Solo Oaths and Start | No Start step for solo (flows.md): the app starts it right after create. On chain that's a second approval until BACKEND_GAPS P1-18. | ASSUMED |
+| D-67 | "Starts tonight at midnight" on a Bounty that opens for days | "Day 1 starts Saturday" when day 1 isn't the coming midnight (`additions.waiting.startsOn`). | ASSUMED |
+| D-68 | Invite link shown on C8 / D1 | `kept://join/<code>` until the web link exists (BACKEND_GAPS P1-19); the design shows `kept.app/o/<code>`. | ASSUMED |
+| D-69 | Per-screen atmosphere | Tone wash, ambient orbs, beam and decor icons generated from screens.md and the prototype (`scripts/gen-layout.mjs` → `app/layout.gen.json`), as are hero offsets and Keeper size/side/pose. | ASSUMED |

@@ -297,6 +297,24 @@ The checklist for the backend developer. Each line points to the full item below
 - **Now:** `claim` sends to `destination` (`lib.rs:194-214`), which must already be a token account of the stake mint. The app passes the member's associated token account. It exists if they staked from it, but not if they closed it afterwards.
 - **Change:** `init_if_needed` on the destination ATA (the crate already enables the `init-if-needed` feature).
 
+### P1-18. Solo Oaths should start on create · NEW (Phase 4.5)
+- **Now:** `start_oath` is required for every Oath, solo included (`lib.rs:114` allows a solo start with one member). The design has no Start step for solo: C7 → C7·ok → D2 (flows.md, happy path 3).
+- **App until then:** after creating a solo Oath the app immediately sends `start_oath` too (`features/oaths/hooks.ts`), so on chain that's a second wallet approval.
+- **Change:** start solo Oaths inside `create_oath` (day 1 at the creator's next midnight, D-6), or accept `start` as part of the same transaction.
+
+### P1-19. A web link for invites · NEW (Phase 4.5)
+- **Design:** C8 and D1 show the invite as `kept.app/o/IRON-7K2Q`.
+- **Now:** only `kept://join/<code>` exists, which opens nothing for someone without the app. The app shows and shares the `kept://` link until there's a web page.
+- **Change:** a page at `/o/<code>` that opens the app through Android App Links (assetlinks, see P2-7) and otherwise points to the install. Then the app switches the displayed and shared link.
+
+### P1-20. Who survived a Bounty · NEW (Phase 4.5)
+- **Design:** H5 shows the survivors' avatars with their share.
+- **Now:** nothing lists a Bounty's survivors (Bounties are mock-only, P1-10). H5 shows the user and "+N others".
+- **Change:** include the first few survivors (name, avatar, share) in the Bounty result.
+
+### Local setup note (Phase 4.5)
+Running `apps/api` locally needs `VERIFIER_SECRET_KEY` and `FAUCET_SECRET_KEY` for the **configured** Devnet verifier/admin (`FFAZTtBd…`, read from the on-chain Config). Without them sign-in, invites, nudges and price work, but the faucet has no SKR and real photo-2 check-ins are rejected on chain. A throwaway key was used for the shakedown.
+
 ---
 
 ## P2: operations, hardening, cleanup

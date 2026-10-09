@@ -35,6 +35,8 @@ const useProof = create<{ challenges: Record<string, Challenge>; image: string |
   challenges: {}, image: null, set: (p) => set(p),
 }));
 const key = (id: string, photo: 1 | 2) => `${id}:${photo}`;
+/** Tests: seed a challenge as if it was issued earlier. */
+export const storeChallenge = (id: string, photo: 1 | 2, c: Challenge) => useProof.getState().set({ challenges: { ...useProof.getState().challenges, [key(id, photo)]: c } });
 /** Today's challenge for a photo, if one was issued on this run (G2 sends photo 2's to the group). */
 export const challengeFor = (id: string, photo: 1 | 2): Challenge | undefined => useProof.getState().challenges[key(id, photo)];
 
@@ -51,7 +53,11 @@ const challengeLabel = (c: Challenge | undefined) => (c ? t("screens.F1.b0.label
 /** Loads (or reuses) today's challenge for this photo; a new one once it has expired. */
 function useChallenge(v: OathView | null, photo: 1 | 2, fresh = false) {
   const stored = useProof((s) => (v ? s.challenges[key(v.facts.id, photo)] : undefined));
-  const [c, setC] = useState<Challenge | undefined>(fresh ? undefined : stored);
+  // An expired stored challenge (photo 1 this morning, photo 2 tonight) is replaced, not shown: Shoot
+  // sends an expired one to F2c, which is for a challenge that ran out while shooting.
+  // An expired stored challenge (photo 1 this morning, photo 2 tonight) is replaced, not shown: Shoot
+  // sends an expired one to F2c, which is for a challenge that ran out while shooting.
+  const [c, setC] = useState<Challenge | undefined>(() => (!fresh && stored && stored.expiresAt > nowSeconds() ? stored : undefined));
   useEffect(() => {
     if (!v || v.dayIndex === null) return;
     if (c && c.dayIndex === v.dayIndex && c.expiresAt > nowSeconds()) return;

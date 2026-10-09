@@ -105,6 +105,8 @@ export function SentenceInput({ label, prefix, value, onChange, max, suggestions
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             accessibilityLabel={label}
+            // Codes and links (mono) are typed exactly: no autocorrect, capitals or suggestions.
+            {...(mono ? { autoCorrect: false, autoCapitalize: "none" as const, spellCheck: false, autoComplete: "off" as const } : {})}
             {...(placeholder ? { placeholder } : {})}
             placeholderTextColor={color.text.ghost}
             selectionColor={color.lime.base}

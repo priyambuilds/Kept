@@ -24,7 +24,7 @@ import { keeperAt } from "@/app/layout";
 import { useOath, useOathList, oathActions } from "@/features/oaths/hooks";
 import type { MemberView, OathView } from "@/features/oaths/model";
 import { isLowHp } from "@/features/oaths/model";
-import { dayList, listNames, memberColor, memberInitial, memberName, objectIcon, objectName, reviewText, shortDate, skrText, skrWhole, weekday } from "@/features/oaths/present";
+import { dayList, listNames, memberColor, memberInitial, memberName, objectIcon, objectName, reviewText, shortDate, skrText, skrWhole, weekday, startsTitle } from "@/features/oaths/present";
 import { screenFor } from "@/features/oaths/route";
 import { useUi } from "@/state/ui";
 import { TabScreen } from "../tabs/TabScreen";
@@ -272,7 +272,7 @@ function Active({ v }: { v: OathView }) {
         </ChipRow>
       ) : null}
       <HPPanel hp={v.hp} lostToday={v.hpLostLastDay} {...(lostNote ? { note: lostNote } : {})} {...(low ? { warn: t("screens.D2·low.b0.warn") } : {})} />
-      {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={t("additions.waiting.startsTonight")} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
+      {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={startsTitle(v.secondsToStart ?? 0)} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
       {v.life === "over" ? <Over v={v} /> : null}
       {v.life === "active" && me ? <BodyText text={t("screens.D2.b1.text", { timeLeft: `<m${v.deadlineClose ? ' class="r"' : ""}>${shortDuration(v.secondsToReset ?? 0)}</m>`, cost: skrWhole(v.myMissCost) })} /> : null}
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(low ? "D2·low" : "D2")} />
