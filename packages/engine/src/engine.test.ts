@@ -162,6 +162,15 @@ test("day boundaries: day 1 at the first midnight after Start, in the creator's 
   }
   assert.equal(dayPhase(midnightUtc, 3, midnightUtc + 3 * DAY_SECONDS).phase, "over");
   assert.equal(nextMidnight(0, -300), 5 * 3600); // UTC−5: local midnight is 05:00 UTC
+  // Debug program builds use 120 s days; the deadline warning scales (2 h of 24 h → 10 s of 120 s).
+  const short = dayPhase(1000, 3, 1000 + 120 + 115, 120);
+  assert.equal(short.phase, "day");
+  if (short.phase === "day") {
+    assert.equal(short.dayIndex, 1);
+    assert.equal(short.secondsToReset, 5);
+    assert.equal(short.deadlineClose, true);
+  }
+  assert.equal(dayPhase(1000, 3, 1000 + 360, 120).phase, "over");
 });
 
 test("HP display helpers and generated names", () => {

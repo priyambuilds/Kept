@@ -1,17 +1,1083 @@
 {
-  "$meta": {
-    "note": "Data-bearing copy keys mapped to templates. `sample` holds the values that, interpolated into `template`, must reproduce design/copy.json exactly (enforced by copy.test.ts)."
-  },
-  "screens.D2.b1.text": { "template": "{timeLeft} left today · first miss −{cost} SKR", "sample": { "timeLeft": "9h 18m", "cost": "143" } },
-  "screens.D2.b0.note": { "template": "{name} missed day {day}: −{damage}, then +{heal} heal.", "sample": { "name": "Arjun", "day": "2", "damage": "20", "heal": "10" } },
-  "screens.D2.b6.r0.s": { "template": "{rate}% · {days} days", "sample": { "rate": "91", "days": "64" } },
-  "screens.D2.b6.r0.r": { "template": "{amount} SKR", "sample": { "amount": "1,043" } },
-  "screens.B1.b0.text": { "template": "{left} of {total} left · resets in {time}", "sample": { "left": "2", "total": "3", "time": "09:18:42" } },
-  "screens.B1.b3.meta": { "template": "with {names} · Day {day}/{length}", "sample": { "names": "Riya, Arjun, Dev", "day": "3", "length": "7" } },
-  "screens.B1.b3.tag.0": { "template": "{amount} SKR", "sample": { "amount": "1,043" } },
-  "screens.B1.b3.tag.1": { "template": "{time} left", "sample": { "time": "9h 18m" } },
-  "screens.B1.b3.float": { "template": "{name} kept {time}", "sample": { "name": "Riya", "time": "07:12" } },
-  "screens.D2.b4.chip.0": { "template": "{name} 1-to-{n}", "sample": { "name": "Riya", "n": "9" } },
-  "screens.D2.b4.chip.1": { "template": "{name} {n}-to-1 to miss", "sample": { "name": "Arjun", "n": "3" } },
-  "screens.D2.b4.chip.2": { "template": "{name} in review", "sample": { "name": "Dev" } }
+ "$meta": {
+  "note": "Data-bearing copy keys mapped to templates. `sample` holds the values that, interpolated into `template`, must reproduce design/copy.json exactly (enforced by copy.test.ts)."
+ },
+ "screens.D2.b1.text": {
+  "template": "{timeLeft} left today · first miss −{cost} SKR",
+  "sample": {
+   "timeLeft": "9h 18m",
+   "cost": "143"
+  }
+ },
+ "screens.D2.b0.note": {
+  "template": "{name} missed day {day}: −{damage}, then +{heal} heal.",
+  "sample": {
+   "name": "Arjun",
+   "day": "2",
+   "damage": "20",
+   "heal": "10"
+  }
+ },
+ "screens.D2.b6.r0.s": {
+  "template": "{rate}% · {days} days",
+  "sample": {
+   "rate": "91",
+   "days": "64"
+  }
+ },
+ "screens.D2.b6.r0.r": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,043"
+  }
+ },
+ "screens.B1.b0.text": {
+  "template": "{left} of {total} left · resets in {time}",
+  "sample": {
+   "left": "2",
+   "total": "3",
+   "time": "09:18:42"
+  }
+ },
+ "screens.B1.b3.meta": {
+  "template": "with {names} · Day {day}/{length}",
+  "sample": {
+   "names": "Riya, Arjun, Dev",
+   "day": "3",
+   "length": "7"
+  }
+ },
+ "screens.B1.b3.tag.0": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,043"
+  }
+ },
+ "screens.B1.b3.tag.1": {
+  "template": "{time} left",
+  "sample": {
+   "time": "9h 18m"
+  }
+ },
+ "screens.B1.b3.float": {
+  "template": "{name} kept {time}",
+  "sample": {
+   "name": "Riya",
+   "time": "07:12"
+  }
+ },
+ "screens.D2.b4.chip.0": {
+  "template": "{name} 1-to-{n}",
+  "sample": {
+   "name": "Riya",
+   "n": "9"
+  }
+ },
+ "screens.D2.b4.chip.1": {
+  "template": "{name} {n}-to-1 to miss",
+  "sample": {
+   "name": "Arjun",
+   "n": "3"
+  }
+ },
+ "screens.D2.b4.chip.2": {
+  "template": "{name} in review",
+  "sample": {
+   "name": "Dev"
+  }
+ },
+ "screens.B1.b1.title": {
+  "template": "{amount} SKR ready to claim",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.B1.b1.sub": {
+  "template": "{name} ended {when}. Tap to claim it.",
+  "sample": {
+   "name": "Hydra 14",
+   "when": "Sunday"
+  }
+ },
+ "screens.B1.b3.line": {
+  "template": "{goal}. Photo 2 any time before midnight.",
+  "sample": {
+   "goal": "20 min with the dumbbell"
+  }
+ },
+ "screens.B1.b5.r0.s": {
+  "template": "Solo · Day {day}/{length} · HP {hp}",
+  "sample": {
+   "day": "9",
+   "length": "14",
+   "hp": "100"
+  }
+ },
+ "screens.B2.b0.text": {
+  "template": "{kept} of {total} kept · resets in {time}",
+  "sample": {
+   "kept": "3",
+   "total": "3",
+   "time": "05:02:10"
+  }
+ },
+ "screens.B2.b2.sub": {
+  "template": "Your {amounts} SKR are safe tonight.",
+  "sample": {
+   "amounts": "1,043 + 500"
+  }
+ },
+ "screens.B2.b3.r0.s": {
+  "template": "Day {day}/{length} · HP {hp}",
+  "sample": {
+   "day": "3",
+   "length": "7",
+   "hp": "90"
+  }
+ },
+ "screens.B2.b3.r1.s": {
+  "template": "Solo · Day {day}/{length}",
+  "sample": {
+   "day": "9",
+   "length": "14"
+  }
+ },
+ "screens.B4.b0.text": {
+  "template": "{left} left · resets in {time}",
+  "sample": {
+   "left": "1",
+   "time": "01:42:08"
+  }
+ },
+ "screens.B4.b1.line": {
+  "template": "{goal}. Two photos before midnight.",
+  "sample": {
+   "goal": "20 min with the dumbbell"
+  }
+ },
+ "screens.B4.b1.warn": {
+  "template": "Miss today: −{cost} SKR · Oath −{hp} HP",
+  "sample": {
+   "cost": "143",
+   "hp": "20"
+  }
+ },
+ "screens.B5.b1.title": {
+  "template": "{name} blinked.\nYou didn't.",
+  "sample": {
+   "name": "Arjun"
+  }
+ },
+ "screens.B5.b3.r0.s": {
+  "template": "{name} missed · HP {before} → {damaged} → {after}",
+  "sample": {
+   "name": "Arjun",
+   "before": "100",
+   "damaged": "80",
+   "after": "90"
+  }
+ },
+ "screens.B5.b3.r1.s": {
+  "template": "{name} kept · HP {hp}",
+  "sample": {
+   "name": "You",
+   "hp": "100"
+  }
+ },
+ "screens.B5.b3.r0.r": {
+  "template": "+{amount} SKR",
+  "sample": {
+   "amount": "43"
+  }
+ },
+ "screens.B5.b4.btn.0": {
+  "template": "Open {name}",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.C3.b2.title": {
+  "template": "Ends {date}",
+  "sample": {
+   "date": "Wed 15 Oct"
+  }
+ },
+ "screens.C4.b4.title": {
+  "template": "First miss costs {cost} SKR",
+  "sample": {
+   "cost": "143"
+  }
+ },
+ "screens.C4.b4.sub": {
+  "template": "Then {second}, then {third}. Each miss costs 1.5× the last.",
+  "sample": {
+   "second": "214",
+   "third": "321"
+  }
+ },
+ "screens.C6.b1.row0.v": {
+  "template": "Every day I will {goal}",
+  "sample": {
+   "goal": "lift for 20 minutes"
+  }
+ },
+ "screens.C6.b1.row3.v": {
+  "template": "{amount} SKR each",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.C6.b2.r2.t": {
+  "template": "One miss costs {cost} SKR",
+  "sample": {
+   "cost": "143"
+  }
+ },
+ "screens.C6.b2.r2.s": {
+  "template": "Then {second}, {third}… paid to whoever kept.",
+  "sample": {
+   "second": "214",
+   "third": "321"
+  }
+ },
+ "screens.C7.b2.sub": {
+  "template": "Staking {amount} SKR into {name}.",
+  "sample": {
+   "amount": "1,000",
+   "name": "Iron Week"
+  }
+ },
+ "screens.C7·ok.b1.chip": {
+  "template": "{amount} SKR staked",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.C7·ok.b2.title": {
+  "template": "Sworn.\n{amount} SKR on the table.",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.C7·ok.b2.sub": {
+  "template": "{name} is ready. Bring your people, then press Start.",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.C8.b0.sub": {
+  "template": "Everyone stakes {amount} SKR. It starts when you press Start.",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.C8.b1.link": {
+  "template": "kept.app/o/{code}",
+  "sample": {
+   "code": "IRON-7K2Q"
+  }
+ },
+ "screens.C8.b3.text": {
+  "template": "JOINED SO FAR · {n}",
+  "sample": {
+   "n": "2"
+  }
+ },
+ "screens.D0.b1.text": {
+  "template": "ACTIVE · {n}",
+  "sample": {
+   "n": "2"
+  }
+ },
+ "screens.D0.b2.meta": {
+  "template": "Group · Day {day}/{length}",
+  "sample": {
+   "day": "3",
+   "length": "7"
+  }
+ },
+ "screens.D0.b3.meta": {
+  "template": "Solo · Day {day}/{length}",
+  "sample": {
+   "day": "9",
+   "length": "14"
+  }
+ },
+ "screens.D0.b2.tag.0": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,043"
+  }
+ },
+ "screens.D0.b2.tag.1": {
+  "template": "{name} pending",
+  "sample": {
+   "name": "Arjun"
+  }
+ },
+ "screens.D0.b4.r0.t": {
+  "template": "{name} (draft)",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.D0.b4.r0.s": {
+  "template": "Waiting to start · {joined} of {cap} in",
+  "sample": {
+   "joined": "2",
+   "cap": "4"
+  }
+ },
+ "screens.D0.b5.r0.s": {
+  "template": "Ended {when} · claim ready",
+  "sample": {
+   "when": "Sun"
+  }
+ },
+ "screens.D0.b5.r0.r": {
+  "template": "{delta}",
+  "sample": {
+   "delta": "+186"
+  }
+ },
+ "screens.D0.b5.r1.s": {
+  "template": "Broke on day {day} · Rematch open",
+  "sample": {
+   "day": "6"
+  }
+ },
+ "screens.D1.b0.chip.1": {
+  "template": "{n} days",
+  "sample": {
+   "n": "7"
+  }
+ },
+ "screens.D1.b0.chip.2": {
+  "template": "{amount} SKR each",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.D1.b1.title": {
+  "template": "Every day I will\n{goal}.",
+  "sample": {
+   "goal": "lift for 20 minutes"
+  }
+ },
+ "screens.D1.b1.sub": {
+  "template": "{object} + a hand gesture, two photos a day.",
+  "sample": {
+   "object": "Dumbbell"
+  }
+ },
+ "screens.D1.b2.text": {
+  "template": "JOINED · {n} OF {cap}",
+  "sample": {
+   "n": "3",
+   "cap": "4"
+  }
+ },
+ "screens.D1.b3.seat0": {
+  "template": "{rate}%",
+  "sample": {
+   "rate": "91"
+  }
+ },
+ "screens.D1.b4.r0.s": {
+  "template": "kept.app/o/{code}",
+  "sample": {
+   "code": "IRON-7K2Q"
+  }
+ },
+ "screens.D1.pin.0": {
+  "template": "Start {name}",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.D1·m.b0.chip.2": {
+  "template": "{amount} SKR staked",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.D1·m.b2.title": {
+  "template": "{name} starts it",
+  "sample": {
+   "name": "Riya"
+  }
+ },
+ "screens.D1·m.b2.sub": {
+  "template": "Day 1 begins when {name} presses Start. You'll get a notification.",
+  "sample": {
+   "name": "she"
+  }
+ },
+ "screens.D1·m.pin.0": {
+  "template": "Leave · get {amount} SKR back",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.D1·x.b0.title": {
+  "template": "Cancel {name}?",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.D1·x.b0.sub": {
+  "template": "{names} get their {amount} SKR back. So do you. This can't be undone.",
+  "sample": {
+   "names": "Riya and Dev",
+   "amount": "1,000"
+  }
+ },
+ "screens.D1·xs.b2.sub": {
+  "template": "Refunding {amount} SKR to {n} Keepers.",
+  "sample": {
+   "amount": "3,000",
+   "n": "3"
+  }
+ },
+ "screens.D1·go.b2.title": {
+  "template": "Start {name}",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.D1·go.b2.sub": {
+  "template": "Locks {amount} SKR. {when}",
+  "sample": {
+   "amount": "4,000",
+   "when": "Day 1 begins now."
+  }
+ },
+ "screens.D2.nav.right": {
+  "template": "Day {day}/{length}",
+  "sample": {
+   "day": "3",
+   "length": "7"
+  }
+ },
+ "screens.D2.b6.r2.rs": {
+  "template": "missed day {day}",
+  "sample": {
+   "day": "2"
+  }
+ },
+ "screens.D2.b7.title": {
+  "template": "If {name} misses today",
+  "sample": {
+   "name": "Arjun"
+  }
+ },
+ "screens.D2.b7.sub": {
+  "template": "{shares} · fee {fee} SKR",
+  "sample": {
+   "shares": "You +43 · Riya +43 · Dev +43",
+   "fee": "14"
+  }
+ },
+ "screens.D2.pin.1": {
+  "template": "Nudge {name}",
+  "sample": {
+   "name": "Arjun"
+  }
+ },
+ "screens.D2·low.b3.r2.rs": {
+  "template": "{n} misses",
+  "sample": {
+   "n": "2"
+  }
+ },
+ "screens.D2·low.pin.1": {
+  "template": "Nudge {names}",
+  "sample": {
+   "names": "Arjun and Dev"
+  }
+ },
+ "screens.D3.b0.note": {
+  "template": "Broke at midnight after day {day}.",
+  "sample": {
+   "day": "6"
+  }
+ },
+ "screens.D3.b1.sub": {
+  "template": "{missed} HP hit 0, and the whole pot burned.",
+  "sample": {
+   "missed": "Dev missed day 5. Arjun missed day 6."
+  }
+ },
+ "screens.D3.b3.row0.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "−1,000"
+  }
+ },
+ "screens.D3.pin.0": {
+  "template": "Rematch · win back {amount}",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.D4.b0.chip.0": {
+  "template": "Ended {date}",
+  "sample": {
+   "date": "Sun 5 Oct"
+  }
+ },
+ "screens.D4.b0.chip.1": {
+  "template": "HP {hp}",
+  "sample": {
+   "hp": "70"
+  }
+ },
+ "screens.D4.b1.title": {
+  "template": "Kept by {n} of {total}.",
+  "sample": {
+   "n": "3",
+   "total": "4"
+  }
+ },
+ "screens.D4.b3.r0.s": {
+  "template": "start {start} · lost {lost} · won {won}",
+  "sample": {
+   "start": "1,000",
+   "lost": "0",
+   "won": "+186"
+  }
+ },
+ "screens.D4.b3.r0.r": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.D4.pin.0": {
+  "template": "Claim {amount} SKR",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.E2.b0.text": {
+  "template": "{name} INVITED YOU",
+  "sample": {
+   "name": "RIYA"
+  }
+ },
+ "screens.E2.b1.meta": {
+  "template": "by {name} · {n} days · {review}",
+  "sample": {
+   "name": "Riya",
+   "n": "7",
+   "review": "AI + group review"
+  }
+ },
+ "screens.E2.b1.line": {
+  "template": "Every day I will {goal}.",
+  "sample": {
+   "goal": "lift for 20 minutes"
+  }
+ },
+ "screens.E2.b1.tag.0": {
+  "template": "{amount} SKR each",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.E2.b1.tag.1": {
+  "template": "Starts when {name} says",
+  "sample": {
+   "name": "Riya"
+  }
+ },
+ "screens.E2.b1.float": {
+  "template": "{rate}% kept rate",
+  "sample": {
+   "rate": "94"
+  }
+ },
+ "screens.E2.b2.r0.r": {
+  "template": "{rate}%",
+  "sample": {
+   "rate": "94"
+  }
+ },
+ "screens.E2.b2.r0.rs": {
+  "template": "{n} days",
+  "sample": {
+   "n": "71"
+  }
+ },
+ "screens.E2.b3.row1.v": {
+  "template": "−{cost} SKR, then 1.5×",
+  "sample": {
+   "cost": "143"
+  }
+ },
+ "screens.E2.pin.0": {
+  "template": "Join & stake {amount} SKR",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.E2·s.b2.title": {
+  "template": "Join {name}",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.E2·s.b2.sub": {
+  "template": "Staking {amount} SKR alongside {names}.",
+  "sample": {
+   "amount": "1,000",
+   "names": "Riya, Dev and Arjun"
+  }
+ },
+ "screens.E3·late.b2.title": {
+  "template": "Too late. {name} started.",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.E3·in.b2.sub": {
+  "template": "You staked {amount} SKR on {name} on {day}.",
+  "sample": {
+   "amount": "1,000",
+   "name": "Iron Week",
+   "day": "Monday"
+  }
+ },
+ "screens.E3·skr.b2.title": {
+  "template": "You need {amount} SKR.",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.E3·skr.b2.sub": {
+  "template": "You have {have} SKR. Grab test SKR from the faucet in Profile.",
+  "sample": {
+   "have": "620"
+  }
+ },
+ "toasts.5": {
+  "template": "Pasted {code}",
+  "sample": {
+   "code": "IRON-7K2Q"
+  }
+ },
+ "toasts.3": {
+  "template": "Nudged {name}",
+  "sample": {
+   "name": "Arjun"
+  }
+ },
+ "toasts.4": {
+  "template": "Nudged {n} Keepers",
+  "sample": {
+   "n": "2"
+  }
+ },
+ "toasts.2": {
+  "template": "You left. {amount} SKR returned",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.F1.nav.title": {
+  "template": "{name} · photo {n} of 2",
+  "sample": {
+   "name": "Iron Week",
+   "n": "1"
+  }
+ },
+ "screens.F4.nav.title": {
+  "template": "{name} · photo {n} of 2",
+  "sample": {
+   "name": "Iron Week",
+   "n": "2"
+  }
+ },
+ "screens.F2b.nav.title": {
+  "template": "{name}",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.F1.b0.label": {
+  "template": "{object} + {gesture}",
+  "sample": {
+   "object": "Dumbbell",
+   "gesture": "victory sign"
+  }
+ },
+ "screens.F4.b0.label": {
+  "template": "{object} + {gesture}",
+  "sample": {
+   "object": "Dumbbell",
+   "gesture": "open palm"
+  }
+ },
+ "screens.F1.b1.chip.0": {
+  "template": "Challenge expires {time}",
+  "sample": {
+   "time": "4:52"
+  }
+ },
+ "screens.F2a.b0.label": {
+  "template": "Couldn't see a {gesture}",
+  "sample": {
+   "gesture": "victory sign"
+  }
+ },
+ "screens.F2b.b3.value": {
+  "template": "{time}",
+  "sample": {
+   "time": "14:41:52"
+  }
+ },
+ "screens.F2c.b1.label": {
+  "template": "New: {object} + {gesture}",
+  "sample": {
+   "object": "dumbbell",
+   "gesture": "thumbs up"
+  }
+ },
+ "screens.F3.b2.sub": {
+  "template": "Do {task}, then come back for photo 2. No timer. Any time before midnight.",
+  "sample": {
+   "task": "your 20 minutes"
+  }
+ },
+ "screens.F4a.b2.sub": {
+  "template": "{name} is AI only, so 3 failed checks is final. Today counts as missed.",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.F4a.b3.row0.v": {
+  "template": "−{cost} SKR",
+  "sample": {
+   "cost": "143"
+  }
+ },
+ "screens.F4a.b3.row1.v": {
+  "template": "−{hp} at midnight",
+  "sample": {
+   "hp": "20"
+  }
+ },
+ "screens.F4a·g.b1.sub": {
+  "template": "Send photo 2 to {names}. Majority approves; a tie rejects. The photo is deleted after the vote, 48 hours at most.",
+  "sample": {
+   "names": "Riya, Arjun and Dev"
+  }
+ },
+ "screens.F5.b1.title": {
+  "template": "Day {day} kept.",
+  "sample": {
+   "day": "3"
+  }
+ },
+ "screens.F5.b3.chip.0": {
+  "template": "HP {hp}",
+  "sample": {
+   "hp": "90"
+  }
+ },
+ "screens.F5.b3.chip.1": {
+  "template": "{amount} SKR safe",
+  "sample": {
+   "amount": "1,043"
+  }
+ },
+ "screens.F5.brand.stamp": {
+  "template": "VERIFIED · DAY {day} · {time}",
+  "sample": {
+   "day": "3",
+   "time": "9:41"
+  }
+ },
+ "screens.J1.b1.value": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.J1.b2.label": {
+  "template": "{name}",
+  "sample": {
+   "name": "HYDRA 14"
+  }
+ },
+ "screens.J1.b2.row0.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.J1.b2.row1.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "0"
+  }
+ },
+ "screens.J1.b2.row2.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "+186"
+  }
+ },
+ "screens.J1.b2.row4.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.J1·p.b2.sub": {
+  "template": "Moving {amount} SKR to your wallet.",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.J1·ok.b2.sub": {
+  "template": "{amount} SKR is in your wallet.",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.J1·ok.brand.stamp": {
+  "template": "CLAIMED · {amount} SKR",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.J1·f.b2.sub": {
+  "template": "Nothing moved. Your {amount} SKR is still waiting.",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.L1.b1.title": {
+  "template": "{name}, kept.",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.L1.b2.value": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.L1.b2.caption": {
+  "template": "SKR · up {amount}",
+  "sample": {
+   "amount": "186"
+  }
+ },
+ "screens.L1.b3.row2.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "+186"
+  }
+ },
+ "screens.L1.b3.row3.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.L1.pin.0": {
+  "template": "Claim {amount} SKR",
+  "sample": {
+   "amount": "1,186"
+  }
+ },
+ "screens.L1.brand.stamp": {
+  "template": "{name} · {kept} OF {total}",
+  "sample": {
+   "name": "IRON WEEK",
+   "kept": "7",
+   "total": "7"
+  }
+ },
+ "screens.L2.b1.title": {
+  "template": "{name} is over.",
+  "sample": {
+   "name": "Iron Week"
+  }
+ },
+ "screens.L2.b1.sub": {
+  "template": "You missed {days}.",
+  "sample": {
+   "days": "days 4 and 6"
+  }
+ },
+ "screens.L2.b2.caption": {
+  "template": "SKR · up {amount}",
+  "sample": {
+   "amount": "29"
+  }
+ },
+ "screens.L2.b3.row1.l": {
+  "template": "Lost ({n} misses)",
+  "sample": {
+   "n": "2"
+  }
+ },
+ "screens.L2.b3.row1.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "−357"
+  }
+ },
+ "screens.L2.b3.row2.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "+386"
+  }
+ },
+ "screens.L2.brand.stamp": {
+  "template": "{name} · SETTLED",
+  "sample": {
+   "name": "HYDRA 14"
+  }
+ },
+ "screens.L3.b1.sub": {
+  "template": "{name} hit 0 HP on day {day}.",
+  "sample": {
+   "name": "Guitar Days",
+   "day": "6"
+  }
+ },
+ "screens.L3.b2.value": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "−1,000"
+  }
+ },
+ "screens.L3.b3.r0.s": {
+  "template": "missed {days}",
+  "sample": {
+   "days": "day 5"
+  }
+ },
+ "screens.L3.b3.r0.r": {
+  "template": "−{hp} HP",
+  "sample": {
+   "hp": "20"
+  }
+ },
+ "screens.L3.pin.0": {
+  "template": "Rematch · win back {amount}",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.L4.b1.title": {
+  "template": "{name}, kept.",
+  "sample": {
+   "name": "Read 20 pages"
+  }
+ },
+ "screens.L4.b1.sub": {
+  "template": "{kept} of {total} days.",
+  "sample": {
+   "kept": "14",
+   "total": "14"
+  }
+ },
+ "screens.L4.b2.chip.0": {
+  "template": "{amount} SKR back",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.L4.b2.chip.1": {
+  "template": "HP {hp}",
+  "sample": {
+   "hp": "100"
+  }
+ },
+ "screens.L4.pin.0": {
+  "template": "Claim {amount} SKR",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.L4·m.b1.title": {
+  "template": "{name} is over.",
+  "sample": {
+   "name": "Read 20 pages"
+  }
+ },
+ "screens.L4·m.b1.sub": {
+  "template": "Missed {days}.",
+  "sample": {
+   "days": "days 5 and 11"
+  }
+ },
+ "screens.L4·m.b2.row1.l": {
+  "template": "Lost ({n} misses)",
+  "sample": {
+   "n": "2"
+  }
+ },
+ "screens.L4·m.b2.row1.v": {
+  "template": "{amount}",
+  "sample": {
+   "amount": "−89"
+  }
+ },
+ "screens.L4·m.b2.row2.v": {
+  "template": "{hp}",
+  "sample": {
+   "hp": "65"
+  }
+ },
+ "screens.L4·m.b2.row3.v": {
+  "template": "{amount} SKR",
+  "sample": {
+   "amount": "411"
+  }
+ },
+ "screens.L4·b.b1.title": {
+  "template": "{name} broke\non day {day}.",
+  "sample": {
+   "name": "Read 20 pages",
+   "day": "9"
+  }
+ },
+ "screens.L4·b.b1.sub": {
+  "template": "{count} misses at −35 HP each. Your {amount} SKR burned.",
+  "sample": {
+   "count": "Three",
+   "amount": "500"
+  }
+ },
+ "screens.L4·b.pin.0": {
+  "template": "Solo Rematch · win back {amount}",
+  "sample": {
+   "amount": "250"
+  }
+ },
+ "screens.M3.b1.sub": {
+  "template": "Signing costs about 0.000005 SOL. Your wallet has {sol}.",
+  "sample": {
+   "sol": "0"
+  }
+ },
+ "screens.M4.b0.title": {
+  "template": "You need {amount} SKR.",
+  "sample": {
+   "amount": "1,000"
+  }
+ },
+ "screens.M4.b0.sub": {
+  "template": "You have {have} SKR. Pick a smaller stake, or grab test SKR from the faucet.",
+  "sample": {
+   "have": "620"
+  }
+ }
 }

@@ -1,0 +1,984 @@
+[
+ {
+  "id": "A0",
+  "name": "Splash",
+  "to": [
+   "A1"
+  ]
+ },
+ {
+  "id": "A1",
+  "name": "Welcome",
+  "to": [
+   "A2"
+  ]
+ },
+ {
+  "id": "A2",
+  "name": "Connect wallet",
+  "to": [
+   "A2·s"
+  ]
+ },
+ {
+  "id": "A2·s",
+  "name": "Signing in",
+  "to": [
+   "A2·e",
+   "A3·no",
+   "A3"
+  ]
+ },
+ {
+  "id": "A2·e",
+  "name": "Sign-in rejected",
+  "to": [
+   "A2"
+  ]
+ },
+ {
+  "id": "A3",
+  "name": "Seeker verified",
+  "to": [
+   "A4"
+  ]
+ },
+ {
+  "id": "A3·no",
+  "name": "Not eligible",
+  "to": [
+   "A4"
+  ]
+ },
+ {
+  "id": "B1",
+  "name": "Today, active",
+  "to": [
+   "J1",
+   "F4",
+   "D2",
+   "F1",
+   "H3",
+   "B4",
+   "B2",
+   "B5",
+   "B3",
+   "D0",
+   "H1",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "B2",
+  "name": "Today, all done",
+  "to": [
+   "D2",
+   "H3",
+   "B1",
+   "D0",
+   "H1",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "B3",
+  "name": "Today, empty",
+  "to": [
+   "C1",
+   "H2",
+   "B1",
+   "D0",
+   "H1",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "B4",
+  "name": "Deadline close",
+  "to": [
+   "F1",
+   "D2",
+   "B1",
+   "D0",
+   "H1",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "B5",
+  "name": "Daily recap",
+  "to": [
+   "D2",
+   "H3",
+   "B1"
+  ]
+ },
+ {
+  "id": "+",
+  "name": "+ menu",
+  "to": [
+   "C1",
+   "E1",
+   "K1"
+  ]
+ },
+ {
+  "id": "C1",
+  "name": "Goal",
+  "to": [
+   "C2"
+  ]
+ },
+ {
+  "id": "C2",
+  "name": "Object",
+  "to": [
+   "C3"
+  ]
+ },
+ {
+  "id": "C3",
+  "name": "Length",
+  "to": [
+   "C4"
+  ]
+ },
+ {
+  "id": "C4",
+  "name": "Solo or group, and stake",
+  "to": [
+   "C5",
+   "C6"
+  ]
+ },
+ {
+  "id": "C5",
+  "name": "Review mode",
+  "to": [
+   "C6"
+  ]
+ },
+ {
+  "id": "C6",
+  "name": "Review terms",
+  "to": [
+   "C7"
+  ]
+ },
+ {
+  "id": "C7",
+  "name": "Signing",
+  "to": [
+   "C7·no",
+   "C7·fail",
+   "M3",
+   "M4",
+   "C7·ok"
+  ]
+ },
+ {
+  "id": "C7·ok",
+  "name": "Signed · success",
+  "to": [
+   "C8",
+   "D2"
+  ]
+ },
+ {
+  "id": "C7·no",
+  "name": "Signed · rejected",
+  "to": [
+   "C7",
+   "C6"
+  ]
+ },
+ {
+  "id": "C7·fail",
+  "name": "Signed · failed",
+  "to": [
+   "C7",
+   "C6"
+  ]
+ },
+ {
+  "id": "C8",
+  "name": "Invite",
+  "to": [
+   "D1"
+  ]
+ },
+ {
+  "id": "D0",
+  "name": "Oaths list",
+  "to": [
+   "D2",
+   "D1",
+   "D4",
+   "D3",
+   "D5",
+   "B1",
+   "H1",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "D1",
+  "name": "Open · creator",
+  "to": [
+   "C8",
+   "D1·go",
+   "D1·x",
+   "D1·m"
+  ]
+ },
+ {
+  "id": "D1·m",
+  "name": "Open · member",
+  "to": []
+ },
+ {
+  "id": "D1·x",
+  "name": "Cancel confirm",
+  "to": [
+   "D1·xs"
+  ]
+ },
+ {
+  "id": "D1·xs",
+  "name": "Cancel · signing",
+  "to": [
+   "C7·no",
+   "D0"
+  ]
+ },
+ {
+  "id": "D1·go",
+  "name": "Start · signing",
+  "to": [
+   "C7·fail",
+   "D2"
+  ]
+ },
+ {
+  "id": "D2",
+  "name": "Active",
+  "to": [
+   "G1",
+   "I2",
+   "F4",
+   "D2·low",
+   "D3",
+   "D4"
+  ]
+ },
+ {
+  "id": "D2·low",
+  "name": "Active · HP low",
+  "to": [
+   "I2",
+   "F4"
+  ]
+ },
+ {
+  "id": "D3",
+  "name": "Broken",
+  "to": [
+   "R1",
+   "C1"
+  ]
+ },
+ {
+  "id": "D4",
+  "name": "Ended",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "E1",
+  "name": "Enter invite",
+  "to": [
+   "E2",
+   "E3·code",
+   "E3·late",
+   "E3·in",
+   "E3·elig",
+   "E3·skr"
+  ]
+ },
+ {
+  "id": "E2",
+  "name": "Oath preview",
+  "to": [
+   "I2",
+   "E2·s"
+  ]
+ },
+ {
+  "id": "E2·s",
+  "name": "Join · signing",
+  "to": [
+   "C7·no",
+   "E3·skr",
+   "D1·m"
+  ]
+ },
+ {
+  "id": "E3·code",
+  "name": "Invalid code",
+  "to": [
+   "E1",
+   "C1"
+  ]
+ },
+ {
+  "id": "E3·late",
+  "name": "Already started",
+  "to": [
+   "C1",
+   "E1"
+  ]
+ },
+ {
+  "id": "E3·in",
+  "name": "Already joined",
+  "to": [
+   "D2",
+   "E1"
+  ]
+ },
+ {
+  "id": "E3·elig",
+  "name": "Not eligible",
+  "to": [
+   "C1",
+   "E1"
+  ]
+ },
+ {
+  "id": "E3·skr",
+  "name": "Not enough SKR",
+  "to": [
+   "I4",
+   "C1"
+  ]
+ },
+ {
+  "id": "R1",
+  "name": "Rematch offer",
+  "to": [
+   "R2"
+  ]
+ },
+ {
+  "id": "R2",
+  "name": "Rematch · signing",
+  "to": [
+   "C7·no",
+   "R3"
+  ]
+ },
+ {
+  "id": "R3",
+  "name": "Rematch lobby",
+  "to": [
+   "R·act"
+  ]
+ },
+ {
+  "id": "R·act",
+  "name": "Rematch, active",
+  "to": [
+   "F1",
+   "L6",
+   "R4·lost"
+  ]
+ },
+ {
+  "id": "R4",
+  "name": "Rematch result",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "R4·lost",
+  "name": "Rematch result · recovery lost",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "F1·perm",
+  "name": "Camera permission",
+  "to": [
+   "F1"
+  ]
+ },
+ {
+  "id": "F1",
+  "name": "Photo 1 of 2",
+  "to": [
+   "F2",
+   "F1·perm",
+   "F2c"
+  ]
+ },
+ {
+  "id": "F2",
+  "name": "Checking",
+  "to": [
+   "F2a",
+   "F2b",
+   "F2c",
+   "F3"
+  ]
+ },
+ {
+  "id": "F2a",
+  "name": "Failed",
+  "to": [
+   "F1"
+  ]
+ },
+ {
+  "id": "F2b",
+  "name": "Check unavailable",
+  "to": [
+   "F2"
+  ]
+ },
+ {
+  "id": "F2c",
+  "name": "Challenge expired",
+  "to": [
+   "F1"
+  ]
+ },
+ {
+  "id": "F3",
+  "name": "Photo 1 done",
+  "to": [
+   "F4",
+   "B1"
+  ]
+ },
+ {
+  "id": "F4",
+  "name": "Photo 2 of 2",
+  "to": [
+   "F4·chk"
+  ]
+ },
+ {
+  "id": "F4·chk",
+  "name": "Checking photo 2",
+  "to": [
+   "F2a",
+   "F4a",
+   "F4a·g",
+   "F5"
+  ]
+ },
+ {
+  "id": "F4a",
+  "name": "3 fails · AI only",
+  "to": [
+   "B1"
+  ]
+ },
+ {
+  "id": "F4a·g",
+  "name": "3 fails · group review",
+  "to": [
+   "G2",
+   "B1"
+  ]
+ },
+ {
+  "id": "F5",
+  "name": "Day kept",
+  "to": [
+   "B2"
+  ]
+ },
+ {
+  "id": "G1",
+  "name": "Review a photo",
+  "to": [
+   "D2"
+  ]
+ },
+ {
+  "id": "G2",
+  "name": "Waiting for review",
+  "to": [
+   "G3",
+   "G3·no"
+  ]
+ },
+ {
+  "id": "G3",
+  "name": "Review approved",
+  "to": [
+   "D2"
+  ]
+ },
+ {
+  "id": "G3·no",
+  "name": "Review rejected",
+  "to": [
+   "D2"
+  ]
+ },
+ {
+  "id": "H1",
+  "name": "Feed · Discover",
+  "to": [
+   "H1·j",
+   "H1·c",
+   "H7",
+   "H2",
+   "H2·no",
+   "B1",
+   "D0",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "H1·j",
+  "name": "Feed · Joined",
+  "to": [
+   "H1",
+   "H1·c",
+   "F1",
+   "H3",
+   "H4",
+   "H5",
+   "B1",
+   "D0",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "H1·c",
+  "name": "Feed · Created",
+  "to": [
+   "H1",
+   "H1·j",
+   "H6",
+   "K1",
+   "B1",
+   "D0",
+   "I1",
+   "+",
+   "N1",
+   "W1"
+  ]
+ },
+ {
+  "id": "H2",
+  "name": "Bounty detail",
+  "to": [
+   "I3",
+   "H3"
+  ]
+ },
+ {
+  "id": "H2·no",
+  "name": "Bounty · not eligible",
+  "to": [
+   "H1",
+   "I1"
+  ]
+ },
+ {
+  "id": "H3",
+  "name": "Bounty, joined",
+  "to": [
+   "F1",
+   "H4",
+   "H5"
+  ]
+ },
+ {
+  "id": "H4",
+  "name": "Eliminated",
+  "to": [
+   "C1",
+   "H1"
+  ]
+ },
+ {
+  "id": "H5",
+  "name": "Bounty ended",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "H6",
+  "name": "My created Bounty",
+  "to": []
+ },
+ {
+  "id": "I1",
+  "name": "My profile",
+  "to": [
+   "I8",
+   "D5",
+   "H1·j",
+   "I2·me",
+   "B1",
+   "D0",
+   "H1",
+   "+",
+   "N1",
+   "W1",
+   "I4"
+  ]
+ },
+ {
+  "id": "I2",
+  "name": "Someone's profile",
+  "to": [
+   "E2",
+   "D2",
+   "H5",
+   "H3",
+   "C1",
+   "I2·p"
+  ]
+ },
+ {
+  "id": "I3",
+  "name": "Creator profile",
+  "to": [
+   "H2"
+  ]
+ },
+ {
+  "id": "I4",
+  "name": "Settings",
+  "to": [
+   "I8",
+   "W1",
+   "I5",
+   "D5",
+   "H1·j",
+   "I7",
+   "K1",
+   "A2"
+  ]
+ },
+ {
+  "id": "J1",
+  "name": "Claim",
+  "to": [
+   "J1·p",
+   "J1·f"
+  ]
+ },
+ {
+  "id": "J1·p",
+  "name": "Claim · signing",
+  "to": [
+   "J1·f",
+   "M3",
+   "J1·ok"
+  ]
+ },
+ {
+  "id": "J1·ok",
+  "name": "Claimed",
+  "to": [
+   "B1"
+  ]
+ },
+ {
+  "id": "J1·f",
+  "name": "Claim failed",
+  "to": [
+   "J1·p"
+  ]
+ },
+ {
+  "id": "K1",
+  "name": "Basics",
+  "to": [
+   "K2"
+  ]
+ },
+ {
+  "id": "K2",
+  "name": "Pool",
+  "to": [
+   "K3"
+  ]
+ },
+ {
+  "id": "K3",
+  "name": "Branding",
+  "to": [
+   "K4"
+  ]
+ },
+ {
+  "id": "K4",
+  "name": "Requirements",
+  "to": [
+   "K5"
+  ]
+ },
+ {
+  "id": "K5",
+  "name": "Review & fund",
+  "to": [
+   "K5·p"
+  ]
+ },
+ {
+  "id": "K5·p",
+  "name": "Fund · signing",
+  "to": [
+   "C7·no",
+   "M4",
+   "K5·ok"
+  ]
+ },
+ {
+  "id": "K5·ok",
+  "name": "Bounty live",
+  "to": [
+   "H6"
+  ]
+ },
+ {
+  "id": "L1",
+  "name": "Kept every day",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "L2",
+  "name": "Missed some days",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "L3",
+  "name": "Oath broken",
+  "to": [
+   "R1",
+   "C1"
+  ]
+ },
+ {
+  "id": "L4",
+  "name": "Solo kept",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "L4·m",
+  "name": "Solo missed some",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "L4·b",
+  "name": "Solo broken",
+  "to": [
+   "R1",
+   "C1"
+  ]
+ },
+ {
+  "id": "L6",
+  "name": "Rematch kept",
+  "to": [
+   "J1"
+  ]
+ },
+ {
+  "id": "L5",
+  "name": "Bounty survived / out",
+  "to": [
+   "H5",
+   "H4"
+  ]
+ },
+ {
+  "id": "M1",
+  "name": "Notifications",
+  "to": []
+ },
+ {
+  "id": "M2",
+  "name": "No internet",
+  "to": []
+ },
+ {
+  "id": "M3",
+  "name": "Not enough SOL",
+  "to": []
+ },
+ {
+  "id": "M4",
+  "name": "Not enough SKR",
+  "to": [
+   "I4",
+   "C4"
+  ]
+ },
+ {
+  "id": "A4",
+  "name": "Pick a look",
+  "to": [
+   "B3",
+   "I9"
+  ]
+ },
+ {
+  "id": "N1",
+  "name": "Inbox",
+  "to": [
+   "E2",
+   "G1",
+   "J1",
+   "R1",
+   "F4",
+   "B5",
+   "H3",
+   "H2"
+  ]
+ },
+ {
+  "id": "W1",
+  "name": "Wallet",
+  "to": [
+   "W2",
+   "W4",
+   "J1",
+   "I5"
+  ]
+ },
+ {
+  "id": "W2",
+  "name": "Add SKR",
+  "to": [
+   "W3",
+   "W4"
+  ]
+ },
+ {
+  "id": "W3",
+  "name": "Swap SOL → SKR",
+  "to": [
+   "W3·s"
+  ]
+ },
+ {
+  "id": "W3·s",
+  "name": "Swap · signing",
+  "to": [
+   "C7·no",
+   "M3",
+   "W3·ok"
+  ]
+ },
+ {
+  "id": "W3·ok",
+  "name": "Swap done",
+  "to": [
+   "W1",
+   "C1"
+  ]
+ },
+ {
+  "id": "W4",
+  "name": "Receive",
+  "to": []
+ },
+ {
+  "id": "D5",
+  "name": "Oath history",
+  "to": [
+   "D4",
+   "R4",
+   "D3"
+  ]
+ },
+ {
+  "id": "H7",
+  "name": "Browse Bounties",
+  "to": [
+   "H2·no",
+   "H2"
+  ]
+ },
+ {
+  "id": "I2·me",
+  "name": "How others see you",
+  "to": [
+   "I7"
+  ]
+ },
+ {
+  "id": "I2·p",
+  "name": "Private profile",
+  "to": [
+   "D2",
+   "C1"
+  ]
+ },
+ {
+  "id": "I5",
+  "name": "Your activity",
+  "to": []
+ },
+ {
+  "id": "I7",
+  "name": "Who sees what",
+  "to": [
+   "I2·me"
+  ]
+ },
+ {
+  "id": "I8",
+  "name": "Edit profile",
+  "to": [
+   "I1"
+  ]
+ },
+ {
+  "id": "I9",
+  "name": "Avatar builder",
+  "to": []
+ }
+]

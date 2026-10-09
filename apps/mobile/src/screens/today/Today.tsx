@@ -1,0 +1,213 @@
+// B · Today (screens.md B1–B5). One tab screen whose state follows the user's Oaths:
+// B3 nothing yet · B4 a deadline is close · B2 everything kept · B1 otherwise. B5 is the once-a-day recap.
+import { useEffect } from "react";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { keeperLines, t } from "@/copy";
+import { Button, ButtonRow } from "@/components/actions";
+import { BottomSheet } from "@/components/chrome";
+import { Banner, BodyText, Skeleton, Title } from "@/components/content/Basics";
+import { OathCard } from "@/components/content/Oath";
+import { RowList } from "@/components/content/Rows";
+import type { RowProps } from "@/components/content/Rows";
+import { BountyCover } from "@/components/content/Social";
+import { KeeperPlacement } from "@/components/keeper/KeeperUI";
+import { clock as hms, shortDuration } from "@/lib/format";
+import { color } from "@/theme";
+import { useGo } from "@/app/nav";
+import { useOathList } from "@/features/oaths/hooks";
+import type { OathView } from "@/features/oaths/model";
+import { useDeviceOaths } from "@/features/oaths/device";
+import { listNames, memberColor, memberInitial, memberName, objectIcon, skrWhole, weekday } from "@/features/oaths/present";
+import { TabScreen } from "../tabs/TabScreen";
+import { useResultMoments } from "../results/Results";
+
+const myToday = (v: OathView) => (v.me >= 0 ? v.members[v.me]! : null);
+const keptToday = (v: OathView) => myToday(v)?.pendingToday === false;
+
+/** The Oaths that have a proof due today, mine first by deadline. */
+function todayItems(views: OathView[]) {
+  return views.filter((v) => v.life === "active" && v.dayIndex !== null && v.me >= 0).sort((a, b) => (a.secondsToReset ?? 0) - (b.secondsToReset ?? 0));
+}
+
+export function TodayTab() {
+  const { views, isLoading } = useOathList();
+  const { go } = useGo();
+  const recapShownOn = useDeviceOaths((s) => s.recapShownOn);
+  const items = todayItems(views);
+  const claim = views.find((v) => v.claimable > 0n);
+  const recap = recapOf(views);
+  const today = new Date().toDateString();
+  useResultMoments(views);
+
+  // D-8: the recap shows once, the first time the app opens after a day settles.
+  useEffect(() => {
+    if (recap.length && recapShownOn !== today) {
+      useDeviceOaths.getState().markRecap(today);
+      go("B5");
+    }
+  }, [recap.length, recapShownOn, today, go]);
+
+  if (isLoading) {
+    return <TabScreen tab="today"><Skeleton height={20} width="60%" /><Skeleton height={230} /><Skeleton height={60} /></TabScreen>;
+  }
+  const hasAny = views.some((v) => v.life !== "cancelled" && v.life !== "settled") || !!claim;
+  if (!hasAny) return <Empty />;
+  const pending = items.filter((v) => !keptToday(v));
+  const urgent = pending.find((v) => v.deadlineClose);
+  if (urgent) return <Deadline v={urgent} left={pending.length} />;
+  if (items.length && !pending.length && !claim) return <AllDone items={items} />;
+  return <Active items={items} pending={pending} claim={claim} />;
+}
+
+// ── B1 ──
+function Active({ items, pending, claim }: { items: OathView[]; pending: OathView[]; claim: OathView | undefined }) {
+  const { go } = useGo();
+  const k = keeperLines("B1");
+  const main = pending.find((v) => !v.facts.isSolo) ?? pending[0];
+  const rest = items.filter((v) => v !== main);
+  const reset = Math.min(...items.map((v) => v.secondsToReset ?? Infinity));
+  return (
+    <TabScreen tab="today">
+      {items.length ? <BodyText text={t("screens.B1.b0.text", { left: pending.length, total: items.length, time: `<m>${hms(reset)}</m>` })} /> : null}
+      {claim ? (
+        <Banner tone="lime" icon="sack" title={t("screens.B1.b1.title", { amount: skrWhole(claim.claimable) })}
+          sub={t("screens.B1.b1.sub", { name: claim.facts.name, when: weekday(endOf(claim)) })} onPress={() => go("J1", { id: claim.facts.id })} />
+      ) : null}
+      {main ? <KeeperPlacement mood={k[1]!.mood} line={k[1]!.line} size={96} side="r" height={120} /> : null}
+      {main ? <TodayCard v={main} /> : null}
+      {rest.length ? <RowList rows={rest.map(rowOf(go))} /> : null}
+    </TabScreen>
+  );
+}
+
+function TodayCard({ v, urgent }: { v: OathView; urgent?: boolean }) {
+  const { go } = useGo();
+  const mine = myToday(v)!;
+  const photo1 = mine.facts.proofToday === "photo1";
+  const others = v.members.filter((m) => !m.isMe);
+  const keptOther = others.find((m) => !m.pendingToday);
+  const goal = v.facts.goal ?? v.facts.name;
+  const meta = v.facts.isSolo
+    ? t("screens.D0.b3.meta", { day: v.dayNumber, length: v.facts.numDays })
+    : t("screens.B1.b3.meta", { names: listNames(others.map(memberName)), day: v.dayNumber, length: v.facts.numDays });
+  return (
+    <OathCard
+      icon={objectIcon(v.facts.objectId)} name={v.facts.name} meta={meta} hp={v.hp}
+      line={t(photo1 ? "screens.B1.b3.line" : "screens.B4.b1.line", { goal: capitalise(goal) })}
+      onPress={() => go("D2", { id: v.facts.id })}
+      tags={[
+        { text: t("screens.B1.b3.tag.0", { amount: skrWhole(mine.balance) }), icon: "sack", tone: "lime" },
+        { text: t("screens.B1.b3.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "timer-sand", ...(urgent ? { tone: "red" as const } : {}) },
+        ...(photo1 ? [{ text: t("screens.B1.b3.tag.2"), icon: "check-bold" as const, tone: "g" as const }] : []),
+      ]}
+      {...(urgent ? { warn: t("screens.B4.b1.warn", { cost: skrWhole(v.myMissCost), hp: v.facts.isSolo ? 35 : 20 }) } : {})}
+      {...(keptOther && !urgent ? { float: { text: t("screens.B1.b3.float", { name: memberName(keptOther), time: "" }).trim(), initial: memberInitial(keptOther), bg: memberColor(keptOther) } } : {})}
+      button={photo1
+        ? { label: t("screens.B1.b3.btn"), kind: "p", icon: "camera", onPress: () => go("F4", { id: v.facts.id }) }
+        : { label: t(urgent ? "screens.B4.b1.btn" : "screens.B1.b4.btn"), kind: urgent ? "l" : "p", icon: "camera", onPress: () => go("F1", { id: v.facts.id }) }}
+    />
+  );
+}
+
+const rowOf = (go: ReturnType<typeof useGo>["go"]) => (v: OathView): RowProps => ({
+  title: v.facts.name,
+  sub: v.facts.isSolo ? t("screens.B1.b5.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }) : t("screens.B2.b3.r0.s", { day: v.dayNumber, length: v.facts.numDays, hp: v.hp }),
+  leading: { kind: "icon", icon: objectIcon(v.facts.objectId) },
+  value: keptToday(v) ? t("screens.B2.b3.r0.rs") : shortDuration(v.secondsToReset ?? 0),
+  valueColor: keptToday(v) ? color.lime.base : color.text.secondary,
+  chevron: true,
+  onPress: () => go("D2", { id: v.facts.id }),
+});
+
+// ── B2 ──
+function AllDone({ items }: { items: OathView[] }) {
+  const { go } = useGo();
+  const k = keeperLines("B2")[0]!;
+  const reset = Math.min(...items.map((v) => v.secondsToReset ?? Infinity));
+  const safe = items.map((v) => skrWhole(myToday(v)!.balance)).join(" + ");
+  return (
+    <TabScreen tab="today">
+      <BodyText text={t("screens.B2.b0.text", { kept: items.length, total: items.length, time: `<m>${hms(reset)}</m>` })} />
+      <KeeperPlacement mood={k.mood} line={k.line} size={120} side="c" height={200} />
+      <Title heading={t("screens.B2.b2.title")} sub={t("screens.B2.b2.sub", { amounts: safe })} />
+      <RowList rows={items.map(rowOf(go))} />
+    </TabScreen>
+  );
+}
+
+// ── B3 ──
+function Empty() {
+  const { go } = useGo();
+  const k = keeperLines("B3")[0]!;
+  return (
+    <TabScreen tab="today">
+      <KeeperPlacement mood={k.mood} line={k.line} size={130} side="l" height={190} chips={[{ text: t("screens.B3.b1.chip.0"), icon: "camera-outline", x: 200, y: 120, tilt: 3, tone: "white" }]} />
+      <Title heading={t("screens.B3.b2.title")} sub={t("screens.B3.b2.sub")} />
+      <ButtonRow><Button kind="p" icon="plus" label={t("screens.B3.b3.btn.0")} onPress={() => go("C1")} /></ButtonRow>
+      <BodyText mono text={t("screens.B3.b4.text")} />
+      {/* Bounties arrive in Phase 4; the featured card is the design's sample until then. */}
+      <BountyCover brand={t("screens.B3.b5.brand")} logo="D" verified colors={[color.sky.base, color.violet.base]} icon="bottle-soda-outline" message={t("screens.B3.b5.msg")} onPress={() => go("H2")} />
+    </TabScreen>
+  );
+}
+
+// ── B4 ──
+function Deadline({ v, left }: { v: OathView; left: number }) {
+  const k = keeperLines("B4")[0]!;
+  return (
+    <TabScreen tab="today">
+      <BodyText text={t("screens.B4.b0.text", { left, time: `<m class="r">${hms(v.secondsToReset ?? 0)}</m>` })} />
+      <TodayCard v={v} urgent />
+      <KeeperPlacement mood={k.mood} line={k.line} size={110} side="r" height={150} />
+    </TabScreen>
+  );
+}
+
+// ── B5 Daily recap ──
+interface RecapRow { v: OathView; missed: string[]; won: bigint }
+function recapOf(views: OathView[]): RecapRow[] {
+  return views.filter((v) => v.lastDay && v.me >= 0 && (v.life === "active" || v.life === "broken") && v.dayIndex === (v.lastDay.day + 1)).map((v) => ({
+    v,
+    missed: v.members.filter((m) => !m.isMe && (v.lastDay!.lost[m.index] ?? 0n) > 0n).map(memberName),
+    won: v.lastDay!.won[v.me] ?? 0n,
+  }));
+}
+
+export function RecapSheet() {
+  const { views } = useOathList();
+  const { back, replace } = useGo();
+  const insets = useSafeAreaInsets();
+  const rows = recapOf(views);
+  const k = keeperLines("B5")[0]!;
+  const lead = rows.find((r) => r.missed.length);
+  return (
+    <View style={{ flex: 1 }}>
+      <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
+        <BodyText mono text={t("screens.B5.b0.text")} />
+        {lead ? <Title heading={t("screens.B5.b1.title", { name: listNames(lead.missed) })} pt={0} fs={28} /> : null}
+        <KeeperPlacement mood={k.mood} line={k.line} size={80} side="r" height={100} />
+        <RowList rows={rows.map(({ v, missed, won }) => {
+          const d = v.lastDay!;
+          return {
+            title: v.facts.name,
+            sub: missed.length
+              ? t("screens.B5.b3.r0.s", { name: listNames(missed), before: d.hpBefore, damaged: d.hpBefore - d.damage, after: d.hpAfter })
+              : t("screens.B5.b3.r1.s", { name: t("screens.D2.b6.r0.t"), hp: d.hpAfter }),
+            value: won > 0n ? t("screens.B5.b3.r0.r", { amount: skrWhole(won) }) : t("screens.B5.b3.r1.r"),
+            valueColor: won > 0n ? color.lime.base : color.text.secondary,
+            leading: { kind: "icon" as const, icon: objectIcon(v.facts.objectId) },
+            onPress: () => replace("D2", { id: v.facts.id }),
+          };
+        })} />
+        <ButtonRow>
+          {lead ? <Button kind="s" size="row" label={t("screens.B5.b4.btn.0", { name: lead.v.facts.name })} onPress={() => replace("D2", { id: lead.v.facts.id })} /> : null}
+          <Button kind="p" size="row" label={t("screens.B5.b4.btn.1")} onPress={back} />
+        </ButtonRow>
+      </BottomSheet>
+    </View>
+  );
+}
+
+const endOf = (v: OathView) => (v.facts.day1StartsAt ?? v.facts.createdAt) + v.facts.numDays * v.facts.daySeconds;
+const capitalise = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

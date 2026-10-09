@@ -30,6 +30,8 @@ Each phase ends with: `pnpm typecheck && pnpm lint && pnpm test` green, exact st
 **Phone milestone:** install the dev build; the app opens straight into the **Gallery**. Scroll every component and state on the device: buttons, OathCard, HPPanel at 100/40/20, DayMemberGrid 7 and 14 days, ProofCamera states, SignStatus, sheets, toasts, KeeperNote.
 
 ## Phase 2: Navigation shell, mock API, real sign-in
+**Status: done** (2026-10-09). Typecheck, lint and tests green (mobile: 56 tests, including an onboarding run through the real navigator on mocks). Android bundle builds. Real sign-in is coded against the backend but not yet tried on a device with a wallet.
+
 - React Navigation tree per flows.md: Tabs with the custom TabBar, PlusButton → `+` sheet, Bell → N1 stub, BalanceChip → W1 stub, KeeperMark → KeeperNote host, Toast/FX/Offline hosts, the `kept://join/<code>` deep link, `useSigningFlow` replace semantics. Every route ID registered (unbuilt screens render a labelled placeholder).
 - `KeptApi` with `http` and `mock` slices, flags, Dev menu (long-press DEVNET), scenarios and the virtual clock.
 - `TxService` interface with the mock implementation, and the real MWA session.
@@ -38,6 +40,8 @@ Each phase ends with: `pnpm typecheck && pnpm lint && pnpm test` green, exact st
 **Phone milestone:** cold start → Splash → Welcome → **connect your real wallet and sign in against the local API** → A3 (allowlisted) or A3·no (not) → tabs. Tap every tab, `+`, bell, balance chip and Keeper mark. Open `kept://join/abc123` from `adb shell am start -d` and land on E1. Switch scenarios in the Dev menu.
 
 ## Phase 3: Core loop (A, B, F, C, D, E, J, L)
+**Status: done** (2026-10-09). Typecheck, lint and tests green (mobile: 70 tests, including end-to-end runs for onboarding, create, join, proof and results on the mock). Android bundle builds. The real-program path (create → join → start → proof → settle → claim on Devnet) is wired but hasn't been run on phones yet. R1 / G2 / H2 / I2 / I4 / W2 are still placeholders (Phase 4).
+
 Real where the backend and program support it, mock elsewhere:
 
 | Feature | Mode in `hybrid` | Notes |

@@ -2,7 +2,7 @@
 
 **For:** the backend / Solana program developer.
 **Source of truth:** `design/rules.md` and `design/screens.md`. Where the backend differs, the backend should change unless we agree otherwise (decisions in `docs/DECISIONS.md`).
-**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1: components and Gallery only, no app-to-backend calls yet, so no new gaps). Every item below was checked by reading the file and line cited.
+**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1; updated at the end of Phase 2 (sign-in) and Phase 3 (the core loop on the real program and API: create, join, start, cancel, proof, settle, claim). The short checklist is at the top. Every item below was checked by reading the file and line cited.
 
 **Paths.** Phase 0 moved the code with `git mv` and didn't change it, so line numbers are unchanged:
 `backend/src` → `apps/api/src` · `backend/prisma` → `apps/api/prisma` · `backend/scripts` → `apps/api/scripts` · `backend/kept-example/program` → `programs/kept` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `apps/api/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `programs/kept/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `apps/api/prisma/schema.prisma`. Other `backend/…` paths below map the same way.
@@ -12,6 +12,44 @@
 **Priority:** **P0** blocks the core loop (create → join → start → prove → settle → claim) or is a security/privacy problem in it. **P1** is needed for design parity. **P2** is operations, hardening and cleanup.
 
 > **About the "newer backend" question from the first draft.** I searched all of `backend/`: there is no Gemini or other server-side vision code, no two-photo sessions, no group review, no Bounties and no profile routes. The API is 390 lines (`v4.ts`) plus auth (51) and a 18-line rules file. The program is V4 Oaths only (`lib.rs`, 400 lines). **If a newer backend exists outside this repo, push it in before work starts on these items.**
+
+---
+
+## Short version: what to add, remove and fix
+
+The checklist for the backend developer. Each line points to the full item below (file and line, the exact request/response shape the app is coded against, and why). Ordered by what unblocks the app most. The app already runs all of this on its mock, so each item can land on its own.
+
+**Fix (program)**
+- [ ] **Day 1 at the first local midnight after Start**, not at Start (P0-4). The app's real Oaths currently follow the program's 24 h windows from Start.
+- [ ] **Day-by-day settlement** with 1.5× miss costs, a 10 % fee and weighted keeper shares instead of all-or-nothing (P0-6). Test vectors: `packages/engine/test-vectors/oath-vectors.json`.
+- [ ] **HP and a Broken status** with an early settle at 0 HP (P0-5).
+- [ ] **Solo Oaths with a stake** (`InvalidStake` today, P0-7).
+- [ ] **Cancel and leave refund in the same transaction**, plus a `leave_oath` instruction (P1-3, P1-4).
+- [ ] **Claim creates the destination token account if needed** (P1-17).
+- [ ] Release builds must not accept `day_seconds = 120` (P2-4).
+
+**Fix (API)**
+- [ ] **Check photos on the server** and ignore the client's `detection` (P0-1, security).
+- [ ] **Three gestures only** (thumbs up, victory, open palm), different for photo 1 and photo 2 (P0-3). Today `dailyTarget` can ask for `closed_fist` / `pointing_up`, which the app has no artwork for.
+- [ ] **Machine-readable error codes** on every error (P1-14). A 409 from `POST /api/proof` means three different things today.
+- [ ] **`GET /api/invites/:code` returns the Oath address** (P1-15). The app recomputes it from creator + oath_id.
+- [ ] **`/api/oaths/details` also registers the watch, and details / invites / watch are idempotent** (P0-9).
+- [ ] **`/api/price` and the invite preview outside the Genesis gate** (P1-13, P1-15).
+- [ ] Serve `app.kept.mobile` in `/.well-known/assetlinks.json` (P2-7), or the wallet asks to reconnect on every transaction.
+
+**Add (API routes; shapes in `packages/shared/src/proposed.ts`)**
+- [ ] `GET /api/me/oaths`: my Oaths index (P0-10). The app scans the program with 4 `getProgramAccounts` calls every 30 s until this exists.
+- [ ] `GET /api/oaths/:oath`: facts incl. name, review mode, time zone and today's proof status per member (P0-10).
+- [ ] Two-photo proof: `challenge`, `submit`, `status` (P0-2). Photo 1 lives only on the phone today.
+- [ ] Group review: request, list, vote (P1-1).
+- [ ] Oath name + rename (P1-7); review mode stored with the details (P1-1).
+- [ ] Streak and kept rate (P1-16), profiles and activity (P1-8, P1-9).
+- [ ] Rematch (P1-2), Bounties (P1-10), inbox (P1-11), balances (P0-10, optional).
+
+**Remove**
+- [ ] `GET /api/photos/:oath/:day` and `/api/photos/file/:id`: members must not see each other's photos (P0-11).
+- [ ] Legacy V3 surface: `migrate_keeper`, Keeper streak counters, dead V3 Rust files, V3 Prisma models (P2-5).
+- [ ] Hand-written Oath decoders in the API; use the IDL coder in `packages/chain` (P2-9).
 
 ---
 
@@ -33,11 +71,13 @@
   - record the on-chain check-in only after photo 2 passes, with a combined hash of both photos
   - store per-attempt fail counts (needed for P1-1)
 
+- **App today (Phase 3):** photo 1 passes on the phone for real Oaths (there's no backend step) and is remembered per day in device storage; photo 2 goes to `POST /api/proof`. The app counts photo-2 failures itself (3 → F4a / F4a·g). Once the routes above exist it switches both photos to them (`apps/mobile/src/api/http/oaths.ts › httpProof`).
 ### P0-3. Gestures · CONFIRMED
 - **Now:** five gestures, `thumbs_up, victory, open_palm, closed_fist, pointing_up` (`v4.ts:21`), one per day picked by hash (`v4.ts:226-229`).
 - **Design:** only **thumbs up, victory sign, open palm** (the gesture assets match), and photo 2 uses a different gesture from photo 1.
 - **Change:** reduce to three and pick an ordered pair per (member, day). Shared list: `packages/config` `GESTURES`.
 
+- **App today (Phase 3):** the app mirrors `dailyTarget` (`apps/mobile/src/api/proofTarget.ts`, tested against Node's crypto) so the camera shows the right gesture before the photo is sent. For `closed_fist` / `pointing_up` it can only show text, with no gesture badge.
 ### P0-4. Day boundary: 24 hours from Start vs. local midnight · NEW
 - **Now:** a day is `[start_ts + k·day_seconds, start_ts + (k+1)·day_seconds)` (`lib.rs:137-140`), and `start_ts` is the moment the creator presses Start (`lib.rs:116`). `tz_offset_minutes` is validated and stored (`lib.rs:53, 74`) but **never read**. The backend uses the same 24 h windows (`backend/src/v4/rules.ts:7-8`, `v4.ts:281-285`). The `local_day` helper in `day.rs` is dead V3 code. `day_seconds` can also be 120 in the default build (P2-4).
 - **Design:** "Day 1 begins when the creator presses Start" (screens D1·m, D1·go), but everything else says **midnight**: "both photos before midnight", "−20 at midnight", "resets in hh:mm:ss", "Broke at midnight after day 6", the 2-hours-before-midnight reminder.
@@ -46,6 +86,7 @@
 - **Waiting period (decided 2026-10-09):** between Start and the first midnight, **the creator can cancel and members can leave, with full refunds**. Program change: `cancel_oath` (`lib.rs:121-130`) must also accept `Active` while `now < start_ts`, and the new `leave_oath` (P1-3) must accept the same window. The app shows a "Starts tonight at midnight" state with Cancel / Leave (mocked until the program supports it). Also stop accepting `day_seconds = 120` outside debug builds (P2-4). **DST:** a fixed offset drifts by an hour across a DST change; acceptable for 3–14 day Oaths on Devnet, revisit for mainnet.
 - **Change (backend):** use the same rule in `rules.ts` and the scheduler (they read `startTs`/`daySeconds`, so they follow automatically). Expose `startsAt` (day 1 start), `dayIndex`, `dayEndsAt` and `secondsToReset` from the API so the app never computes days.
 
+- **App today (Phase 3):** mock Oaths follow D-6 (day 1 at the next midnight; D1·go says "Starts tonight at midnight"). Real Oaths follow the program as it is (day 1 at Start, `start_ts + k·day_seconds`; D1·go says "Day 1 begins now."), because the proof route rejects anything else. Switching is one line once the program changes (`toFacts` in `apps/mobile/src/api/http/oaths.ts`).
 ### P0-5. HP and the "broken" outcome · CONFIRMED
 - **Now:** no HP anywhere. `OathStatus` is `Open | Active | Settled | Cancelled` (`state.rs:39`), so there's no way to break mid-Oath. Check-ins keep being accepted for the whole length, and settle only runs after the last day (`lib.rs:157-158`).
 - **Design:** HP starts at 100; at the end of each day −20 per missed member (−35 solo), then +10 (max 100); **at 0 HP the Oath breaks**: check-ins stop and everyone loses their remaining balance (rules.md §2).
@@ -65,6 +106,7 @@
 - **Change:** replace `calculate_payouts` with a day-by-day replay of the `days_kept` bitmasks (deterministic, run once at settle or break). Integer math in base units, round each share down, put the dust into the fee (DECISIONS D-4). Destinations (decided 2026-10-09): a solo member's miss costs and a no-keepers day's losses go to the **KEPT treasury** (D-1, D-15); the breaking day follows P0-5 (D-10).
 - **Claims:** the app shows **exactly what the chain pays** on J1, D4 and L1–L6 (D-14). Until this item lands, a settled real Oath will show all-or-nothing numbers there, and only D2/B1/B5 show engine estimates.
 
+- **App today (Phase 3):** live balances on B1/D2 are engine estimates; J1, D4 and L1–L4 show the chain's `member.payout` for settled real Oaths (D-14). With today's program, a member who missed one day sees 0 on J1 even though D2 showed a balance.
 ### P0-7. Solo Oaths need a stake · CONFIRMED
 - **Now:** `require!((!is_solo && stake_amount > 0) || (is_solo && stake_amount == 0))` (`lib.rs:63`), and the zero-stake path skips escrow (`lib.rs:82-84`).
 - **Design:** solo Oaths stake 500 / 1,000 / 2,500 SKR and have an HP bar (−35 per miss) (rules.md §1–2, C4).
@@ -82,6 +124,7 @@
 - **Design:** settlement, break detection, reminders and results (L1–L4) happen whether or not anyone opens the app.
 - **Change:** index Oaths from program events or `getProgramAccounts` (on create), instead of trusting a client call. `settle_oath` is permissionless (no signer in `SettleOath`, `lib.rs:341-348`), so the app can also settle as a fallback; it will do that from D4 if the Oath is past its end and still Active.
 
+- **App today (Phase 3):** after a confirmed create the app calls `POST /api/oaths/details`, then `POST /api/invites` (group), then `POST /api/oaths/watch`; after a join, `POST /api/oaths/watch`. If one of these fails, the Oath exists on chain but may never settle. Please make `details` also register the watch, and make all three idempotent. The app also offers a permissionless **Settle now** button once the last day is over (`settle_oath`).
 ### P0-10. Data the screens need: an Oath index and balances · CONFIRMED
 - **Now:** besides auth and `/api/me`, the only read routes are `GET /api/oaths/:oath/details` (goal text only, `v4.ts:132-137`) and `GET /api/invites/:code` (`v4.ts:109-116`). The harness reads Oath accounts from RPC itself and loads one Oath at a time by address.
 - **Design needs:**
@@ -93,8 +136,10 @@
   - `GET /api/me/oaths` → `{ oaths: Array<{ oath: string; role: "creator"|"member"; status: "open"|"waiting"|"active"|"settled"|"cancelled"|"broken"; isSolo: boolean; name: string|null; goalText: string|null; objectId: number; numDays: number; stake: string; startsAt: string|null }> }`. Can be built from program events or `getProgramAccounts` with a memcmp on the four member slots (offset `139 + 44·i`). Until it exists the app reads Oath accounts from RPC itself (as the harness did) for the Oaths it created or joined on this device.
   - `GET /api/oaths/:oath` (members) → `{ oath: OathRead & { tzOffsetMinutes, stake, isSolo }, details: { goalText, name, reviewMode }, today: { dayIndex, dayEndsAt, proof: Record<wallet, "none"|"photo1"|"kept"|"review"> } }`. Extends the existing `GET /api/oaths/:oath/details`.
   - `GET /api/balances` → `{ skr: string; sol: string }` (base units). Optional: the app can read these from RPC directly, and will until this exists.
+  - **App today (Phase 2):** the BalanceChip reads SOL and SKR from RPC (`getParsedTokenAccountsByOwner` on the stake mint, so SPL and Token-2022 both work). That needs the mint in the app's env (`EXPO_PUBLIC_STAKE_MINT`); a balances route would remove that coupling.
 - Settlement numbers on J1, D4 and L1–L6 come from the on-chain `member.payout` (D-14), so no settlement route is needed.
 
+- **App today (Phase 3):** the Oath list is 4 `getProgramAccounts` calls (memcmp on each member slot, `apps/mobile/src/chain/program.ts › listOathsOf`) every 30 s, plus one `GET /api/oaths/:oath/details` per Oath for the goal. Names, review mode and invite codes for Oaths created on this phone are kept on the phone (`features/oaths/device.ts`), so another phone sees a generated name and "AI only".
 ### P0-11. Proof photos are stored, and members can view each other's · CONFIRMED (privacy)
 - **Now:** every proof photo is written to `PROOF_STORAGE_DIR` (`v4.ts:165-168`; default `/tmp/kept-proofs`, `backend/src/config.ts:13`). Other members can download them (`GET /api/photos/:oath/:day`, `v4.ts:188-193`; `GET /api/photos/file/:id`, `v4.ts:219-224`). They're deleted only at settlement (`v4.ts:274-278, 298-300`).
 - **Design:** photos are **not stored**; only a hash is kept. Nobody views proof photos except a group-review photo, which is kept until the decision (48 hours at most) (rules.md §1, §5, §9).
@@ -109,6 +154,7 @@
 - **Design:** the creator picks *AI only* or *AI + group review* at creation (C5); solo is always AI only. After 3 failed photo-2 checks, a group-review Oath lets the user send photo 2 to the group (F4a·g). A **majority of the other members** approves, **a tie rejects**, one vote each, and the photo is deleted after the decision (48 hours max). An approval records the check-in (G1–G3).
 - **Change:** `reviewMode` locked at creation (on chain, or in `OathDetails`, written in the same flow as the goal); `POST /api/reviews`, `GET /api/oaths/:oath/reviews`, `POST /api/reviews/:id/vote`; expiry and cleanup jobs; a push "review requested".
 
+- **App today (Phase 3):** C5's choice is stored on the creator's phone only; everyone else sees "AI only". F4a·g → G2 is a placeholder until Phase 4.
 ### P1-2. Rematch · CONFIRMED
 - **Now:** doesn't exist.
 - **Design** (rules.md §4):
@@ -126,11 +172,13 @@
 - **Design:** members can **leave before Start** with a refund (D1·m).
 - **Change:** a `leave_oath` instruction for Open status that refunds and compacts `members`.
 
+- **App today (Phase 3):** "Leave · get 1,000 SKR back" on D1·m works on mock Oaths only and is hidden on real Oaths.
 ### P1-4. Cancel and leave refunds need a manual claim from each member · NEW
 - **Now:** `cancel_oath` only records `payout = stake` per member (`lib.rs:127`). Each member must then send their own `claim` (`lib.rs:194-214`) to get their SKR back.
 - **Design:** "Cancel refunds everyone" (rules.md §1). D1·xs goes straight to D0 with no claim step, and members aren't shown a claim for a cancelled Oath.
 - **Change:** refund in the cancel transaction (pass the members' token accounts), or have the backend sweep refunds. Until then, the app shows cancelled Oaths with a claim row in J1 (recorded as a deviation).
 
+- **App today (Phase 3):** D1·xs → D0, then the refund shows as a claim on J1 for every member, as decided (D-31).
 ### P1-5. Max members · CONFIRMED (decision)
 - **Now:** `MAX_MEMBERS = 4` (`state.rs:3`); error text "Oath has four members already" (`lib.rs:381`).
 - **Design:** "2+"; D1 shows four seats and the demo uses four members.
@@ -156,6 +204,7 @@
 - **Now:** only `GET /api/me` (Genesis status, `v4.ts:40-48`).
 - **Design** (I1–I9): my profile and someone else's, a creator profile (bio, links, verified, hosted Bounties, total paid out, follow), activity (I5), visibility (I7), edit (I8), avatar builder (I9, 8-digit avatar config).
 - **Change:** a `Profile` table (name, handle, avatar config, banner, bio, socials, visibility) and routes `GET /api/profiles/:wallet`, `PATCH /api/me/profile`, `GET /api/me/activity`, follow/unfollow.
+- **App today (Phase 2):** the avatar picked on A4 is kept on the device and in the mock profile (`ProfileApi.save`, coded against the `Profile` schema in `packages/shared/src/proposed.ts`). Once `PATCH /api/me/profile` exists, onboarding saves it there.
 
 ### P1-10. Bounties · CONFIRMED
 - **Now:** none in this code (program or API).
@@ -173,6 +222,7 @@
 - **Done:** FCM v1 sending (`v4.ts:231-262`), device token registration (`v4.ts:195-199`), nudge push with one-per-day dedupe (`v4.ts:201-215`, `schema:49-57`), and the 2-hour deadline reminder (`v4.ts:286-294`). This matches the design's 2 h threshold. FCM delivery is still unverified per the README.
 - **Missing:** an inbox store with done/undone state (N1), and these pushes: review requested, Oath started, daily recap ready, Oath broken, Rematch available (+ reminder 1 day before the window closes), someone joined your Rematch, ready to claim, Bounty start/end, followed creator posted a Bounty.
 - **Change:** a `Notification` table, `GET /api/inbox`, `POST /api/inbox/:id/done`, and the push types above, sent from the same events.
+- **App today (Phase 2):** the bell count on every tab header is `unread` from the mock inbox (`InboxResponse` in `packages/shared/src/proposed.ts`: `{items: InboxItem[], unread: number}`, `unread` = items with `needsAction`).
 
 ### P1-12. Wallet screens (W1–W4) · PARTLY DONE
 - **Done:** a 5,000 SKR Devnet faucet (`v4.ts:73-98`).
@@ -193,6 +243,18 @@
 - **Missing:** no expiry or revocation, no "full" flag (the app can derive it from `members.length`), and resolve is behind the Genesis gate, so a non-Seeker gets a generic 403 instead of a preview followed by E3·elig. The preview has no creator profile, kept rates or stake formatted for E2.
 - **Change:** add `full`, `stake`, `creator` profile summary and member kept rates to the resolve response; return `code: NOT_ELIGIBLE` instead of the global 403.
 
+- **App today (Phase 3):** E1 resolves the code with `GET /api/invites/:code`, recomputes the Oath address as the PDA of `creator` + `oathId`, and reads the account over RPC. Please add `oath` (the address) to the response.
+
+### P1-16. Streak and kept rate for the Today and result screens · NEW
+- **Now:** nothing (see P1-8, P1-9).
+- **Design:** B2 chips "Streak 13" and "Kept rate 91%", F5 "Streak 13", L4 "Streak 14", D2/E2 member rows "91% · 64 days".
+- **App today (Phase 3):** streak chips are left out; kept rates show "New" for real members (mock members have the prototype's numbers).
+- **Change:** `GET /api/me/stats` → `{ streak: number, keptRate: number | null, rateDays: number }`, and `keptRate` / `rateDays` per member in `GET /api/oaths/:oath`.
+
+### P1-17. Claim needs the member's token account to exist · NEW
+- **Now:** `claim` sends to `destination` (`lib.rs:194-214`), which must already be a token account of the stake mint. The app passes the member's associated token account. It exists if they staked from it, but not if they closed it afterwards.
+- **Change:** `init_if_needed` on the destination ATA (the crate already enables the `init-if-needed` feature).
+
 ---
 
 ## P2: operations, hardening, cleanup
@@ -204,6 +266,7 @@
 5. **Legacy V3 surface** · CONFIRMED. `migrate_keeper` and the Keeper streak counters (`lib.rs:217-223`, `state.rs:18-27`), dead uncompiled V3 Rust files in `programs/kept_test/src/` (`constants.rs`, `day.rs`, `errors.rs`, `events.rs`, `instructions/`; `lib.rs:4` only declares `mod state`), V3 Prisma migrations for `Payment`, `User`, `AuraMint` that the schema no longer models, and a stale crate description "Keeper XP, streak and Soul" (`Cargo.toml:4`, copied into the IDL metadata). XP, levels, ranks and NFTs aren't in the app (rules.md §9).
 6. **Stale code in the harness chain folder** · NEW. `chain/idl.ts` embeds the old V3 IDL (`buy_soul`, `check_in`), `chain/errors.ts` only maps V3 errors, `constants.ts` is V3, and `chain/oaths.ts:4` imports `@noble/hashes` without declaring it. The JSON IDL `chain/idl/kept_test.json` **is** V4. The new `packages/chain` uses only the JSON IDL.
 7. **Android app identity drift** · NEW. Three package names in three places: `assetlinks.ts` serves `com.kept.backendtest`, `backend/assetlinks.json` lists `app.kept.mobile` and `com.kept.testharness`, and the harness `app.json` uses `com.kept.backendtest`. The new app's package name and debug and release fingerprints must be added (DECISIONS D-22).
+   **Phase 2 impact:** the new app (`app.kept.mobile`) now signs in through MWA with identity URI `EXPO_PUBLIC_APP_IDENTITY_URI`. Until the served `/.well-known/assetlinks.json` (`apps/api/src/routes/assetlinks.ts:10-18`) lists `app.kept.mobile` with the debug-keystore fingerprint (`FA:C6:17:45:…:3B:9C`, the same Expo debug key), wallets show "identity could not be verified" and may not re-authorize silently, so every transaction asks to connect again.
 8. **Thin tests** · NEW. `backend/test/v4.test.ts` has 3 tests, all on pure helpers (`auth`, `proofRejection`, `nudgeRejection`). No route, scheduler or decoder tests. The program has LiteSVM tests (`tests/v4.test.ts`, 14 cases) and 6 Rust unit tests for the payout function that will be replaced (`lib.rs:252-261`).
 9. **Duplicated hand-written decoders** · NEW. The Oath account layout is decoded by byte offset in the API (`v4.ts:362-376`) and the app (`oaths.ts:20-27`), with hand-hashed discriminators (`v4.ts:326, 379`). Any layout change (P0-5, P1-1, P1-2) breaks both silently. Use the IDL coder (`packages/chain`).
 10. **Odds:** display-only, computed in the app from the kept rate (rules.md §8). No backend work.

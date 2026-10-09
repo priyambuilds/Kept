@@ -147,3 +147,11 @@ export const InboxItem = z.object({
 });
 export type InboxItem = z.infer<typeof InboxItem>;
 export const InboxResponse = z.object({ items: z.array(InboxItem), unread: z.number().int() });
+
+// ── P1-16 ── GET /api/me/stats (B2, F5, L4 streak chips; kept rate)
+export const MeStatsResponse = z.object({
+  streak: z.number().int().nonnegative(),
+  keptRate: z.number().min(0).max(1).nullable(),
+  rateDays: z.number().int().nonnegative(),
+});
+export type MeStats = z.infer<typeof MeStatsResponse>;

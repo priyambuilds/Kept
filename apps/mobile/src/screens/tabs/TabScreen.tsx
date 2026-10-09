@@ -1,0 +1,45 @@
+// The shell of a tab screen: AppHeader (Keeper mark → note, balance chip → W1, bell → N1, optional
+// settings) over a scroll column that leaves room for the tab bar. Phase 3 fills B1/D0, Phase 4 H1/I1.
+import type { ReactNode } from "react";
+import { keeperIdle, t } from "@/copy";
+import { AppHeader } from "@/components/chrome";
+import { Screen } from "@/components/layout/Screen";
+import { formatSkr } from "@/lib/format";
+import { metrics } from "@/theme";
+import { useBalances, useInbox } from "@/api/queries";
+import { useGo } from "@/app/nav";
+import type { DesignId } from "@/app/routes";
+import { useUi } from "@/state/ui";
+
+export type TabId = "today" | "oaths" | "bounties" | "profile";
+const TAB_SCREEN: Record<TabId, DesignId> = { today: "B1", oaths: "D0", bounties: "H1", profile: "I1" };
+
+/** Space under the content for the floating tab bar (bottom 28 + height 64 + 16). */
+export const TAB_BAR_SPACE = metrics.tabBar.bottom + metrics.tabBar.height + 16;
+
+export function TabScreen({ tab, children }: { tab: TabId; children?: ReactNode }) {
+  const { go } = useGo();
+  const balances = useBalances();
+  const inbox = useInbox();
+  const showNote = useUi((s) => s.showKeeperNote);
+  const id = TAB_SCREEN[tab];
+  const idle = keeperIdle(tab);
+  return (
+    <Screen
+      bottomInset={TAB_BAR_SPACE}
+      bar={
+        <AppHeader
+          title={t(`screens.${id}.header.title` as never)}
+          balance={balances.data ? formatSkr(balances.data.skr, { dp: 0 }) : "–"}
+          unreadCount={inbox.data?.unread ?? 0}
+          keeper={{ hasNew: false, onPress: () => showNote({ mood: idle.mood, line: idle.line, autoHide: false }) }}
+          onBalance={() => go("W1")}
+          onBell={() => go("N1")}
+          {...(tab === "profile" ? { extra: { icon: "cog-outline" as const, label: t("additions.a11y.settings"), onPress: () => go("I4") } } : {})}
+        />
+      }
+    >
+      {children}
+    </Screen>
+  );
+}

@@ -1,6 +1,6 @@
 // Top-of-screen chrome (components.md › Chrome): DevnetBadge, AppHeader for tab screens, NavBar + StepBar
 // for flow screens. The real Android status bar is kept; the badge sits in a row under it.
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, metrics, space } from "@/theme";
@@ -9,12 +9,15 @@ import type { IconName } from "../primitives";
 import { KeeperMark } from "../keeper/KeeperUI";
 
 // ── DevnetBadge ── 18 h, padding 0/6, radius 5, devnetBadge colours.
-export function DevnetBadge() {
+/** Long-press opens the Dev menu in development builds. */
+export function DevnetBadge({ onLongPress }: { onLongPress?: () => void }) {
   const s = metrics.statusBar;
   return (
-    <View style={{ height: s.badgeH, paddingHorizontal: s.badgePadX, borderRadius: s.badgeRadius, backgroundColor: color.devnetBadge.bg, justifyContent: "center", alignSelf: "flex-start" }}>
-      <Text variant="devnet" color={color.devnetBadge.fg}>{t("common.devnet")}</Text>
-    </View>
+    <Pressable onLongPress={onLongPress} disabled={!onLongPress} accessibilityRole="text" accessibilityLabel={t("common.devnet")} hitSlop={12} style={{ alignSelf: "flex-start" }}>
+      <View style={{ height: s.badgeH, paddingHorizontal: s.badgePadX, borderRadius: s.badgeRadius, backgroundColor: color.devnetBadge.bg, justifyContent: "center" }}>
+        <Text variant="devnet" color={color.devnetBadge.fg}>{t("common.devnet")}</Text>
+      </View>
+    </Pressable>
   );
 }
 

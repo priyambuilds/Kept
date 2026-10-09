@@ -2,22 +2,31 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastHost } from "@/components/chrome";
-import { Gallery } from "@/dev/Gallery";
+import { DevMenu } from "@/dev/DevMenu";
+import { FxHost, KeeperNoteHost, OfflineHost } from "@/app/hosts";
+import { RootNavigator } from "@/app/RootNavigator";
+import { queryClient } from "@/api/queries";
 import { color } from "@/theme";
 import { useAppFonts } from "@/theme/fonts";
 
-// Phase 1: the app opens straight into the dev Gallery. Phase 2 replaces this with the navigation shell.
 export default function App() {
   const [loaded] = useAppFonts();
   if (!loaded) return <View style={{ flex: 1, backgroundColor: color.bg.app }} />;
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: color.bg.app }}>
       <SafeAreaProvider>
-        <ToastHost>
-          <StatusBar style="light" />
-          <Gallery />
-        </ToastHost>
+        <QueryClientProvider client={queryClient}>
+          <ToastHost>
+            <StatusBar style="light" />
+            <RootNavigator />
+            <KeeperNoteHost />
+            <FxHost />
+            <OfflineHost />
+            {__DEV__ ? <DevMenu /> : null}
+          </ToastHost>
+        </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
