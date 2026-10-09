@@ -9,7 +9,7 @@ function visit(dir) {
   }
 }
 visit('src'); visit('prisma');
-const lockfile = existsSync('package-lock.json') ? 'package-lock.json' : '../../pnpm-lock.yaml';
+const lockfile = existsSync('package-lock.json') ? 'package-lock.json' : '../pnpm-lock.yaml';
 for (const file of ['package.json', lockfile, 'tsconfig.json', 'scripts/build-info.mjs', 'scripts/clean-build.mjs']) { hash.update(file); hash.update(readFileSync(file)); }
 if (existsSync('render.yaml')) { hash.update('render.yaml'); hash.update(readFileSync('render.yaml')); }
 let commit = process.env.RENDER_GIT_COMMIT || 'unknown';

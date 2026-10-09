@@ -1,4 +1,4 @@
-// Mirror of the backend's daily target (apps/api/src/routes/v4.ts:21-22, 226-229) so the camera can
+// Mirror of the backend's daily target (backend/src/routes/v4.ts:21-22, 226-229) so the camera can
 // tell the user what to show before the photo is checked: object from the Oath, gesture from
 // sha256("<oathId>:<day>") read as a little-endian u32, modulo the five gestures.
 import { sha256 } from "@noble/hashes/sha2";

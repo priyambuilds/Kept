@@ -13,7 +13,7 @@ const idlJson = JSON.parse(readFileSync(path.join(__dirname, "..", "target", "id
 // so load that exact file through the TypeScript compiler. Settlement results below must equal it.
 type SettlementV2 = { payouts: bigint[]; slashed: bigint; toTreasury: bigint; carryover: bigint; dust: bigint };
 const shared = (() => {
-  const source = readFileSync(path.join(__dirname, "..", "..", "..", "apps", "api", "src", "shared", "payout.ts"), "utf8");
+  const source = readFileSync(path.join(__dirname, "..", "..", "backend", "src", "shared", "payout.ts"), "utf8");
   const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const mod = { exports: {} as any };
   new Function("module", "exports", js)(mod, mod.exports);

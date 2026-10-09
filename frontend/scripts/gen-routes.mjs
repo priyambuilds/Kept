@@ -14,7 +14,7 @@ export function parseRouteTable(md) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const md = readFileSync(new URL("../../../design/flows.md", import.meta.url), "utf8");
+  const md = readFileSync(new URL("../../design/flows.md", import.meta.url), "utf8");
   const out = new URL("../src/app/routes.gen.json", import.meta.url);
   writeFileSync(out, JSON.stringify(parseRouteTable(md), null, 1) + "\n");
   console.log(`wrote ${out.pathname}`);

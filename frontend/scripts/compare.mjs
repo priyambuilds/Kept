@@ -6,7 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
-const root = path.resolve(here, "../../..");
+const root = path.resolve(here, "../..");
 const art = path.join(root, "artifacts");
 const routes = JSON.parse(readFileSync(path.join(here, "../src/app/routes.gen.json"), "utf8"));
 const pages = (() => { try { return JSON.parse(readFileSync(path.join(art, "pdf/pages.json"), "utf8")); } catch { return {}; } })();

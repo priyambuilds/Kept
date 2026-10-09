@@ -14,7 +14,7 @@ All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24)
 5. **Oath names:** generated from object + length (e.g. "Iron Week"). The creator can **rename** while the Oath is Open.
 
 ## Copy additions (owner-approved)
-These strings aren't in `design/copy.json`. They go in `apps/mobile/src/copy/additions.json`, which `t()` reads alongside copy.json. Each one is listed here and nowhere else:
+These strings aren't in `design/copy.json`. They go in `frontend/src/copy/additions.json`, which `t()` reads alongside copy.json. Each one is listed here and nowhere else:
 - `"Starts tonight at midnight"`: D1 / D2 / B1 state between Start and day 1 (amendment 1).
 - `"Win back half of what you had left."`: R1 Rematch offer (amendment 3).
 - `additions.core.*`: Phase 3 strings for cases the design only shows one sample of (D-52). **Please review.**
@@ -55,7 +55,7 @@ These strings aren't in `design/copy.json`. They go in `apps/mobile/src/copy/add
 | # | Question | Build with | Status |
 |---|---|---|---|
 | D-16 | **Oath names.** Every screen shows a name ("Iron Week", "Hydra 14", "Hydrate Week"), but C1–C6 never ask for one. | Generate `<object word> <length>`, where object word = dumbbell **Iron**, book **Page**, water bottle **Hydrate**, guitar **Riff**, running shoe **Stride**, plant **Green**, skipping rope **Skip**, yoga mat **Flow**, and length 7 → **Week**, 3 / 14 → the number (e.g. "Iron Week", "Page 14"). The words go in `copy/templates.json` (D-17), not in code. **Decided:** generated names, plus a **Rename** action for the creator while the Oath is Open. Stored in `OathDetails` once the backend has a field (BACKEND_GAPS P1-7); kept on the device until then. | DECIDED |
-| D-17 | copy.json contains sample values ("9h 18m left"), not placeholders | `apps/mobile/src/copy/templates.json` maps the data-bearing keys to templates. A test renders every template with the sample data and must reproduce copy.json **exactly**, so templates can't drift. `t()` reads copy.json for everything else. | ACCEPTED |
+| D-17 | copy.json contains sample values ("9h 18m left"), not placeholders | `frontend/src/copy/templates.json` maps the data-bearing keys to templates. A test renders every template with the sample data and must reproduce copy.json **exactly**, so templates can't drift. `t()` reads copy.json for everything else. | ACCEPTED |
 | D-18 | Non-Seekers (A3·no "Solo Oaths only") | They get the full app. Group create (C4 "Group" option), Join (E1) and Bounty join show the designed not-eligible states (disabled option, E3·elig, H2·no). | ACCEPTED |
 | D-25 | A2 lists Seeker Wallet / Phantom / Solflare | MWA lets Android choose the wallet. Every row opens the same MWA authorize; the rows describe options, they aren't separate integrations. | ACCEPTED |
 | D-26 | Notifications screen M1 (lock-screen mock) | Not a real screen. It's our push content and channel spec; the Gallery shows it for review. | ACCEPTED |
@@ -90,7 +90,7 @@ New assumptions made while building Phase 2. None touches money logic; all are e
 | D-39 | Errors on A2·s other than a declined signature or no network | Back to A2 with a toast carrying the backend's message (there's no designed screen for e.g. a 500 during sign-in). | ASSUMED |
 | D-40 | The avatar picked on A4 | Saved on the device (session store) and in the mock profile until profiles exist (BACKEND_GAPS P1-9). | ASSUMED |
 | D-41 | Mock wallet | The Dev menu can swap MWA for a mock wallet (for emulators with no wallet app). It only pairs with mock auth: the real backend rejects its signature. | ASSUMED |
-| D-42 | ESLint version | ESLint 9 in `apps/mobile`: `eslint-config-expo` 57 crashes on ESLint 10. | ASSUMED |
+| D-42 | ESLint version | ESLint 9 in `frontend`: `eslint-config-expo` 57 crashes on ESLint 10. | ASSUMED |
 
 ## F. Phase 3 (core loop)
 | # | Question | Build with | Status |

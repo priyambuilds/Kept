@@ -5,7 +5,7 @@ The checklist for the fidelity, motion, performance and logic pass (`docs/notes/
 ## Tooling
 | What | Command | Output |
 |---|---|---|
-| Design.pdf → one PNG per screen id | `python3 apps/mobile/scripts/pdf-screens.py` (needs `brew install poppler`, Pillow) | `artifacts/pdf/<id>.png`, `artifacts/pdf/pages.json` (id → PDF page) |
+| Design.pdf → one PNG per screen id | `python3 frontend/scripts/pdf-screens.py` (needs `brew install poppler`, Pillow) | `artifacts/pdf/<id>.png`, `artifacts/pdf/pages.json` (id → PDF page) |
 | App screens | `pnpm --filter @kept/mobile shoot [--out dir] [--ids a,b]` | `artifacts/screens/` (baseline for this pass: `artifacts/before/`) |
 | Prototype screens | `pnpm --filter @kept/mobile shoot:reference` | `artifacts/reference/` |
 | Compare page | `pnpm --filter @kept/mobile compare` | `artifacts/compare/index.html`: **app · prototype · Design.pdf** per id |
@@ -195,7 +195,7 @@ Checked by reading the navigator and with the route test added in this pass (`__
 ## 7. Performance (release build, Pixel 8 AVD, API 34)
 Measured with `adb shell dumpsys gfxinfo app.kept.mobile` (janky frames over a scripted scroll / transition) and cold start with `am start -W`.
 
-**Re-measured 2026-10-10 (session 3), emulator only (Pixel 8 AVD, API 34; no phone connected).** `node apps/mobile/scripts/perf.mts <apk>` on mock release APKs; JSON in `artifacts/perf/` (`baseline-1..2.json`, `patched-1..5.json`). Before = the session-1 baseline APK (`artifacts/before/app-release-mock.apk`), two runs; after = this session's build with the animation lifecycle, the coin splash removed (D-78) and the Reanimated patch (D-79), five consecutive runs. Ranges across runs. The AVD renders in software, so p50 frame times of 17–25 ms are the emulator, not the app; confirm on a phone.
+**Re-measured 2026-10-10 (session 3), emulator only (Pixel 8 AVD, API 34; no phone connected).** `node frontend/scripts/perf.mts <apk>` on mock release APKs; JSON in `artifacts/perf/` (`baseline-1..2.json`, `patched-1..5.json`). Before = the session-1 baseline APK (`artifacts/before/app-release-mock.apk`), two runs; after = this session's build with the animation lifecycle, the coin splash removed (D-78) and the Reanimated patch (D-79), five consecutive runs. Ranges across runs. The AVD renders in software, so p50 frame times of 17–25 ms are the emulator, not the app; confirm on a phone.
 
 | Measure | Before (2 runs) | After (5 runs) |
 |---|---|---|
@@ -254,7 +254,7 @@ Findings from the code:
 
 ### Next steps, in order
 1. Owner: answer D-52, D-65, D-74–D-77 (still ASK / ASSUMED).
-2. Measure §7 on a phone over adb (`node apps/mobile/scripts/perf.mts <apk>`).
+2. Measure §7 on a phone over adb (`node frontend/scripts/perf.mts <apk>`).
 3. Phase 5 leftovers: accessibility audit, Maestro flows.
 
 ## Session 2 status (kept for history)
@@ -304,7 +304,7 @@ Checked on the emulator (dev build): B1 mark dot + knock, tap drops the note wit
 ## Session 1 handoff (kept for history)
 
 ### Done
-- Audit written (this file), Design.pdf cropped per screen (`apps/mobile/scripts/pdf-screens.py` → `artifacts/pdf/`), compare page has app · prototype · PDF columns. Baseline app shots: `artifacts/before/` (116/116, no errors).
+- Audit written (this file), Design.pdf cropped per screen (`frontend/scripts/pdf-screens.py` → `artifacts/pdf/`), compare page has app · prototype · PDF columns. Baseline app shots: `artifacts/before/` (116/116, no errors).
 - DECISIONS.md › I: Keeper placement table (inline vs mark, from the PDF) and conflicts D-70…D-73.
 - Clean baseline release APK (mock mode): `artifacts/before/app-release-mock.apk`. Cold start (release, emulator): 4488 / 2675 / 2376 ms. Frame stats not yet recorded.
 - **Committed in the WIP commit (not yet wired, not yet typechecked):**
@@ -318,7 +318,7 @@ Checked on the emulator (dev build): B1 mark dot + knock, tap drops the note wit
   - `scripts/perf.mts` (release perf: cold start + gfxinfo for tabs/scroll/push). uiautomator can't go idle in release (loops), so taps fall back to coordinates; the last edit (fallback after 1 try) was not applied: change `tries >= 2` to `tries >= 1`.
 
 ### Emulator note
-The emulator had animator scales at 0 (previous session's drive script), which Reanimated treats as **Reduce Motion**: motion looked absent. Reset with `adb shell settings put global {window_animation_scale,transition_animation_scale,animator_duration_scale} 1`. The dev build was replaced by the release APK; reinstall `apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk` (or `npx expo run:android`).
+The emulator had animator scales at 0 (previous session's drive script), which Reanimated treats as **Reduce Motion**: motion looked absent. Reset with `adb shell settings put global {window_animation_scale,transition_animation_scale,animator_duration_scale} 1`. The dev build was replaced by the release APK; reinstall `frontend/android/app/build/outputs/apk/debug/app-debug.apk` (or `npx expo run:android`).
 
 ### Next steps, in order
 1. `pnpm --filter @kept/mobile typecheck && lint && test`; fix the WIP (callers of `KeeperPlacement` still pass `keeperAt(...)`; `KeeperNote` no longer takes `autoHideMs`; TabScreen passes `keeper` to AppHeader).

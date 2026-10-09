@@ -71,7 +71,7 @@ describe("mock Oath loop", () => {
   });
 
   it("mirrors the backend's daily proof target", () => {
-    // Expected values computed with Node's crypto exactly as apps/api/src/routes/v4.ts:226 does.
+    // Expected values computed with Node's crypto exactly as backend/src/routes/v4.ts:226 does.
     expect(dailyTarget("42", 0, 1)).toEqual({ object: "book", gesture: "thumbs_up" });
     expect(dailyTarget("1728000000123", 3, 0)).toEqual({ object: "dumbbell", gesture: "open_palm" });
   });

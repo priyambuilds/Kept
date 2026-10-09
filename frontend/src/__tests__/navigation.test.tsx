@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import copy from "../../../../design/copy.json";
+import copy from "../../../design/copy.json";
 import { t } from "@/copy";
 import { ToastHost } from "@/components/chrome";
 import { queryClient } from "@/api/queries";

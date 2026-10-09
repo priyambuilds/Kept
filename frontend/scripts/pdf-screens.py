@@ -1,5 +1,5 @@
 # Renders design/Design.pdf and crops every phone into artifacts/pdf/<id>.png (fidelity pass).
-#   python3 apps/mobile/scripts/pdf-screens.py
+#   python3 frontend/scripts/pdf-screens.py
 # Needs poppler (`brew install poppler`, for pdftoppm) and Pillow. The PDF is the screen book:
 # a cover, then three phones per page in route order (routes.gen.json); the last page has two.
 import json
@@ -11,7 +11,7 @@ import tempfile
 from PIL import Image
 
 here = os.path.dirname(os.path.abspath(__file__))
-root = os.path.abspath(os.path.join(here, "../../.."))
+root = os.path.abspath(os.path.join(here, "../.."))
 out = os.path.join(root, "artifacts/pdf")
 DPI = 220
 S = DPI / 110  # the boxes below were measured on a 110 dpi render

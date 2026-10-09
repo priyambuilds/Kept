@@ -15,7 +15,7 @@ function renderTokens(json) {
 }
 
 if (require.main === module) {
-  const json = JSON.parse(readFileSync(join(__dirname, "../../../design/tokens.json"), "utf8"));
+  const json = JSON.parse(readFileSync(join(__dirname, "../../design/tokens.json"), "utf8"));
   writeFileSync(join(__dirname, "../src/theme/tokens.gen.ts"), renderTokens(json));
   console.log("wrote src/theme/tokens.gen.ts");
 }

@@ -8,7 +8,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
-const root = path.resolve(here, "../../..");
+const root = path.resolve(here, "../..");
 const sdk = process.env.ANDROID_HOME ?? path.join(process.env.HOME!, "Library/Android/sdk");
 const ADB = path.join(sdk, "platform-tools/adb");
 const PKG = "app.kept.mobile";

@@ -70,7 +70,7 @@ facts, **C** copy.json / additions.json, **L** a literal in a screen or componen
 
 ---
 
-## 2. Backend audit (apps/api as of `b8711fa`)
+## 2. Backend audit (backend as of `b8711fa`)
 
 **Two findings change the plan; see §4 Questions Q1 and Q2.**
 
@@ -109,7 +109,7 @@ Also new and unused: `GET /api/economics`, `GET /bounty/:id/recently-out` (H6 "r
 
 ---
 
-## 3. Bloat audit (apps/mobile, packages/*)
+## 3. Bloat audit (frontend, packages/*)
 
 Tool: `knip@5` per workspace, plus reference greps. Sizes from the release mock APK at `8ca2b28`:
 **APK 131.2 MB, JS bundle 6.3 MB** (Hermes bytecode).

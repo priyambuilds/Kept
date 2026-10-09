@@ -1,4 +1,4 @@
-// Routes PROPOSED in docs/BACKEND_GAPS.md. None exists in apps/api yet; the app reaches them through
+// Routes PROPOSED in docs/BACKEND_GAPS.md. None exists in backend yet; the app reaches them through
 // the mock until the backend developer adds them. Keep these in sync with BACKEND_GAPS.
 import { z } from "zod";
 import { Address, Amount, IsoTime } from "./primitives";

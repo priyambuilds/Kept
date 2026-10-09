@@ -1,4 +1,4 @@
-# Local development database for apps/api. Not used in production.
+# Local development database for backend. Not used in production.
 services:
   postgres:
     image: postgres:16-alpine

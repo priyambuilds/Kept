@@ -10,7 +10,7 @@ interface Row { id: string; goesTo: string[]; enteredFrom: string[]; events: boo
 const ids = new Set(ROUTES.map((r) => r.id as string));
 
 function readTable(): Row[] {
-  const md = readFileSync(path.join(__dirname, "../../../../design/flows.md"), "utf8").split("\n");
+  const md = readFileSync(path.join(__dirname, "../../../design/flows.md"), "utf8").split("\n");
   const start = md.findIndex((l) => l.startsWith("| Screen | Name | Goes to | Entered from |"));
   const rows: Row[] = [];
   for (const line of md.slice(start + 2)) {

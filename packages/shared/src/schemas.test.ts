@@ -8,7 +8,7 @@ const oathRead = {
   numDays: 7, objectId: 0, members: [wallet], daysKept: { [wallet]: 0 },
 };
 
-test("existing routes: the shapes apps/api returns today parse", () => {
+test("existing routes: the shapes backend returns today parse", () => {
   assert.equal(MeResponse.parse({ wallet, genesis: true, mocked: true, genesisMint: "mock-sgt-x" }).genesis, true);
   assert.equal(PriceResponse.parse({ usdPerSkr: 0.01, skrForUsd10: 1000, devnet: true, label: "placeholder rate" }).usdPerSkr, 0.01);
   assert.equal(InviteResolveResponse.parse({ oath: oathRead, goalText: "lift", alreadyStarted: false }).oath.numDays, 7);

@@ -1,6 +1,6 @@
 # KEPT backend API
 
-Routes are mounted by `apps/api/src/app.ts`; `apps/api/src/index.ts` starts that application and the scheduler. Paths below are relative to `apps/api`. The examples use these shell variables:
+Routes are mounted by `backend/src/app.ts`; `backend/src/index.ts` starts that application and the scheduler. Paths below are relative to `backend`. The examples use these shell variables:
 
 ```bash
 API=http://localhost:3000   # the backend URL
@@ -690,7 +690,7 @@ Errors:
 `GET /health` returns `{ok:true,service:"kept-v4",apiVersion:4,build:{commit,sourceSha256,builtAt}}`.
 The build hash covers backend source, Prisma schema/migrations and build inputs. An old response without
 these fields cannot identify the current artifact. From the monorepo root, run `pnpm install --frozen-lockfile`
-and `pnpm --filter kept-backend build`; start from `apps/api` with `pnpm start` (which runs
+and `pnpm --filter kept-backend build`; start from `backend` with `pnpm start` (which runs
 `prisma migrate deploy` before `node dist/index.js`). `dist` is cleaned before every build.
 
 `/api/faucet` sends test SKR only. Devnet SOL must be obtained separately.

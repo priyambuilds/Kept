@@ -1,13 +1,13 @@
 # Phase 4.5: device shakedown (2026-10-09)
 
-Emulator: Pixel 8 AVD, API 34, arm64, 1080×2400 (already installed; nothing over 5 GB downloaded, Gradle fetched NDK 27 and platform 36, about 1.5 GB). Local Postgres (docker-compose) and `apps/api` with `SGT_MOCK=true`. Dev build via `npx expo run:android`.
+Emulator: Pixel 8 AVD, API 34, arm64, 1080×2400 (already installed; nothing over 5 GB downloaded, Gradle fetched NDK 27 and platform 36, about 1.5 GB). Local Postgres (docker-compose) and `backend` with `SGT_MOCK=true`. Dev build via `npx expo run:android`.
 
 ## How to repeat it
 ```
 pnpm --filter @kept/mobile shoot            # 116 app screens → artifacts/screens (+ report.json with logcat errors)
 pnpm --filter @kept/mobile shoot:reference  # 116 prototype screens → artifacts/reference (Chrome via playwright-core)
 pnpm --filter @kept/mobile compare          # artifacts/compare/index.html, side by side
-node apps/mobile/scripts/drive.mts          # flows.md happy paths with adb taps (set animator/transition scales to 0 first)
+node frontend/scripts/drive.mts          # flows.md happy paths with adb taps (set animator/transition scales to 0 first)
 ```
 `kept://dev/open/<screen>?scenario=&mode=mock&hold=1&quiet=1&still=1` (development builds only) resets the mock to a scenario and opens any design id. `hold` keeps signing/checking screens pending, `quiet` hides LogBox toasts, `still` stops per-second countdowns so uiautomator can read the screen.
 

@@ -1,6 +1,6 @@
 # KEPT: Backend gaps (design vs. current backend)
 
-> Historical design audit: several routes described below as missing are now implemented in `apps/api`.
+> Historical design audit: several routes described below as missing are now implemented in `backend`.
 > Use [API.md](API.md) and the backend source for the current route inventory. The remaining design
 > differences have not been revalidated in this document after the backend sync.
 
@@ -9,7 +9,7 @@
 **Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1; updated at the end of Phase 2 (sign-in), Phase 3 (the core loop on the real program and API: create, join, start, cancel, proof, settle, claim) and Phase 4 (Rematch, group review, Bounties, profiles, inbox, wallet: all on the app's mock, with the shapes below). The short checklist is at the top. Every item below was checked by reading the file and line cited.
 
 **Paths.** Phase 0 moved the code with `git mv` and didn't change it, so line numbers are unchanged:
-`backend/src` → `apps/api/src` · `backend/prisma` → `apps/api/prisma` · `backend/scripts` → `apps/api/scripts` · `backend/kept-example/program` → `programs/kept` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `apps/api/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `programs/kept/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `apps/api/prisma/schema.prisma`. Other `backend/…` paths below map the same way.
+`backend/src` → `backend/src` · `backend/prisma` → `backend/prisma` · `backend/scripts` → `backend/scripts` · `backend/kept-example/program` → `onchain` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `backend/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `onchain/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `backend/prisma/schema.prisma`. Other `backend/…` paths below map the same way.
 
 **Status labels:** **CONFIRMED** = the gap is real, nothing done · **PARTLY DONE** = some of it exists · **ALREADY DONE** = matches the design (listed at the end) · **NEW** = not in the first draft.
 
@@ -52,7 +52,7 @@ The checklist for the backend developer. Each line points to the full item below
 - [ ] Swap quote + swap on Devnet, or confirm it stays a mock (P1-12).
 - [ ] The review photo for voters (P1-1) and Bounty cover upload (P1-10): both need short-lived storage.
 
-**Phase 4 status in the app:** every screen in groups R, G, H, K, I, N, W and M is built and runs end to end on the mock. Each item below has an "App today (Phase 4)" line with the TypeScript shape the app calls (`apps/mobile/src/api/types.ts`). When a route lands, the app switches that slice from `mock` to `http` (`BACKEND_HAS` in the same file).
+**Phase 4 status in the app:** every screen in groups R, G, H, K, I, N, W and M is built and runs end to end on the mock. Each item below has an "App today (Phase 4)" line with the TypeScript shape the app calls (`frontend/src/api/types.ts`). When a route lands, the app switches that slice from `mock` to `http` (`BACKEND_HAS` in the same file).
 
 **Remove**
 - [ ] `GET /api/photos/:oath/:day` and `/api/photos/file/:id`: members must not see each other's photos (P0-11).
@@ -79,13 +79,13 @@ The checklist for the backend developer. Each line points to the full item below
   - record the on-chain check-in only after photo 2 passes, with a combined hash of both photos
   - store per-attempt fail counts (needed for P1-1)
 
-- **App today (Phase 3):** photo 1 passes on the phone for real Oaths (there's no backend step) and is remembered per day in device storage; photo 2 goes to `POST /api/proof`. The app counts photo-2 failures itself (3 → F4a / F4a·g). Once the routes above exist it switches both photos to them (`apps/mobile/src/api/http/oaths.ts › httpProof`).
+- **App today (Phase 3):** photo 1 passes on the phone for real Oaths (there's no backend step) and is remembered per day in device storage; photo 2 goes to `POST /api/proof`. The app counts photo-2 failures itself (3 → F4a / F4a·g). Once the routes above exist it switches both photos to them (`frontend/src/api/http/oaths.ts › httpProof`).
 ### P0-3. Gestures · CONFIRMED
 - **Now:** five gestures, `thumbs_up, victory, open_palm, closed_fist, pointing_up` (`v4.ts:21`), one per day picked by hash (`v4.ts:226-229`).
 - **Design:** only **thumbs up, victory sign, open palm** (the gesture assets match), and photo 2 uses a different gesture from photo 1.
 - **Change:** reduce to three and pick an ordered pair per (member, day). Shared list: `packages/config` `GESTURES`.
 
-- **App today (Phase 3):** the app mirrors `dailyTarget` (`apps/mobile/src/api/proofTarget.ts`, tested against Node's crypto) so the camera shows the right gesture before the photo is sent. For `closed_fist` / `pointing_up` it can only show text, with no gesture badge.
+- **App today (Phase 3):** the app mirrors `dailyTarget` (`frontend/src/api/proofTarget.ts`, tested against Node's crypto) so the camera shows the right gesture before the photo is sent. For `closed_fist` / `pointing_up` it can only show text, with no gesture badge.
 ### P0-4. Day boundary: 24 hours from Start vs. local midnight · NEW
 - **Now:** a day is `[start_ts + k·day_seconds, start_ts + (k+1)·day_seconds)` (`lib.rs:137-140`), and `start_ts` is the moment the creator presses Start (`lib.rs:116`). `tz_offset_minutes` is validated and stored (`lib.rs:53, 74`) but **never read**. The backend uses the same 24 h windows (`backend/src/v4/rules.ts:7-8`, `v4.ts:281-285`). The `local_day` helper in `day.rs` is dead V3 code. `day_seconds` can also be 120 in the default build (P2-4).
 - **Design:** "Day 1 begins when the creator presses Start" (screens D1·m, D1·go), but everything else says **midnight**: "both photos before midnight", "−20 at midnight", "resets in hh:mm:ss", "Broke at midnight after day 6", the 2-hours-before-midnight reminder.
@@ -94,7 +94,7 @@ The checklist for the backend developer. Each line points to the full item below
 - **Waiting period (decided 2026-10-09):** between Start and the first midnight, **the creator can cancel and members can leave, with full refunds**. Program change: `cancel_oath` (`lib.rs:121-130`) must also accept `Active` while `now < start_ts`, and the new `leave_oath` (P1-3) must accept the same window. The app shows a "Starts tonight at midnight" state with Cancel / Leave (mocked until the program supports it). Also stop accepting `day_seconds = 120` outside debug builds (P2-4). **DST:** a fixed offset drifts by an hour across a DST change; acceptable for 3–14 day Oaths on Devnet, revisit for mainnet.
 - **Change (backend):** use the same rule in `rules.ts` and the scheduler (they read `startTs`/`daySeconds`, so they follow automatically). Expose `startsAt` (day 1 start), `dayIndex`, `dayEndsAt` and `secondsToReset` from the API so the app never computes days.
 
-- **App today (Phase 3):** mock Oaths follow D-6 (day 1 at the next midnight; D1·go says "Starts tonight at midnight"). Real Oaths follow the program as it is (day 1 at Start, `start_ts + k·day_seconds`; D1·go says "Day 1 begins now."), because the proof route rejects anything else. Switching is one line once the program changes (`toFacts` in `apps/mobile/src/api/http/oaths.ts`).
+- **App today (Phase 3):** mock Oaths follow D-6 (day 1 at the next midnight; D1·go says "Starts tonight at midnight"). Real Oaths follow the program as it is (day 1 at Start, `start_ts + k·day_seconds`; D1·go says "Day 1 begins now."), because the proof route rejects anything else. Switching is one line once the program changes (`toFacts` in `frontend/src/api/http/oaths.ts`).
 ### P0-5. HP and the "broken" outcome · CONFIRMED
 - **Now:** no HP anywhere. `OathStatus` is `Open | Active | Settled | Cancelled` (`state.rs:39`), so there's no way to break mid-Oath. Check-ins keep being accepted for the whole length, and settle only runs after the last day (`lib.rs:157-158`).
 - **Design:** HP starts at 100; at the end of each day −20 per missed member (−35 solo), then +10 (max 100); **at 0 HP the Oath breaks**: check-ins stop and everyone loses their remaining balance (rules.md §2).
@@ -147,7 +147,7 @@ The checklist for the backend developer. Each line points to the full item below
   - **App today (Phase 2):** the BalanceChip reads SOL and SKR from RPC (`getParsedTokenAccountsByOwner` on the stake mint, so SPL and Token-2022 both work). That needs the mint in the app's env (`EXPO_PUBLIC_STAKE_MINT`); a balances route would remove that coupling.
 - Settlement numbers on J1, D4 and L1–L6 come from the on-chain `member.payout` (D-14), so no settlement route is needed.
 
-- **App today (Phase 3):** the Oath list is 4 `getProgramAccounts` calls (memcmp on each member slot, `apps/mobile/src/chain/program.ts › listOathsOf`) every 30 s, plus one `GET /api/oaths/:oath/details` per Oath for the goal. Names, review mode and invite codes for Oaths created on this phone are kept on the phone (`features/oaths/device.ts`), so another phone sees a generated name and "AI only".
+- **App today (Phase 3):** the Oath list is 4 `getProgramAccounts` calls (memcmp on each member slot, `frontend/src/chain/program.ts › listOathsOf`) every 30 s, plus one `GET /api/oaths/:oath/details` per Oath for the goal. Names, review mode and invite codes for Oaths created on this phone are kept on the phone (`features/oaths/device.ts`), so another phone sees a generated name and "AI only".
 ### P0-11. Proof photos are stored, and members can view each other's · CONFIRMED (privacy)
 - **Now:** every proof photo is written to `PROOF_STORAGE_DIR` (`v4.ts:165-168`; default `/tmp/kept-proofs`, `backend/src/config.ts:13`). Other members can download them (`GET /api/photos/:oath/:day`, `v4.ts:188-193`; `GET /api/photos/file/:id`, `v4.ts:219-224`). They're deleted only at settlement (`v4.ts:274-278, 298-300`).
 - **Design:** photos are **not stored**; only a hash is kept. Nobody views proof photos except a group-review photo, which is kept until the decision (48 hours at most) (rules.md §1, §5, §9).
@@ -247,7 +247,7 @@ The checklist for the backend developer. Each line points to the full item below
   - survivors split the pool equally
   - a recently-out feed, creator stats (H6), an opt-in finisher list
 - **Change:** program: Bounty escrow (fund, join, check-in, eliminate, settle, claim). Backend: feed, detail, create, join, proof, recently-out, stats, branding upload/storage, requirement checks. Pool split rounding and what happens with no survivors: DECISIONS D-19.
-- **App today (Phase 4):** H1–H7, L5 and K1–K5·ok run on the mock (`BountiesApi`). A joined Bounty is a stake-0 solo Oath with `bountyId`, so proof and the grid are reused; a miss eliminates. Shapes (`BountyFacts` in `apps/mobile/src/features/bounties/mockStore.ts`; this replaces the earlier `Bounty` draft in `proposed.ts`):
+- **App today (Phase 4):** H1–H7, L5 and K1–K5·ok run on the mock (`BountiesApi`). A joined Bounty is a stake-0 solo Oath with `bountyId`, so proof and the grid are reused; a miss eliminates. Shapes (`BountyFacts` in `frontend/src/features/bounties/mockStore.ts`; this replaces the earlier `Bounty` draft in `proposed.ts`):
   - `GET /api/bounties` → `Bounty[]`; `GET /api/bounties/:id` → `Bounty`
   - `POST /api/bounties/:id/join` → my participation `Oath`; `GET /api/bounties/:id/me` → `Oath | null`
   - `POST /api/bounties` `{name, objectId, numDays, pool, joinWindowHours | null, message, link | null, minKeptRate | null, tokenHeld | null}` → `Bounty`, after the funding transaction (`fundBounty` in `TxService`, pool × 1.10)
@@ -317,7 +317,7 @@ The checklist for the backend developer. Each line points to the full item below
 - **Change:** include the first few survivors (name, avatar, share) in the Bounty result.
 
 ### Local setup note (Phase 4.5)
-Running `apps/api` locally needs `VERIFIER_SECRET_KEY` and `FAUCET_SECRET_KEY` for the **configured** Devnet verifier/admin (`FFAZTtBd…`, read from the on-chain Config). Without them sign-in, invites, nudges and price work, but the faucet has no SKR and real photo-2 check-ins are rejected on chain. A throwaway key was used for the shakedown.
+Running `backend` locally needs `VERIFIER_SECRET_KEY` and `FAUCET_SECRET_KEY` for the **configured** Devnet verifier/admin (`FFAZTtBd…`, read from the on-chain Config). Without them sign-in, invites, nudges and price work, but the faucet has no SKR and real photo-2 check-ins are rejected on chain. A throwaway key was used for the shakedown.
 
 ---
 
@@ -330,7 +330,7 @@ Running `apps/api` locally needs `VERIFIER_SECRET_KEY` and `FAUCET_SECRET_KEY` f
 5. **Legacy V3 surface** · CONFIRMED. `migrate_keeper` and the Keeper streak counters (`lib.rs:217-223`, `state.rs:18-27`), dead uncompiled V3 Rust files in `programs/kept_test/src/` (`constants.rs`, `day.rs`, `errors.rs`, `events.rs`, `instructions/`; `lib.rs:4` only declares `mod state`), V3 Prisma migrations for `Payment`, `User`, `AuraMint` that the schema no longer models, and a stale crate description "Keeper XP, streak and Soul" (`Cargo.toml:4`, copied into the IDL metadata). XP, levels, ranks and NFTs aren't in the app (rules.md §9).
 6. **Stale code in the harness chain folder** · NEW. `chain/idl.ts` embeds the old V3 IDL (`buy_soul`, `check_in`), `chain/errors.ts` only maps V3 errors, `constants.ts` is V3, and `chain/oaths.ts:4` imports `@noble/hashes` without declaring it. The JSON IDL `chain/idl/kept_test.json` **is** V4. The new `packages/chain` uses only the JSON IDL.
 7. **Android app identity drift** · NEW. Three package names in three places: `assetlinks.ts` serves `com.kept.backendtest`, `backend/assetlinks.json` lists `app.kept.mobile` and `com.kept.testharness`, and the harness `app.json` uses `com.kept.backendtest`. The new app's package name and debug and release fingerprints must be added (DECISIONS D-22).
-   **Phase 2 impact:** the new app (`app.kept.mobile`) now signs in through MWA with identity URI `EXPO_PUBLIC_APP_IDENTITY_URI`. Until the served `/.well-known/assetlinks.json` (`apps/api/src/routes/assetlinks.ts:10-18`) lists `app.kept.mobile` with the debug-keystore fingerprint (`FA:C6:17:45:…:3B:9C`, the same Expo debug key), wallets show "identity could not be verified" and may not re-authorize silently, so every transaction asks to connect again.
+   **Phase 2 impact:** the new app (`app.kept.mobile`) now signs in through MWA with identity URI `EXPO_PUBLIC_APP_IDENTITY_URI`. Until the served `/.well-known/assetlinks.json` (`backend/src/routes/assetlinks.ts:10-18`) lists `app.kept.mobile` with the debug-keystore fingerprint (`FA:C6:17:45:…:3B:9C`, the same Expo debug key), wallets show "identity could not be verified" and may not re-authorize silently, so every transaction asks to connect again.
 8. **Thin tests** · NEW. `backend/test/v4.test.ts` has 3 tests, all on pure helpers (`auth`, `proofRejection`, `nudgeRejection`). No route, scheduler or decoder tests. The program has LiteSVM tests (`tests/v4.test.ts`, 14 cases) and 6 Rust unit tests for the payout function that will be replaced (`lib.rs:252-261`).
 9. **Duplicated hand-written decoders** · NEW. The Oath account layout is decoded by byte offset in the API (`v4.ts:362-376`) and the app (`oaths.ts:20-27`), with hand-hashed discriminators (`v4.ts:326, 379`). Any layout change (P0-5, P1-1, P1-2) breaks both silently. Use the IDL coder (`packages/chain`).
 10. **Odds:** display-only, computed in the app from the kept rate (rules.md §8). No backend work.

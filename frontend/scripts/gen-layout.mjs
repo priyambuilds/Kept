@@ -7,7 +7,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import vm from "node:vm";
 
-const design = new URL("../../../design/", import.meta.url);
+const design = new URL("../../design/", import.meta.url);
 const read = (p) => readFileSync(new URL(p, design), "utf8");
 
 export function parseLayouts(md) {

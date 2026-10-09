@@ -1,5 +1,5 @@
 // Screenshots every design screen from the running dev build (Phase 4.5).
-//   node scripts/shoot.mts [--ids A0,B1,C7·no] [--settle 2200] [--out ../../artifacts/screens]
+//   node scripts/shoot.mts [--ids A0,B1,C7·no] [--settle 2200] [--out ../artifacts/screens]
 // Needs an emulator or phone on adb with the dev build installed and Metro running. For each id it
 // opens kept://dev/open/<route>?…, waits for the screen to settle, saves <id>.png and records the
 // logcat errors (JS console.error, red boxes, native crashes) in report.json next to them.
@@ -8,7 +8,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
-const root = path.resolve(here, "../../..");
+const root = path.resolve(here, "../..");
 const arg = (name: string, d: string) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1]! : d; };
 const out = path.resolve(arg("out", path.join(root, "artifacts/screens")));
 const settle = Number(arg("settle", "3500"));

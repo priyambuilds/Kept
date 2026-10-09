@@ -1,4 +1,4 @@
-// Routes that exist today in apps/api (docs/API.md). Shapes match apps/api/src/routes/v4.ts exactly.
+// Routes that exist today in backend (docs/API.md). Shapes match backend/src/routes/v4.ts exactly.
 import { z } from "zod";
 import { Address, Amount } from "./primitives";
 

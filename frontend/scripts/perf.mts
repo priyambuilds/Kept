@@ -2,7 +2,7 @@
 // a list scroll and a push/pop transition.
 //   node scripts/perf.mts <app-release.apk> [--out artifacts/perf/<name>.json]
 // Build the APK with mock data so it reaches the tabs without a wallet app:
-//   EXPO_PUBLIC_API_MODE=mock ./gradlew assembleRelease   (in apps/mobile/android)
+//   EXPO_PUBLIC_API_MODE=mock ./gradlew assembleRelease   (in frontend/android)
 // Uses `am start -W` (TotalTime) and `dumpsys gfxinfo` (janky frames, frame-time percentiles).
 // Also watches logcat for the whole run (audit P-6): Reanimated's "synchronouslyUpdateUIProps failed"
 // lines (an animated-props update for a view that isn't mounted, logged with a stack trace on the UI
@@ -12,7 +12,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
-const root = path.resolve(here, "../../..");
+const root = path.resolve(here, "../..");
 const sdk = process.env.ANDROID_HOME ?? path.join(process.env.HOME!, "Library/Android/sdk");
 const ADB = path.join(sdk, "platform-tools/adb");
 const PKG = "app.kept.mobile";

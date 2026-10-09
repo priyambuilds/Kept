@@ -1,6 +1,6 @@
 # packages/
 
-Shared TypeScript libraries used by `apps/mobile` (frontend-side).
+Shared TypeScript libraries used by `frontend` (frontend-side).
 
 | Folder | What |
 |---|---|

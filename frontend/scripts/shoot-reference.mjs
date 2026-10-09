@@ -10,7 +10,7 @@ import path from "node:path";
 import { chromium } from "playwright-core";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
-const root = path.resolve(here, "../../..");
+const root = path.resolve(here, "../..");
 const refDir = path.join(root, "design/reference");
 const out = path.join(root, "artifacts/reference");
 const arg = (name, d) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1] : d; };

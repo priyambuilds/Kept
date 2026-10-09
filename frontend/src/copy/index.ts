@@ -1,6 +1,6 @@
 // Typed access to every user-facing string. Source: design/copy.json (read-only) + owner-approved
 // additions (additions.json). Data-bearing keys are interpolated through templates.json.
-import copyJson from "../../../../design/copy.json";
+import copyJson from "../../../design/copy.json";
 import additionsJson from "./additions.json";
 import templatesJson from "./templates.json";
 

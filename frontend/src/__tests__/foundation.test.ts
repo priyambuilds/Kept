@@ -39,7 +39,7 @@ describe("copy", () => {
 describe("theme", () => {
   it("tokens.gen.ts is up to date with design/tokens.json", () => {
     const { renderTokens } = require("../../scripts/gen-theme.js");
-    const json = JSON.parse(readFileSync(join(root, "..", "..", "design", "tokens.json"), "utf8"));
+    const json = JSON.parse(readFileSync(join(root, "..", "design", "tokens.json"), "utf8"));
     expect(readFileSync(join(root, "src", "theme", "tokens.gen.ts"), "utf8")).toBe(renderTokens(json));
   });
   it("maps type tokens to loaded fonts", () => {
