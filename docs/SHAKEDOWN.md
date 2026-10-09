@@ -44,7 +44,7 @@ node apps/mobile/scripts/drive.mts          # flows.md happy paths with adb taps
 20. H5 survivors (no blank tiles), lime totals (J1, K5, I3, C6 stake), C3 / C4 banners.
 
 ## Remaining differences (not fixed, lower severity)
-- **Keeper:** PNG fallback (D-33), so poses and props don't combine as in the prototype (e.g. B2 thumbs + sack); the prototype also shows the Keeper's note card on entry on many screens. Both are Phase 5 (parametric Keeper).
+- ~~**Keeper:** PNG fallback (D-33)…~~ Done in the fidelity pass: the parametric Keeper and the per-screen KeeperMark / KeeperNote (docs/FIDELITY_AUDIT.md).
 - **Sample data differs from the design** where the engine is the source of truth: claim amounts (1,054 vs 1,186), Rematch recovery (716 vs 500), W1 "Locked in Oaths", solo examples (D-65). Status-bar clock and real Android status bar vs the mock "9:41".
 - N1 leading tiles are icons, the design uses avatars / Keeper faces; I5 activity icons; I7 row icons; W1 claim card and recent-row icons.
 - C8 / D1 show `kept://join/…` instead of `kept.app/o/…` (D-68).
@@ -55,3 +55,9 @@ node apps/mobile/scripts/drive.mts          # flows.md happy paths with adb taps
 - **Back button, `kept://join/<code>`, offline → M2, toasts:** covered by unit tests and partly by the flows, but not checked one by one on the emulator in this pass.
 - **Real wallet (MWA fakewallet), real sign-in and the hybrid chain flow:** not run. That needs the Seeker wallet on a phone, or building Solana Mobile's fakewallet, plus the configured verifier/faucet key for the local API (BACKEND_GAPS › Local setup note).
 - **Avatar colours into theme tokens** (step 6 cleanup): not done.
+
+## Fidelity pass re-check (2026-10-10, session 2)
+- `pnpm --filter @kept/mobile shoot`: **116 / 116** screens, no logcat errors; `compare` regenerated (app · prototype · Design.pdf).
+- Found on the emulator during the perf run and fixed: the FX layer was global and never cleared, so a moment's falling coins (C7·ok, F5, J1·ok, …) kept looping on every later screen. FX now clear when the screen that played them stops being current (test in navigation.test).
+- Found by the new KeeperNote test and fixed: after the enter choreography landed, note-only Keepers weren't mounted, so marks had no dot and notes no line.
+- Release perf (mock APK, Pixel 8 AVD): see FIDELITY_AUDIT.md §7.

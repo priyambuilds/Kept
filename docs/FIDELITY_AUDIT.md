@@ -195,11 +195,16 @@ Checked by reading the navigator and with the route test added in this pass (`__
 ## 7. Performance (release build, Pixel 8 AVD, API 34)
 Measured with `adb shell dumpsys gfxinfo app.kept.mobile` (janky frames over a scripted scroll / transition) and cold start with `am start -W`.
 
-| Measure | Before | After |
+Measured 2026-10-10 with `node apps/mobile/scripts/perf.mts <apk>` (mock release APKs, two runs each; JSON in `artifacts/perf/`). The emulator is noisy run to run; read the ranges, not single numbers. p50 frame times of 17–34 ms mean the AVD isn't holding 60 fps on any build (software GPU); confirm on a phone.
+
+| Measure | Before (`artifacts/before/app-release-mock.apk`) | After (`artifacts/perf/app-release-mock-after.apk`) |
 |---|---|---|
-| Cold start (`TotalTime`) | see below | |
-| D0 scroll, janky frames | see below | |
-| Tab switch ×8, janky frames | see below | |
+| Cold start, `TotalTime` (3 launches) | 1469–1516 ms | 1230–1612 ms |
+| Tab switches ×8, janky | 6.0–6.6 % (p95 48–150 ms) | 1.6–6.8 % (p95 31–150 ms) |
+| Bounties scroll, janky | 17.1–17.5 % (p95 150–1050 ms, p99 1.35–2 s) | 6.3–8.6 % (p95 48–65 ms, p99 77–85 ms) |
+| Push / back ×4, janky | 12.2–20.1 % (p99 2–2.4 s) | 5.5–5.7 % (p99 0.75–1.2 s) |
+
+**P-6 (P1, pre-existing, not fixed):** Reanimated 4.5.1 logs `synchronouslyUpdateUIProps failed … Unable to find SurfaceMountingManager for tag` with a full stack trace for every update to a view that isn't mounted (yet / any more): ~43k lines per perf run before, ~29k after. The logging runs on the UI thread; one "after" run hit an ANR on D2 during the push/back burst with the main thread inside that log call. Repeat visits to a screen log nothing; first mounts of busy screens (D2: segment and cell pops, enters) do. Next: reproduce in a minimal screen, then try the Reanimated patch release / `react-native-screens` freeze settings, or start entering animations one frame after mount.
 
 Findings from the code:
 | # | P | Finding |
@@ -231,6 +236,8 @@ Findings from the code:
 | S8 | Haptics: FX moments (kept / payout / broken / comeback via `playFx(…, feel)`), impactLight per value pill, signing success/fail, proof pass/fail, splash | Haptics… |
 | S13 | Brand stamp is the last content block (F5, J1·ok, L1/L2/L4, L6, H5) | Brand stamp… |
 | I1 | "Make it yours" banner (vio) until opened once (D-76) | I1: … |
+| FX leak (new) | The FX layer was global and never cleared: falling coins from a moment looped on every later screen (seen on Today in release). FX now belong to the route that played them | FX belong to… |
+| R1, A1, D0 | Keeper chips at the design's spots via `keeperAt(id, texts)`; A1 no double enter; D0 second card tilts 1° (the PDF and prototype keep the flat `sm` card) | same |
 | B1, B4 (D-73) | Main card stacked; pending Bounties as a small tilted card (31 of 40 in · Not started · Prove) | B1: … |
 | N3, N4, N5 | Signing blocks hardware back only while pending; moments only until settled (1.6 s, D-74); a join link pops back to the E1 in the stack with the new code | Routing: … |
 | N7 + tests | `__tests__/routes.test.ts` (flows.md table: every edge wired and resolvable, every screen reachable from launch or its event, signing transient) and `__tests__/keeperNote.test.tsx` (tab never auto-opens, mark toggles, idle line, flow drops and closes at 4.8 s, closes on navigation, never leaks) | Tests: … |
@@ -242,19 +249,17 @@ Checked on the emulator (dev build): B1 mark dot + knock, tap drops the note wit
 | # | P | What |
 |---|---|---|
 | S20 | P2 | HP damage / heal from the last-seen value (lost segments fade + ring, heal pop) and the BalanceChip count + pop on change. Needs a "last seen HP per Oath" store. |
-| S14 / R1 | P1 | R1: the chips "6d 23h left" / "+500 SKR" float around the Keeper (pass chip texts: `<ScreenKeeper id="R1" … {...keeperAt("R1", [left, amount])}>`); orbs are wired through `keeperAt` (verify A1, L1, J1·ok, L6 on device). |
-| A1 | P1 | Chip positions ("1,000 SKR pot" bottom-left, "3-to-1 on you" right): use the layout's chip spots instead of the hand-placed chips. |
-| C1 | P1 | Input focused on entry (lime ring + caret) as the PDF. |
-| D0 | P1 | Active cards use the default (gradient) card. |
+| C1 | P2 | The PDF shows the input focused; not auto-focused, because the keyboard would cover the suggestion chips (D-77). |
 | P2 rows | P2 | A2 wallet glyphs, B2 kept times + chips (D-46/48), H6 finisher icons, I2 social glyph, I3 cover, I5 row tiles, I7 row icons, I8 "Banner" label + focus, L5 "Eliminated" fixture, N1 leading tiles. |
-| §7 | — | Release-build perf numbers (see below). |
+| P-6 | P1 | Reanimated sync-props failure logging on first mounts (see §7); one ANR seen in release. |
 
 ### Next steps, in order
-1. R1 / A1 chips through `keeperAt(id, texts)`; check orbs on A1, R1, L1, J1·ok, L6 on the emulator.
-2. C1 autofocus; D0 default card variant.
+1. P-6 first (it can freeze the UI thread).
+2. Check A1 / R1 chip spots on the emulator after the change (layout spots, copy texts).
 3. S20 (HP last-seen store + BalanceChip pop), with a test.
 4. The P2 rows above, group by group.
-5. Re-shoot (`pnpm --filter @kept/mobile shoot`, then `compare`), release build (`EXPO_PUBLIC_API_MODE=mock`), `node scripts/perf.mts <apk> --out artifacts/perf/after.json`, fill §7.
+5. P-6: find which animated views update before mount / after unmount and stop it (see §7).
+6. Re-shoot, compare, release perf again.
 
 ## Session 1 handoff (kept for history)
 
