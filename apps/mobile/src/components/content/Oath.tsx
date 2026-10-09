@@ -149,6 +149,10 @@ const CELL: Record<CellState, { bg: string; fg: string; icon: IconName | null; r
 const LEGEND: Partial<Record<CellState, "kept" | "missed" | "pending" | "review">> = { k: "kept", m: "missed", p: "pending", r: "review" };
 export interface GridMember { key: string; name: string; initial: string; color: string; cells: string; onPress?: () => void }
 
+/** The grid's `today` (1-based day number, −1 for none) from the engine's 0-based `dayIndex`. */
+export const gridToday = (dayIndex: number | null | undefined): number => (dayIndex == null || dayIndex < 0 ? -1 : dayIndex + 1);
+
+/** `today` is the 1-based day number (gridToday); its header number is drawn white. */
 export function DayMemberGrid({ days, today, members }: { days: number; today: number; members: GridMember[] }) {
   const big = days > 7;
   const g = metrics.grid;

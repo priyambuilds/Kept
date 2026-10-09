@@ -1,10 +1,12 @@
+import { StyleSheet } from "react-native";
+import { color } from "@/theme";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { t } from "@/copy";
 import { Button } from "@/components/actions";
 import { AppHeader, Bell, BottomSheet, NavBar, TabBar, ToastHost, useToast } from "@/components/chrome";
 import { Banner, Segmented } from "@/components/content/Basics";
-import { DayMemberGrid, HPPanel, OathCard } from "@/components/content/Oath";
+import { DayMemberGrid, HPPanel, OathCard, gridToday } from "@/components/content/Oath";
 import { Toggle } from "@/components/content/Rows";
 import { SignStatus } from "@/components/content/Status";
 import { Gallery } from "@/dev/Gallery";
@@ -97,6 +99,15 @@ describe("content", () => {
     await render(<DayMemberGrid days={7} today={3} members={[{ key: "a", name: "Arjun", initial: "A", color: "#FDE68A", cells: "kmpffff" }, { key: "r", name: "Riya", initial: "R", color: "#F9A8D4", cells: "kkkffff" }]} />);
     expect(screen.getByText("Arjun")).toBeTruthy();
     expect(screen.getByText("Riya")).toBeTruthy();
+  });
+  it("DayMemberGrid highlights today's day number (engine dayIndex is 0-based)", async () => {
+    // Day 3 of the Oath is dayIndex 2 (audit S5: D2 lit day 2 on day 3).
+    expect(gridToday(2)).toBe(3);
+    expect(gridToday(null)).toBe(-1);
+    await render(<DayMemberGrid days={7} today={gridToday(2)} members={[{ key: "a", name: "Arjun", initial: "A", color: "#FDE68A", cells: "kkpffff" }]} />);
+    const colourOf = (n: string) => StyleSheet.flatten(screen.getByText(n).props.style).color;
+    expect(colourOf("3")).toBe(color.text.primary);
+    expect(colourOf("2")).not.toBe(color.text.primary);
   });
   it("Segmented and Toggle report changes", async () => {
     const onSeg = jest.fn(), onToggle = jest.fn();

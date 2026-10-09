@@ -12,7 +12,7 @@ import { BottomSheet, NavBar, useToast } from "@/components/chrome";
 import { Banner, BodyText, Breakdown, Chip, ChipRow, Note, OddsChip, SearchBar, Segmented, Skeleton, Title } from "@/components/content/Basics";
 import { SeatSlots } from "@/components/content/Inputs";
 import type { Seat } from "@/components/content/Inputs";
-import { DayMemberGrid, HPPanel, OathCard } from "@/components/content/Oath";
+import { DayMemberGrid, gridToday, HPPanel, OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
 import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
@@ -276,7 +276,7 @@ function Active({ v }: { v: OathView }) {
       {v.life === "over" ? <Over v={v} /> : null}
       {v.life === "active" && me ? <BodyText text={t("screens.D2.b1.text", { timeLeft: `<m${v.deadlineClose ? ' class="r"' : ""}>${shortDuration(v.secondsToReset ?? 0)}</m>`, cost: skrWhole(v.myMissCost) })} /> : null}
       <ScreenKeeper id={low ? "D2·low" : "D2"} lines={[k]} />
-      <DayMemberGrid days={f.numDays} today={v.dayIndex ?? -1} members={v.members.map((m) => ({ key: m.facts.wallet, name: memberName(m), initial: memberInitial(m), color: memberColor(m), cells: m.cells }))} />
+      <DayMemberGrid days={f.numDays} today={gridToday(v.dayIndex)} members={v.members.map((m) => ({ key: m.facts.wallet, name: memberName(m), initial: memberInitial(m), color: memberColor(m), cells: m.cells }))} />
       {!f.isSolo && v.life === "active" ? <ChipRow>{v.members.filter((m) => !m.isMe).map((m) => <Odds key={m.facts.wallet} m={m} />)}</ChipRow> : null}
       {reviewer ? <Banner tone="vio" icon="eye-outline" title={t("screens.D2.b5.title")} sub={t("screens.D2.b5.sub")} onPress={() => go("G1", { id: f.id })} /> : null}
       <RowList label={t("screens.D2.b6.label")} rows={v.members.map((m): RowProps => ({
