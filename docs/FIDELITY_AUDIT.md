@@ -195,16 +195,20 @@ Checked by reading the navigator and with the route test added in this pass (`__
 ## 7. Performance (release build, Pixel 8 AVD, API 34)
 Measured with `adb shell dumpsys gfxinfo app.kept.mobile` (janky frames over a scripted scroll / transition) and cold start with `am start -W`.
 
-Measured 2026-10-10 with `node apps/mobile/scripts/perf.mts <apk>` (mock release APKs, two runs each; JSON in `artifacts/perf/`). The emulator is noisy run to run; read the ranges, not single numbers. p50 frame times of 17–34 ms mean the AVD isn't holding 60 fps on any build (software GPU); confirm on a phone.
+**Re-measured 2026-10-10 (session 3), emulator only (Pixel 8 AVD, API 34; no phone connected).** `node apps/mobile/scripts/perf.mts <apk>` on mock release APKs; JSON in `artifacts/perf/` (`baseline-1..2.json`, `patched-1..5.json`). Before = the session-1 baseline APK (`artifacts/before/app-release-mock.apk`), two runs; after = this session's build with the animation lifecycle, the coin splash removed (D-78) and the Reanimated patch (D-79), five consecutive runs. Ranges across runs. The AVD renders in software, so p50 frame times of 17–25 ms are the emulator, not the app; confirm on a phone.
 
-| Measure | Before (`artifacts/before/app-release-mock.apk`) | After (`artifacts/perf/app-release-mock-after.apk`) |
+| Measure | Before (2 runs) | After (5 runs) |
 |---|---|---|
-| Cold start, `TotalTime` (3 launches) | 1469–1516 ms | 1230–1612 ms |
-| Tab switches ×8, janky | 6.0–6.6 % (p95 48–150 ms) | 1.6–6.8 % (p95 31–150 ms) |
-| Bounties scroll, janky | 17.1–17.5 % (p95 150–1050 ms, p99 1.35–2 s) | 6.3–8.6 % (p95 48–65 ms, p99 77–85 ms) |
-| Push / back ×4, janky | 12.2–20.1 % (p99 2–2.4 s) | 5.5–5.7 % (p99 0.75–1.2 s) |
+| Reanimated `synchronouslyUpdateUIProps failed` lines per run | **56,145–58,268** | **0** |
+| ANRs | 0 (one seen in session 2) | **0 in 5 consecutive runs** |
+| Cold start, `TotalTime` (3 launches per run) | 285–348 ms | 261–427 ms |
+| Tab switches ×8, janky (p95) | 5.3–5.5 % (42–65 ms) | 0.9–1.1 % (29–31 ms) |
+| Bounties scroll, janky (p95 / p99) | 4.0–4.2 % (36–40 / 300–500 ms) | 0.2 % (18–23 / 19–26 ms) |
+| Push / back ×4, janky (p99) | 4.1–4.2 % (300–400 ms) | 1.2–1.8 % (40–48 ms) |
 
-**P-6 (P1, pre-existing, not fixed):** Reanimated 4.5.1 logs `synchronouslyUpdateUIProps failed … Unable to find SurfaceMountingManager for tag` with a full stack trace for every update to a view that isn't mounted (yet / any more): ~43k lines per perf run before, ~29k after. The logging runs on the UI thread; one "after" run hit an ANR on D2 during the push/back burst with the main thread inside that log call. Repeat visits to a screen log nothing; first mounts of busy screens (D2: segment and cell pops, enters) do. Next: reproduce in a minimal screen, then try the Reanimated patch release / `react-native-screens` freeze settings, or start entering animations one frame after mount.
+(Session 2's cold starts of 1.2–1.6 s were measured right after an install; this session's runs reuse the dex-compiled app, so cold start isn't comparable across sessions, only within this table.)
+
+**P-6 (P1): fixed.** Cause, confirmed from the ANR trace (dropbox `data_app_anr`): the main thread was in `Log.w` → `Throwable.printStackTrace`, called from Reanimated's `NativeProxy.synchronouslyUpdateUIProps` → `MountingManager.updatePropsSynchronously` ("Unable to find SurfaceMountingManager for tag"). Reanimated re-sends every pending animated-props entry on each dispatched event (touch, layout, react-native-svg `setClientRect` while an SVG draws); entries for views of a screen that was just removed stay pending for up to ~2 s, so every event failed and logged a stack trace for each of them. Senders, named by tagging every animated view in a release build: the coin splash (`Fx › BurstCoin`, `FallingCoin`, `ValuePill`: ~80 % after a payout moment), then the removed screen's `Enter` blocks, skeleton `Loop`s, `PressScale`, `Ambient › Orb`, `Pop`, `Knock`, `Status › Ping`. Fixes: (1) `useAnimationLifecycle` in `primitives/motion.tsx` for every animated view (start a frame after mount, cancel in a layout-effect cleanup, loops pause while covered), the Keeper SVG frame callback stops on unmount/blur, StepBar/Toggle don't tween inside mappers; (2) coin splash removed (D-78); (3) the Reanimated patch skips views that don't exist before the call (D-79). (1)+(2) alone took a run from 40,804 to 18,260 lines; (3) takes it to 0. `perf.mts` now streams logcat, reports failures per phase and fails a run on any ANR or more than 50 lines (`--max-sync-failures`).
 
 Findings from the code:
 | # | P | Finding |
