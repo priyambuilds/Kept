@@ -276,8 +276,8 @@ export function F5() {
   useEffect(() => { playFx("coins", [{ text: t("screens.F5.b1.title", { day }), icon: "check-bold" }], "kept"); }, [playFx, day]);
   const time = new Date().toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
   return (
-    <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1) + 40}
-      pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.F5.brand.stamp", { day, time })} /></>}>
+    <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1)}
+      pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /></>}>
       <ScreenKeeper id="F5" lines={[k]} />
       <Title heading={t("screens.F5.b1.title", { day })} align="center" fs={40} />
       {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => t("additions.core.dayShort", { n: i + 1 }))} /> : null}
@@ -289,6 +289,7 @@ export function F5() {
         title: memberName(m), sub: t("screens.F5.b4.r0.s"), value: t("screens.F5.b4.r0.r"),
         onPress: () => { void oathActions.nudge(view.facts, [m.facts.wallet], view.dayIndex ?? 0).catch(() => undefined).then(() => toast(t("toasts.3", { name: memberName(m) }))); },
       }))} /> : null}
+      <BrandStamp text={t("screens.F5.brand.stamp", { day, time })} />
     </Screen>
   );
 }

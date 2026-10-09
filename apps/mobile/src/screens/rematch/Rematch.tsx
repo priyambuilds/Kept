@@ -25,7 +25,7 @@ import { useSession } from "@/state/session";
 import { useUi } from "@/state/ui";
 import { SigningScreen } from "../shared/Signing";
 
-const pinned = (n: number, stamp = false) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom + (stamp ? 40 : 0);
+const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const signed = (u: bigint) => (u > 0n ? `+${skrWhole(u)}` : u < 0n ? skrWhole(u) : "0");
 
 /** Lobby seats: everyone in, then an open seat per original member still out. */
@@ -158,8 +158,8 @@ export function L6() {
   if (!view || !mine) return null;
   const k = keeperLines("L6")[0]!;
   return (
-    <Screen bar={<NavBar onBack={() => replace("D4", { id: view.facts.id })} close />} bottomInset={pinned(1, true)}
-      pinned={<><Button kind="l" icon="hand-coin-outline" label={t("screens.L6.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} /><BrandStamp text={t("screens.L6.brand.stamp")} /></>}>
+    <Screen bar={<NavBar onBack={() => replace("D4", { id: view.facts.id })} close />} bottomInset={pinned(1)}
+      pinned={<><Button kind="l" icon="hand-coin-outline" label={t("screens.L6.pin.0", { amount: skrWhole(mine.final) })} onPress={() => go("J1", { id: view.facts.id })} /></>}>
       <ScreenKeeper id="L6" lines={[k]} />
       <Title heading={t("screens.L6.b1.title")} sub={t("screens.L6.b1.sub", { n: view.facts.numDays })} align="center" />
       <MoneyMoment value={t("screens.L6.b2.value", { amount: skrWhole(recovered) })} caption={t("screens.L6.b2.caption", { name: source?.facts.name ?? view.facts.name })} tone="lime" />
@@ -168,6 +168,7 @@ export function L6() {
         { label: t("screens.L6.b3.row1.l"), value: t("screens.L6.b3.row1.v", { amount: skrWhole(recovered) }), color: color.lime.base },
         { label: t("screens.L6.b3.row2.l"), value: t("screens.L6.b3.row2.v", { amount: skrWhole(mine.final) }), total: true },
       ]} />
+      <BrandStamp text={t("screens.L6.brand.stamp")} />
     </Screen>
   );
 }

@@ -35,7 +35,7 @@ import { useSettings } from "@/state/settings";
 import { useUi } from "@/state/ui";
 import { TabScreen } from "../tabs/TabScreen";
 
-const pinned = (n: number, stamp = false) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom + (stamp ? 40 : 0);
+const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const HERO: HeroPaletteName[] = ["lime", "vio", "sky", "pink", "amber", "orange"];
 const BANNERS = [tokens.color.banner[0], tokens.color.banner[1], tokens.color.banner[2], tokens.color.banner[3], tokens.color.banner[4]];
 export const coverColors = (b: BountyFacts) => { const c = BANNERS[b.brand.palette % BANNERS.length]!; return [c[0]!, c[1]!] as const; };
@@ -283,10 +283,9 @@ export function H5() {
   const seats: Seat[] = [{ kind: "member", name: t("screens.D2.b6.r0.t"), initial: "Y", color: color.member.you, ...(avatar ? { avatar } : {}), status: `+${skrWhole(payout)}` }];
   if (b.remaining > 1) seats.push({ kind: "overflow", count: b.remaining - 1 });
   return (
-    <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={pinned(1, true)}
+    <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={v.claimable > 0n ? pinned(1) : 0}
       pinned={<>
         {v.claimable > 0n ? <Button kind="l" icon="hand-coin-outline" label={t("screens.H5.pin.0", { amount: skrWhole(v.claimable) })} onPress={() => go("J1", { id: v.facts.id })} /> : null}
-        <BrandStamp text={t("screens.H5.brand.stamp", { name: b.name.toUpperCase() })} />
       </>}>
       <Title heading={t("screens.H5.b0.title", { n: b.remaining })} align="center" />
       <MoneyMoment value={t("screens.H5.b1.value", { amount: skrWhole(payout) })} caption={t("screens.H5.b1.caption", { pool: skrWhole(b.pool) })} tone="lime" />
@@ -295,6 +294,7 @@ export function H5() {
         <Button kind="s" size="row" icon="share-variant" label={t("screens.H5.b3.btn.0")} onPress={() => { void Share.share({ message: t("screens.H5.brand.stamp", { name: b.name.toUpperCase() }) }).then(() => toast(t("toasts.9"))); }} />
         <Button kind="s" size="row" icon="account-plus" label={t("screens.H5.b3.btn.1", { name: b.brand.name })} onPress={() => { follow(b.brand.name); toast(t("toasts.10", { name: b.brand.name })); }} />
       </ButtonRow>
+      <BrandStamp text={t("screens.H5.brand.stamp", { name: b.name.toUpperCase() })} />
     </Screen>
   );
 }

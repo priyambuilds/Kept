@@ -24,7 +24,7 @@ import { screenFor } from "@/features/oaths/route";
 import { useUi } from "@/state/ui";
 import { SigningScreen } from "../shared/Signing";
 
-const pinned = (n: number, stamp = false) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom + (stamp ? 40 : 0);
+const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const signed = (units: bigint) => (units > 0n ? `+${skrWhole(units)}` : units < 0n ? skrWhole(units) : "0");
 
 function useClaimScreen() {
@@ -73,10 +73,11 @@ export function J1ok() {
   const k = keeperLines("J1·ok")[0]!;
   useEffect(() => { playFx("coins", [{ text: `+${amount} ${t("common.currency")}`, icon: "sack" }]); }, [playFx, amount]);
   return (
-    <Screen bar={<NavBar onBack={() => reset("B1")} close />} bottomInset={pinned(1, true)}
-      pinned={<><Button kind="p" label={t("screens.J1·ok.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.J1·ok.brand.stamp", { amount })} /></>}>
+    <Screen bar={<NavBar onBack={() => reset("B1")} close />} bottomInset={pinned(1)}
+      pinned={<><Button kind="p" label={t("screens.J1·ok.pin.0")} onPress={() => reset("B1")} /></>}>
       <ScreenKeeper id="J1·ok" lines={[k]} />
       <Title heading={t("screens.J1·ok.b2.title")} sub={t("screens.J1·ok.b2.sub", { amount })} align="center" fs={40} />
+      <BrandStamp text={t("screens.J1·ok.brand.stamp", { amount })} />
     </Screen>
   );
 }
@@ -131,9 +132,10 @@ function Moment({ v, children, pins, stamp }: { v: OathView; children: React.Rea
   const { replace } = useGo();
   const n = Array.isArray(pins) ? pins.filter(Boolean).length : 1;
   return (
-    <Screen bar={<NavBar onBack={() => replace(screenFor(v), { id: v.facts.id })} close />} bottomInset={pinned(n, !!stamp)}
-      pinned={<>{pins}{stamp ? <BrandStamp text={stamp} /> : null}</>}>
+    <Screen bar={<NavBar onBack={() => replace(screenFor(v), { id: v.facts.id })} close />} bottomInset={pinned(n)}
+      pinned={<>{pins}</>}>
       {children}
+      {stamp ? <BrandStamp text={stamp} /> : null}
     </Screen>
   );
 }
