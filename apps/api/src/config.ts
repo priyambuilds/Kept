@@ -12,4 +12,8 @@ export const config = {
   genesisGroup: process.env.GENESIS_GROUP || "",
   proofStorageDir: process.env.PROOF_STORAGE_DIR || "/tmp/kept-proofs",
   fcmServiceAccountJson: process.env.FCM_SERVICE_ACCOUNT_JSON || "",
+  adminSecret: process.env.ADMIN_SECRET || "",
+  bountyPayer: process.env.BOUNTY_PAYER || "faucet",
+  /** Default minutes between the start and end photo (Oaths without their own minMinutes). */
+  sessionMinMinutes: Number(process.env.SESSION_MIN_MINUTES) || 30,
 };

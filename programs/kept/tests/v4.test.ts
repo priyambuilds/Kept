@@ -1,11 +1,12 @@
 import { expect } from "chai";
 import { createHash, randomBytes } from "node:crypto";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { PublicKey } from "@solana/web3.js";
 import { AccountLayout, AccountState, MintLayout, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Clock, FailedTransactionMetadata, LiteSVM } from "litesvm";
 import { AccountRole, Address, KeyPairSigner, address, appendTransactionMessageInstruction, createTransactionMessage, generateKeyPairSigner, lamports, pipe, setTransactionMessageFeePayerSigner, signTransactionMessageWithSigners } from "@solana/kit";
-import idlJson from "../target/idl/kept_test.json";
+const idlJson = JSON.parse(readFileSync(path.join(__dirname, "..", "target", "idl", "kept_test.json"), "utf8"));
 
 const PROGRAM = new PublicKey(idlJson.address);
 const SO = path.join(__dirname, "..", "target", "deploy", "kept_test.so");
@@ -36,7 +37,7 @@ class CheckinHarness {
   async oathInstruction(signer:KeyPairSigner,name:"start_oath"|"cancel_oath") { this.svm.expireBlockhash();const disc=createHash("sha256").update(`global:${name}`).digest().subarray(0,8);const tx=await pipe(createTransactionMessage({version:0}),(m)=>setTransactionMessageFeePayerSigner(signer,m),(m)=>this.svm.setTransactionMessageLifetimeUsingLatestBlockhash(m),(m)=>appendTransactionMessageInstruction({programAddress:address(PROGRAM.toBase58()),accounts:[{address:this.oath,role:AccountRole.WRITABLE},{address:signer.address,role:AccountRole.READONLY_SIGNER}],data:new Uint8Array(disc)},m),(m)=>signTransactionMessageWithSigners(m));return this.svm.sendTransaction(tx); }
   oathByte(offset:number){return this.svm.getAccount(this.oath).data[offset];}
   memberPayout(){return Buffer.from(this.svm.getAccount(this.oath).data).readBigUInt64LE(139+36);}
-  async migrate(){this.svm.expireBlockhash();const disc=createHash("sha256").update("global:migrate_keeper").digest().subarray(0,8);const tx=await pipe(createTransactionMessage({version:0}),(m)=>setTransactionMessageFeePayerSigner(this.other,m),(m)=>this.svm.setTransactionMessageLifetimeUsingLatestBlockhash(m),(m)=>appendTransactionMessageInstruction({programAddress:address(PROGRAM.toBase58()),accounts:[{address:this.keeper,role:AccountRole.WRITABLE},{address:this.other.address,role:AccountRole.READONLY_SIGNER}],data:new Uint8Array(disc)},m),(m)=>signTransactionMessageWithSigners(m));return this.svm.sendTransaction(tx);}
+  async migrate(){this.svm.expireBlockhash();const disc=createHash("sha256").update("global:migrate_keeper").digest().subarray(0,8);const tx=await pipe(createTransactionMessage({version:0}),(m)=>setTransactionMessageFeePayerSigner(this.other,m),(m)=>this.svm.setTransactionMessageLifetimeUsingLatestBlockhash(m),(m)=>appendTransactionMessageInstruction({programAddress:address(PROGRAM.toBase58()),accounts:[{address:this.keeper,role:AccountRole.WRITABLE},{address:this.other.address,role:AccountRole.READONLY_SIGNER},{address:SYSTEM,role:AccountRole.READONLY}],data:new Uint8Array(disc)},m),(m)=>signTransactionMessageWithSigners(m));return this.svm.sendTransaction(tx);}
 }
 
 class TokenFlowHarness {

@@ -1,5 +1,9 @@
 # KEPT: Backend gaps (design vs. current backend)
 
+> Historical design audit: several routes described below as missing are now implemented in `apps/api`.
+> Use [API.md](API.md) and the backend source for the current route inventory. The remaining design
+> differences have not been revalidated in this document after the backend sync.
+
 **For:** the backend / Solana program developer.
 **Source of truth:** `design/rules.md` and `design/screens.md`. Where the backend differs, the backend should change unless we agree otherwise (decisions in `docs/DECISIONS.md`).
 **Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1; updated at the end of Phase 2 (sign-in), Phase 3 (the core loop on the real program and API: create, join, start, cancel, proof, settle, claim) and Phase 4 (Rematch, group review, Bounties, profiles, inbox, wallet: all on the app's mock, with the shapes below). The short checklist is at the top. Every item below was checked by reading the file and line cited.

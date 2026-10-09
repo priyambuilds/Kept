@@ -35,6 +35,8 @@ model OathProof {
   objectConfidence Float
   gestureLabel String
   gestureConfidence Float
+  challengeGesture String @default("")
+  failedAttempts Int @default(0)
   createdAt DateTime @default(now())
   @@unique([oath, wallet, dayIndex])
 }
@@ -59,15 +61,80 @@ model Nudge {
 model OathWatch {
   id        Int      @id @default(autoincrement())
   oath      String   @unique
+  /// Last Oath day whose misses have been recorded (-1 = none yet).
+  missedThrough Int @default(-1)
+  settleSignature String @default("")
+  /// Signature of sweep_carryover for a rules v2 Oath that settled with no successful member.
+  sweepSignature String @default("")
+  /// Set once the Oath is settled or cancelled and cleaned up; the job skips it after that.
+  finishedAt DateTime?
   createdAt DateTime @default(now())
 }
 
-model OathDetails {
+model MissedDay {
   id        Int      @id @default(autoincrement())
-  oath      String   @unique
-  creator   String
-  goalText  String
+  oath      String
+  wallet    String
+  dayIndex  Int
+  /// The member later covered this day with a freeze credit (rules v2); it counts as kept, not missed.
+  frozen    Boolean  @default(false)
   createdAt DateTime @default(now())
+  @@unique([oath, wallet, dayIndex])
+  @@index([wallet])
+}
+
+/// Accounting copy of a settled rules v2 Oath, read from chain (the chain is authoritative). Amounts are
+/// mint base units. feesCollected + freezeProceeds + stakeAmount * memberCount
+/// = payoutsTotal + treasuryPaid + carryover; carryover is reported separately from treasury fees.
+model OathSettlement {
+  id               Int       @id @default(autoincrement())
+  oath             String    @unique
+  rulesVersion     Int
+  feeBps           Int
+  stakeAmount      BigInt
+  memberCount      Int
+  feesCollected    BigInt
+  freezeProceeds   BigInt
+  payoutsTotal     BigInt
+  /// Fees + freeze proceeds + dust, sent to the treasury by settle_oath.
+  treasuryPaid     BigInt
+  dust             BigInt
+  /// Slashed stake owed to the carryover reserve because no member succeeded.
+  carryover        BigInt
+  carryoverSwept   Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model OathDetails {
+  id         Int      @id @default(autoincrement())
+  oath       String   @unique
+  creator    String
+  goalText   String
+  /// Minutes between the start and end photo; null = SESSION_MIN_MINUTES.
+  minMinutes Int?
+  name       String?
+  reviewMode String   @default("ai")
+  rematchOf  String?
+  createdAt  DateTime @default(now())
+}
+
+model InboxMessage {
+  id          String   @id @default(uuid())
+  wallet      String
+  type        String
+  actor       String?
+  title       String
+  body        String
+  needsAction Boolean  @default(false)
+  done        Boolean  @default(false)
+  refOath     String?
+  refCode     String?
+  refBounty   String?
+  refReview   String?
+  createdAt   DateTime @default(now())
+
+  @@index([wallet, createdAt(sort: Desc)])
 }
 
 model ReminderSent {
@@ -84,4 +151,118 @@ model FaucetClaim {
   wallet    String   @unique
   signature String
   createdAt DateTime @default(now())
+}
+
+model GestureChallenge {
+  id        Int      @id @default(autoincrement())
+  oath      String
+  wallet    String
+  dayIndex  Int
+  gesture   String
+  issuedAt  DateTime @default(now())
+  @@index([oath, wallet, dayIndex])
+}
+
+model ProofReview {
+  id        Int      @id @default(autoincrement())
+  proofId   Int
+  reviewer  String
+  approve   Boolean
+  createdAt DateTime @default(now())
+  @@unique([proofId, reviewer])
+}
+
+/// Off-chain bounty: free to join, miss a day and you are out, survivors split the pool.
+model Bounty {
+  id            Int       @id @default(autoincrement())
+  title         String
+  objectId      Int
+  numDays       Int
+  daySeconds    Int
+  startTs       Int
+  /// Pool in mint base units.
+  poolAmount    BigInt
+  mint          String
+  /// Wallet the pool is paid from (BOUNTY_PAYER at creation).
+  payer         String
+  /// Minutes between the start and end photo each day.
+  minMinutes    Int       @default(30)
+  /// Last bounty day whose misses have been applied (-1 = none yet).
+  missedThrough Int       @default(-1)
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model BountyEntry {
+  id                 Int       @id @default(autoincrement())
+  bountyId           Int
+  wallet             String
+  daysKept           Int       @default(0)
+  out                Boolean   @default(false)
+  outDay             Int?
+  /// When the job knocked this entry out (null for entries knocked out before this was recorded).
+  outAt              DateTime?
+  payoutAmount       BigInt?
+  /// Signed before sending so a crash cannot cause a second transfer; cleared only once it can no longer land.
+  payoutSignature    String    @default("")
+  payoutValidHeight  Int?
+  paidAt             DateTime?
+  joinedAt           DateTime  @default(now())
+  @@unique([bountyId, wallet])
+}
+
+/// Hash and detected labels only; bounty photos are never stored.
+model BountyProof {
+  id                Int      @id @default(autoincrement())
+  bountyId          Int
+  wallet            String
+  dayIndex          Int
+  proofHash         String
+  objectLabel       String
+  objectConfidence  Float
+  gestureLabel      String
+  gestureConfidence Float
+  challengeGesture  String
+  createdAt         DateTime @default(now())
+  @@unique([bountyId, wallet, dayIndex])
+}
+
+/// One Gemini photo check. The photo is never stored; only its hash, the verdict and the Oath context.
+model ProofVerification {
+  id               String    @id @default(uuid())
+  wallet           String
+  proofHash        String
+  expectedObject   String
+  expectedGesture  String
+  /// PENDING while Gemini is asked, then PASS or FAIL. Rows count toward the daily limit.
+  status           String    @default("PENDING")
+  objectPresent    Boolean   @default(false)
+  objectConfidence Float     @default(0)
+  gestureSeen      String    @default("")
+  gestureMatches   Boolean   @default(false)
+  looksLikeScreen  Boolean   @default(false)
+  reason           String    @default("")
+  /// Oath address, day and photo-2 session the app took this photo for (null when sent without them,
+  /// e.g. bounty checks). Group review counts only FAIL rows that match the end photo being reviewed.
+  oath             String?
+  dayIndex         Int?
+  sessionId        Int?
+  usedAt           DateTime?
+  createdAt        DateTime  @default(now())
+  @@index([wallet, createdAt])
+  @@index([wallet, oath, dayIndex])
+}
+
+/// Start photo of a two-photo day. Keyed like challenges: an Oath address, or `bounty:<id>`.
+model ProofSession {
+  id                  Int      @id @default(autoincrement())
+  key                 String
+  wallet              String
+  dayIndex            Int
+  startHash           String
+  startGesture        String
+  startVerificationId String
+  startedAt           DateTime @default(now())
+  endAllowedAt        DateTime
+  @@unique([key, wallet, dayIndex])
 }

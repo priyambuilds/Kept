@@ -3,6 +3,8 @@ use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, Tran
 
 pub mod state;
 use state::{Config, Keeper, Member, Oath, OathStatus, MAX_MEMBERS};
+pub mod economics;
+use economics::*;
 
 declare_id!("6iXXBqsdiCnUTSVf8CW3Uuw8c7iYvZSj5haz64QMuMUh");
 
@@ -45,6 +47,23 @@ pub mod kept_test {
         Ok(())
     }
 
+    /// Activates rules v2 (entry fee, freeze credits, 50% slash) for Oaths created from now on, or changes
+    /// the fee/freeze price for later Oaths. Existing Oaths keep the terms they were created with.
+    /// Also creates the locked carryover reserve for the stake mint.
+    pub fn configure_economics(ctx: Context<ConfigureEconomics>, fee_bps: u16, freeze_price: u64) -> Result<()> {
+        require!(u64::from(fee_bps) <= BPS_DENOMINATOR, KeptError::InvalidFee);
+        require!(freeze_price > 0, KeptError::InvalidFreezePrice);
+        let config_info = ctx.accounts.config.to_account_info();
+        let previous = read_economics(&config_info.try_borrow_data()?);
+        let carryover_vault = ctx.accounts.carryover_vault.key();
+        if let Some(p) = previous { require_keys_eq!(p.carryover_vault, carryover_vault, KeptError::WrongCarryoverVault); }
+        let economics = Economics { tag: ECONOMICS_TAG, fee_bps, freeze_price, carryover_vault,
+            carryover_total: previous.map_or(0, |p| p.carryover_total), reserved: [0; 32] };
+        write_economics(&config_info, &economics)?;
+        emit!(EconomicsConfigured { fee_bps, freeze_price, carryover_vault });
+        Ok(())
+    }
+
     pub fn create_oath(ctx: Context<CreateOath>, oath_id: u64, goal_hash: [u8; 32], object_id: u8,
         num_days: u8, day_seconds: u32, tz_offset_minutes: i16, stake_amount: u64, is_solo: bool) -> Result<()> {
         require!(matches!(num_days, 3 | 7 | 14), KeptError::InvalidDays);
@@ -79,9 +98,19 @@ pub mod kept_test {
         oath.members = [Member::default(); MAX_MEMBERS];
         oath.members[0] = Member { authority: ctx.accounts.creator.key(), staked: true, days_kept: 0, claimed: false, payout: 0 };
         initialize_keeper(&mut ctx.accounts.keeper, ctx.accounts.creator.key(), ctx.bumps.keeper);
+        // Snapshot the rules now so later Config changes cannot alter this Oath's terms.
+        let mut terms = match read_economics(&ctx.accounts.config.to_account_info().try_borrow_data()?) {
+            Some(e) => OathTerms::new(RULES_V2, e.fee_bps, fee_for_stake(stake_amount, e.fee_bps).ok_or(KeptError::Overflow)?, e.freeze_price),
+            None => OathTerms::new(RULES_LEGACY, 0, 0, 0),
+        };
+        terms.fees_collected = terms.fee_per_member;
+        // The fee is escrowed in the vault on top of the stake: refunded on cancel, paid to treasury at settlement.
         // The zero-stake solo path has no tokens to escrow; group creators transfer stake.
-        if stake_amount > 0 { transfer_stake(&ctx.accounts.token_program, &ctx.accounts.stake_mint,
-            &ctx.accounts.creator_token, &ctx.accounts.vault, &ctx.accounts.creator, stake_amount)?; }
+        let due = stake_amount.checked_add(terms.fee_per_member).ok_or(KeptError::Overflow)?;
+        if due > 0 { transfer_stake(&ctx.accounts.token_program, &ctx.accounts.stake_mint,
+            &ctx.accounts.creator_token, &ctx.accounts.vault, &ctx.accounts.creator, due)?; }
+        write_terms(&oath.to_account_info(), &terms)?;
+        if terms.fee_per_member > 0 { emit!(FeeCollected { oath: oath.key(), member: oath.creator, amount: terms.fee_per_member }); }
         emit!(OathCreated { oath: oath.key(), creator: oath.creator, oath_id, is_solo, stake_amount });
         Ok(())
     }
@@ -98,8 +127,17 @@ pub mod kept_test {
         require!(ctx.accounts.treasury.key() == ctx.accounts.config.treasury, KeptError::WrongTreasury);
         let count = oath.member_count as usize;
         require!(!oath.members[..count].iter().any(|m| m.authority == ctx.accounts.member.key()), KeptError::AlreadyMember);
+        // Joiners pay the fee fixed at creation, not the current Config fee.
+        let oath_info = oath.to_account_info();
+        let mut terms = read_terms(&oath_info.try_borrow_data()?)?;
+        let due = oath.stake_amount.checked_add(terms.fee_per_member).ok_or(KeptError::Overflow)?;
         transfer_stake(&ctx.accounts.token_program, &ctx.accounts.stake_mint, &ctx.accounts.member_token,
-            &ctx.accounts.vault, &ctx.accounts.member, oath.stake_amount)?;
+            &ctx.accounts.vault, &ctx.accounts.member, due)?;
+        if terms.fee_per_member > 0 {
+            terms.fees_collected = terms.fees_collected.checked_add(terms.fee_per_member).ok_or(KeptError::Overflow)?;
+            write_terms(&oath_info, &terms)?;
+            emit!(FeeCollected { oath: oath.key(), member: ctx.accounts.member.key(), amount: terms.fee_per_member });
+        }
         initialize_keeper(&mut ctx.accounts.keeper, ctx.accounts.member.key(), ctx.bumps.keeper);
         let slot = oath.member_count as usize;
         oath.members[slot] = Member { authority: ctx.accounts.member.key(), staked: true, days_kept: 0, claimed: false, payout: 0 };
@@ -123,8 +161,14 @@ pub mod kept_test {
         require!(oath.status == OathStatus::Open, KeptError::NotOpen);
         oath.status = OathStatus::Cancelled;
         let member_count = oath.member_count as usize;
-        let stake_amount = oath.stake_amount;
-        for m in &mut oath.members[..member_count] { m.payout = if m.staked { stake_amount } else { 0 }; }
+        // Each member gets back the stake and the fee they paid (0 under rules v1). Freeze credits can only
+        // be bought once the Oath is Active, so there are none to refund here.
+        let terms = read_terms(&oath.to_account_info().try_borrow_data()?)?;
+        let refund = oath.stake_amount.checked_add(terms.fee_per_member).ok_or(KeptError::Overflow)?;
+        for m in &mut oath.members[..member_count] { m.payout = if m.staked { refund } else { 0 }; }
+        let refunded = oath.members[..member_count].iter().try_fold(0u64, |sum, m| sum.checked_add(m.payout)).ok_or(KeptError::Overflow)?;
+        let escrowed = oath.stake_amount.checked_mul(member_count as u64).and_then(|s| s.checked_add(terms.fees_collected)).ok_or(KeptError::Overflow)?;
+        require!(refunded == escrowed, KeptError::ConservationViolated);
         emit!(OathCancelled { oath: oath.key() });
         Ok(())
     }
@@ -151,21 +195,45 @@ pub mod kept_test {
 
     pub fn settle_oath(ctx: Context<SettleOath>) -> Result<()> {
         let oath_info = ctx.accounts.oath.to_account_info();
+        let mut terms = read_terms(&oath_info.try_borrow_data()?)?;
+        let v2 = terms.rules_version == RULES_V2;
         let oath = &mut ctx.accounts.oath;
         require!(oath.status == OathStatus::Active, KeptError::NotActive);
         require!(ctx.accounts.vault.owner == oath.key() && ctx.accounts.vault.mint == oath.mint, KeptError::BadVault);
         let end = oath.start_ts.checked_add(i64::from(oath.num_days) * i64::from(oath.day_seconds)).ok_or(KeptError::Overflow)?;
-        require!(Clock::get()?.unix_timestamp >= end, KeptError::TooEarly);
+        // Rules v2 wait one more Oath day so a missed last day can still be covered by a freeze.
+        let settle_at = if v2 { end.checked_add(i64::from(oath.day_seconds)).ok_or(KeptError::Overflow)? } else { end };
+        require!(Clock::get()?.unix_timestamp >= settle_at, KeptError::TooEarly);
         let full = if oath.num_days == 16 { u16::MAX } else { (1u16 << oath.num_days) - 1 };
-        let successes: Vec<bool> = oath.members[..oath.member_count as usize].iter().map(|m| m.days_kept == full).collect();
-        let (payouts, total_fee, dust) = calculate_payouts(oath.stake_amount, ctx.accounts.config.fee_bps, &successes).ok_or(KeptError::Overflow)?;
-        if oath.stake_amount > 0 {
-            for (i, payout) in payouts.iter().enumerate() { oath.members[i].payout = *payout; }
-            let treasury_amount = total_fee + dust;
-            if treasury_amount > 0 {
+        let successes: Vec<bool> = oath.members[..oath.member_count as usize].iter().enumerate()
+            .map(|(i, m)| effective_days(m.days_kept, if v2 { terms.frozen_days[i] } else { 0 }) == full).collect();
+        let total_fee;
+        if v2 {
+            let s = calculate_payouts_v2(oath.stake_amount, &successes, terms.fees_collected, terms.freeze_proceeds).ok_or(KeptError::ConservationViolated)?;
+            let owed = s.payouts.iter().try_fold(s.to_treasury.checked_add(s.carryover).ok_or(KeptError::Overflow)?, |sum, p| sum.checked_add(*p)).ok_or(KeptError::Overflow)?;
+            require!(ctx.accounts.vault.amount >= owed, KeptError::VaultUnderfunded);
+            for (i, payout) in s.payouts.iter().enumerate() { oath.members[i].payout = *payout; }
+            if s.to_treasury > 0 {
                 transfer_from_vault(&ctx.accounts.token_program, &ctx.accounts.stake_mint, &ctx.accounts.vault,
-                    &ctx.accounts.treasury, &oath_info, oath.creator, oath.oath_id, oath.bump, treasury_amount)?;
+                    &ctx.accounts.treasury, &oath_info, oath.creator, oath.oath_id, oath.bump, s.to_treasury)?;
             }
+            // Carryover stays in the vault, recorded here, until sweep_carryover moves it to the reserve.
+            terms.treasury_paid = s.to_treasury;
+            terms.carryover = s.carryover;
+            terms.dust = s.dust;
+            total_fee = terms.fees_collected.checked_add(terms.freeze_proceeds).ok_or(KeptError::Overflow)?;
+            emit!(OathSettledV2 { oath: oath.key(), slashed: s.slashed, to_treasury: s.to_treasury, carryover: s.carryover, dust: s.dust });
+        } else {
+            let (payouts, fee, dust) = calculate_payouts(oath.stake_amount, ctx.accounts.config.fee_bps, &successes).ok_or(KeptError::Overflow)?;
+            if oath.stake_amount > 0 {
+                for (i, payout) in payouts.iter().enumerate() { oath.members[i].payout = *payout; }
+                let treasury_amount = fee + dust;
+                if treasury_amount > 0 {
+                    transfer_from_vault(&ctx.accounts.token_program, &ctx.accounts.stake_mint, &ctx.accounts.vault,
+                        &ctx.accounts.treasury, &oath_info, oath.creator, oath.oath_id, oath.bump, treasury_amount)?;
+                }
+            }
+            total_fee = fee;
         }
         for i in 0..oath.member_count as usize {
             let ai = ctx.remaining_accounts.get(i).ok_or(KeptError::KeeperAccountsMissing)?;
@@ -175,7 +243,7 @@ pub mod kept_test {
             let mut data = ai.try_borrow_mut_data()?;
             let mut keeper = Keeper::try_deserialize(&mut &data[..]).map_err(|_| KeptError::BadKeeper)?;
             require_keys_eq!(keeper.authority, oath.members[i].authority, KeptError::BadKeeper);
-            let succeeded = oath.members[i].days_kept == full;
+            let succeeded = successes[i];
             if succeeded {
                 if keeper.last_kept_day == oath.start_ts { keeper.current_streak = keeper.current_streak.saturating_add(u16::from(oath.num_days)); }
                 else { keeper.current_streak = u16::from(oath.num_days); }
@@ -187,7 +255,76 @@ pub mod kept_test {
             keeper.try_serialize(&mut out)?;
         }
         oath.status = OathStatus::Settled;
+        if v2 { write_terms(&oath_info, &terms)?; }
         emit!(OathSettled { oath: oath.key(), fee: total_fee });
+        Ok(())
+    }
+
+    /// Buys this member's one freeze credit (rules v2) with un-staked SKR at the price fixed at creation.
+    /// Only while Active: credits cannot be bought before the Oath starts, so cancellation never refunds one.
+    pub fn buy_freeze(ctx: Context<BuyFreeze>) -> Result<()> {
+        let oath_info = ctx.accounts.oath.to_account_info();
+        let mut terms = read_terms(&oath_info.try_borrow_data()?)?;
+        require!(terms.rules_version == RULES_V2, KeptError::LegacyRules);
+        let oath = &ctx.accounts.oath;
+        require!(oath.status == OathStatus::Active, KeptError::NotActive);
+        require!(ctx.accounts.vault.owner == oath.key() && ctx.accounts.vault.mint == oath.mint, KeptError::BadVault);
+        let slot = 1u8 << member_index(oath, &ctx.accounts.member.key())?;
+        require!(terms.freeze_bought & slot == 0, KeptError::FreezeAlreadyBought);
+        transfer_stake(&ctx.accounts.token_program, &ctx.accounts.stake_mint, &ctx.accounts.member_token,
+            &ctx.accounts.vault, &ctx.accounts.member, terms.freeze_price)?;
+        terms.freeze_bought |= slot;
+        terms.freeze_proceeds = terms.freeze_proceeds.checked_add(terms.freeze_price).ok_or(KeptError::Overflow)?;
+        write_terms(&oath_info, &terms)?;
+        emit!(FreezeBought { oath: oath.key(), member: ctx.accounts.member.key(), price: terms.freeze_price });
+        Ok(())
+    }
+
+    /// Spends this member's freeze credit on one closed day that has no recorded proof. The day then
+    /// counts as kept at settlement. Only the day index comes from the client, and the program checks it.
+    pub fn use_freeze(ctx: Context<UseFreeze>, day_index: u8) -> Result<()> {
+        let oath_info = ctx.accounts.oath.to_account_info();
+        let mut terms = read_terms(&oath_info.try_borrow_data()?)?;
+        require!(terms.rules_version == RULES_V2, KeptError::LegacyRules);
+        let oath = &ctx.accounts.oath;
+        require!(oath.status == OathStatus::Active, KeptError::NotActive);
+        require!(day_index < oath.num_days, KeptError::InvalidDay);
+        let day_end = i64::from(day_index).checked_add(1).and_then(|d| d.checked_mul(i64::from(oath.day_seconds)))
+            .and_then(|d| oath.start_ts.checked_add(d)).ok_or(KeptError::Overflow)?;
+        require!(Clock::get()?.unix_timestamp >= day_end, KeptError::DayNotClosed);
+        let i = member_index(oath, &ctx.accounts.member.key())?;
+        let slot = 1u8 << i;
+        require!(terms.freeze_bought & slot != 0, KeptError::NoFreezeCredit);
+        require!(terms.freeze_used & slot == 0, KeptError::FreezeAlreadyUsed);
+        let bit = 1u16.checked_shl(u32::from(day_index)).ok_or(KeptError::InvalidDay)?;
+        require!(oath.members[i].days_kept & bit == 0, KeptError::DayAlreadyKept);
+        terms.freeze_used |= slot;
+        terms.frozen_days[i] |= bit;
+        write_terms(&oath_info, &terms)?;
+        emit!(FreezeUsed { oath: oath.key(), member: ctx.accounts.member.key(), day_index });
+        Ok(())
+    }
+
+    /// Moves a settled rules v2 Oath's carryover (slashed stake with no successful member) from its vault into
+    /// the locked carryover reserve. Anyone may call it; it runs once per Oath.
+    pub fn sweep_carryover(ctx: Context<SweepCarryover>) -> Result<()> {
+        let oath_info = ctx.accounts.oath.to_account_info();
+        let config_info = ctx.accounts.config.to_account_info();
+        let mut terms = read_terms(&oath_info.try_borrow_data()?)?;
+        let mut economics = read_economics(&config_info.try_borrow_data()?).ok_or(KeptError::EconomicsNotConfigured)?;
+        let oath = &ctx.accounts.oath;
+        require!(terms.rules_version == RULES_V2, KeptError::LegacyRules);
+        require!(oath.status == OathStatus::Settled, KeptError::NotSettled);
+        require!(terms.carryover > 0 && !terms.carryover_swept, KeptError::NothingToSweep);
+        require_keys_eq!(ctx.accounts.carryover_vault.key(), economics.carryover_vault, KeptError::WrongCarryoverVault);
+        require!(ctx.accounts.vault.owner == oath.key() && ctx.accounts.vault.mint == oath.mint, KeptError::BadVault);
+        transfer_from_vault(&ctx.accounts.token_program, &ctx.accounts.stake_mint, &ctx.accounts.vault,
+            &ctx.accounts.carryover_vault, &oath_info, oath.creator, oath.oath_id, oath.bump, terms.carryover)?;
+        terms.carryover_swept = true;
+        economics.carryover_total = economics.carryover_total.checked_add(terms.carryover).ok_or(KeptError::Overflow)?;
+        write_terms(&oath_info, &terms)?;
+        write_economics(&config_info, &economics)?;
+        emit!(CarryoverSwept { oath: oath.key(), amount: terms.carryover, reserve_total: economics.carryover_total });
         Ok(())
     }
 
@@ -264,6 +401,10 @@ fn transfer_stake<'info>(token: &Interface<'info, TokenInterface>, mint: &Interf
     token_interface::transfer_checked(CpiContext::new(token.key(), TransferChecked { from: from.to_account_info(), mint: mint.to_account_info(), to: to.to_account_info(), authority: authority.to_account_info() }), amount, mint.decimals)
 }
 
+fn member_index(oath: &Oath, member: &Pubkey) -> Result<usize> {
+    oath.members[..oath.member_count as usize].iter().position(|m| m.authority == *member).ok_or_else(|| KeptError::NotMember.into())
+}
+
 fn initialize_keeper(keeper: &mut Account<Keeper>, authority: Pubkey, bump: u8) {
     if keeper.authority == Pubkey::default() || keeper.version_tag != KEEPER_V4_TAG {
         keeper.authority = authority;
@@ -274,6 +415,7 @@ fn initialize_keeper(keeper: &mut Account<Keeper>, authority: Pubkey, bump: u8) 
         keeper.last_kept_day = -1;
         keeper.bump = bump;
         keeper.version_tag = KEEPER_V4_TAG;
+        keeper.reserved = [0; 57];
     }
 }
 
@@ -307,10 +449,23 @@ pub struct UpdateTreasury<'info> {
 }
 
 #[derive(Accounts)]
+pub struct ConfigureEconomics<'info> {
+    #[account(mut, seeds=[CONFIG_SEED], bump=config.bump, has_one=admin, realloc=CONFIG_LEN, realloc::payer=admin, realloc::zero=false)]
+    pub config: Account<'info, Config>,
+    #[account(mut)] pub admin: Signer<'info>,
+    #[account(address=config.stake_mint)] pub stake_mint: InterfaceAccount<'info, Mint>,
+    #[account(init_if_needed, payer=admin, seeds=[CARRYOVER_SEED, stake_mint.key().as_ref()], bump,
+        token::mint=stake_mint, token::authority=config, token::token_program=token_program)]
+    pub carryover_vault: InterfaceAccount<'info, TokenAccount>,
+    pub token_program: Interface<'info, TokenInterface>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
 #[instruction(oath_id: u64)]
 pub struct CreateOath<'info> {
     #[account(seeds=[CONFIG_SEED], bump=config.bump)] pub config: Account<'info, Config>,
-    #[account(init, payer=creator, space=8+Oath::INIT_SPACE, seeds=[OATH_SEED, creator.key().as_ref(), &oath_id.to_le_bytes()], bump)] pub oath: Account<'info, Oath>,
+    #[account(init, payer=creator, space=OATH_LEN, seeds=[OATH_SEED, creator.key().as_ref(), &oath_id.to_le_bytes()], bump)] pub oath: Account<'info, Oath>,
     #[account(init, payer=creator, seeds=[VAULT_SEED, oath.key().as_ref()], bump, token::mint=stake_mint, token::authority=oath, token::token_program=token_program)] pub vault: InterfaceAccount<'info, TokenAccount>,
     #[account(init_if_needed, payer=creator, space=8+Keeper::INIT_SPACE, seeds=[KEEPER_SEED, creator.key().as_ref()], bump)] pub keeper: Account<'info, Keeper>,
     #[account(mut)] pub creator: Signer<'info>,
@@ -353,9 +508,28 @@ pub struct JoinOath<'info> {
     #[account(mut, constraint=destination.owner==member.key())] pub destination: InterfaceAccount<'info, TokenAccount>,
     pub member: Signer<'info>, pub token_program: Interface<'info, TokenInterface>,
 }
+#[derive(Accounts)] pub struct BuyFreeze<'info> {
+    #[account(mut)] pub oath: Account<'info, Oath>,
+    #[account(mut, seeds=[VAULT_SEED, oath.key().as_ref()], bump)] pub vault: InterfaceAccount<'info, TokenAccount>,
+    #[account(address=oath.mint)] pub stake_mint: InterfaceAccount<'info, Mint>,
+    #[account(mut, constraint=member_token.owner==member.key(), token::mint=stake_mint)] pub member_token: InterfaceAccount<'info, TokenAccount>,
+    pub member: Signer<'info>, pub token_program: Interface<'info, TokenInterface>,
+}
+#[derive(Accounts)] pub struct UseFreeze<'info> { #[account(mut)] pub oath: Account<'info, Oath>, pub member: Signer<'info> }
+#[derive(Accounts)] pub struct SweepCarryover<'info> {
+    #[account(mut, seeds=[CONFIG_SEED], bump=config.bump)] pub config: Account<'info, Config>,
+    #[account(mut)] pub oath: Account<'info, Oath>,
+    #[account(mut, seeds=[VAULT_SEED, oath.key().as_ref()], bump)] pub vault: InterfaceAccount<'info, TokenAccount>,
+    #[account(mut, seeds=[CARRYOVER_SEED, stake_mint.key().as_ref()], bump)] pub carryover_vault: InterfaceAccount<'info, TokenAccount>,
+    #[account(address=oath.mint)] pub stake_mint: InterfaceAccount<'info, Mint>,
+    pub token_program: Interface<'info, TokenInterface>,
+}
 #[derive(Accounts)] pub struct MigrateKeeper<'info> {
-    #[account(mut, seeds=[KEEPER_SEED, authority.key().as_ref()], bump, has_one=authority)] pub keeper: Account<'info, Keeper>,
-    pub authority: Signer<'info>,
+    #[account(mut, seeds=[KEEPER_SEED, authority.key().as_ref()], bump, has_one=authority,
+        realloc=8+Keeper::INIT_SPACE, realloc::payer=authority, realloc::zero=true)]
+    pub keeper: Account<'info, Keeper>,
+    #[account(mut)] pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[event] pub struct OathCreated { pub oath: Pubkey, pub creator: Pubkey, pub oath_id: u64, pub is_solo: bool, pub stake_amount: u64 }
@@ -365,6 +539,12 @@ pub struct JoinOath<'info> {
 #[event] pub struct CheckinRecorded { pub oath: Pubkey, pub member: Pubkey, pub day_index: u8, pub proof_hash: [u8;32] }
 #[event] pub struct OathSettled { pub oath: Pubkey, pub fee: u64 }
 #[event] pub struct Claimed { pub oath: Pubkey, pub member: Pubkey, pub amount: u64 }
+#[event] pub struct EconomicsConfigured { pub fee_bps: u16, pub freeze_price: u64, pub carryover_vault: Pubkey }
+#[event] pub struct FeeCollected { pub oath: Pubkey, pub member: Pubkey, pub amount: u64 }
+#[event] pub struct FreezeBought { pub oath: Pubkey, pub member: Pubkey, pub price: u64 }
+#[event] pub struct FreezeUsed { pub oath: Pubkey, pub member: Pubkey, pub day_index: u8 }
+#[event] pub struct OathSettledV2 { pub oath: Pubkey, pub slashed: u64, pub to_treasury: u64, pub carryover: u64, pub dust: u64 }
+#[event] pub struct CarryoverSwept { pub oath: Pubkey, pub amount: u64, pub reserve_total: u64 }
 
 #[error_code] pub enum KeptError {
     #[msg("Fee basis points must be at most 10000")] InvalidFee,
@@ -397,4 +577,15 @@ pub struct JoinOath<'info> {
     #[msg("Oath is not settled or cancelled")] NotSettled,
     #[msg("Payout already claimed")] AlreadyClaimed,
     #[msg("Arithmetic overflow")] Overflow,
+    #[msg("Freeze price must be positive")] InvalidFreezePrice,
+    #[msg("Oath uses legacy rules without fees or freezes")] LegacyRules,
+    #[msg("No freeze credit bought")] NoFreezeCredit,
+    #[msg("Freeze credit already bought")] FreezeAlreadyBought,
+    #[msg("Freeze credit already used")] FreezeAlreadyUsed,
+    #[msg("A freeze can only cover a day that has closed")] DayNotClosed,
+    #[msg("Day already kept")] DayAlreadyKept,
+    #[msg("No carryover to sweep")] NothingToSweep,
+    #[msg("Carryover reserve does not match config")] WrongCarryoverVault,
+    #[msg("Rules v2 economics are not configured")] EconomicsNotConfigured,
+    #[msg("Settlement does not account for every escrowed token")] ConservationViolated,
 }
