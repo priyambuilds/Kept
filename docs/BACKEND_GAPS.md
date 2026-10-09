@@ -231,7 +231,7 @@ The checklist for the backend developer. Each line points to the full item below
 - **App today (Phase 4):** I1–I9 run on the mock (`ProfileApi`). Shapes:
   - `GET /api/me/profile` and `GET /api/profiles/:wallet` → `Profile` (`packages/shared/src/proposed.ts`); fields hidden per the owner's visibility.
   - `PATCH /api/me/profile` with any of `name, avatar, banner, bio, socials, visibility` → `Profile`
-  - `GET /api/me/activity` → `ActivityItem[]` = `{id, day, title, sub, amount: string | null, kind: "money"|"proof"|"oath"}`. Plain values are fine; the app can format them if you send `{at, type, oath, amount}` instead. Say which.
+  - `GET /api/me/activity` → `ActivityItem[]` = `{id, day, title, sub, amount: string | null, kind: "money"|"proof"|"oath", type?: "kept"|"photo"|"payout"|"vote"|"stake"|"join"|"claim"|"broke"}` (`type` picks the row icon on I5; without it the app falls back to `kind`). Plain values are fine; the app can format them if you send `{at, type, oath, amount}` instead. Say which.
   - `GET /api/creators/:handle` → `{name, logo, palette, verified, bio, tagline, hosted, paidOut, followers, links: {title, kind}[]}` (I3)
   - follow: `POST/DELETE /api/me/following/:handle`. The app keeps follows on the device until then.
   - Visibility (I7) has three audiences per area: **Oaths, Bounties, socials** × everyone / Oath partners / only me, plus "find me by name" and "anyone can invite me". The current `Profile.visibility` is a single value, so please store the I7 settings as `{oaths, bounties, socials: 0|1|2, findByName: boolean, anyoneInvite: boolean}`. The app keeps them on the device until then.

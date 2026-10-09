@@ -62,7 +62,9 @@ export interface MyStats {
   bounties: { survived: number; out: number };
 }
 /** `day` is a display group ("TODAY", "MON 6 OCT"); amount is pre-signed text or null. */
-export interface ActivityItem { id: string; day: string; title: string; sub: string; amount: string | null; kind: "money" | "proof" | "oath" }
+/** What happened, for the row's icon (I5). Proposed field (BACKEND_GAPS › Profiles); optional, `kind` is the fallback. */
+export type ActivityType = "kept" | "photo" | "payout" | "vote" | "stake" | "join" | "claim" | "broke";
+export interface ActivityItem { id: string; day: string; title: string; sub: string; amount: string | null; kind: "money" | "proof" | "oath"; type?: ActivityType }
 export interface CreatorProfile {
   name: string; logo: string; palette: number; verified: boolean; bio: string; tagline: string;
   hosted: number; paidOut: bigint; followers: number; links: { title: string; kind: string }[];

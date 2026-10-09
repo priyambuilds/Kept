@@ -12,7 +12,7 @@ import type { CopyKey } from "@/copy";
 import { mockBounties } from "@/features/bounties/mockStore";
 import { PEOPLE, mockOaths } from "@/features/oaths/mockStore";
 import { ApiError } from "../errors";
-import type { ActivityItem, AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
+import type { ActivityItem, ActivityType, AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
 import { devWait } from "@/state/dev";
 import { clock } from "./clock";
 import type { Scenario } from "./scenarios";
@@ -201,14 +201,20 @@ export function mockProfile(ctx: MockContext): ProfileApi {
     activity: async () => {
       await ack(ctx);
       if (fresh()) return [];
-      const kind = (a: { title: string; amount: string | null }): ActivityItem["kind"] => (a.amount ? "money" : /photo|kept|voted/i.test(a.title) ? "proof" : "oath");
-      return sampleData.activity.map((a, i) => ({ id: `act-${i}`, day: a.day, title: a.title, sub: a.sub, amount: a.amount, kind: kind(a) }));
+      // copy.json › sampleData.activity follows the prototype's ACT list (kept-kit.js); same order here.
+      const TYPES: ActivityType[] = ["kept", "photo", "payout", "kept", "vote", "stake", "join", "claim", "broke"];
+      const KIND: Record<ActivityType, ActivityItem["kind"]> = { kept: "proof", photo: "proof", payout: "money", vote: "oath", stake: "money", join: "oath", claim: "money", broke: "oath" };
+      return sampleData.activity.map((a, i) => {
+        const type = TYPES[i] ?? (a.amount ? "payout" : "kept");
+        return { id: `act-${i}`, day: a.day, title: a.title, sub: a.sub, amount: a.amount, kind: KIND[type], type };
+      });
     },
     creator: async (name) => {
       await ack(ctx);
       const drift = name === t("screens.I3.b0.brand");
       return {
-        name, logo: name.replace("@", "").slice(0, 1).toUpperCase(), palette: 2, verified: true,
+        // Drift's covers are blue in Design.pdf (I3, H1–H3): the brand palette 3, as in bounties/mockStore.
+        name, logo: name.replace("@", "").slice(0, 1).toUpperCase(), palette: drift ? 3 : 2, verified: true,
         tagline: drift ? t("screens.I3.b0.msg") : name, bio: drift ? t("screens.I3.b1.text") : "",
         hosted: drift ? 6 : 1, paidOut: BigInt(drift ? 310_400 : 0) * SKR_UNIT, followers: drift ? 2140 : 0,
         links: drift ? [0, 1, 2].map((i) => ({ title: t(`screens.I3.b3.r${i}.t` as CopyKey), kind: t(`screens.I3.b3.r${i}.s` as CopyKey) })) : [],

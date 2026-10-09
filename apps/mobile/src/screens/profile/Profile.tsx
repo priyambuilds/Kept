@@ -32,11 +32,16 @@ import { useSession } from "@/state/session";
 import { useSettings } from "@/state/settings";
 import type { Audience } from "@/state/settings";
 import { TabScreen } from "../tabs/TabScreen";
+import type { ActivityType } from "@/api/types";
 
 const pinnedOne = metrics.button.height + metrics.pinned.bottom;
 /** X shows its letter glyph (Design.pdf I2 / I1), not the old bird. */
 const SOCIAL_ICON: Record<string, IconName> = { x: "alpha-x", telegram: "send", discord: "forum-outline", farcaster: "alpha-f-box" };
 const banner = (p: Profile) => Math.min(4, Math.max(0, p.banner)) as 0 | 1 | 2 | 3 | 4;
+/** reference/kept-kit.js › ACT: the I5 row icon per activity. */
+const ACTIVITY_ICON: Record<ActivityType, IconName> = {
+  kept: "check-bold", photo: "camera", payout: "sack", vote: "vote-outline", stake: "arrow-top-right", join: "trophy-outline", claim: "hand-coin-outline", broke: "fire",
+};
 const rateLine = (rate: number | null, days: number) => ({ percent: rate === null ? null : Math.round(rate * 100), line: t("screens.I1.b2.line", { n: days }), isNew: rate === null });
 const AUDIENCE = (a: Audience) => t(`screens.I7.b2.seg.${a}` as CopyKey);
 
@@ -231,7 +236,7 @@ export function I5() {
       {days.map((d) => (
         <RowList key={d} label={d} rows={items.filter((a) => a.day === d).map((a) => ({
           title: a.title, sub: a.sub, ...(a.amount ? { value: a.amount, valueColor: a.amount.startsWith("−") ? color.red.base : color.lime.base } : {}),
-          leading: { kind: "icon" as const, icon: a.kind === "money" ? ("sack" as const) : a.kind === "proof" ? ("camera-outline" as const) : ("cards-outline" as const) },
+          leading: { kind: "icon" as const, icon: a.type ? ACTIVITY_ICON[a.type] : a.kind === "money" ? ("sack" as const) : a.kind === "proof" ? ("camera-outline" as const) : ("cards-outline" as const) },
         }))} />
       ))}
       <Note text={t("screens.I5.b5.text")} />
