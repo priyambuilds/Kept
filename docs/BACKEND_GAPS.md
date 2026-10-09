@@ -2,10 +2,10 @@
 
 **For:** the backend / Solana program developer.
 **Source of truth:** `design/rules.md` and `design/screens.md`. Where the backend differs, the backend should change unless we agree otherwise (decisions in `docs/DECISIONS.md`).
-**Status:** verified against the code on 2026-10-09 (v2 of this file). Every item below was checked by reading the file and line cited.
+**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move). Every item below was checked by reading the file and line cited.
 
-**Paths.** References use today's paths. After Phase 0 they move:
-`backend/src` → `apps/api/src` · `backend/prisma` → `apps/api/prisma` · `backend/kept-example/program` → `programs/kept` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `backend/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `backend/kept-example/program/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `backend/prisma/schema.prisma`.
+**Paths.** Phase 0 moved the code with `git mv` and didn't change it, so line numbers are unchanged:
+`backend/src` → `apps/api/src` · `backend/prisma` → `apps/api/prisma` · `backend/scripts` → `apps/api/scripts` · `backend/kept-example/program` → `programs/kept` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `apps/api/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `programs/kept/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `apps/api/prisma/schema.prisma`. Other `backend/…` paths below map the same way.
 
 **Status labels:** **CONFIRMED** = the gap is real, nothing done · **PARTLY DONE** = some of it exists · **ALREADY DONE** = matches the design (listed at the end) · **NEW** = not in the first draft.
 
@@ -41,12 +41,15 @@
 ### P0-4. Day boundary: 24 hours from Start vs. local midnight · NEW
 - **Now:** a day is `[start_ts + k·day_seconds, start_ts + (k+1)·day_seconds)` (`lib.rs:137-140`), and `start_ts` is the moment the creator presses Start (`lib.rs:116`). `tz_offset_minutes` is validated and stored (`lib.rs:53, 74`) but **never read**. The backend uses the same 24 h windows (`backend/src/v4/rules.ts:7-8`, `v4.ts:281-285`). The `local_day` helper in `day.rs` is dead V3 code. `day_seconds` can also be 120 in the default build (P2-4).
 - **Design:** "Day 1 begins when the creator presses Start" (screens D1·m, D1·go), but everything else says **midnight**: "both photos before midnight", "−20 at midnight", "resets in hh:mm:ss", "Broke at midnight after day 6", the 2-hours-before-midnight reminder.
-- **Change:** pending a decision (DECISIONS **D-6**). Either (a) day 1 runs from Start to the next midnight in the creator's fixed time zone and later days are midnight to midnight, or (b) keep 24 h windows and the design changes its "midnight" copy. In both cases, expose `dayIndex`, `dayEndsAt` and `secondsToReset` from the API so the app never computes it.
+- **Decided (DECISIONS D-6, 2026-10-09):** days run **midnight to midnight in the creator's time zone**, fixed at creation. **Day 1 begins at the first midnight after Start**; between Start and that midnight the Oath is started but waiting ("Starts tonight at midnight").
+- **Change (program):** in `start_oath`, set `start_ts` to the next local midnight: `(local_day(now, tz) + 1) · 86_400 − tz_offset_minutes · 60` (the dead `day.rs::local_day` already has the right maths, tested at UTC+5:30). Keep `day_seconds = 86_400`, so `record_checkin`'s window check (`lib.rs:137-140`) and `settle_oath`'s end check (`lib.rs:157-158`) become midnight-aligned without further changes, and `DayNotStarted` covers the waiting period. Cancel stays creator-only and only while Open, so there's no cancelling during the wait (confirm that's intended). Also stop accepting `day_seconds = 120` outside debug builds (P2-4). **DST:** a fixed offset drifts by an hour across a DST change; acceptable for 3–14 day Oaths on Devnet, revisit for mainnet.
+- **Change (backend):** use the same rule in `rules.ts` and the scheduler (they read `startTs`/`daySeconds`, so they follow automatically). Expose `startsAt` (day 1 start), `dayIndex`, `dayEndsAt` and `secondsToReset` from the API so the app never computes days.
 
 ### P0-5. HP and the "broken" outcome · CONFIRMED
 - **Now:** no HP anywhere. `OathStatus` is `Open | Active | Settled | Cancelled` (`state.rs:39`), so there's no way to break mid-Oath. Check-ins keep being accepted for the whole length, and settle only runs after the last day (`lib.rs:157-158`).
 - **Design:** HP starts at 100; at the end of each day −20 per missed member (−35 solo), then +10 (max 100); **at 0 HP the Oath breaks**: check-ins stop and everyone loses their remaining balance (rules.md §2).
 - **Change:** HP is deterministic from the `days_kept` bitmasks (`state.rs:33`), so it doesn't need storing. But the program needs a **Broken** status and an early settle path that proves HP reached 0 on a past day and settles at that point. The backend's daily job has to detect it, and the API must expose HP, `hpLostToday` and the break day. The engine (`packages/engine`) is the reference implementation.
+- **Breaking day (decided, DECISIONS D-10):** on the day HP reaches 0 there's **no heal, no keeper payout and no fee**. The whole remaining pot (every member's balance, including that day's miss costs) splits **50 % held for the Rematch** (per member, P1-2) and **50 % to the KEPT treasury**. Held money that isn't recovered is also released to the treasury.
 
 ### P0-6. Settlement math · CONFIRMED
 - **Now:** all-or-nothing. A member "succeeded" only if `days_kept == full` (`lib.rs:159-160`). `calculate_payouts` (`lib.rs:227-250`) gives failed members 0, splits their **whole** stakes equally among full keepers after the fee, and if **nobody** kept every day, refunds everyone 90 % (`lib.rs:236-239`). Members who missed one day are treated like members who missed all of them. There's also a dead branch for 16-day Oaths (`lib.rs:159`).
@@ -58,7 +61,8 @@
 - **Required test:** 4 × 1,000 SKR, 3 days. Day 1: B and D miss. Day 2: everyone keeps. Day 3: D misses. Day patterns are **A ✓✓✓, B ✗✓✓, C ✓✓✓, D ✗✓✗**, giving A 1,468.75 · B 779.17 · C 1,468.75 · D 166.67 · fee 116.67.
   *(Correction: the first draft of this file gave B and D's patterns as ✓✗✓ / ✓✗✗. That contradicts rules.md's own table, where the day-1 misses are what produce the 333.33 losses and the day-3 weights A3:B2:C3.)*
   Shared vectors: `packages/engine/test-vectors/*.json` (created in Phase 1, in base units with 6 decimals). Please make the Rust tests read the same file.
-- **Change:** replace `calculate_payouts` with a day-by-day replay of the `days_kept` bitmasks (deterministic, run once at settle or break). Integer math in base units, round each share down, put the dust into the fee (DECISIONS D-4). Days with no keepers, solo losses and the breaking day need defined destinations (DECISIONS D-1, D-2, D-10, D-15).
+- **Change:** replace `calculate_payouts` with a day-by-day replay of the `days_kept` bitmasks (deterministic, run once at settle or break). Integer math in base units, round each share down, put the dust into the fee (DECISIONS D-4). Destinations (decided 2026-10-09): a solo member's miss costs and a no-keepers day's losses go to the **KEPT treasury** (D-1, D-15); the breaking day follows P0-5 (D-10).
+- **Claims:** the app shows **exactly what the chain pays** on J1, D4 and L1–L6 (D-14). Until this item lands, a settled real Oath will show all-or-nothing numbers there, and only D2/B1/B5 show engine estimates.
 
 ### P0-7. Solo Oaths need a stake · CONFIRMED
 - **Now:** `require!((!is_solo && stake_amount > 0) || (is_solo && stake_amount == 0))` (`lib.rs:63`), and the zero-stake path skips escrow (`lib.rs:82-84`).
@@ -110,7 +114,8 @@
   - **recovery:** members who keep every day of a Rematch that doesn't break also get back 50 % of their original loss
   - **funding:** on a break, 50 % of each loss is held for 7 days + the Rematch length, then released to the broken-pot destination
   - start: the original creator, or anyone once 2+ have joined
-- **Change:** program: an escrow hold on break, `create_rematch` linked by `rematch_of`, the recovery payout at Rematch settlement, release on expiry. Backend: `GET /api/oaths/:oath/rematch` (offer, countdown, who has joined). The recovery formula needs a decision (DECISIONS D-9).
+- **Recovery formula (decided, D-9):** recovery_i = **50 % of member i's balance at the moment of the break**, which is exactly the amount held for them in P0-5. It's solvent by construction. Paid only if member i keeps every day of a Rematch that doesn't break; otherwise their held amount is released to the treasury.
+- **Change:** program: an escrow hold on break (per-member held amounts), `create_rematch` linked by `rematch_of`, the recovery payout at Rematch settlement, release to the treasury on expiry or miss. Backend: `GET /api/oaths/:oath/rematch` (offer, countdown, who has joined, my held amount).
 
 ### P1-3. Leaving before Start · CONFIRMED
 - **Now:** only the creator's `cancel_oath` (`lib.rs:121-130`, `CreatorOath` has `has_one=creator`, `lib.rs:338`).
@@ -135,7 +140,8 @@
 ### P1-7. Oaths have no name · NEW
 - **Now:** only `goalText` is stored (`schema:65-71`), and the chain only has its hash.
 - **Design:** every Oath has a short name ("Iron Week", "Hydra 14", "Hydrate Week") on cards, nav bars, recaps and results, but C1–C6 never ask for one.
-- **Change:** store a `name` in `OathDetails`. How it's generated is DECISIONS D-16.
+- **Decided (D-16):** names are generated from object + length (e.g. "Iron Week"), and the creator can **rename while the Oath is Open**.
+- **Change:** a `name` column in `OathDetails`, set at creation (generated by the app), plus `PATCH /api/oaths/:oath/name` (creator only, Open only, 1–24 chars, suggested limit). Until it exists the app keeps the name on the device, so other members see the generated name.
 
 ### P1-8. Kept rate · CONFIRMED
 - **Now:** not computed. The Keeper account has `current_streak`, `best_streak`, `oaths_kept`, `oaths_missed` (`state.rs:18-27`), updated only at settle (`lib.rs:170-188`) with the old all-or-nothing meaning.
@@ -214,4 +220,4 @@
 - Devnet faucet (single use, see P1-12) and a placeholder price (P1-13).
 
 ## Decisions needed from the product owner
-See `docs/DECISIONS.md`. The ones that block backend work: **D-1/D-2/D-15** (where lost and burned SKR go), **D-3** (miss cost cap), **D-6** (day boundary), **D-9** (Rematch recovery formula), **D-10** (the breaking day), **D-11** (max members), **D-16** (Oath names), **D-21** (faucet and swap on Devnet).
+See `docs/DECISIONS.md`. All answered on 2026-10-09; see DECISIONS.md, "Rules amendments". The ones that shape backend work: D-1/D-2/D-15 (losses go to the treasury), D-3 (miss cost capped at the balance), D-6 (creator's midnight; day 1 at the first midnight after Start), D-9 (Rematch recovery), D-10 (the breaking day), D-11 (max 4 members), D-14 (claims show chain payouts), D-16 (generated names + rename), D-21 (faucet, mock swap on Devnet).
