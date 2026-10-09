@@ -21,7 +21,10 @@ export interface WalletApi {
   faucet(): Promise<{ signature: string; amount: bigint }>;
   /** SOL → SKR. Mock only on Devnet (DECISIONS D-21). Amounts in base units. */
   swap(lamports: bigint): Promise<{ skr: bigint }>;
+  /** W3: what `lamports` buys, the rate (SKR per 1 SOL, whole) and the network fee in lamports. */
+  quote(lamports: bigint): Promise<SwapQuote>;
 }
+export interface SwapQuote { skr: bigint; skrPerSol: number; feeLamports: bigint }
 
 export interface InboxApi {
   list(): Promise<{ items: InboxItem[]; unread: number }>;

@@ -9,7 +9,8 @@ import { SKR_UNIT } from "@kept/config";
 import { z } from "zod";
 import { sampleData, t } from "@/copy";
 import type { CopyKey } from "@/copy";
-import { PEOPLE } from "@/features/oaths/mockStore";
+import { mockBounties } from "@/features/bounties/mockStore";
+import { PEOPLE, mockOaths } from "@/features/oaths/mockStore";
 import { ApiError } from "../errors";
 import type { ActivityItem, AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
 import { clock } from "./clock";
@@ -70,6 +71,10 @@ export function mockWallet(ctx: MockContext): WalletApi {
       addedSkr += out;
       return { skr: out };
     },
+    quote: async (lamports) => {
+      await ack(ctx);
+      return { skr: (lamports * MOCK_SKR_PER_SOL * SKR_UNIT) / 1_000_000_000n, skrPerSol: Number(MOCK_SKR_PER_SOL), feeLamports: 5000n };
+    },
     price: () => respond(ctx, PriceResponse, { usdPerSkr: 0.01, skrForUsd10: 1000, devnet: true, label: "placeholder rate" }),
     faucet: async () => {
       if (faucetUsed) throw new ApiError("FAUCET_USED", "mock: faucet already used", 429);
@@ -90,21 +95,47 @@ function ago(t: string): number {
   return t.includes(":") ? 9 * 3600 : 3 * 86400;
 }
 
+/**
+ * The prototype's inbox, with refs resolved against the mock store so every action opens a real
+ * (mock) Oath. Items whose Oath doesn't exist in this scenario are left out.
+ */
+function inboxRef(id: string, wallet: string): InboxItem["ref"] | null {
+  const oath = (name: string, mine = true) => mockOaths.byName(name, mine ? wallet : null);
+  const active = (name: string) => mockOaths.list(wallet, { seeded: true }).find((o) => o.name === name && o.status === "active");
+  switch (id) {
+    case "inv1": { const o = oath("Dawn Run", false); return o && !o.members.some((m) => m.wallet === wallet) ? { oath: o.id, code: o.inviteCode ?? "" } : null; }
+    case "rev1": case "ng1": { const o = active("Iron Week"); return o ? { oath: o.id } : null; }
+    case "clm1": { const o = oath("Hydra 14"); return o && !o.members.find((m) => m.wallet === wallet)?.claimed ? { oath: o.id } : null; }
+    case "rm1": { const o = oath("Guitar Days"); return o ? { oath: o.id } : null; }
+    case "rc1": return {};
+    case "st1": { const b = mockBounties.byName("Hydrate Week"); return b ? { bounty: b.id } : null; }
+    case "fl1": { const b = mockBounties.byName("Hydrate Week"); return b ? { bounty: b.id } : null; }
+    default: return null;
+  }
+}
+
 export function mockInbox(ctx: MockContext): InboxApi {
   const done = new Set<string>();
   const wire = () => {
-    const items = ctx.scenario() === "fresh" ? [] : sampleData.inbox.map((n) => ({
-      id: n.id,
-      type: INBOX_TYPE[n.id.replace(/\d+$/, "")] ?? "recap",
-      actor: null,
-      title: n.title,
-      body: n.body,
-      createdAt: new Date(clock.now() - ago(n.time) * 1000).toISOString(),
-      needsAction: n.actions.length > 0 && !done.has(n.id),
-      done: done.has(n.id),
-      ref: {},
-    }));
-    return { items, unread: items.filter((i) => i.needsAction).length };
+    // Signed out: nothing to show (seeding for a stand-in wallet would replace the user's Oaths).
+    const wallet = ctx.wallet();
+    if (wallet) mockOaths.ensureSeeded(ctx.scenario(), wallet);
+    const items = !wallet || ctx.scenario() === "fresh" ? [] : sampleData.inbox.flatMap((n) => {
+      const ref = inboxRef(n.id, wallet);
+      if (!ref) return [];
+      return [{
+        id: n.id,
+        type: INBOX_TYPE[n.id.replace(/\d+$/, "")] ?? "recap",
+        actor: null,
+        title: n.title,
+        body: n.body,
+        createdAt: new Date(clock.now() - ago(n.time) * 1000).toISOString(),
+        needsAction: n.actions.length > 0,
+        done: done.has(n.id),
+        ref,
+      }];
+    });
+    return { items, unread: items.filter((i) => i.needsAction && !i.done).length };
   };
   return {
     list: () => respond(ctx, InboxResponse, wire()),

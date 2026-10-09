@@ -18,7 +18,7 @@ export type Presentation = "tab" | "onboarding" | "sheet" | "moment" | "signing"
 
 const TABS = ["B1", "D0", "H1", "I1"];
 const ONBOARDING = ["A0", "A1", "A2", "A2·s", "A2·e", "A3", "A3·no", "A4"];
-const SHEETS = ["+", "B5", "D1·x", "M3", "M4"];
+const SHEETS = ["+", "B5", "D1·x", "M3", "M4", "W2"];
 /** flows.md: fade, no back gesture until settled. */
 const MOMENTS = ["L1", "L2", "L3", "L4", "L4·m", "L4·b", "L5", "L6", "J1·ok", "C7·ok", "K5·ok", "F5"];
 /** Transient: replaced by their result screen, never left in the back stack. */

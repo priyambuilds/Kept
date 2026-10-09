@@ -133,6 +133,11 @@
   },
   "wallet": {
     "$source": "phase 4",
-    "faucetUsed": "The faucet gives 5,000 SKR once per wallet."
+    "faucetUsed": "The faucet gives 5,000 SKR once per wallet.",
+    "available": "SKR available",
+    "lockedOne": "{amount} SKR · 1 Oath"
+  },
+  "profile": {
+    "privateOaths": "{name} keeps their Oaths private"
   }
 }

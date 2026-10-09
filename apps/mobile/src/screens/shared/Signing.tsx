@@ -26,7 +26,13 @@ import { skrWhole } from "@/features/oaths/present";
 export interface FailRoutes { retry: DesignId; edit: DesignId; params?: Params; failed?: DesignId; noSkr?: DesignId }
 
 export function failureOutcome(e: unknown, r: FailRoutes): SignOutcome {
-  if (isApiError(e)) return e.code === "OFFLINE" ? { to: "M2" } : { to: r.failed ?? "C7·fail", params: { ...r.params, retry: r.retry, edit: r.edit } };
+  if (isApiError(e)) {
+    const params = { ...r.params, retry: r.retry, edit: r.edit };
+    if (e.code === "OFFLINE") return { to: "M2" };
+    if (e.code === "INSUFFICIENT_SOL") return { to: "M3", params };
+    if (e.code === "INSUFFICIENT_SKR") return { to: r.noSkr ?? "M4", params };
+    return { to: r.failed ?? "C7·fail", params };
+  }
   const f = classifyTxError(e);
   const params = { ...r.params, retry: r.retry, edit: r.edit };
   switch (f.kind) {

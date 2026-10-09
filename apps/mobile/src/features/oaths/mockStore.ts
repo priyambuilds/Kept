@@ -121,6 +121,8 @@ export function seed(scenario: Scenario, wallet: string) {
     const sol = mockBounties.ended("Sol Strings", 27, 1);
     bountyOath(sol, wallet, { daysKept: (1 << sol.numDays) - 1 }, true);
   }
+  // N1's invite: Riya's Dawn Run, Dev already in, the user not yet. Seeded last so earlier ids stay put.
+  group("Dawn Run", 4, 7, 1000, wallet, [person("riya", 0), person("dev", 0)], { status: "open", goal: "run 3 km before 8", inviteCode: "DAWN-R7Q2" });
 }
 
 /** Held per wallet at the original break (D-9): what a Rematch can win back. */
@@ -195,6 +197,11 @@ export const mockOaths = {
   get(id: string): OathFacts | null { const o = oaths.get(id); return o ? facts(o) : null; },
   byCode(code: string): OathFacts | null {
     const o = [...oaths.values()].find((x) => x.inviteCode?.toUpperCase() === code.toUpperCase());
+    return o ? facts(o) : null;
+  },
+  /** The newest seeded Oath with this name that `wallet` is in, or any if `wallet` is null (the mock inbox's refs). */
+  byName(name: string, wallet: string | null): OathFacts | null {
+    const o = [...oaths.values()].reverse().find((x) => x.name === name && !x.bountyId && !x.rematchOf && (!wallet || x.members.some((m) => m.wallet === wallet)));
     return o ? facts(o) : null;
   },
   /** For the E1 mock: an Open group Oath anyone can join with this code. */

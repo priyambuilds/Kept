@@ -14,6 +14,8 @@ import { useDev } from "@/state/dev";
 import { useSession } from "@/state/session";
 import { useDeviceOaths } from "@/features/oaths/device";
 import { mockOaths } from "@/features/oaths/mockStore";
+import { mockBounties } from "@/features/bounties/mockStore";
+import type { Scenario } from "@/api/mock/scenarios";
 import { useDraft } from "@/state/drafts";
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 24, left: 0, right: 0, bottom: 16 } };
@@ -165,5 +167,85 @@ describe("onboarding on mocks", () => {
     await fireEvent.press(screen.getByRole("button", { name: t("screens.E1.pin.0") }));
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.E2.pin.0", { amount: "1,000" }) }));
     expect(await screen.findByText(t("screens.D1·m.b2.title", { name: "Riya" }), {}, slow)).toBeTruthy();
+  }, 30000);
+});
+
+describe("Phase 4 on mocks", () => {
+  const WALLET = "7xKpQe9mZ3LbVd2RtYc8NfH4uJs6WgA1oPqE5rTk3F9q";
+  const MOMENT_IDS = ["L1", "L2", "L3", "L4", "L4·m", "L4·b", "L5", "L6", "H4", "H5", "R4", "R4·lost"];
+  beforeAll(() => queryClient.setDefaultOptions({ queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity } }));
+  /** Signed in on `scenario`, with every result moment and today's recap already seen. */
+  async function signedIn(scenario: Scenario) {
+    useDev.setState({ overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])), mockWallet: true, scenario });
+    mockOaths.reset();
+    queryClient.clear();
+    mockOaths.ensureSeeded(scenario, WALLET);
+    const ids = mockOaths.list(WALLET, { seeded: true }).map((o) => o.id);
+    useDeviceOaths.setState({ shownResults: ids.flatMap((id) => MOMENT_IDS.map((m) => `${id}:${m}`)), recapShownOn: new Date().toDateString() });
+    useSession.setState({ token: "mock.x", wallet: WALLET, genesis: true, onboarded: true, avatar: null, invite: null });
+    await render(<App />);
+    expect(await screen.findByRole("header", { name: t("screens.B1.header.title") }, slow)).toBeTruthy();
+  }
+
+  it("Rematch: R1 → sign → R3 lobby", async () => {
+    await signedIn("broken");
+    const guitar = mockOaths.byName("Guitar Days", WALLET)!;
+    await act(async () => { navigateTo("R1", { id: guitar.id }); });
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.R1.pin.0") }, slow));
+    expect(await screen.findByText(t("screens.R3.b1.title", { n: 3, total: 4 }), {}, slow)).toBeTruthy();
+  }, 30000);
+
+  it("group review: the inbox opens G1 and a vote goes back to D2", async () => {
+    await signedIn("activeGroup");
+    await act(async () => { navigateTo("N1"); });
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.N1.b1.rev1.btn0") }, slow));
+    expect(await screen.findByText(t("screens.G1.b0.title", { name: "Dev" }), {}, slow)).toBeTruthy();
+    await fireEvent.press(screen.getByRole("button", { name: t("screens.G1.pin.0") }));
+    expect(await screen.findByText(t("toasts.7"))).toBeTruthy();
+    expect(await screen.findByText(t("screens.D2.b6.label"))).toBeTruthy();
+  }, 30000);
+
+  it("Bounty: H2 → join free → H3", async () => {
+    await signedIn("activeGroup");
+    const open = mockBounties.list().find((b) => !b.minKeptRate && !b.tokenHeld && b.joinClosesAt > Date.now() / 1000 && !mockOaths.forBounty(b.id, WALLET))!;
+    await act(async () => { navigateTo("H2", { id: open.id }); });
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.H2.pin.0") }, slow));
+    expect(await screen.findByText(/^You're in\./, {}, slow)).toBeTruthy();
+    expect(mockOaths.forBounty(open.id, WALLET)).not.toBeNull();
+  }, 30000);
+
+  it("opens every Phase 4 screen that needs no id without a render error", async () => {
+    await signedIn("activeGroup");
+    const errors = jest.spyOn(console, "error");
+    for (const id of ["H1·j", "H1·c", "H7", "K1", "K2", "K3", "K4", "K5", "I2·me", "I4", "I5", "I7", "I8", "I9", "W1", "W4", "N1", "M1"] as const) {
+      await act(async () => { navigateTo(id); });
+      expect(screen.queryByText(t("additions.placeholder.note"))).toBeNull();
+    }
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
+  }, 60000);
+
+  it("opens the Phase 4 screens that take an id without a render error", async () => {
+    await signedIn("activeGroup");
+    const errors = jest.spyOn(console, "error");
+    const hydrate = mockBounties.byName("Hydrate Week")!;
+    const mine = mockBounties.byName("Dawn Pages")!;
+    const riya = mockOaths.byName("Iron Week", WALLET)!.members.find((m) => m.name === "Riya")!.wallet;
+    const visits: [Parameters<typeof navigateTo>[0], Record<string, string>][] = [
+      ["H2", { id: hydrate.id }], ["H3", { id: hydrate.id }], ["H6", { id: mine.id }], ["I2", { wallet: riya }], ["I3", { name: "Drift" }],
+    ];
+    for (const [id, params] of visits) {
+      await act(async () => { navigateTo(id, params); });
+      expect(screen.queryByText(t("additions.placeholder.note"))).toBeNull();
+    }
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
+  }, 60000);
+
+  it("wallet: W3 swap → sign → W3·ok", async () => {
+    await signedIn("activeGroup");
+    await act(async () => { navigateTo("W3"); });
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.W3.pin.0") }, slow));
+    expect(await screen.findByText(t("screens.W3·ok.b2.title"), {}, slow)).toBeTruthy();
   }, 30000);
 });

@@ -101,7 +101,7 @@ export function I2() {
       <Screen bar={<NavBar onBack={back} title={first} />} bottomInset={pinnedOne} pinned={pin}>
         {card(p)}
         {ring}
-        <Banner tone="grey" icon="lock-outline" title={t("screens.I2·p.b2.title", { name: first })} sub={t("screens.I2·p.b2.sub")} />
+        <Banner tone="grey" icon="lock-outline" title={t("additions.profile.privateOaths", { name: first })} sub={t("screens.I2·p.b2.sub")} />
         {shared.length ? <RowList label={t("screens.I2·p.b3.label")} rows={shared.map(sharedRow(go))} /> : null}
       </Screen>
     );
@@ -130,7 +130,7 @@ export function I2me() {
       <Banner tone="vio" icon="eye-outline" title={t("screens.I2·me.b0.title")} sub={t("screens.I2·me.b0.sub")} onPress={() => go("I7")} />
       {card(vis.socials === 2 ? { ...p, socials: [] } : p)}
       <KeptRateRing {...rateLine(stats.data?.keptRate ?? null, stats.data?.rateDays ?? 0)} />
-      <Banner tone="grey" icon="cards-outline" title={t("screens.I2·me.b3.title", { who: AUDIENCE(vis.oaths).toLowerCase() })} sub={t("screens.I2·me.b3.sub")} />
+      <Banner tone="grey" icon="cards-outline" title={t("screens.I2·me.b3.title", { who: AUDIENCE(vis.oaths) })} sub={t("screens.I2·me.b3.sub")} />
     </Screen>
   );
 }

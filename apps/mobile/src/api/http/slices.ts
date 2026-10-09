@@ -32,6 +32,7 @@ export const httpWallet = (c: HttpClient): WalletApi => ({
   },
   // Swap is a mock on Devnet (DECISIONS D-21); there's no exchange route.
   swap: missing("Swap"),
+  quote: missing("Swap"),
 });
 
 export const httpInvites = (c: HttpClient): InvitesApi => ({
