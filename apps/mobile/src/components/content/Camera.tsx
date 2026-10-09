@@ -7,7 +7,7 @@ import { GESTURES } from "@kept/config";
 import type { GestureKey } from "@kept/config";
 import { t } from "@/copy";
 import { color, duration, metrics, space } from "@/theme";
-import { Icon, Loop, PressScale, Text } from "../primitives";
+import { Icon, Loop, PressScale, Shake, Text } from "../primitives";
 import type { IconName } from "../primitives";
 
 export type CameraState = "idle" | "check" | "fail" | "review" | "scan" | "off";
@@ -64,9 +64,12 @@ export function ProofCamera({ photo, object, gesture, state, label, height = met
           <View>
             <View style={blur ? { filter: blur } : undefined}><Icon name={object} size={objSize} color={state === "off" ? color.line.toggleOff : color.extra.camObject} /></View>
             {g ? (
-              <View style={{ position: "absolute", right: c.gestureRight, bottom: c.gestureBottom, width: c.gesture, height: c.gesture, borderRadius: c.gesture / 2, backgroundColor: color.text.primary, alignItems: "center", justifyContent: "center", transform: [{ rotate: `${c.gestureTilt}deg` }], boxShadow: "0 8px 20px rgba(0,0,0,0.5)", ...(blur ? { filter: blur } : {}) }}>
+              // Proof fail: the gesture badge shakes (0 → −6 → 6 → −3 → 0, 300 ms).
+              <Shake trigger={state === "fail" ? 1 : 0} style={{ position: "absolute", right: c.gestureRight, bottom: c.gestureBottom }}>
+              <View style={{ width: c.gesture, height: c.gesture, borderRadius: c.gesture / 2, backgroundColor: color.text.primary, alignItems: "center", justifyContent: "center", transform: [{ rotate: `${c.gestureTilt}deg` }], boxShadow: "0 8px 20px rgba(0,0,0,0.5)", ...(blur ? { filter: blur } : {}) }}>
                 <Icon name={g.icon as IconName} size={c.gestureIcon} color={color.text.onLime} />
               </View>
+              </Shake>
             ) : null}
           </View>
         </View>

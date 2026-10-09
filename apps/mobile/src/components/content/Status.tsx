@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, metrics, space, type as typeStyles } from "@/theme";
-import { Icon, InitialTile, Loop, Pop, Text, useCountUp } from "../primitives";
+import { Icon, InitialTile, Loop, Pop, Text, CountText } from "../primitives";
 import type { IconName } from "../primitives";
 import { Chip } from "./Basics";
 import type { ChipTone } from "./Basics";
@@ -54,7 +54,7 @@ export function SignStatus({ state, chip }: { state: SignState; chip: string }) 
         )}
         {state === "success" ? <><Ping delay={0} /><Ping delay={600} /></> : null}
         <View style={{ position: "absolute", left: metrics.sign.inset, top: metrics.sign.inset, right: metrics.sign.inset, bottom: metrics.sign.inset, borderRadius: size, backgroundColor: color.surface[1], alignItems: "center", justifyContent: "center" }}>
-          {state === "success" ? <Pop delay={150} ms={duration.money}><Icon name={s.icon} size={metrics.sign.icon} color={s.fg} /></Pop> : <Icon name={s.icon} size={metrics.sign.icon} color={s.fg} />}
+          {state === "success" ? <Pop delay={150} ms={duration.money} ease="springHard"><Icon name={s.icon} size={metrics.sign.icon} color={s.fg} /></Pop> : <Icon name={s.icon} size={metrics.sign.icon} color={s.fg} />}
         </View>
         <View style={{ position: "absolute", left: metrics.sign.chipX, top: metrics.sign.chipY }}>
           <Chip text={chip} icon={s.chipIcon} tone="white" tilt={metrics.sign.chipTilt} />
@@ -68,7 +68,6 @@ export function SignStatus({ state, chip }: { state: SignState; chip: string }) 
 export function KeptRateRing({ percent, line, isNew }: { percent: number | null; line: string; isNew?: boolean }) {
   const size = metrics.ring.size;
   const p = percent === null ? 0 : percent / 100;
-  const n = useCountUp(percent ?? 0);
   const r = (size - metrics.ring.stroke) / 2;
   const c = 2 * Math.PI * r;
   return (
@@ -80,7 +79,7 @@ export function KeptRateRing({ percent, line, isNew }: { percent: number | null;
           <Circle cx={size / 2} cy={size / 2} r={r} stroke={color.lime.base} strokeWidth={metrics.ring.stroke} fill="none" strokeDasharray={`${c * p} ${c}`} />
         </Svg>
         <View style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, alignItems: "center", justifyContent: "center", transform: [{ rotate: `${-metrics.ring.tilt}deg` }] }}>
-          <Text variant="ringValue">{isNew || percent === null ? t("common.keptRateNew") : `${n}%`}</Text>
+          {isNew || percent === null ? <Text variant="ringValue">{t("common.keptRateNew")}</Text> : <CountText text={`${percent}%`} variant="ringValue" />}
         </View>
       </View>
       <View style={{ flex: 1 }}>

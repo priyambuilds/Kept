@@ -4,17 +4,16 @@ import QRCode from "react-native-qrcode-svg";
 import { t } from "@/copy";
 import { color, fontFamily, gradient, metrics, shadow, space } from "@/theme";
 import { Avatar } from "../avatar/Avatar";
-import { Icon, InitialTile, Pop, PressScale, Surface, Text, useCountUpText } from "../primitives";
+import { Icon, InitialTile, Pop, PressScale, Surface, Text, Tilt, CountText } from "../primitives";
 import type { IconName } from "../primitives";
 
 // ── MoneyMoment (`big`) ── lime "+…" values become the tilted money pill.
 export function MoneyMoment({ value, caption, fs = metrics.money.fs, tone = "white" }: { value: string; caption?: string; fs?: number; tone?: "white" | "lime" | "red" }) {
-  const shown = useCountUpText(value);
   const pill = tone === "lime" && value.startsWith("+");
   const size = pill ? Math.min(fs, metrics.money.pillMax) : fs;
   const fg = pill ? color.text.onLimeDeep : tone === "lime" ? color.lime.base : tone === "red" ? color.red.base : color.text.primary;
   const glow = !pill && tone !== "white" ? { textShadowColor: tone === "lime" ? color.lime.tint20 : color.red.tint22, textShadowRadius: 40 } : {};
-  const text = <Text variant="display" color={fg} style={{ fontSize: size, lineHeight: size, ...glow }}>{shown}</Text>;
+  const text = <CountText text={value} variant="display" color={fg} style={{ fontSize: size, lineHeight: size, ...glow }} />;
   return (
     <View style={{ alignItems: "center", paddingVertical: space[6] }} accessibilityLabel={[value, caption].filter(Boolean).join(", ")}>
       <Pop delay={200} ms={600}>
@@ -61,12 +60,11 @@ export function OptionGrid({ items, value, onChange, mode, cols, small }: { item
             const fs = small && "fsSmall" in m ? m.fsSmall : m.fs;
             return (
               <PressScale key={i} onPress={() => onChange(i)} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={[it.title, it.sub].filter(Boolean).join(", ")} style={{ flex: 1 }}>
-                <View style={{
+                <Tilt deg={on ? (i % 2 ? metrics.option.tilt : -metrics.option.tilt) : 0} style={{
                   minHeight: small ? m.minHSmall : m.minH, borderRadius: metrics.option.radius, paddingVertical: m.padV, paddingHorizontal: m.padH,
                   flexDirection: m.dir, alignItems: m.align, justifyContent: m.justify, gap: m.gap,
                   backgroundColor: on ? color.text.primary : color.surface[1],
                   boxShadow: on ? shadow("optionOn").boxShadow : `inset 0 0 0 1px ${color.extra.hairline07}`,
-                  transform: [{ rotate: `${on ? (i % 2 ? metrics.option.tilt : -metrics.option.tilt) : 0}deg` }],
                 }}>
                   {it.icon && iconSize ? <Icon name={it.icon} size={iconSize} color={fg} /> : null}
                   <View style={{ flex: mode === "row" ? 1 : 0, minWidth: 0 }}>
@@ -74,7 +72,7 @@ export function OptionGrid({ items, value, onChange, mode, cols, small }: { item
                     {it.sub ? <Text variant="caption" color={fg} style={{ opacity: 0.65, marginTop: 3 }}>{it.sub}</Text> : null}
                   </View>
                   {mode === "row" ? <Icon name={on ? "check-circle" : "circle-outline"} size={20} color={fg} /> : null}
-                </View>
+                </Tilt>
               </PressScale>
             );
           })}

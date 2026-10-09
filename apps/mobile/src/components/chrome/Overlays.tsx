@@ -73,16 +73,26 @@ export function BottomSheet({ visible, onClose, children, bottomInset = 0, onHid
   );
 }
 
+const TOAST_FADE = 200;
+
 // ── Toast ── white pill, ink disc with a lime check-bold; auto-hides after toastHold.
 export function Toast({ text, onHide, holdMs = duration.toastHold }: { text: string; onHide: () => void; holdMs?: number }) {
+  const reduce = useReducedMotion();
+  const fade = useSharedValue(1);
+  // Hold, then fade out over 200 ms before unmounting.
   useEffect(() => {
-    const id = setTimeout(onHide, holdMs);
+    const id = setTimeout(() => {
+      if (reduce) { onHide(); return; }
+      fade.value = withTiming(0, { duration: TOAST_FADE }, (done) => { if (done) runOnJS(onHide)(); });
+    }, holdMs);
     return () => clearTimeout(id);
-  }, [text, onHide, holdMs]);
+  }, [text, onHide, holdMs, reduce, fade]);
+  const out = useAnimatedStyle(() => ({ opacity: fade.value }));
   const m = metrics.toast;
   return (
     <View pointerEvents="none" style={{ position: "absolute", top: m.top, left: 0, right: 0, alignItems: "center", zIndex: z.toast }} accessibilityLiveRegion="polite">
-      <Pop key={text}>
+      <Animated.View style={out}>
+      <Pop key={text} ms={duration.pop} ease="springHard">
         <View style={{ height: m.height, paddingLeft: m.padL, paddingRight: m.padR, borderRadius: m.radius, backgroundColor: color.text.primary, flexDirection: "row", alignItems: "center", gap: m.gap, ...shadow("toast") }}>
           <View style={{ width: m.disc, height: m.disc, borderRadius: m.disc / 2, backgroundColor: color.text.onLime, alignItems: "center", justifyContent: "center" }}>
             <Icon name="check-bold" size={m.icon} color={color.lime.base} />
@@ -90,6 +100,7 @@ export function Toast({ text, onHide, holdMs = duration.toastHold }: { text: str
           <Text variant="chipMd" color={color.text.onLime} style={{ fontSize: 14 }} numberOfLines={1}>{text}</Text>
         </View>
       </Pop>
+      </Animated.View>
     </View>
   );
 }

@@ -56,7 +56,7 @@ export function Bell({ count, onPress }: { count: number; onPress?: () => void }
       <RoundButton icon="bell-outline" size={h.bell} iconSize={h.bellIcon} label={label} {...(onPress ? { onPress } : {})} />
       {count > 0 ? (
         <View pointerEvents="none" style={{ position: "absolute", top: h.badgeOffset, right: h.badgeOffset }}>
-          <Pop key={count} ms={duration.pop}>
+          <Pop key={count} ms={duration.pop} ease="springHard">
             <View style={{ minWidth: h.badgeMin, height: h.badgeMin, paddingHorizontal: space[4], borderRadius: h.badgeRadius, backgroundColor: color.lime.base, boxShadow: `0 0 0 ${h.dotRing}px ${color.bg.app}`, alignItems: "center", justifyContent: "center" }}>
               <Text variant="micro" color={color.text.onLime} style={{ fontSize: 11 }}>{String(count)}</Text>
             </View>

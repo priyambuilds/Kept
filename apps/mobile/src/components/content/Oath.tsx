@@ -4,7 +4,7 @@ import { t } from "@/copy";
 import { color, gradient, hpSegmentColor, metrics, shadow, space, stagger } from "@/theme";
 import { Button } from "../actions";
 import type { ButtonProps } from "../actions";
-import { Icon, InitialTile, Loop, Pop, PressScale, Surface, Text, Tile, useCountUpText } from "../primitives";
+import { Icon, InitialTile, Loop, Pop, PressScale, Surface, Text, Tile, CountText } from "../primitives";
 import type { IconName } from "../primitives";
 import { Tag } from "./Basics";
 import type { ChipTone } from "./Basics";
@@ -25,14 +25,13 @@ export function HPBar({ hp, empty = color.line.empty, animate = true }: { hp: nu
 // ── HPPanel (`hp`) ── value counts up; lost-today segments ring red and beat; ≤ 20 the last filled beats.
 export function HPPanel({ hp, lostToday = 0, note, warn }: { hp: number; lostToday?: number; note?: string; warn?: string }) {
   const filled = hp / 5;
-  const value = useCountUpText(String(hp));
   const danger = hp <= color.hp.thresholds.dangerAtOrBelow;
   return (
     <View style={{ padding: metrics.hpPanel.pad, borderRadius: metrics.hpPanel.radius, backgroundColor: color.surface[1], boxShadow: `inset 0 0 0 1px ${color.line.hairline2}` }} accessibilityLabel={t("common.hpOf", { hp })}>
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: space[6] }}>
         <Text variant="monoLabel" color={color.text.secondary}>{t("common.oathHpLabel")}</Text>
         <View style={{ flex: 1 }} />
-        <Text variant="hpNumber" color={danger ? color.red.base : color.text.primary}>{value}</Text>
+        <CountText text={String(hp)} variant="hpNumber" color={danger ? color.red.base : color.text.primary} />
         <Text variant="label" color={color.text.tertiary}>{t("common.hpOf", { hp: "" }).trim()}</Text>
       </View>
       <View style={{ marginTop: metrics.hpPanel.mt, flexDirection: "row", gap: metrics.hpPanel.gap }}>

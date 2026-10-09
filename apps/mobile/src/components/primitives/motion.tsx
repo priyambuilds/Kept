@@ -186,6 +186,15 @@ export function useCountUp(target: number, ms = 900, from = 0, delay = 0): numbe
   return reduce ? target : n;
 }
 
+/** A view that eases to a rotation (option select: ±2° over 250 ms `spring`). Carries its own style. */
+export function Tilt({ deg, children, style, ms = duration.optionTilt, ease = "spring" }: { deg: number; children?: ReactNode; style?: StyleProp<ViewStyle>; ms?: number; ease?: EasingName }) {
+  const reduce = useReducedMotion();
+  const r = useSharedValue(deg);
+  useEffect(() => { r.value = reduce ? deg : withTiming(deg, { duration: ms, easing: easing(ease) }); }, [deg, reduce, ms, ease, r]);
+  const a = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
+  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+}
+
 /** Counts up the number inside a display string, keeping prefix/suffix ("+186", "1,186", "−1,000"). */
 export function useCountUpText(text: string, from?: string): string {
   const m = text.match(/^([^\d]*)([\d,]+)(.*)$/);
