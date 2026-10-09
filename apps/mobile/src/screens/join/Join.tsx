@@ -39,6 +39,9 @@ export function E1() {
   const toast = useToast();
   const p = useParams<{ code: string }>();
   const [code, setCode] = useState(p.code ? codeFrom(p.code) : "");
+  // A second join link returns to this E1 with a new code (RootNavigator › reuseJoin): take it.
+  const [linked, setLinked] = useState(p.code);
+  if (p.code !== linked) { setLinked(p.code); if (p.code) setCode(codeFrom(p.code)); }
   const [busy, setBusy] = useState(false);
   const [perm, requestPerm] = useCameraPermissions();
   const scanned = useRef(false);

@@ -1,7 +1,8 @@
 // Shared wallet-signing pieces: the transient signing screen (C7, D1·go, D1·xs, E2·s, J1·p) and the
 // outcome screens every signature can land on (C7·no, C7·fail, M3, M4), per flows.md.
 import { useCallback } from "react";
-import { View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { BackHandler, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { keeperLines, t } from "@/copy";
 import { Button, ButtonRow } from "@/components/actions";
@@ -52,6 +53,13 @@ export function SigningScreen<T>({ title, sub, task, onDone, fail }: {
   const resolve = useCallback((r: { ok: true; value: T } | { ok: false; error: unknown }): SignOutcome =>
     (r.ok ? onDone(r.value) : failureOutcome(r.error, fail)), [onDone, fail]);
   const state = useSigningFlow(task, resolve);
+  // Transient (flows.md): hardware back can't leave while the wallet is signing; the close button cancels.
+  const pending = state === "pending";
+  useFocusEffect(useCallback(() => {
+    if (!pending) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () => sub.remove();
+  }, [pending]));
   return (
     <Screen bar={<NavBar onBack={back} close />}>
       <SignStatus state={state} chip={t("screens.C7.b1.chip")} />

@@ -1,15 +1,16 @@
 // The navigation tree from design/flows.md › Navigation model (docs/ARCHITECTURE.md §5).
 // Every design id is registered: built screens use their component, the rest render Placeholder.
+import { useCallback } from "react";
 import type { ComponentType } from "react";
 import { BackHandler } from "react-native";
-import { NavigationContainer, DarkTheme, useFocusEffect } from "@react-navigation/native";
+import { NavigationContainer, DarkTheme, StackActions, useFocusEffect } from "@react-navigation/native";
 import type { LinkingOptions, ParamListBase } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import * as Linking from "expo-linking";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TabBar } from "@/components/chrome";
+import { PILL_DELAYS, TabBar } from "@/components/chrome";
 import type { TabKey } from "@/components/chrome";
 import { color } from "@/theme";
 import { Gallery } from "@/dev/Gallery";
@@ -85,13 +86,18 @@ function Tabs() {
   );
 }
 
-/** Moments (L1–L6, F5, …) block hardware back until the screen settles (flows.md). */
+/** A moment has settled once its last value pill has risen (motion.md §5/§7: pills at .6 / 1.1 / 1.6 s). */
+export const MOMENT_SETTLE_MS = PILL_DELAYS[PILL_DELAYS.length - 1]!;
+
+/** Moments (L1–L6, F5, …) have no back until the screen settles (flows.md); then back works as usual. */
 function blockBack<P extends object>(C: ComponentType<P>): ComponentType<P> {
   return function Moment(props: P) {
-    useFocusEffect(() => {
-      const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
-      return () => sub.remove();
-    });
+    useFocusEffect(useCallback(() => {
+      let settled = false;
+      const id = setTimeout(() => { settled = true; }, MOMENT_SETTLE_MS);
+      const sub = BackHandler.addEventListener("hardwareBackPress", () => !settled);
+      return () => { clearTimeout(id); sub.remove(); };
+    }, []));
     return <C {...props} />;
   };
 }
@@ -116,6 +122,19 @@ export function routeInvite(url: string | null): string | null {
   return null;
 }
 
+/**
+ * A join link while E1 is already in the stack goes back to that E1 with the new code instead of
+ * stacking another one (audit N5; React Navigation 7's navigate pushes).
+ */
+function reuseJoin(url: string): boolean {
+  const code = url.match(/^kept:\/\/join\/([^/?#]+)/)?.[1];
+  if (!code || !navigationRef.isReady()) return false;
+  const name = routeName("E1");
+  if (!navigationRef.getRootState()?.routes.some((r) => r.name === name)) return false;
+  navigationRef.dispatch(StackActions.popTo(name, { code: decodeURIComponent(code) }));
+  return true;
+}
+
 /** `kept://dev/open/<screen>` (development builds only; Metro drops the require from release bundles). */
 function devLink(url: string): boolean {
   if (!__DEV__) return false;
@@ -128,7 +147,7 @@ const linking: LinkingOptions<ParamListBase> = {
   config: { screens: { [routeName("E1")]: "join/:code" } },
   getInitialURL: async () => { const url = await Linking.getInitialURL(); return url && devLink(url) ? null : routeInvite(url); },
   subscribe: (listener) => {
-    const sub = Linking.addEventListener("url", ({ url }) => { if (devLink(url)) return; const u = routeInvite(url); if (u) listener(u); });
+    const sub = Linking.addEventListener("url", ({ url }) => { if (devLink(url)) return; const u = routeInvite(url); if (u && !reuseJoin(u)) listener(u); });
     return () => sub.remove();
   },
 };
