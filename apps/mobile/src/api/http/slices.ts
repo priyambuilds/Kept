@@ -6,7 +6,7 @@ import { SKR_UNIT } from "@kept/config";
 import { readBalances } from "@/chain/connection";
 import { programEnv } from "@/chain/program";
 import { ApiError } from "../errors";
-import type { AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
+import type { AuthApi, BountiesApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, RematchApi, ReviewsApi, WalletApi } from "../types";
 import type { HttpClient } from "./client";
 
 export const httpAuth = (c: HttpClient): AuthApi => ({
@@ -30,6 +30,8 @@ export const httpWallet = (c: HttpClient): WalletApi => ({
     const r = await c.post("/api/faucet", {}, FaucetResponse);
     return { signature: r.signature, amount: BigInt(r.amount) * SKR_UNIT };
   },
+  // Swap is a mock on Devnet (DECISIONS D-21); there's no exchange route.
+  swap: missing("Swap"),
 });
 
 export const httpInvites = (c: HttpClient): InvitesApi => ({
@@ -45,4 +47,10 @@ export const httpNotify = (c: HttpClient): NotifyApi => ({
 /** No backend routes yet (BACKEND_GAPS P1-11 inbox, P1-9 profiles). Selecting http fails loudly. */
 const missing = (what: string) => () => Promise.reject(new ApiError("NOT_FOUND", `${what} has no backend route yet (see docs/BACKEND_GAPS.md)`));
 export const httpInbox = (): InboxApi => ({ list: missing("Inbox"), markDone: missing("Inbox") });
-export const httpProfile = (): ProfileApi => ({ mine: missing("Profiles"), save: missing("Profiles") });
+export const httpProfile = (): ProfileApi => ({
+  mine: missing("Profiles"), save: missing("Profiles"), get: missing("Profiles"), stats: missing("Stats"), activity: missing("Activity"), creator: missing("Creator pages"),
+});
+/** Bounties, Rematch and group review have no backend or program support yet (BACKEND_GAPS P1-10, P1-2, P1-1). */
+export const httpBounties = (): BountiesApi => ({ list: missing("Bounties"), get: missing("Bounties"), join: missing("Bounties"), mine: missing("Bounties"), create: missing("Bounties") });
+export const httpRematch = (): RematchApi => ({ offer: missing("Rematch"), join: missing("Rematch") });
+export const httpReviews = (): ReviewsApi => ({ request: missing("Group review"), get: missing("Group review"), mine: missing("Group review"), openFor: missing("Group review"), vote: missing("Group review") });

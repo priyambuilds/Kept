@@ -7,6 +7,8 @@ import { clock } from "@/api/mock/clock";
 import type { Scenario } from "@/api/mock/scenarios";
 import type { MemberFacts, OathFacts, ProofToday, ReviewMode } from "./model";
 import { oathName } from "./names";
+import { mockBounties, seedBounties } from "../bounties/mockStore";
+import type { BountyFacts } from "../bounties/mockStore";
 
 const DAY = 86_400;
 const now = () => Math.floor(clock.now() / 1000);
@@ -22,7 +24,7 @@ export const PEOPLE = {
 type Person = keyof typeof PEOPLE;
 
 interface MockMember extends MemberFacts { reliable: boolean; proofDay: number }
-interface MockOath extends Omit<OathFacts, "members"> { members: MockMember[]; seeded: boolean }
+interface MockOath extends Omit<OathFacts, "members"> { members: MockMember[]; seeded: boolean; eliminated?: boolean }
 
 const oaths = new Map<string, MockOath>();
 let seededFor: string | null = null;
@@ -56,10 +58,12 @@ const group = (name: string, objectId: number, numDays: number, stakeSkr: number
 export function seed(scenario: Scenario, wallet: string) {
   for (const [id, o] of oaths) if (o.seeded) oaths.delete(id);
   seededFor = `${scenario}:${wallet}`;
+  seedBounties();
   const t = now();
   const today = 2; // "Day 3/7"
   const left = (h: number, m = 0) => h * 3600 + m * 60;
   if (scenario === "fresh") return;
+  mockBounties.seedCreated(wallet);
 
   if (scenario === "settledKept" || scenario === "settledMissed") {
     const missed = scenario === "settledMissed";
@@ -67,9 +71,21 @@ export function seed(scenario: Scenario, wallet: string) {
       { creator: wallet, goal: "lift for 20 minutes", day1StartsAt: t - 7 * DAY - 60 });
     return;
   }
-  if (scenario === "broken") {
-    group("Guitar Days", 3, 7, 1000, wallet, [me(wallet, { daysKept: mask("kkkkkk") }), person("riya", mask("kkkkkk")), person("arjun", mask("kmkkkm")), person("dev", mask("kkkkmk"))],
-      { goal: "practise guitar for 30 min", day1StartsAt: t - 6 * DAY - 60 });
+  if (scenario === "broken" || scenario === "rematchActive") {
+    const guitar = group("Guitar Days", 3, 7, 1000, wallet, [me(wallet, { daysKept: mask("kkkkkk") }), person("riya", mask("kkkkkk")), person("arjun", mask("kmkmkm")), person("dev", mask("kmkmmm"))],
+      // HP 100 → 70 → 70 → 40 → 30 → break on day 6 (−40 from 30): the design's "Dev missed day 5,
+      // Arjun missed day 6" alone can't reach 0 HP with four members.
+      { goal: "practise guitar for 30 min", day1StartsAt: t - (scenario === "broken" ? 6 * DAY + 60 : 9 * DAY) });
+    // R1: Riya and Dev are already in the Rematch; the user decides. R·act: it's on day 3.
+    const r = rematchOf(guitar, [PEOPLE.riya.wallet, PEOPLE.dev.wallet], true);
+    if (scenario === "rematchActive") {
+      r.members.unshift(me(wallet, { daysKept: mask("kk"), proofToday: "none", proofDay: today }));
+      r.recovery = heldOf(guitar);
+      r.members.find((m) => m.wallet === PEOPLE.riya.wallet)!.daysKept = mask("km");
+      r.members.find((m) => m.wallet === PEOPLE.dev.wallet)!.daysKept = mask("kk");
+      r.status = "active";
+      r.day1StartsAt = startFor(today, left(9, 18));
+    }
     return;
   }
 
@@ -94,6 +110,37 @@ export function seed(scenario: Scenario, wallet: string) {
   group("Iron Week", 0, 7, 1000, wallet, [me(wallet), person("riya", 0)], { status: "open", creator: wallet, goal: "lift for 20 minutes", inviteCode: "IRON-7K2Q" });
   group("Hydra 14", 2, 14, 1000, wallet, [me(wallet, { daysKept: mask("kkkkkkkkkkkkkk") }), person("riya", mask("kkkkkkkkkkkkkk")), person("arjun", mask("kkkmkkkkkmkkkk")), person("dev", mask("kkkkkkkkkkkkkk"))],
     { goal: "drink 2 litres of water", day1StartsAt: t - 16 * DAY });
+
+  // Bounties the user is in: Hydrate Week on day 3 (B1, H3), plus a finished and a lost one.
+  const hydrate = mockBounties.running("Hydrate Week", today, secondsLeft, 31, [
+    { name: "Marco", day: 2, hoursAgo: 2 }, { name: "Lena", day: 2, hoursAgo: 2 }, { name: "Kai", day: 1, hoursAgo: 26 },
+  ]);
+  const out = scenario === "bountyOut";
+  bountyOath(hydrate, wallet, { daysKept: mask(out ? "km" : "kk"), proofToday: allDone ? "kept" : "none", proofDay: today }, true);
+  if (scenario === "bountyJoined") {
+    const sol = mockBounties.ended("Sol Strings", 27, 1);
+    bountyOath(sol, wallet, { daysKept: (1 << sol.numDays) - 1 }, true);
+  }
+}
+
+/** Held per wallet at the original break (D-9): what a Rematch can win back. */
+function heldOf(source: MockOath): Record<string, bigint> {
+  const st = simulate({ stake: source.stake, days: source.numDays, members: source.members.length, solo: source.isSolo }, marksFromBitmasks(source.members.map((m) => m.daysKept), source.numDays));
+  return Object.fromEntries(source.members.map((m, i) => [m.wallet, st.held[i] ?? 0n]));
+}
+
+/** A Rematch (Open) of a broken Oath with these wallets in (BACKEND_GAPS P1-2). */
+function rematchOf(source: MockOath, wallets: string[], seeded: boolean): MockOath {
+  const held = heldOf(source);
+  const members = source.members.filter((m) => wallets.includes(m.wallet)).map((m) => ({ ...m, daysKept: 0, proofToday: "none" as ProofToday, proofDay: -1, claimed: false, payout: null }));
+  return add({ name: source.name, goal: source.goal, objectId: source.objectId, numDays: source.numDays, stake: source.stake, isSolo: source.isSolo, reviewMode: source.reviewMode,
+    status: "open", creator: wallets[0] ?? source.creator, day1StartsAt: null, members, seeded, rematchOf: source.id, recovery: held, inviteCode: null });
+}
+
+/** The user's participation in a Bounty: a stake-0 solo Oath that follows the Bounty's days. */
+function bountyOath(b: BountyFacts, wallet: string, m: Partial<MockMember>, seeded: boolean): MockOath {
+  return add({ name: b.name, goal: null, objectId: b.objectId, numDays: b.numDays, stake: 0n, isSolo: true, reviewMode: "ai", status: "active", creator: wallet,
+    day1StartsAt: b.startsAt, members: [me(wallet, m)], seeded, bountyId: b.id, inviteCode: null });
 }
 
 /** Rolls every Oath forward to "now": other members prove, finished Oaths settle (engine numbers). */
@@ -101,10 +148,24 @@ function roll(o: MockOath) {
   if (o.status !== "active" || o.day1StartsAt === null) return;
   const t = now();
   const day = Math.floor((t - o.day1StartsAt) / o.daySeconds);
+  const all = (1 << o.numDays) - 1;
+  if (o.bountyId && !o.eliminated && day > 0 && o.members.some((m) => (m.daysKept & ((1 << Math.min(day, o.numDays)) - 1)) !== (1 << Math.min(day, o.numDays)) - 1)) {
+    // Miss a day and you're out of the Bounty pool.
+    o.eliminated = true;
+    mockBounties.eliminate(o.bountyId);
+  }
   if (day >= o.numDays) {
-    const finals = settlement(simulate({ stake: o.stake, days: o.numDays, members: o.members.length, solo: o.isSolo }, marksFromBitmasks(o.members.map((m) => m.daysKept), o.numDays)));
+    const st = simulate({ stake: o.stake, days: o.numDays, members: o.members.length, solo: o.isSolo }, marksFromBitmasks(o.members.map((m) => m.daysKept), o.numDays));
+    const finals = settlement(st);
     o.status = "settled";
-    o.members.forEach((m, i) => { m.payout = finals[i]!.final; m.proofToday = "none"; });
+    o.members.forEach((m, i) => {
+      const keptAll = (m.daysKept & all) === all && !st.broken;
+      let payout = finals[i]!.final;
+      if (o.rematchOf && keptAll) payout += o.recovery?.[m.wallet] ?? 0n; // the Rematch held: recover (D-9)
+      if (o.bountyId) payout = keptAll ? mockBounties.share(o.bountyId) : 0n;
+      m.payout = payout;
+      m.proofToday = "none";
+    });
     return;
   }
   for (const m of o.members) {
@@ -171,8 +232,33 @@ export const mockOaths = {
     m.proofToday = status;
     if (status === "kept") m.daysKept |= 1 << day;
   },
+  /** The Rematch of a broken Oath, if anyone started one. */
+  rematchFor(sourceId: string): OathFacts | null {
+    const r = [...oaths.values()].find((o) => o.rematchOf === sourceId);
+    return r ? facts(r) : null;
+  },
+  /** Join (or open) the Rematch of a broken Oath. One Rematch per broken Oath. */
+  joinRematch(sourceId: string, wallet: string): OathFacts {
+    let r = [...oaths.values()].find((o) => o.rematchOf === sourceId);
+    if (!r) r = rematchOf(need(sourceId), [], false);
+    if (!r.members.some((m) => m.wallet === wallet)) r.members.push(me(wallet));
+    return facts(r);
+  },
+  /** Join a Bounty: my participation becomes a mock Oath on the Bounty's days. */
+  joinBounty(b: BountyFacts, wallet: string): OathFacts {
+    const existing = [...oaths.values()].find((o) => o.bountyId === b.id && o.members.some((m) => m.wallet === wallet));
+    if (existing) return facts(existing);
+    mockBounties.join(b.id);
+    return facts(bountyOath(b, wallet, {}, false));
+  },
+  forBounty(bountyId: string, wallet: string): OathFacts | null {
+    const o = [...oaths.values()].find((x) => x.bountyId === bountyId && x.members.some((m) => m.wallet === wallet));
+    return o ? facts(o) : null;
+  },
+  /** Group review settled a day (P1-1): approved counts as kept, rejected as missed. */
+  decideReview(id: string, wallet: string, approved: boolean) { mockOaths.prove(id, wallet, approved ? "kept" : "none"); },
   /** Tests only. */
-  reset() { oaths.clear(); seededFor = null; counter = 0; },
+  reset() { oaths.clear(); seededFor = null; counter = 0; mockBounties.reset(); },
 };
 
 function need(id: string): MockOath {

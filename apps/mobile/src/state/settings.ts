@@ -1,0 +1,34 @@
+// Device settings with no backend yet: notification preferences (I4) and privacy switches (I7).
+// Push preferences would live with the push token on the server (BACKEND_GAPS P1-11).
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { persistStorage } from "./storage";
+
+export type Audience = 0 | 1 | 2; // Everyone · Oath partners · Only me (I7 segments)
+
+export interface SettingsState {
+  notify: { nudges: boolean; deadline: boolean; reviews: boolean; results: boolean };
+  visibility: { oaths: Audience; bounties: Audience; socials: Audience };
+  findByName: boolean;
+  anyoneInvite: boolean;
+  /** Socials connected on I8 (X is the one with a handle in the prototype). */
+  socials: { x: boolean; telegram: boolean; discord: boolean; farcaster: boolean };
+  following: string[];
+  setNotify(k: keyof SettingsState["notify"], on: boolean): void;
+  setVisibility(k: keyof SettingsState["visibility"], a: Audience): void;
+  set(p: Partial<Pick<SettingsState, "findByName" | "anyoneInvite" | "socials">>): void;
+  follow(name: string): void;
+}
+
+export const useSettings = create<SettingsState>()(persist((set) => ({
+  notify: { nudges: true, deadline: true, reviews: true, results: true },
+  visibility: { oaths: 1, bounties: 0, socials: 1 },
+  findByName: true,
+  anyoneInvite: false,
+  socials: { x: true, telegram: false, discord: false, farcaster: false },
+  following: [],
+  setNotify: (k, on) => set((s) => ({ notify: { ...s.notify, [k]: on } })),
+  setVisibility: (k, a) => set((s) => ({ visibility: { ...s.visibility, [k]: a } })),
+  set: (p) => set(p),
+  follow: (name) => set((s) => ({ following: s.following.includes(name) ? s.following : [...s.following, name] })),
+}), { name: "kept.settings", storage: persistStorage }));

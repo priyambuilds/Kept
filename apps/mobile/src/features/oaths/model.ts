@@ -53,6 +53,12 @@ export interface OathFacts {
   inviteCode: string | null;
   /** Unix seconds; orders lists. */
   createdAt: number;
+  /** A Rematch of this broken Oath (BACKEND_GAPS P1-2; mock only). */
+  rematchOf?: string;
+  /** Rematch only: per wallet, what was held at the original break and can be recovered (D-9). */
+  recovery?: Record<string, bigint>;
+  /** The Bounty this is my participation in (BACKEND_GAPS P1-10; mock only). Miss a day and you're out. */
+  bountyId?: string;
 }
 
 /** Where the Oath is, from the member's point of view. */
@@ -181,13 +187,17 @@ export function oathView(f: OathFacts, now: number, myWallet: string | null): Oa
 /**
  * What each member ends with. A cancelled Oath refunds the stake. A settled chain Oath shows the
  * chain's payout (D-14: never an engine number the program won't pay); start/lost/won are derived
- * from it. Everything else is the engine's estimate.
+ * from it. A Rematch adds its recovery and a Bounty pays its share. Everything else is the engine's
+ * estimate.
  */
 function resultsOf(f: OathFacts, state: OathState): MemberSettlement[] {
   const engine = settlement(state);
   return f.members.map((m, i) => {
     if (f.status === "cancelled") return { start: f.stake, lost: 0n, won: 0n, final: m.payout ?? f.stake, held: 0n };
-    if (f.status === "settled" && f.source === "chain" && m.payout !== null) {
+    // A settled Rematch keeps the engine's breakdown; its payout adds the recovery (R4 shows it).
+    if (f.status === "settled" && m.payout !== null && f.rematchOf && engine[i]) return { ...engine[i], final: m.payout };
+    // The chain's payout (D-14), or a Bounty's share of the pool.
+    if (f.status === "settled" && m.payout !== null && (f.source === "chain" || f.bountyId)) {
       const diff = m.payout - f.stake;
       return { start: f.stake, lost: diff < 0n ? -diff : 0n, won: diff > 0n ? diff : 0n, final: m.payout, held: 0n };
     }

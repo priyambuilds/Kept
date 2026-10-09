@@ -7,9 +7,11 @@ import {
 import type { InboxItem } from "@kept/shared";
 import { SKR_UNIT } from "@kept/config";
 import { z } from "zod";
-import { sampleData } from "@/copy";
+import { sampleData, t } from "@/copy";
+import type { CopyKey } from "@/copy";
+import { PEOPLE } from "@/features/oaths/mockStore";
 import { ApiError } from "../errors";
-import type { AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
+import type { ActivityItem, AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
 import { clock } from "./clock";
 import type { Scenario } from "./scenarios";
 
@@ -44,21 +46,36 @@ export function mockAuth(ctx: MockContext): AuthApi {
     }),
   };
 }
+/** Devnet swap rate the W3 design shows (1 SOL ≈ 9,900 SKR); mock only (D-21). */
+export const MOCK_SKR_PER_SOL = 9900n;
+
 export function mockWallet(ctx: MockContext): WalletApi {
   let faucetUsed = false;
+  // What the user added on the mock (faucet, swaps) on top of the scenario's starting balance.
+  let addedSkr = 0n;
+  let spentLamports = 0n;
   return {
     balances: () => {
       const s = ctx.scenario();
       return respond(ctx, BalancesResponse, {
-        skr: skr(s === "noSkr" ? 620 : s === "fresh" ? 5000 : 1043),
-        sol: s === "noSol" ? "0" : "500000000",
+        skr: (BigInt(skr(s === "noSkr" ? 620 : s === "fresh" ? 5000 : 1043)) + addedSkr).toString(),
+        sol: s === "noSol" ? "0" : (840_000_000n - spentLamports).toString(),
       });
+    },
+    swap: async (lamports) => {
+      await ack(ctx);
+      if (ctx.scenario() === "noSol" || lamports > 840_000_000n - spentLamports) throw new ApiError("INSUFFICIENT_SOL", "mock: not enough SOL", 400);
+      const out = (lamports * MOCK_SKR_PER_SOL * SKR_UNIT) / 1_000_000_000n;
+      spentLamports += lamports;
+      addedSkr += out;
+      return { skr: out };
     },
     price: () => respond(ctx, PriceResponse, { usdPerSkr: 0.01, skrForUsd10: 1000, devnet: true, label: "placeholder rate" }),
     faucet: async () => {
       if (faucetUsed) throw new ApiError("FAUCET_USED", "mock: faucet already used", 429);
       faucetUsed = true;
       await ack(ctx);
+      addedSkr += 5000n * SKR_UNIT;
       return { signature: randomHex(32), amount: 5000n * SKR_UNIT };
     },
   };
@@ -113,17 +130,59 @@ export function mockNotify(ctx: MockContext): NotifyApi {
   return { registerPushToken: () => ack(ctx), nudge: () => ack(ctx) };
 }
 
+/** The prototype's people (I1, I2, I2·p), from copy.json. */
+function personProfile(wallet: string): z.input<typeof Profile> {
+  const short = `${wallet.slice(0, 4)}…${wallet.slice(-4)}`;
+  if (wallet === PEOPLE.riya.wallet) {
+    return { wallet, name: t("screens.I2.b0.name"), handle: t("screens.I2.b0.handle"), avatar: PEOPLE.riya.avatar, banner: 1, bio: t("screens.I2.b0.bio"),
+      socials: [{ kind: "x", handle: t("screens.I2.b0.social.0") }, { kind: "telegram", handle: t("screens.I2.b0.social.1") }], verifiedSeeker: true, keptRate: { rate: PEOPLE.riya.keptRate, days: PEOPLE.riya.rateDays }, visibility: "public" };
+  }
+  if (wallet === PEOPLE.arjun.wallet) {
+    return { wallet, name: t("screens.I2·p.b0.name"), handle: t("screens.I2·p.b0.handle"), avatar: PEOPLE.arjun.avatar, banner: 3, bio: "",
+      socials: [], verifiedSeeker: true, keptRate: { rate: PEOPLE.arjun.keptRate, days: PEOPLE.arjun.rateDays }, visibility: "private" };
+  }
+  const known = Object.values(PEOPLE).find((p) => p.wallet === wallet);
+  return { wallet, name: known ? `${known.name.toLowerCase()}.skr` : short, handle: short, avatar: known?.avatar ?? "00000000", banner: 2, bio: "",
+    socials: [], verifiedSeeker: true, keptRate: { rate: known?.keptRate ?? null, days: known?.rateDays ?? 0 }, visibility: "members" };
+}
+
 export function mockProfile(ctx: MockContext): ProfileApi {
   let saved: z.input<typeof Profile> | null = null;
+  const fresh = () => ctx.scenario() === "fresh";
   const base = (): z.input<typeof Profile> => saved ?? {
-    wallet: ctx.wallet() ?? MOCK_WALLET, name: "sam.skr", handle: "7xKp…3F9q", avatar: "31205140", banner: 0, bio: "", socials: [],
-    verifiedSeeker: ctx.scenario() !== "notEligible", keptRate: { rate: null, days: 0 }, visibility: "members",
+    wallet: ctx.wallet() ?? MOCK_WALLET, name: fresh() ? "" : t("screens.I1.b1.name"), handle: shortOf(ctx.wallet() ?? MOCK_WALLET), avatar: "31205140", banner: 0,
+    bio: fresh() ? "" : t("screens.I1.b1.bio"), socials: fresh() ? [] : [{ kind: "x", handle: t("screens.I1.b1.social.0") }],
+    verifiedSeeker: ctx.scenario() !== "notEligible", keptRate: fresh() ? { rate: null, days: 0 } : { rate: 0.91, days: 64 }, visibility: "members",
   };
   return {
     mine: () => respond(ctx, Profile, base()),
     save: (patch) => { saved = { ...base(), ...patch }; return respond(ctx, Profile, saved); },
+    get: (wallet) => respond(ctx, Profile, personProfile(wallet)),
+    stats: async () => {
+      await ack(ctx);
+      return fresh()
+        ? { streak: 0, bestStreak: 0, keptRate: null, rateDays: 0, oaths: { kept: 0, broken: 0 }, bounties: { survived: 0, out: 0 } }
+        : { streak: 12, bestStreak: 21, keptRate: 0.91, rateDays: 64, oaths: { kept: 41, broken: 9 }, bounties: { survived: 2, out: 1 } };
+    },
+    activity: async () => {
+      await ack(ctx);
+      if (fresh()) return [];
+      const kind = (a: { title: string; amount: string | null }): ActivityItem["kind"] => (a.amount ? "money" : /photo|kept|voted/i.test(a.title) ? "proof" : "oath");
+      return sampleData.activity.map((a, i) => ({ id: `act-${i}`, day: a.day, title: a.title, sub: a.sub, amount: a.amount, kind: kind(a) }));
+    },
+    creator: async (name) => {
+      await ack(ctx);
+      const drift = name === t("screens.I3.b0.brand");
+      return {
+        name, logo: name.replace("@", "").slice(0, 1).toUpperCase(), palette: 2, verified: true,
+        tagline: drift ? t("screens.I3.b0.msg") : name, bio: drift ? t("screens.I3.b1.text") : "",
+        hosted: drift ? 6 : 1, paidOut: BigInt(drift ? 310_400 : 0) * SKR_UNIT, followers: drift ? 2140 : 0,
+        links: drift ? [0, 1, 2].map((i) => ({ title: t(`screens.I3.b3.r${i}.t` as CopyKey), kind: t(`screens.I3.b3.r${i}.s` as CopyKey) })) : [],
+      };
+    },
   };
 }
+const shortOf = (w: string) => `${w.slice(0, 4)}…${w.slice(-4)}`;
 
 function randomHex(bytes: number): string {
   return Array.from({ length: bytes }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, "0")).join("");
