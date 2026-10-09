@@ -1981,5 +1981,17 @@
   "sample": {
    "amount": "−14"
   }
+ },
+ "screens.H3.b3.r0.r": {
+  "template": "{time} ago",
+  "sample": {
+   "time": "2h"
+  }
+ },
+ "screens.H3.b3.r1.r": {
+  "template": "{time} ago",
+  "sample": {
+   "time": "2h"
+  }
  }
 }

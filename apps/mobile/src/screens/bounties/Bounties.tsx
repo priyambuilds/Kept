@@ -17,7 +17,8 @@ import type { HeroItem } from "@/components/content/Social";
 import { BarChart } from "@/components/content/Status";
 import { KeeperPlacement } from "@/components/keeper/KeeperUI";
 import { Screen } from "@/components/layout/Screen";
-import { shortDuration } from "@/lib/format";
+import { ago, shortDuration } from "@/lib/format";
+import { DAY_SECONDS as DAY } from "@kept/engine";
 import { color, metrics, tokens } from "@/theme";
 import type { HeroPaletteName } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
@@ -145,7 +146,7 @@ function Created() {
         );
       })}
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H1·c")} />
-      <ButtonRow><Button kind="l" icon="plus" label={t("screens.H1·c.b3.btn.0")} onPress={() => go("K1")} /></ButtonRow>
+      <ButtonRow><Button kind="p" icon="plus" label={t("screens.H1·c.b3.btn.0")} onPress={() => go("K1")} /></ButtonRow>
     </>
   );
 }
@@ -224,13 +225,15 @@ export function H3() {
       {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={t("additions.waiting.startsTonight")} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
       {v.life === "active" ? (
         <OathCard icon={objectIcon(b.objectId)} name={t("screens.H3.b1.name")} meta={t("screens.H3.b1.meta", { object: objectName(b.objectId) })}
-          tags={[{ text: t("screens.H3.b1.tag.0", { n: photos }), icon: "camera-outline", ...(photos === 2 ? { tone: "g" as const } : {}) }, { text: t("screens.H3.b1.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "timer-sand" }]}
+          tags={[{ text: t("screens.H3.b1.tag.0", { n: photos }), icon: "camera-outline", ...(photos === 2 ? { tone: "g" as const } : {}) }, { text: t("screens.H3.b1.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "alarm", tone: "red" }]}
           {...(me.pendingToday ? { button: { label: t("screens.H3.b1.btn"), kind: "p" as const, icon: "camera" as const, onPress: () => go(photos === 1 ? "F4" : "F1", { id: v.facts.id }) } } : {})} />
       ) : null}
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H3")} />
       {b.recentlyOut.length ? <RowList label={t("screens.H3.b3.label")} rows={b.recentlyOut.map((o) => ({
-        title: o.name, sub: t("screens.H3.b3.r0.s", { day: o.day }), value: shortDuration(Math.max(0, now - o.at)),
-        leading: { kind: "initial" as const, initial: o.name.slice(0, 1), bg: color.surface[3] },
+        title: o.name, sub: t("screens.H3.b3.r0.s", { day: o.day }), valueColor: color.red.base,
+        // "2h ago", "yesterday", "3d ago" (reference/kept-screens-4.js › H3).
+        value: now - o.at >= DAY && now - o.at < 2 * DAY ? t("screens.H3.b3.r2.r") : t("screens.H3.b3.r0.r", { time: ago(now - o.at) }),
+        leading: { kind: "initial" as const, initial: o.name.slice(0, 1), bg: color.text.ghost },
       }))} /> : null}
       <MoneyMoment value={t("screens.H3.b4.value", { amount: skrWhole(share) })} caption={t("screens.H3.b4.caption", { n: b.remaining })} fs={44} />
     </Screen>
@@ -252,8 +255,8 @@ export function H4() {
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H4")} />
       <Title heading={t("screens.H4.b2.title", { day })} align="center" />
       <RowList rows={[
-        { title: t("screens.H4.b3.r0.t"), sub: t("screens.H4.b3.r0.s"), value: s?.keptRate == null ? t("common.keptRateNew") : `${Math.round(s.keptRate * 100)}%`, valueSub: t("screens.H4.b3.r0.rs", { n: s?.rateDays ?? 0 }), leading: { kind: "icon", icon: "chart-arc" } },
-        { title: t("screens.H4.b3.r1.t"), sub: t("screens.H4.b3.r1.s"), value: String(s?.bestStreak ?? 0), valueSub: t("screens.H4.b3.r1.rs"), leading: { kind: "icon", icon: "fire" } },
+        { title: t("screens.H4.b3.r0.t"), sub: t("screens.H4.b3.r0.s"), value: s?.keptRate == null ? t("common.keptRateNew") : `${Math.round(s.keptRate * 100)}%`, valueSub: t("screens.H4.b3.r0.rs", { n: s?.rateDays ?? 0 }), leading: { kind: "icon", icon: "shield-check-outline", fg: color.text.primary } },
+        { title: t("screens.H4.b3.r1.t"), sub: t("screens.H4.b3.r1.s"), value: String(s?.bestStreak ?? 0), valueSub: t("screens.H4.b3.r1.rs"), leading: { kind: "icon", icon: "fire", fg: color.orange.base } },
         { title: t("screens.H4.b3.r2.t"), sub: t("screens.H4.b3.r2.s"), leading: { kind: "icon", icon: "plus" }, chevron: true, onPress: () => go("C1") },
       ]} />
     </Screen>
@@ -267,11 +270,13 @@ export function H5() {
   const follow = useSettings((s) => s.follow);
   const { b, v } = useJoined();
   const playFx = useUi((s) => s.playFx);
+  const avatar = useSession((s) => s.avatar);
   const payout = v ? v.results[v.me]?.final ?? 0n : 0n;
   useEffect(() => { if (payout > 0n) playFx("coins", [{ text: `+${skrWhole(payout)}`, icon: "trophy-outline" }]); }, [payout, playFx]);
   if (!b || !v) return null;
-  const seats: Seat[] = Array.from({ length: Math.min(3, b.remaining) }, (_, i): Seat => ({ kind: "member", name: i === 0 ? t("screens.D2.b6.r0.t") : "", initial: i === 0 ? "Y" : "", color: [color.member.you, color.member.riya, color.member.dev][i]!, status: `+${skrWhole(payout)}` }));
-  if (b.remaining > 3) seats.push({ kind: "overflow", count: b.remaining - 3 });
+  // Who else survived isn't known yet (BACKEND_GAPS P1-10): me, then the rest as a count.
+  const seats: Seat[] = [{ kind: "member", name: t("screens.D2.b6.r0.t"), initial: "Y", color: color.member.you, ...(avatar ? { avatar } : {}), status: `+${skrWhole(payout)}` }];
+  if (b.remaining > 1) seats.push({ kind: "overflow", count: b.remaining - 1 });
   return (
     <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={pinned(1, true)}
       pinned={<>

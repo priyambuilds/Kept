@@ -30,7 +30,8 @@ export function Surface({ radius, bg, gradient, shadow, overlay, style, children
           {overlay ? <Gradient g={overlay} style={StyleSheet.absoluteFill} /> : null}
         </View>
       ) : null}
-      {clip ? <View style={{ borderRadius: radius, overflow: "hidden" }}>{children}</View> : children}
+      {/* flexGrow: a `flex: 1` child of a fixed-height surface would otherwise collapse to 0 (HScroller). */}
+      {clip ? <View style={{ flexGrow: 1, borderRadius: radius, overflow: "hidden" }}>{children}</View> : children}
       {inset ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: radius, boxShadow: inset }]} /> : null}
     </View>
   );
