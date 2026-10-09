@@ -2,7 +2,7 @@
 
 **For:** the backend / Solana program developer.
 **Source of truth:** `design/rules.md` and `design/screens.md`. Where the backend differs, the backend should change unless we agree otherwise (decisions in `docs/DECISIONS.md`).
-**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move). Every item below was checked by reading the file and line cited.
+**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1: components and Gallery only, no app-to-backend calls yet, so no new gaps). Every item below was checked by reading the file and line cited.
 
 **Paths.** Phase 0 moved the code with `git mv` and didn't change it, so line numbers are unchanged:
 `backend/src` → `apps/api/src` · `backend/prisma` → `apps/api/prisma` · `backend/scripts` → `apps/api/scripts` · `backend/kept-example/program` → `programs/kept` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `apps/api/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `programs/kept/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `apps/api/prisma/schema.prisma`. Other `backend/…` paths below map the same way.

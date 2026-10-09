@@ -67,9 +67,9 @@ export function Loop({ kind, period, delay = 0, children, style }: { kind: LoopK
 /** countUp: 0 → target over 900 ms, ease-out cubic. Returns the number to show. */
 export function useCountUp(target: number, ms = 900): number {
   const reduce = useReducedMotion();
-  const [n, setN] = useState(reduce ? target : 0);
+  const [n, setN] = useState(0);
   useEffect(() => {
-    if (reduce) { setN(target); return; }
+    if (reduce) return;
     let raf = 0;
     const start = Date.now();
     const step = () => {
@@ -80,7 +80,7 @@ export function useCountUp(target: number, ms = 900): number {
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
   }, [target, ms, reduce]);
-  return n;
+  return reduce ? target : n;
 }
 
 /** Counts up the number inside a display string, keeping prefix/suffix ("+186", "1,186", "−1,000"). */
@@ -114,8 +114,8 @@ export function PressScale({ children, style, scale = metrics.button.pressScale,
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       {...(slop ? { hitSlop: slop } : {})}
-      onPressIn={() => { if (!reduce) s.value = withTiming(scale, { duration: metrics.press.inMs }); }}
-      onPressOut={() => { s.value = withTiming(1, { duration: metrics.press.outMs }); }}
+      onPressIn={() => { if (!reduce) s.set(withTiming(scale, { duration: metrics.press.inMs })); }}
+      onPressOut={() => { s.set(withTiming(1, { duration: metrics.press.outMs })); }}
       {...rest}
     >
       <Animated.View style={[style, a]}>{children}</Animated.View>

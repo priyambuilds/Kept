@@ -23,6 +23,18 @@ pnpm --filter @kept/api exec prisma migrate deploy
 pnpm api:dev                     # http://localhost:3000
 ```
 
-Checks: `pnpm typecheck`, `pnpm test`, `pnpm program:build`, `pnpm program:test`.
+Checks: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm program:build`, `pnpm program:test` (build the program before testing it; its tests load `target/idl`).
+
+## Run the app on an Android phone
+The app is a **development build** (Expo Go can't run the wallet adapter or the camera). One-time setup: Android Studio (SDK + platform tools, `ANDROID_HOME` set), JDK 17, and on the phone **Developer options → USB debugging** on.
+
+```bash
+pnpm install
+adb devices                      # the phone must be listed as "device"
+pnpm mobile:android              # prebuilds android/, builds and installs app.kept.mobile, starts Metro
+```
+After the first install you only need Metro: `pnpm mobile:start`, then open **KEPT** on the phone (same Wi-Fi, or `adb reverse tcp:8081 tcp:8081` over USB). Shake the phone (or `adb shell input keyevent 82`) for the dev menu.
+
+Until Phase 2 the app opens straight into the dev **Gallery** (every component and state).
 
 See `docs/ARCHITECTURE.md` and `docs/BUILD_PLAN.md`.

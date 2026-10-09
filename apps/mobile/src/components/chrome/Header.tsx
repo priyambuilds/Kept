@@ -1,0 +1,133 @@
+// Top-of-screen chrome (components.md › Chrome): DevnetBadge, AppHeader for tab screens, NavBar + StepBar
+// for flow screens. The real Android status bar is kept; the badge sits in a row under it.
+import { View } from "react-native";
+import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
+import { t } from "@/copy";
+import { color, duration, metrics, space } from "@/theme";
+import { Icon, Pop, PressScale, Text } from "../primitives";
+import type { IconName } from "../primitives";
+import { KeeperMark } from "../keeper/KeeperUI";
+
+// ── DevnetBadge ── 18 h, padding 0/6, radius 5, devnetBadge colours.
+export function DevnetBadge() {
+  const s = metrics.statusBar;
+  return (
+    <View style={{ height: s.badgeH, paddingHorizontal: s.badgePadX, borderRadius: s.badgeRadius, backgroundColor: color.devnetBadge.bg, justifyContent: "center", alignSelf: "flex-start" }}>
+      <Text variant="devnet" color={color.devnetBadge.fg}>{t("common.devnet")}</Text>
+    </View>
+  );
+}
+
+// ── RoundButton ── 36 (bell), 40 (back) or 34 (extra) round surface.2 + hairline; pressed .94.
+export function RoundButton({ icon, size, iconSize, label, onPress }: { icon: IconName; size: number; iconSize: number; label: string; onPress?: () => void }) {
+  return (
+    <PressScale onPress={onPress} accessibilityLabel={label} scale={metrics.shutter.pressScale} hit={{ w: size, h: size }}>
+      <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color.surface[2], boxShadow: `inset 0 0 0 1px ${color.line.hairline2}`, alignItems: "center", justifyContent: "center" }}>
+        <Icon name={icon} size={iconSize} />
+      </View>
+    </PressScale>
+  );
+}
+
+// ── BalanceChip ── 36 h pill: sack 17 lime, amount 14/600, plus-circle 15. Tap → W1.
+export function BalanceChip({ amount, onPress }: { amount: string; onPress?: () => void }) {
+  const h = metrics.header;
+  return (
+    <PressScale onPress={onPress} accessibilityLabel={`${t("additions.a11y.wallet")}: ${amount} ${t("common.currency")}`} hit={{ w: h.chipH, h: h.chipH }}>
+      <View style={{ height: h.chipH, paddingLeft: h.chipPadL, paddingRight: h.chipPadR, borderRadius: h.chipH / 2, backgroundColor: color.surface[2], boxShadow: `inset 0 0 0 1px ${color.line.hairline2}`, flexDirection: "row", alignItems: "center", gap: space[6] }}>
+        <Icon name="sack" size={h.chipIcon} color={color.lime.base} />
+        <Text variant="chipMd" style={{ fontSize: 14, fontVariant: ["tabular-nums"] }}>{amount}</Text>
+        <Icon name="plus-circle" size={h.chipPlus} color={color.text.tertiary} />
+      </View>
+    </PressScale>
+  );
+}
+
+// ── Bell ── 36 round with a lime count badge (hidden at 0) that pops in.
+export function Bell({ count, onPress }: { count: number; onPress?: () => void }) {
+  const h = metrics.header;
+  const label = count > 0 ? `${t("additions.a11y.inbox")}, ${t("additions.a11y.unread", { n: count })}` : t("additions.a11y.inbox");
+  return (
+    <View>
+      <RoundButton icon="bell-outline" size={h.bell} iconSize={h.bellIcon} label={label} {...(onPress ? { onPress } : {})} />
+      {count > 0 ? (
+        <View pointerEvents="none" style={{ position: "absolute", top: h.badgeOffset, right: h.badgeOffset }}>
+          <Pop key={count} ms={duration.pop}>
+            <View style={{ minWidth: h.badgeMin, height: h.badgeMin, paddingHorizontal: space[4], borderRadius: h.badgeRadius, backgroundColor: color.lime.base, boxShadow: `0 0 0 ${h.dotRing}px ${color.bg.app}`, alignItems: "center", justifyContent: "center" }}>
+              <Text variant="micro" color={color.text.onLime} style={{ fontSize: 11 }}>{String(count)}</Text>
+            </View>
+          </Pop>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+// ── AppHeader (tab screens) ── KeeperMark · title · BalanceChip · Bell · optional extra.
+export interface AppHeaderProps {
+  title: string;
+  /** Pre-formatted SKR amount (formatSkr at the edge). */
+  balance: string;
+  unreadCount: number;
+  keeper: { hasNew: boolean; onPress: () => void };
+  onBalance?: () => void;
+  onBell?: () => void;
+  extra?: { icon: IconName; label: string; onPress: () => void };
+}
+
+export function AppHeader({ title, balance, unreadCount, keeper, onBalance, onBell, extra }: AppHeaderProps) {
+  const h = metrics.header;
+  return (
+    <View style={{ height: h.height, flexDirection: "row", alignItems: "center", gap: h.gap }}>
+      <KeeperMark hasNew={keeper.hasNew} onPress={keeper.onPress} />
+      <Text variant="headerTitle" numberOfLines={1} accessibilityRole="header" style={{ marginLeft: h.titleMargin, flex: 1 }}>{title}</Text>
+      <BalanceChip amount={balance} {...(onBalance ? { onPress: onBalance } : {})} />
+      <Bell count={unreadCount} {...(onBell ? { onPress: onBell } : {})} />
+      {extra ? <RoundButton icon={extra.icon} size={h.extra} iconSize={h.extraIcon} label={extra.label} onPress={extra.onPress} /> : null}
+    </View>
+  );
+}
+
+// ── StepBar ── n segments: done white, current lime with glow, upcoming #2E2E2E; colour eases 400 ms.
+export function StepBar({ current, total }: { current: number; total: number }) {
+  return (
+    <View style={{ flex: 1, flexDirection: "row", gap: metrics.nav.step.gap }} accessibilityRole="progressbar" accessibilityValue={{ min: 1, max: total, now: current }}>
+      {Array.from({ length: total }, (_, i) => <Step key={i} state={i + 1 < current ? "done" : i + 1 === current ? "current" : "next"} />)}
+    </View>
+  );
+}
+function Step({ state }: { state: "done" | "current" | "next" }) {
+  const target = state === "done" ? color.text.primary : state === "current" ? color.lime.base : color.line.empty;
+  const a = useAnimatedStyle(() => ({ backgroundColor: withTiming(target, { duration: duration.note - 20 }) }), [target]);
+  return (
+    <Animated.View style={[{ flex: 1, height: metrics.nav.step.h, borderRadius: metrics.nav.step.radius }, state === "current" ? { boxShadow: `0 0 12px ${color.lime.ring45}` } : null, a]} />
+  );
+}
+
+// ── NavBar (flow screens) ── back/close · title or StepBar · mono right label · optional KeeperMark.
+export interface NavBarProps {
+  onBack: () => void;
+  title?: string;
+  steps?: [current: number, total: number];
+  /** Mono label on the right; defaults to "k/n" with steps. */
+  right?: string;
+  close?: boolean;
+  keeper?: { hasNew: boolean; onPress: () => void };
+}
+
+export function NavBar({ onBack, title, steps, right, close, keeper }: NavBarProps) {
+  const n = metrics.nav;
+  const label = right ?? (steps ? `${steps[0]}/${steps[1]}` : undefined);
+  return (
+    <View style={{ height: n.height, flexDirection: "row", alignItems: "center", gap: n.gap }}>
+      <RoundButton icon={close ? "close" : "chevron-left"} size={n.back} iconSize={n.backIcon} label={t(close ? "additions.a11y.close" : "additions.a11y.back")} onPress={onBack} />
+      {steps ? <StepBar current={steps[0]} total={steps[1]} /> : (
+        <Text variant="chipMd" color={color.text.muted} numberOfLines={1} align="center" style={{ flex: 1, fontSize: 14 }}>{title ?? ""}</Text>
+      )}
+      <View style={{ minWidth: n.rightMin, alignItems: "flex-end" }}>
+        {label ? <Text variant="monoLabel" color={color.text.secondary}>{label}</Text> : null}
+      </View>
+      {keeper ? <KeeperMark hasNew={keeper.hasNew} onPress={keeper.onPress} /> : null}
+    </View>
+  );
+}

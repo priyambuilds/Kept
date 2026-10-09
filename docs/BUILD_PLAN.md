@@ -19,6 +19,8 @@ Each phase ends with: `pnpm typecheck && pnpm lint && pnpm test` green, exact st
 **Exit check:** `pnpm --filter @kept/api test` and `build` pass; `git log --follow` shows history on moved files.
 
 ## Phase 1: Packages, scaffold, theme, components, Gallery
+**Status: done** (2026-10-09). Typecheck, lint and tests green for every package except `programs/kept`, whose tests need a built program (`pnpm program:build`, Rust/Solana/Anchor toolchain). The Android bundle builds (`expo export`). Not yet run on a physical device.
+
 - `packages/config` (objects in on-chain order, gestures, stakes, lengths, `GOAL_MAX = 60`, fee bps, HP constants, tsconfig/eslint presets).
 - `packages/engine`: `missCost`, `simulateOath(days pattern) → per-day ledger {hp, lost, fee, shares, burned, broken}`, `settlement`, `rematchRecovery`, `keptRate`, `odds`. **Worked-example test** (1,468.75 / 779.17 / 1,468.75 / 166.67, fee 116.67) plus edge cases (cap, solo, all-miss day, break day, 14 days) exported to `test-vectors/*.json`.
 - `packages/shared` (zod schemas for every existing route + the proposed routes in BACKEND_GAPS (marked proposed), `ApiErrorCode` enum) and `packages/chain` (IDL from the harness JSON, PDAs, IDL-coder decoder tested against a fixture account, instruction builders).
