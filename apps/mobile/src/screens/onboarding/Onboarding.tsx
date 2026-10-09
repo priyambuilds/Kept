@@ -58,6 +58,9 @@ export function A0() {
   );
 }
 
+/** A3 / A3·no chip tilts (reference/kept-screens-1.js). */
+const CHIP_TILT = { ok: [0, -3, 2], no: [-2, 2, -1] } as const;
+
 // ── A1 Welcome ──
 export function A1() {
   const { go } = useGo();
@@ -160,7 +163,7 @@ function Verified({ ok }: { ok: boolean }) {
       <ChipRow justify="center">
         {[0, 1, 2].map((i) => {
           const open = ok || i === 0;
-          return <Chip key={i} text={t(`screens.${id}.b3.chip.${i}` as CopyKey)} icon={open ? "check-bold" : "lock-outline"} tone={open ? "g" : "grey"} />;
+          return <Chip key={i} text={t(`screens.${id}.b3.chip.${i}` as CopyKey)} icon={open ? "check" : "lock"} tone={open ? "lime" : "g"} tilt={(ok ? CHIP_TILT.ok : CHIP_TILT.no)[i]!} />;
         })}
       </ChipRow>
     </Screen>

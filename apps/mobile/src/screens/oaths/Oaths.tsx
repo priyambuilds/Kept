@@ -118,10 +118,10 @@ function OpenHeader({ v, member }: { v: OathView; member?: boolean }) {
   return (
     <>
       <ChipRow>
-        <Chip text={t("screens.D1.b0.chip.0")} icon="timer-sand" tone="ora" />
-        <Chip text={t("screens.D1.b0.chip.1", { n: f.numDays })} icon="calendar" tone="grey" />
-        <Chip text={member ? t("screens.D1·m.b0.chip.2", { amount: skrWhole(f.stake) }) : t("screens.D1.b0.chip.2", { amount: skrWhole(f.stake) })} icon="sack" tone="lime" />
-        {!f.isSolo && !member ? <Chip text={reviewText(f.reviewMode)} icon="eye-outline" tone="vio" /> : null}
+        <Chip text={t("screens.D1.b0.chip.0")} icon="timer-sand" tone="vio" tilt={-2} />
+        <Chip text={t("screens.D1.b0.chip.1", { n: f.numDays })} icon="calendar-blank" tilt={1} />
+        <Chip text={member ? t("screens.D1·m.b0.chip.2", { amount: skrWhole(f.stake) }) : t("screens.D1.b0.chip.2", { amount: skrWhole(f.stake) })} icon="sack" tone="lime" tilt={-1} />
+        {!f.isSolo && !member ? <Chip text={reviewText(f.reviewMode)} icon="account-group-outline" tilt={2} /> : null}
       </ChipRow>
       <Title heading={t("screens.D1.b1.title", { goal: f.goal ?? f.name })} {...(!member ? { sub: t("screens.D1.b1.sub", { object: objectName(f.objectId) }) } : {})} />
     </>
@@ -258,8 +258,8 @@ function Active({ v }: { v: OathView }) {
       </> : undefined}>
       {f.rematchOf ? (
         <ChipRow>
-          <Chip text={t("screens.R·act.b0.chip.0")} icon="sword-cross" tone="ora" />
-          <Chip text={t("screens.R·act.b0.chip.1")} icon="lock-outline" tone="grey" />
+          <Chip text={t("screens.R·act.b0.chip.0")} icon="sword-cross" tone="white" tilt={-2} />
+          <Chip text={t("screens.R·act.b0.chip.1")} icon="lock-outline" tilt={1} />
         </ChipRow>
       ) : null}
       <HPPanel hp={v.hp} lostToday={v.hpLostLastDay} {...(lostNote ? { note: lostNote } : {})} {...(low ? { warn: t("screens.D2·low.b0.warn") } : {})} />
@@ -361,8 +361,8 @@ function Ended({ v }: { v: OathView }) {
     <Screen bar={<NavBar onBack={back} title={f.name} />} bottomInset={v.claimable > 0n ? pinned(1) : 0}
       pinned={v.claimable > 0n ? <Button kind="l" icon="hand-coin-outline" label={t("screens.D4.pin.0", { amount: skrWhole(v.claimable) })} onPress={() => go("J1", { id: f.id })} /> : undefined}>
       <ChipRow>
-        <Chip text={t("screens.D4.b0.chip.0", { date: shortDate(endOf(v)) })} icon="flag-checkered" tone="grey" />
-        <Chip text={t("screens.D4.b0.chip.1", { hp: v.hp })} icon="heart-pulse" tone="g" />
+        <Chip text={t("screens.D4.b0.chip.0", { date: shortDate(endOf(v)) })} icon="flag-checkered" tilt={-2} />
+        <Chip text={t("screens.D4.b0.chip.1", { hp: v.hp })} icon="heart-pulse" tone="lime" tilt={2} />
       </ChipRow>
       <Title heading={t("screens.D4.b1.title", { n: kept, total: v.members.length })} sub={slipped.length ? t("additions.core.slipped", { names: listNames(slipped.map(memberName)) }) : t("additions.core.allKept")} />
       <DayMemberGrid days={f.numDays} today={-1} members={v.members.map((m) => ({ key: m.facts.wallet, name: memberName(m), initial: memberInitial(m), color: memberColor(m), cells: m.cells }))} />

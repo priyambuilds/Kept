@@ -226,8 +226,8 @@ function SoloSettled({ missed }: { missed: boolean }) {
         ]} />
       ) : (
         <ChipRow justify="center">
-          <Chip text={t("screens.L4.b2.chip.0", { amount: skrWhole(mine.final) })} icon="sack" tone="lime" />
-          <Chip text={t("screens.L4.b2.chip.1", { hp: view.hp })} icon="heart-pulse" tone="g" />
+          <Chip text={t("screens.L4.b2.chip.0", { amount: skrWhole(mine.final) })} icon="sack" tone="lime" tilt={-2} />
+          <Chip text={t("screens.L4.b2.chip.1", { hp: view.hp })} icon="heart-pulse" tone="lime" tilt={2} />
         </ChipRow>
       )}
     </Moment>

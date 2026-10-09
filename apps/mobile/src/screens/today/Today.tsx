@@ -102,8 +102,9 @@ function TodayCard({ v, urgent }: { v: OathView; urgent?: boolean }) {
       onPress={() => go("D2", { id: v.facts.id })}
       tags={[
         { text: t("screens.B1.b3.tag.0", { amount: skrWhole(mine.balance) }), icon: "sack", tone: "lime" },
-        { text: t("screens.B1.b3.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "timer-sand", ...(urgent ? { tone: "red" as const } : {}) },
-        ...(photo1 ? [{ text: t("screens.B1.b3.tag.2"), icon: "check-bold" as const, tone: "g" as const }] : []),
+        // reference/kept-screens-1.js › B1 / B4: the clock is always red, photo 1 violet.
+        { text: t("screens.B1.b3.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "alarm", tone: "red" },
+        ...(photo1 ? [{ text: t("screens.B1.b3.tag.2"), icon: "camera" as const, tone: "vio" as const }] : []),
       ]}
       {...(urgent ? { warn: t("screens.B4.b1.warn", { cost: skrWhole(v.myMissCost), hp: v.facts.isSolo ? 35 : 20 }) } : {})}
       {...(keptOther && !urgent ? { float: { text: t("screens.B1.b3.float", { name: memberName(keptOther), time: "" }).trim(), initial: memberInitial(keptOther), bg: memberColor(keptOther) } } : {})}

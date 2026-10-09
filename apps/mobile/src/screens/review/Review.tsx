@@ -60,9 +60,9 @@ export function G1() {
       {/* The photo itself needs the review route (P1-1); the frame shows the challenge until then. */}
       <ProofCamera state="review" object={objectIcon(r.objectId)} {...(gestureKey(r.gesture) ? { gesture: gestureKey(r.gesture)! } : {})} label={t("screens.G1.b1.label", { name: who })} height={300} />
       <ChipRow>
-        <Chip text={t("screens.G1.b2.chip.0", { n: Object.keys(r.votes).length, total: r.voters.length })} icon="vote-outline" tone="vio" />
-        {approvers.length ? <Chip text={t("screens.G1.b2.chip.1", { name: listNames(approvers) })} icon="check-bold" tone="g" /> : null}
-        <Chip text={t("screens.G1.b2.chip.2", { time: shortDuration(Math.max(0, r.expiresAt - now)) })} icon="timer-sand" tone="grey" />
+        <Chip text={t("screens.G1.b2.chip.0", { n: Object.keys(r.votes).length, total: r.voters.length })} icon="vote-outline" tilt={-2} />
+        {approvers.length ? <Chip text={t("screens.G1.b2.chip.1", { name: listNames(approvers) })} icon="check" tone="lime" tilt={1} /> : null}
+        <Chip text={t("screens.G1.b2.chip.2", { time: shortDuration(Math.max(0, r.expiresAt - now)) })} icon="timer-outline" tone="ora" tilt={-1} />
       </ChipRow>
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("G1")} />
     </Screen>

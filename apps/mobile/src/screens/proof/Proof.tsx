@@ -111,8 +111,8 @@ function Shoot({ photo }: { photo: 1 | 2 }) {
         {perm?.granted ? <CameraView ref={cam} style={{ flex: 1 }} facing={facing} /> : undefined}
       </ProofCamera>
       <ChipRow justify="center">
-        <Chip text={t("screens.F1.b1.chip.0", { time: `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}` })} icon="timer-sand" tone={left < 60 ? "red" : "grey"} />
-        {photo === 2 ? <Chip text={t("screens.F4.b1.chip.0")} icon="hand-back-right" tone="vio" /> : null}
+        <Chip text={t("screens.F1.b1.chip.0", { time: `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}` })} tone={left < 60 ? "red" : "grey"} icon="timer-outline" />
+        {photo === 2 ? <Chip text={t("screens.F4.b1.chip.0")} icon="hand-back-right" /> : null}
       </ChipRow>
       <Shutter onShutter={() => { void shoot(); }} onFlip={() => setFacing((f) => (f === "back" ? "front" : "back"))} disabled={!c || busy || !perm?.granted} />
     </Screen>
@@ -273,8 +273,8 @@ export function F5() {
       <Title heading={t("screens.F5.b1.title", { day })} align="center" fs={40} />
       {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => String(i + 1))} /> : null}
       <ChipRow justify="center">
-        {view ? <Chip text={t("screens.F5.b3.chip.0", { hp: view.hp })} icon="heart-pulse" tone="g" /> : null}
-        {me ? <Chip text={t("screens.F5.b3.chip.1", { amount: skrWhole(me.balance) })} icon="sack" tone="lime" /> : null}
+        {view ? <Chip text={t("screens.F5.b3.chip.0", { hp: view.hp })} icon="heart-pulse" tone="lime" tilt={-2} /> : null}
+        {me ? <Chip text={t("screens.F5.b3.chip.1", { amount: skrWhole(me.balance) })} icon="sack" tone="lime" tilt={2} /> : null}
       </ChipRow>
       {pending.length && view ? <RowList label={t("screens.F5.b4.label")} rows={pending.map((m) => ({
         title: memberName(m), sub: t("screens.F5.b4.r0.s"), value: t("screens.F5.b4.r0.r"),

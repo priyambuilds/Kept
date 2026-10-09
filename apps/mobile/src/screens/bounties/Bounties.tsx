@@ -187,8 +187,8 @@ export function H2() {
         { label: t("screens.H2.b2.row5.l"), value: t("screens.H2.b2.row5.v") },
       ]} />
       <ChipRow>
-        <Chip text={t("screens.H2.b3.chip.0")} icon={el.genesis ? "check-decagram" : "lock-outline"} tone={el.genesis ? "g" : "red"} />
-        {rateChip ? <Chip text={rateChip} icon="chart-arc" tone={el.rateOk ? "g" : "red"} /> : null}
+        <Chip text={t("screens.H2.b3.chip.0")} icon={el.genesis ? "check" : "close"} tone={el.genesis ? "lime" : "red"} tilt={-2} />
+        {rateChip ? <Chip text={rateChip} icon={el.rateOk ? "check" : "close"} tone={el.rateOk ? "lime" : "red"} tilt={1} /> : null}
       </ChipRow>
       {el.ok
         ? <Banner tone="lime" icon="check-decagram" title={t("screens.H2.b4.title")} sub={t("screens.H2.b4.sub")} />

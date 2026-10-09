@@ -6,6 +6,7 @@
 // (A2·s, C7, F2, …). RootNavigator requires this file only under __DEV__, so release bundles drop it.
 import { LogBox } from "react-native";
 import { CommonActions } from "@react-navigation/native";
+import { resetMockApi } from "@/api";
 import { queryClient } from "@/api/queries";
 import { SLICES } from "@/api/types";
 import { clock } from "@/api/mock/clock";
@@ -115,6 +116,7 @@ export function openDevLink(url: string): boolean {
   clock.reset();
   mockOaths.reset();
   mockReviews.reset();
+  resetMockApi();
   queryClient.clear();
   useUi.setState({ keeperNote: null, fx: null, devMenu: false });
   useDraft.setState({ draft: SAMPLE_DRAFT });

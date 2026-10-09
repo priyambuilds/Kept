@@ -40,11 +40,14 @@ export function createApi(f: Record<Slice, SliceMode>, mock: KeptApi, getToken: 
   };
 }
 
-const mockApi = createMockApi({
+const mockContext = {
   scenario: () => useDev.getState().scenario,
   wallet: () => useSession.getState().wallet,
   latencyMs: MOCK_LATENCY_MS,
-});
+};
+let mockApi = createMockApi(mockContext);
+/** A fresh mock backend (faucet unused, nothing swapped, inbox unread): the dev deep link. */
+export function resetMockApi() { mockApi = createMockApi(mockContext); }
 const getToken = () => useSession.getState().token;
 
 /** The API for non-React callers (sign-in flow, query functions). */

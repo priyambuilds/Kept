@@ -59,7 +59,8 @@ export function mockWallet(ctx: MockContext): WalletApi {
     balances: () => {
       const s = ctx.scenario();
       return respond(ctx, BalancesResponse, {
-        skr: (BigInt(skr(s === "noSkr" ? 620 : s === "fresh" ? 5000 : 1043)) + addedSkr).toString(),
+        // W1 in the design: 4,280 SKR available.
+        skr: (BigInt(skr(s === "noSkr" ? 620 : 4280)) + addedSkr).toString(),
         sol: s === "noSol" ? "0" : (840_000_000n - spentLamports).toString(),
       });
     },

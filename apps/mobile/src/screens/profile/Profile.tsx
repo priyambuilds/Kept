@@ -112,7 +112,7 @@ export function I2() {
       {card(p)}
       {ring}
       {shared.length ? <RowList label={t("screens.I2.b2.label")} rows={shared.map(sharedRow(go))} /> : null}
-      {shared.length ? <ChipRow><Chip text={t("screens.I2.b4.chip.0", { n: shared.length })} icon="handshake-outline" tone="vio" /></ChipRow> : null}
+      {shared.length ? <ChipRow><Chip text={t("screens.I2.b4.chip.0", { n: shared.length })} icon="handshake-outline" tilt={-2} /></ChipRow> : null}
     </Screen>
   );
 }

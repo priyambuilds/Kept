@@ -117,8 +117,8 @@ export function R3() {
       {out.length ? <Button kind="t" label={t("screens.R3.pin.1")} onPress={() => toast(t("toasts.6", { name: listNames(out.map(memberName)) }))} /> : null}
     </>}>
       <ChipRow>
-        <Chip text={t("screens.R3.b0.chip.0")} icon="sword-cross" tone="ora" />
-        <Chip text={t("screens.R3.b0.chip.1", { name: f.name, n: f.numDays })} icon="calendar" tone="grey" />
+        <Chip text={t("screens.R3.b0.chip.0")} icon="sword-cross" tone="white" tilt={-3} />
+        <Chip text={t("screens.R3.b0.chip.1", { name: f.name, n: f.numDays })} icon="guitar-acoustic" tilt={2} />
       </ChipRow>
       <Title heading={t("screens.R3.b1.title", { n: view.members.length, total })} sub={t("screens.R3.b1.sub")} />
       <SeatSlots seats={lobbySeats(view, out.length, t("screens.R3.b2.seat0"))} />
