@@ -132,3 +132,47 @@ Everything here runs on the mock until the backend lands the matching BACKEND_GA
 | D-67 | "Starts tonight at midnight" on a Bounty that opens for days | "Day 1 starts Saturday" when day 1 isn't the coming midnight (`additions.waiting.startsOn`). | ASSUMED |
 | D-68 | Invite link shown on C8 / D1 | `kept://join/<code>` until the web link exists (BACKEND_GAPS P1-19); the design shows `kept.app/o/<code>`. | ASSUMED |
 | D-69 | Per-screen atmosphere | Tone wash, ambient orbs, beam and decor icons generated from screens.md and the prototype (`scripts/gen-layout.mjs` → `app/layout.gen.json`), as are hero offsets and Keeper size/side/pose. | ASSUMED |
+
+## I. Fidelity pass (2026-10-09)
+Design.pdf is the final visual reference and the prototype the reference for behaviour (FIDELITY_PASS.md). Where they and the written spec disagree, the build follows the PDF and the prototype; each conflict is listed here.
+
+### Keeper placement (owner report 2)
+Read from Design.pdf screen by screen and checked against the prototype's rule (`renderVals`: a `kp` block smaller than 120 dp leaves the content and becomes the KeeperNote behind the mark; sheets keep theirs). **Inline** = the character is drawn in the layout; **mark** = KeeperMark + KeeperNote only; **—** = no Keeper line.
+
+| Screen | Keeper | Screen | Keeper | Screen | Keeper |
+|---|---|---|---|---|---|
+| A0 | — | D1·go | — | H5 | — |
+| A1 | inline (196, wave, coin) | D2 | mark (whisper) | H6 | — |
+| A2 | — | D2·low | mark (scythe) | H7 | — |
+| A2·s | — | D3 | — | I1 | mark (3 lines, ledger) |
+| A2·e | inline (130, shrug) | D4 | — | I2, I2·me, I2·p | — |
+| A3, A3·no | — | D5 | — | I3, I4, I5, I7, I8 | — |
+| A4 | mark (point) | E1, E2, E2·s | — | I9 | mark (point) |
+| B1 | mark (3 lines) | E3·code/late/in/elig/skr | inline (130, shrug) | J1, J1·p, J1·f | — |
+| B2 | inline (150, thumbs, sack) | R1 | inline (150, flip) | J1·ok | inline (170, jump, sack) |
+| B3 | inline (120, cup) | R2, R3 | — | K1–K5·ok | — |
+| B4 | mark (tap) | R·act | mark (whisper) | L1 | inline (170, jump, sack) |
+| B5 (sheet) | inline (96, ledger) | R4, R4·lost | — | L2 | inline (140, coin) |
+| + (sheet) | — | F1·perm, F1 | — | L3 | inline (150, scythe) |
+| C1 | mark (3 lines) | F2 | mark (lens) | L4 | inline (140, thumbs, ledger) |
+| C2–C7, C7·ok, C7·fail, C8 | — | F2a | mark (shrug) | L4·m | inline (130) |
+| C7·no | inline (120, shrug) | F2b | inline (130, cup) | L4·b | inline (130, scythe) |
+| D0 | mark (3 lines, whisper) | F2c, F3, F4 | — | L5 | — |
+| D1, D1·m | — | F4·chk | mark (lens) | L6 | inline (170, jump, sack) |
+| D1·x (sheet) | — | F4a | inline (130) | M1 | — |
+| D1·xs | — | F4a·g, F5 | F5: inline (150, thumbs) | M2 | inline (130, cup) |
+| G1 | mark (lens) | G2, G3 | — | M3 (sheet) | inline (90) |
+| G3·no | inline (120) | H1, H1·j | — | M4 (sheet) | — |
+| H1·c | mark (sack) | H2, H2·no | — | N1 | mark (3 lines) |
+| H3 | mark (whisper) | H4 | inline (130) | W1 | mark (2 lines, sack) |
+| W2 (sheet), W3, W3·s, W3·ok, W4 | — | | | | |
+
+Tab screens with no line of their own (B2, B3, H1, H1·j: none in the header) open the tab's idle line (`copy.keeper.idle.<tab>`) from the mark, with no dot.
+
+### Conflicts between the PDF / prototype and the written spec
+| # | Conflict | Build with | Status |
+|---|---|---|---|
+| D-70 | Design.pdf / prototype draw sheet buttons ~20 dp high (B5, M3, M4, D1·x): the prototype's sheet column squeezes them. components.md › Button: 54 dp. | 54 dp buttons (a rendering artefact, not a design choice), with the icons the PDF shows. | ASSUMED |
+| D-71 | The PDF's DEVNET badge sits in the status bar next to the clock; the app keeps the real Android status bar (components.md) with the badge in a 24 dp row under it (D-35). | Unchanged: bars sit 24 dp lower than the PDF on devnet builds; mainnet builds have no row. | ASSUMED |
+| D-72 | components.md › KeeperNote says flow screens auto-open the note; on the PDF the flow screens with a mark-only Keeper (C1, D2, F2, …) show the mark and no note (the PDF is a still at rest). | The behaviour from components.md / the prototype: drop on entry, close at 4.8 s, then the mark. | ASSUMED |
+| D-73 | The prototype's B1 lists the Bounty entry as a second card (stack + Prove); screens.md lists it as a row. | The PDF: a second card. | ASSUMED |
