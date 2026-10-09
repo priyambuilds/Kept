@@ -299,6 +299,8 @@ export function H5() {
   );
 }
 
+const FINISHER_TILES = [color.violet.base, color.member.arjun];
+
 // ── H6 My created Bounty ──
 export function H6() {
   const { back } = useGo();
@@ -322,8 +324,10 @@ export function H6() {
         { label: t("screens.H6.b2.row2.l"), value: t("screens.H6.b2.row2.v", { amount: skrWhole(perFinisher) }) },
         { label: t("screens.H6.b2.row3.l"), value: String(b.finishersOptIn.length) },
       ]} />
-      {b.finishersOptIn.length ? <RowList label={t("screens.H6.b3.label")} rows={b.finishersOptIn.map((h) => ({
-        title: h, sub: t("screens.H6.b3.r0.s", { n: day, total: day }), value: t("screens.H6.b3.r0.r"), leading: { kind: "icon" as const, icon: "account-check-outline" },
+      {b.finishersOptIn.length ? <RowList label={t("screens.H6.b3.label")} rows={b.finishersOptIn.map((h, i) => ({
+        // reference/kept-screens-4.js › H6: initial tiles, violet then yellow.
+        title: h, sub: t("screens.H6.b3.r0.s", { n: day, total: day }), value: t("screens.H6.b3.r0.r"),
+        leading: { kind: "initial" as const, initial: h.replace(/^@/, "").charAt(0).toUpperCase(), bg: FINISHER_TILES[i % FINISHER_TILES.length]! },
       }))} /> : null}
     </Screen>
   );
