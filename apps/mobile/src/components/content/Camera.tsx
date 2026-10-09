@@ -9,6 +9,7 @@ import { t } from "@/copy";
 import { color, duration, metrics, space } from "@/theme";
 import { Icon, Loop, PressScale, Shake, Text } from "../primitives";
 import type { IconName } from "../primitives";
+import { haptic } from "@/lib/haptics";
 
 export type CameraState = "idle" | "check" | "fail" | "review" | "scan" | "off";
 const STATE: Record<CameraState, { corner: string; pillBg: string; pillFg: string; icon: IconName; scan?: boolean; spin?: boolean }> = {
@@ -43,6 +44,8 @@ export function ProofCamera({ photo, object, gesture, state, label, height = met
   const s = STATE[state];
   const objSize = height >= c.objectBigFrom ? c.objectBig : c.objectSmall;
   const g = gesture ? GESTURES.find((x) => x.key === gesture) : undefined;
+  // motion.md › Proof scan: fail notificationError (the pass haptic plays with the next screen).
+  useEffect(() => { if (state === "fail") haptic.error(); }, [state]);
   const blur = state === "review" ? [{ blur: 1.2 }] : undefined;
   const [w, setW] = useState<number>(metrics.contentWidth);
   const corner = (pos: object, widths: object, radii: object) => (

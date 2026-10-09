@@ -8,6 +8,7 @@ import { Icon, InitialTile, Loop, Pop, Text, CountText } from "../primitives";
 import type { IconName } from "../primitives";
 import { Chip } from "./Basics";
 import type { ChipTone } from "./Basics";
+import { haptic } from "@/lib/haptics";
 
 // ── SignStatus (`sign`) ── 150 disc; pending = 22 % lime arc spinning; success = lime + two pings; fail red; warn orange.
 export type SignState = "pending" | "success" | "fail" | "warn";
@@ -37,6 +38,8 @@ function Ping({ delay }: { delay: number }) {
 }
 
 export function SignStatus({ state, chip }: { state: SignState; chip: string }) {
+  // motion.md › Signing ring: success notificationSuccess, fail notificationError.
+  useEffect(() => { if (state === "success") haptic.success(); else if (state === "fail") haptic.error(); }, [state]);
   const s = SIGN[state];
   const size = metrics.sign.size;
   return (

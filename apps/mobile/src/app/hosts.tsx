@@ -2,13 +2,28 @@
 // watcher. (The Keeper's note lives in each Screen.) ToastHost wraps the app in App.tsx.
 import { useEffect, useRef } from "react";
 import { onlineManager } from "@tanstack/react-query";
-import { FxLayer } from "@/components/chrome";
+import { FxLayer, PILL_DELAYS } from "@/components/chrome";
+import { haptic } from "@/lib/haptics";
 import { useUi } from "@/state/ui";
 import { navigateTo, navigationRef } from "./nav";
 import { designIdOf } from "./routes";
 
 export function FxHost() {
   const fx = useUi((s) => s.fx);
+  const id = fx?.id;
+  // One haptic sequence per moment, plus impactLight per value pill as it rises.
+  useEffect(() => {
+    const cur = useUi.getState().fx;
+    if (!cur || cur.id !== id) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const at = (ms: number, f: () => void) => { timers.push(setTimeout(f, ms)); };
+    if (cur.feel === "kept") haptic.success();
+    else if (cur.feel === "payout") at(200, haptic.success);
+    else if (cur.feel === "broken") haptic.broken();
+    else if (cur.feel === "comeback") haptic.comeback();
+    cur.pills.slice(0, 3).forEach((_, i) => at(PILL_DELAYS[i]!, haptic.light));
+    return () => timers.forEach(clearTimeout);
+  }, [id]);
   if (!fx) return null;
   return <FxLayer key={fx.id} {...(fx.kind ? { kind: fx.kind } : {})} pills={fx.pills} />;
 }

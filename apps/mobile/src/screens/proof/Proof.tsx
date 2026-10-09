@@ -26,6 +26,7 @@ import type { OathView } from "@/features/oaths/model";
 import { gestureKey, gestureText, listNames, memberName, objectIcon, objectName, skrWhole } from "@/features/oaths/present";
 import { nowSeconds } from "@/features/time";
 import { useUi } from "@/state/ui";
+import { haptic } from "@/lib/haptics";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 
@@ -138,7 +139,7 @@ function Check({ photo }: { photo: 1 | 2 }) {
     started.current = true;
     const image = useProof.getState().image ?? "";
     void getApi().proof.submit(view.facts, c, image).then(
-      (r) => { void refreshOaths(); replace(next(r, view, photo), { id, photo }); },
+      (r) => { void refreshOaths(); if (r.status === "pass" && photo === 1) haptic.success(); replace(next(r, view, photo), { id, photo }); },
       (e: unknown) => replace(isApiError(e) && e.code === "OFFLINE" ? "M2" : "F2b", { id, photo }),
     );
   }, [view, c, replace, id, photo]);
@@ -272,7 +273,7 @@ export function F5() {
   // Someone in group review has done their part (D-47): not "hasn't proved today".
   const pending = view ? view.members.filter((m) => !m.isMe && m.pendingToday && m.facts.proofToday !== "review") : [];
   const day = view?.dayNumber ?? 1;
-  useEffect(() => { playFx("coins", [{ text: t("screens.F5.b1.title", { day }), icon: "check-bold" }]); }, [playFx, day]);
+  useEffect(() => { playFx("coins", [{ text: t("screens.F5.b1.title", { day }), icon: "check-bold" }], "kept"); }, [playFx, day]);
   const time = new Date().toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
   return (
     <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1) + 40}

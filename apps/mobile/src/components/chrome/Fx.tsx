@@ -110,7 +110,7 @@ function Ember({ x, size, hot, ms, delay, height }: { x: number; size: number; h
 
 // ── pops ── up to 3 lime value pills drifting up (`kUp` 2.8 s) at fixed spots, rotated ±4°.
 const PILL_SPOTS = [{ x: 34, y: 500, r: -4 }, { x: 206, y: 450, r: 4 }, { x: 120, y: 580, r: -4 }] as const;
-const PILL_DELAYS = [600, 1100, 1600] as const;
+export const PILL_DELAYS = [600, 1100, 1600] as const;
 
 function ValuePill({ pill, index, still }: { pill: FxPill; index: number; still: boolean }) {
   const { sx } = useScale();
