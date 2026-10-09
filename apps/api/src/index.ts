@@ -1,18 +1,9 @@
 import "dotenv/config";
-import express from "express";
+import { createApp } from "./app.js";
 import { config } from "./config.js";
-import { assetlinksRouter } from "./routes/assetlinks.js";
-import { startV4Scheduler, v4Router } from "./routes/v4.js";
-import { inboxRouter } from "./routes/inbox.js";
+import { startV4Scheduler } from "./routes/v4.js";
 
-const app = express();
-// Helius webhook batches can be large.
-app.use(express.json({ limit: "12mb" }));
-
-app.get("/health", (_req, res) => res.json({ ok: true }));
-app.use(v4Router);
-app.use(inboxRouter);
-app.use(assetlinksRouter);
+const app = createApp();
 startV4Scheduler();
 
 // config.port reads process.env.PORT (set by Render/Railway), falling back to 3000 locally.
