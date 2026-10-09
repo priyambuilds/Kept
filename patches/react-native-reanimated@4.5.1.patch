@@ -1,0 +1,48 @@
+diff --git a/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt b/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt
+index 48e37714232d5ccf74d99d61cb2fac56314087aa..e388de97de031b5448ae2da4cdbb0497d3e94328 100644
+--- a/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt
++++ b/android/src/main/java/com/swmansion/reanimated/NativeProxy.kt
+@@ -245,22 +245,42 @@ open class NativeProxy {
+             }.apply { isAccessible = true }
+     }
+ 
++    // KEPT patch (docs/DECISIONS.md D-79): MountingManager.getViewExists, looked up like
++    // updatePropsSynchronously above. Remove with the TODO(#9681) workaround.
++    private val viewExistsMethod by lazy {
++        mountingManager.javaClass.methods
++            .first {
++                it.name.startsWith("getViewExists") && it.parameterTypes.size == 1
++            }.apply { isAccessible = true }
++    }
++
+     @DoNotStrip
+     fun synchronouslyUpdateUIProps(
+         intBuffer: IntArray,
+         doubleBuffer: DoubleArray,
+     ) {
++        // KEPT patch (D-79): updates for views that no longer exist (or don't yet) are skipped before
++        // the reflective call, so no exception is thrown per update; anything else that still throws
++        // is logged as one short line per batch, without the stack trace.
++        var failed = 0
++        var firstFailedTag = -1
+         SynchronousPropsBufferParser.parse(intBuffer, doubleBuffer) { viewTag, props ->
+             if (BuildConfig.IS_REACT_NATIVE_86_OR_NEWER) {
++                if (viewExistsMethod.invoke(mountingManager, viewTag) != true) {
++                    return@parse
++                }
+                 try {
+                     updatePropsSynchronouslyMethod.invoke(mountingManager, viewTag, props)
+                 } catch (e: Exception) {
+-                    Log.w("Reanimated", "synchronouslyUpdateUIProps failed for tag $viewTag", e)
++                    if (failed++ == 0) firstFailedTag = viewTag
+                 }
+             } else {
+                 mFabricUIManager.synchronouslyUpdateViewOnUIThread(viewTag, props)
+             }
+         }
++        if (failed > 0) {
++            Log.w("Reanimated", "synchronouslyUpdateUIProps failed for $failed view(s), first tag $firstFailedTag")
++        }
+     }
+ 
+     @DoNotStrip
