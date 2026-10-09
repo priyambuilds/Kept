@@ -379,7 +379,10 @@ export function L5() {
     return {
       title: t(out ? "screens.L5.b1.r1.t" : "screens.L5.b1.r0.t"),
       sub: out ? t("screens.L5.b1.r1.s", { name: b?.name ?? "", day: v.members[v.me]!.missed[0]! + 1 }) : t("screens.L5.b1.r0.s", { name: b?.name ?? "", amount: skrWhole(v.results[v.me]?.final ?? 0n) }),
-      leading: { kind: "icon" as const, icon: out ? ("close-thick" as const) : ("trophy-outline" as const) },
+      // reference › L5: dark tiles, a lime trophy or a red close-circle.
+      leading: out
+        ? { kind: "icon" as const, icon: "close-circle-outline" as const, bg: color.surface[2], fg: color.red.base }
+        : { kind: "icon" as const, icon: "trophy-outline" as const, bg: color.surface[2], fg: color.lime.base },
       chevron: true, onPress: () => go(out ? "H4" : "H5", { id: v.facts.bountyId! }),
     };
   };

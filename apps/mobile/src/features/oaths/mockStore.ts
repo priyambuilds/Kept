@@ -139,6 +139,9 @@ export function seed(scenario: Scenario, wallet: string) {
   if (scenario === "bountyJoined") {
     const sol = mockBounties.ended("Sol Strings", 27, 1);
     bountyOath(sol, wallet, { daysKept: (1 << sol.numDays) - 1 }, true);
+    // …and one the user was knocked out of on day 3 (L5's "Eliminated" row).
+    const lost = mockBounties.ended("Green Thumb", 12, 2);
+    bountyOath(lost, wallet, { daysKept: mask("kk") }, true);
   }
   // N1's invite: Riya's Dawn Run, Dev already in, the user not yet. Seeded last so earlier ids stay put.
   group("Dawn Run", 4, 7, 1000, wallet, [person("riya", 0), person("dev", 0)], { status: "open", goal: "run 3 km before 8", inviteCode: "DAWN-R7Q2" });
