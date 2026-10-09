@@ -109,6 +109,7 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
       const key = await authorize(w);
       if (!key.equals(payer)) throw new Error(`Wallet switched accounts: expected ${payer.toBase58()}, got ${key.toBase58()}`);
       return w.signAndSendTransactions({ transactions: [tx], minContextSlot }); // Phantom rejects without minContextSlot
+    });
     if (!signature) throw new Error("The wallet returned no signature");
     const start = Date.now();
     const timeoutMs = 45_000;
