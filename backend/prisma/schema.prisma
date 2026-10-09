@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SessionSeat {
+  id          Int      @id @default(autoincrement())
+  wallet      String   @unique
+  genesisMint String   @unique
+  createdAt   DateTime @default(now())
+}
+
+model OathInvite {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  oath      String
+  createdBy String
+  createdAt DateTime @default(now())
+}
+
+model OathProof {
+  id        Int      @id @default(autoincrement())
+  oath      String
+  wallet    String
+  dayIndex  Int
+  proofHash String
+  photoPath String
+  signature String
+  status    String   @default("PENDING")
+  objectLabel String
+  objectConfidence Float
+  gestureLabel String
+  gestureConfidence Float
+  createdAt DateTime @default(now())
+  @@unique([oath, wallet, dayIndex])
+}
+
+model DeviceToken {
+  id        Int      @id @default(autoincrement())
+  wallet    String
+  token     String   @unique
+  updatedAt DateTime @updatedAt
+}
+
+model Nudge {
+  id        Int      @id @default(autoincrement())
+  oath      String
+  sender    String
+  recipient String
+  dayIndex  Int
+  createdAt DateTime @default(now())
+  @@unique([oath, sender, recipient, dayIndex])
+}
+
+model OathWatch {
+  id        Int      @id @default(autoincrement())
+  oath      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model OathDetails {
+  id        Int      @id @default(autoincrement())
+  oath      String   @unique
+  creator   String
+  goalText  String
+  createdAt DateTime @default(now())
+}
+
+model ReminderSent {
+  id        Int      @id @default(autoincrement())
+  oath      String
+  wallet    String
+  dayIndex  Int
+  createdAt DateTime @default(now())
+  @@unique([oath, wallet, dayIndex])
+}
+
+model FaucetClaim {
+  id        Int      @id @default(autoincrement())
+  wallet    String   @unique
+  signature String
+  createdAt DateTime @default(now())
+}

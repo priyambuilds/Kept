@@ -1,0 +1,21 @@
+{
+  "frameWidth": 192,
+  "frameHeight": 212,
+  "frames": 24,
+  "fps": 12,
+  "loop": true,
+  "viewBox": "-16 -16 192 212",
+  "anims": {
+    "idle": "smug",
+    "wave": "smug",
+    "point": "stern",
+    "tap": "stern",
+    "thumbs": "happy",
+    "jump": "shades",
+    "shrug": "soft",
+    "flip": "smug (coin prop)",
+    "peek": "side (one-shot)",
+    "popin": "happy (one-shot)"
+  },
+  "note": "Frame i = Keeper at t = i/12 s. Rendered from reference/Keeper.dc.html. For production prefer porting the parametric logic to react-native-svg + Reanimated (crisper, any size, any mood)."
+}

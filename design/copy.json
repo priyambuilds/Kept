@@ -1,0 +1,2862 @@
+{
+  "$meta": {
+    "app": "KEPT",
+    "locale": "en",
+    "note": "Every user-facing string from the final prototype. Keys are stable: screens.<screenId>.<blockKey>. Numbers, names and amounts in strings are SAMPLE DATA — interpolate real values (e.g. \"{amount} SKR\", \"{name} kept {time}\")."
+  },
+  "common": {
+    "brand": "KEPT",
+    "tagline": "Keep your word.",
+    "devnet": "DEVNET",
+    "version": "v0.9 · DEVNET · SEEKER",
+    "currency": "SKR",
+    "tabs": {
+      "today": "Today",
+      "oaths": "Oaths",
+      "bounties": "Bounties",
+      "profile": "Profile"
+    },
+    "keeperNoteEyebrow": "THE KEEPER",
+    "keeperCycle": "tap",
+    "oathHp": "Oath HP",
+    "oathHpLabel": "OATH HP",
+    "hpOf": "{hp} / 100",
+    "gridLegend": {
+      "kept": "kept",
+      "missed": "missed",
+      "pending": "pending",
+      "review": "in review"
+    },
+    "photoOf": "Photo {n} of 2",
+    "keptRateLabel": "KEPT RATE",
+    "keptRateNote": "Recent days count more. Shows \"New\" under 10 days.",
+    "keptRateNew": "New",
+    "openSeat": "Open seat",
+    "others": "others",
+    "seeAll": "See all",
+    "code": "Code",
+    "link": "Link",
+    "signing": "Waiting for your signature…",
+    "objects": {
+      "dumbbell": "Dumbbell",
+      "book-open-variant": "Book",
+      "bottle-soda-outline": "Water bottle",
+      "guitar-acoustic": "Guitar",
+      "shoe-sneaker": "Running shoe",
+      "sprout": "Plant",
+      "jump-rope": "Skipping rope",
+      "yoga": "Yoga mat"
+    },
+    "gestures": {
+      "thumb": "Thumbs up",
+      "peace": "Victory sign",
+      "palm": "Open palm"
+    },
+    "lengths": [
+      "3 days",
+      "7 days",
+      "14 days"
+    ],
+    "stakes": [
+      "500 SKR",
+      "1,000 SKR",
+      "2,500 SKR"
+    ],
+    "avatarTabs": [
+      "Base",
+      "Eyes",
+      "Hat",
+      "Fit",
+      "Extra",
+      "Back"
+    ],
+    "categories": [
+      "All",
+      "Fitness",
+      "Reading",
+      "Hydration",
+      "Music",
+      "Mind",
+      "Outdoors"
+    ]
+  },
+  "brandStamps": {
+    "F5": "VERIFIED · DAY {day} · {time}",
+    "L1": "{oath} · {kept} OF {length}",
+    "L2": "{oath} · SETTLED",
+    "L6": "REMATCH · COMEBACK",
+    "H5": "{bounty} · SURVIVED",
+    "J1·ok": "CLAIMED · {amount} SKR"
+  },
+  "toasts": [
+    "Link copied",
+    "Share sheet opened",
+    "You left. 1,000 SKR returned",
+    "Nudged Arjun",
+    "Nudged 2 Keepers",
+    "Pasted IRON-7K2Q",
+    "Invite sent to Arjun",
+    "Vote sent · approved",
+    "Vote sent · rejected",
+    "Share card saved",
+    "Following @riffs",
+    "finishers.csv saved",
+    "Profile link copied",
+    "Opening drift.water",
+    "Opening X",
+    "Opening Discord",
+    "Following Drift",
+    "+5,000 test SKR",
+    "Still offline",
+    "+1 devnet SOL",
+    "Invite declined",
+    "+5,000 test SKR added",
+    "Address copied",
+    "Search opened",
+    "Loading August…",
+    "Profile saved"
+  ],
+  "screens": {
+    "A0": {
+      "_name": "Splash"
+    },
+    "A1": {
+      "_name": "Welcome",
+      "b1.chip.0": "1,000 SKR pot",
+      "b1.chip.1": "3-to-1 on you",
+      "b2.title": "Bet your friends\nyou'll do it.",
+      "b2.sub": "Stake SKR on a daily habit. Prove it with two photos. Miss, and the people who kept take your share.",
+      "pin.0": "Get started",
+      "pin.1": "I have an invite"
+    },
+    "A2": {
+      "_name": "Connect wallet",
+      "b0.title": "Connect your wallet.",
+      "b0.sub": "You'll sign a short message. It's free and moves nothing.",
+      "b1.r0.t": "Seeker Wallet",
+      "b1.r0.s": "Built into your Seeker",
+      "b1.r0.r": "Recommended",
+      "b1.r1.t": "Phantom",
+      "b1.r1.s": "Mobile wallet adapter",
+      "b1.r2.t": "Solflare",
+      "b1.r2.s": "Mobile wallet adapter",
+      "b2.label": "WHAT YOU'LL SIGN",
+      "b2.row0.l": "Message",
+      "b2.row0.v": "Sign in to KEPT",
+      "b2.row1.l": "Nonce",
+      "b2.row1.v": "8f3a…c21e",
+      "b2.row2.l": "Cost",
+      "b2.row2.v": "Free",
+      "b3.text": "Signing in never moves SKR or SOL."
+    },
+    "A2·s": {
+      "_name": "Signing in",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Sign in to KEPT",
+      "b2.sub": "Check your wallet to approve the message.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "A2·e": {
+      "_name": "Sign-in rejected",
+      "b2.title": "Signature rejected.",
+      "b2.sub": "Nothing was charged. Connect whenever you're ready.",
+      "pin.0": "Try again",
+      "pin.1": "Use another wallet"
+    },
+    "A3": {
+      "_name": "Seeker verified",
+      "b1.chip": "Genesis token",
+      "b2.title": "Seeker verified.",
+      "b2.sub": "Your Genesis token checks out. Group Oaths and Bounties are open to you.",
+      "b3.chip.0": "Solo Oaths",
+      "b3.chip.1": "Group Oaths",
+      "b3.chip.2": "Bounties",
+      "pin.0": "Continue"
+    },
+    "A3·no": {
+      "_name": "Not eligible",
+      "b1.chip": "No Genesis token",
+      "b2.title": "Solo Oaths only.",
+      "b2.sub": "Group Oaths and Bounties need a verified Seeker (Genesis). You can still stake on yourself.",
+      "b3.chip.0": "Solo Oaths",
+      "b3.chip.1": "Group Oaths",
+      "b3.chip.2": "Bounties",
+      "pin.0": "Continue"
+    },
+    "B1": {
+      "_name": "Today, active",
+      "b0.text": "2 of 3 left · resets in 09:18:42",
+      "b1.title": "1,186 SKR ready to claim",
+      "b1.sub": "Hydra 14 ended Sunday. Tap to claim it.",
+      "b3.name": "Iron Week",
+      "b3.meta": "with Riya, Arjun, Dev · Day 3/7",
+      "b3.line": "20 min with the dumbbell. Photo 2 any time before midnight.",
+      "b3.tag.0": "1,043 SKR",
+      "b3.tag.1": "9h 18m left",
+      "b3.tag.2": "Photo 1 done",
+      "b3.float": "Riya kept 07:12",
+      "b3.btn": "Take photo 2",
+      "b4.name": "Hydrate Week",
+      "b4.meta": "Bounty by Drift · Day 3/7",
+      "b4.tag.0": "31 of 40 in",
+      "b4.tag.1": "Not started",
+      "b4.btn": "Prove",
+      "b5.r0.t": "Read 20 pages",
+      "b5.r0.s": "Solo · Day 9/14 · HP 100",
+      "b5.r0.r": "Kept 07:12",
+      "header.title": "Today"
+    },
+    "B2": {
+      "_name": "Today, all done",
+      "b0.text": "3 of 3 kept · resets in 05:02:10",
+      "b2.title": "All kept today.",
+      "b2.sub": "Your 1,043 + 500 SKR are safe tonight.",
+      "b3.r0.t": "Iron Week",
+      "b3.r0.s": "Day 3/7 · HP 90",
+      "b3.r0.r": "21:04",
+      "b3.r0.rs": "kept",
+      "b3.r1.t": "Read 20 pages",
+      "b3.r1.s": "Solo · Day 9/14",
+      "b3.r1.r": "07:12",
+      "b3.r1.rs": "kept",
+      "b3.r2.t": "Hydrate Week",
+      "b3.r2.s": "Bounty · 31 of 40 in",
+      "b3.r2.r": "13:40",
+      "b3.r2.rs": "kept",
+      "b4.chip.0": "Streak 13",
+      "b4.chip.1": "Kept rate 91%",
+      "header.title": "Today"
+    },
+    "B3": {
+      "_name": "Today, empty",
+      "b1.chip.0": "Photo proof",
+      "b2.title": "Put something\non the line.",
+      "b2.sub": "Pick a habit, stake a little SKR, keep it with friends.",
+      "b3.btn.0": "Start an Oath",
+      "b4.text": "FEATURED BOUNTY",
+      "b5.brand": "Drift",
+      "b5.msg": "Hydrate Week\n50,000 SKR pool · free to join",
+      "header.title": "Today"
+    },
+    "B4": {
+      "_name": "Deadline close",
+      "b0.text": "1 left · resets in 01:42:08",
+      "b1.name": "Iron Week",
+      "b1.meta": "with Riya, Arjun, Dev · Day 3/7",
+      "b1.line": "20 min with the dumbbell. Two photos before midnight.",
+      "b1.tag.0": "1,000 SKR",
+      "b1.tag.1": "1h 42m left",
+      "b1.warn": "Miss today: −143 SKR · Oath −20 HP",
+      "b1.btn": "Prove now",
+      "header.title": "Today"
+    },
+    "B5": {
+      "_name": "Daily recap",
+      "b0.text": "YESTERDAY · SETTLED AT 00:00",
+      "b1.title": "Arjun blinked.\nYou didn't.",
+      "b3.r0.t": "Iron Week",
+      "b3.r0.s": "Arjun missed · HP 100 → 80 → 90",
+      "b3.r0.r": "+43 SKR",
+      "b3.r1.t": "Read 20 pages",
+      "b3.r1.s": "You kept · HP 100",
+      "b3.r1.r": "safe",
+      "b3.r2.t": "Hydrate Week",
+      "b3.r2.s": "2 knocked out · 33 of 40 in",
+      "b3.r2.r": "still in",
+      "b4.btn.0": "Open Iron Week",
+      "b4.btn.1": "Got it"
+    },
+    "+": {
+      "_name": "+ menu",
+      "b0.title": "Put something on the line.",
+      "b1.r0.t": "Start an Oath",
+      "b1.r0.s": "Solo or with friends, SKR on it",
+      "b1.r1.t": "Join with code",
+      "b1.r1.s": "Paste, scan or open a link",
+      "b1.r2.t": "Create a Bounty",
+      "b1.r2.s": "Fund a public challenge",
+      "b2.text": "Group Oaths and Bounties need a verified Seeker.",
+      "b3.btn.0": "Close"
+    },
+    "C1": {
+      "_name": "Goal",
+      "b0.title": "What will you do\nevery day?",
+      "b0.sub": "Keep it small and specific. You'll prove it daily.",
+      "b1.label": "Your Oath",
+      "b1.prefix": "Every day I will",
+      "b1.sug.0": "lift for 20 minutes",
+      "b1.sug.1": "read 20 pages",
+      "b1.sug.2": "drink 2 litres of water",
+      "b1.sug.3": "practise guitar for 30 min",
+      "pin.0": "Next"
+    },
+    "C2": {
+      "_name": "Object",
+      "b0.title": "What's in the photo?",
+      "b0.sub": "Both daily photos must show it, plus a hand gesture.",
+      "b1.o0.t": "Dumbbell",
+      "b1.o1.t": "Book",
+      "b1.o2.t": "Water bottle",
+      "b1.o3.t": "Guitar",
+      "b1.o4.t": "Running shoe",
+      "b1.o5.t": "Plant",
+      "b1.o6.t": "Skipping rope",
+      "b1.o7.t": "Yoga mat",
+      "b2.text": "Checked by AI on our server, then deleted. Only a fingerprint is kept.",
+      "pin.0": "Next"
+    },
+    "C3": {
+      "_name": "Length",
+      "b0.title": "How long?",
+      "b0.sub": "Longer Oaths cost less per miss, but there are more days to keep.",
+      "b1.o0.t": "3",
+      "b1.o0.s": "days · sprint",
+      "b1.o1.t": "7",
+      "b1.o1.s": "days · a week",
+      "b1.o2.t": "14",
+      "b1.o2.s": "days · the real test",
+      "b2.title": "Ends Wed 15 Oct",
+      "b2.sub": "Day 1 starts when the creator presses Start.",
+      "pin.0": "Next"
+    },
+    "C4": {
+      "_name": "Solo or group, and stake",
+      "b0.title": "Who's in, and\nwhat's on it?",
+      "b1.o0.t": "Solo",
+      "b1.o0.s": "Just you. Misses hit harder.",
+      "b1.o1.t": "Group",
+      "b1.o1.s": "Friends join by link. Needs a Seeker.",
+      "b2.text": "STAKE PER PERSON",
+      "b3.o0.t": "500",
+      "b3.o0.s": "≈ $5",
+      "b3.o1.t": "1,000",
+      "b3.o1.s": "≈ $10",
+      "b3.o2.t": "2,500",
+      "b3.o2.s": "≈ $25",
+      "b4.title": "First miss costs 143 SKR",
+      "b4.sub": "Then 214, then 321. Each miss costs 1.5× the last.",
+      "pin.0": "Next"
+    },
+    "C5": {
+      "_name": "Review mode",
+      "b0.title": "If the AI says no?",
+      "b0.sub": "You choose once. Everyone who joins plays by it.",
+      "b1.o0.t": "AI only",
+      "b1.o0.s": "A failed check is final. Simple and strict.",
+      "b1.o1.t": "AI + group review",
+      "b1.o1.s": "After 3 failed photo-2 checks, the group votes. Majority approves; a tie rejects.",
+      "pin.0": "Next"
+    },
+    "C6": {
+      "_name": "Review terms",
+      "b0.title": "Read it like\na contract.",
+      "b1.row0.l": "Goal",
+      "b1.row0.v": "Every day I will lift for 20 minutes",
+      "b1.row1.l": "Object",
+      "b1.row1.v": "Dumbbell",
+      "b1.row2.l": "Length",
+      "b1.row2.v": "7 days",
+      "b1.row3.l": "Stake",
+      "b1.row3.v": "1,000 SKR each",
+      "b1.row4.l": "Review",
+      "b1.row4.v": "AI + group review",
+      "b2.label": "THE RULES",
+      "b2.r0.t": "HP starts at 100",
+      "b2.r0.s": "−20 for each member who misses, then +10 heal.",
+      "b2.r1.t": "At 0 HP it breaks",
+      "b2.r1.s": "Everyone loses the whole pot.",
+      "b2.r2.t": "One miss costs 143 SKR",
+      "b2.r2.s": "Then 214, 321… paid to whoever kept.",
+      "b2.r3.t": "10% fee",
+      "b2.r3.s": "KEPT keeps 10% of lost SKR. Kept SKR is never charged.",
+      "pin.0": "Sign & stake"
+    },
+    "C7": {
+      "_name": "Signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Confirm in your wallet",
+      "b2.sub": "Staking 1,000 SKR into Iron Week.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "C7·ok": {
+      "_name": "Signed · success",
+      "b1.chip": "1,000 SKR staked",
+      "b2.title": "Sworn.\n1,000 SKR on the table.",
+      "b2.sub": "Iron Week is ready. Bring your people, then press Start.",
+      "pin.0": "Invite your crew",
+      "pin.1": "Solo? Go to the Oath"
+    },
+    "C7·no": {
+      "_name": "Signed · rejected",
+      "b2.title": "You backed out.\nNothing was charged.",
+      "b2.sub": "Your SKR never left your wallet.",
+      "pin.0": "Try again",
+      "pin.1": "Edit terms"
+    },
+    "C7·fail": {
+      "_name": "Signed · failed",
+      "b1.chip": "Transaction failed",
+      "b2.title": "The transaction failed.",
+      "b2.sub": "A network hiccup. Your SKR didn't move.",
+      "pin.0": "Retry",
+      "pin.1": "Back to terms"
+    },
+    "C8": {
+      "_name": "Invite",
+      "b0.title": "Bring your people.",
+      "b0.sub": "Everyone stakes 1,000 SKR. It starts when you press Start.",
+      "b1.code": "IRON-7K2Q",
+      "b1.link": "kept.app/o/IRON-7K2Q",
+      "b2.btn.0": "Copy link",
+      "b2.btn.1": "Share",
+      "b3.text": "JOINED SO FAR · 2",
+      "b4.seat0": "joined",
+      "b4.seat1": "joined",
+      "pin.0": "Open the Oath",
+      "nav.title": "Invite"
+    },
+    "D0": {
+      "_name": "Oaths list",
+      "b1.text": "ACTIVE · 2",
+      "b2.name": "Iron Week",
+      "b2.meta": "Group · Day 3/7",
+      "b2.tag.0": "1,043 SKR",
+      "b2.tag.1": "Arjun pending",
+      "b3.name": "Read 20 pages",
+      "b3.meta": "Solo · Day 9/14",
+      "b3.tag.0": "500 SKR",
+      "b3.tag.1": "Kept today",
+      "b4.label": "WAITING TO START",
+      "b4.r0.t": "Iron Week (draft)",
+      "b4.r0.s": "Waiting to start · 2 of 4 in",
+      "b4.r0.r": "Open",
+      "b5.label": "RECENTLY FINISHED",
+      "b5.r0.t": "Hydra 14",
+      "b5.r0.s": "Ended Sun · claim ready",
+      "b5.r0.r": "+186",
+      "b5.r1.t": "Guitar Days",
+      "b5.r1.s": "Broke on day 6 · Rematch open",
+      "b5.r1.r": "−1,000",
+      "b6.r0.t": "All history",
+      "b6.r0.s": "50 Oaths · 41 kept · 9 broken",
+      "header.title": "Oaths"
+    },
+    "D1": {
+      "_name": "Open · creator",
+      "b0.chip.0": "Waiting to start",
+      "b0.chip.1": "7 days",
+      "b0.chip.2": "1,000 SKR each",
+      "b0.chip.3": "AI + group review",
+      "b1.title": "Every day I will\nlift for 20 minutes.",
+      "b1.sub": "Dumbbell + a hand gesture, two photos a day.",
+      "b2.text": "JOINED · 3 OF 4",
+      "b3.seat0": "91%",
+      "b3.seat1": "94%",
+      "b3.seat2": "88%",
+      "b4.r0.t": "Copy invite link",
+      "b4.r0.s": "kept.app/o/IRON-7K2Q",
+      "b4.r1.t": "Show QR code",
+      "b4.r1.s": "Friends scan to join",
+      "pin.0": "Start Iron Week",
+      "pin.1": "Cancel Oath",
+      "nav.title": "Iron Week"
+    },
+    "D1·m": {
+      "_name": "Open · member",
+      "b0.chip.0": "Waiting to start",
+      "b0.chip.1": "7 days",
+      "b0.chip.2": "1,000 SKR staked",
+      "b1.title": "Every day I will\nlift for 20 minutes.",
+      "b2.title": "Riya starts it",
+      "b2.sub": "Day 1 begins when she presses Start. You'll get a notification.",
+      "b3.seat0": "94%",
+      "b3.seat1": "91%",
+      "b3.seat2": "88%",
+      "pin.0": "Leave · get 1,000 SKR back",
+      "nav.title": "Iron Week"
+    },
+    "D1·x": {
+      "_name": "Cancel confirm",
+      "b0.title": "Cancel Iron Week?",
+      "b0.sub": "Riya and Dev get their 1,000 SKR back. So do you. This can't be undone.",
+      "b1.btn.0": "Cancel Oath",
+      "b1.btn.1": "Keep it"
+    },
+    "D1·xs": {
+      "_name": "Cancel · signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Confirm the cancel",
+      "b2.sub": "Refunding 3,000 SKR to 3 Keepers.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "D1·go": {
+      "_name": "Start · signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Start Iron Week",
+      "b2.sub": "Locks 4,000 SKR. Day 1 begins now.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "D2": {
+      "_name": "Active",
+      "b0.note": "Arjun missed day 2: −20, then +10 heal.",
+      "b1.text": "9h 18m left today · first miss −143 SKR",
+      "b4.chip.0": "Riya 1-to-9",
+      "b4.chip.1": "Arjun 3-to-1 to miss",
+      "b4.chip.2": "Dev in review",
+      "b5.title": "Dev asked for a review",
+      "b5.sub": "Photo 2 failed 3 times. Your vote counts.",
+      "b6.label": "KEEPERS",
+      "b6.r0.t": "You",
+      "b6.r0.s": "91% · 64 days",
+      "b6.r0.r": "1,043 SKR",
+      "b6.r0.rs": "live balance",
+      "b6.r1.t": "Riya",
+      "b6.r1.s": "94% · 71 days",
+      "b6.r1.r": "1,043 SKR",
+      "b6.r1.rs": "live balance",
+      "b6.r2.t": "Arjun",
+      "b6.r2.s": "78% · 40 days",
+      "b6.r2.r": "857 SKR",
+      "b6.r2.rs": "missed day 2",
+      "b6.r3.t": "Dev",
+      "b6.r3.s": "88% · 52 days",
+      "b6.r3.r": "1,043 SKR",
+      "b6.r3.rs": "live balance",
+      "b7.title": "If Arjun misses today",
+      "b7.sub": "You +43 · Riya +43 · Dev +43 · fee 14 SKR",
+      "pin.0": "Take photo 2",
+      "pin.1": "Nudge Arjun",
+      "nav.title": "Iron Week",
+      "nav.right": "Day 3/7"
+    },
+    "D2·low": {
+      "_name": "Active · HP low",
+      "b0.warn": "One more miss breaks it. Everyone loses everything.",
+      "b3.label": "KEEPERS",
+      "b3.r0.t": "You",
+      "b3.r0.s": "91% · 64 days",
+      "b3.r0.r": "1,043 SKR",
+      "b3.r0.rs": "live balance",
+      "b3.r1.t": "Riya",
+      "b3.r1.s": "94% · 71 days",
+      "b3.r1.r": "1,043 SKR",
+      "b3.r1.rs": "live balance",
+      "b3.r2.t": "Arjun",
+      "b3.r2.s": "78% · 40 days",
+      "b3.r2.r": "642 SKR",
+      "b3.r2.rs": "2 misses",
+      "b3.r3.t": "Dev",
+      "b3.r3.s": "88% · 52 days",
+      "b3.r3.r": "900 SKR",
+      "b3.r3.rs": "missed day 3",
+      "pin.0": "Take photo 2",
+      "pin.1": "Nudge Arjun and Dev",
+      "nav.title": "Iron Week",
+      "nav.right": "Day 5/7"
+    },
+    "D3": {
+      "_name": "Broken",
+      "b0.note": "Broke at midnight after day 6.",
+      "b1.title": "The Oath is broken.",
+      "b1.sub": "Dev missed day 5. Arjun missed day 6. HP hit 0, and the whole pot burned.",
+      "b3.label": "STAKES LOST",
+      "b3.row0.l": "You",
+      "b3.row0.v": "−1,000 SKR",
+      "b3.row1.l": "Riya",
+      "b3.row1.v": "−1,000 SKR",
+      "b3.row2.l": "Arjun",
+      "b3.row2.v": "−1,000 SKR",
+      "b3.row3.l": "Dev",
+      "b3.row3.v": "−1,000 SKR",
+      "b4.name": "Rematch available",
+      "b4.meta": "Same goal · same object · 7 days",
+      "b4.line": "Keep every day and it doesn't break: win back 500 SKR, half of what you lost.",
+      "b4.tag.0": "6d 23h left",
+      "b4.tag.1": "Riya joined",
+      "pin.0": "Rematch · win back 500",
+      "pin.1": "Start a new Oath",
+      "nav.title": "Guitar Days"
+    },
+    "D4": {
+      "_name": "Ended",
+      "b0.chip.0": "Ended Sun 5 Oct",
+      "b0.chip.1": "HP 70",
+      "b1.title": "Kept by 3 of 4.",
+      "b1.sub": "Arjun slipped twice. His SKR went to everyone who kept.",
+      "b3.label": "FINAL BALANCES",
+      "b3.r0.t": "You",
+      "b3.r0.s": "start 1,000 · lost 0 · won +186",
+      "b3.r0.r": "1,186",
+      "b3.r0.rs": "SKR",
+      "b3.r1.t": "Riya",
+      "b3.r1.s": "start 1,000 · lost 0 · won +186",
+      "b3.r1.r": "1,186",
+      "b3.r1.rs": "SKR",
+      "b3.r2.t": "Dev",
+      "b3.r2.s": "start 1,000 · lost 0 · won +186",
+      "b3.r2.r": "1,186",
+      "b3.r2.rs": "SKR",
+      "b3.r3.t": "Arjun",
+      "b3.r3.s": "start 1,000 · lost −179 · fee −18",
+      "b3.r3.r": "821",
+      "b3.r3.rs": "SKR",
+      "pin.0": "Claim 1,186 SKR",
+      "nav.title": "Hydra 14"
+    },
+    "E1": {
+      "_name": "Enter invite",
+      "b0.title": "Got an invite?",
+      "b0.sub": "Paste the code, scan the QR, or open the link.",
+      "b1.label": "Point at the QR code",
+      "b2.label": "Or type the code",
+      "b2.sug.0": "IRON-7K2Q",
+      "b3.btn.0": "Paste",
+      "pin.0": "Find Oath",
+      "nav.title": "Join an Oath"
+    },
+    "E2": {
+      "_name": "Oath preview",
+      "b0.text": "RIYA INVITED YOU",
+      "b1.name": "Iron Week",
+      "b1.meta": "by Riya · 7 days · AI + group review",
+      "b1.line": "Every day I will lift for 20 minutes.",
+      "b1.tag.0": "1,000 SKR each",
+      "b1.tag.1": "Starts when Riya says",
+      "b1.float": "94% kept rate",
+      "b2.label": "KEEPERS · KEPT RATE",
+      "b2.r0.t": "Riya",
+      "b2.r0.s": "Creator",
+      "b2.r0.r": "94%",
+      "b2.r0.rs": "71 days",
+      "b2.r1.t": "Dev",
+      "b2.r1.s": "Joined",
+      "b2.r1.r": "88%",
+      "b2.r1.rs": "52 days",
+      "b2.r2.t": "Arjun",
+      "b2.r2.s": "Joined",
+      "b2.r2.r": "78%",
+      "b2.r2.rs": "40 days",
+      "b3.label": "THE RULES",
+      "b3.row0.l": "HP",
+      "b3.row0.v": "100 · −20 per miss · +10 a day",
+      "b3.row1.l": "First miss",
+      "b3.row1.v": "−143 SKR, then 1.5×",
+      "b3.row2.l": "At 0 HP",
+      "b3.row2.v": "Everyone loses the pot",
+      "b3.row3.l": "Fee",
+      "b3.row3.v": "10% of lost SKR",
+      "pin.0": "Join & stake 1,000 SKR",
+      "nav.title": "Invite"
+    },
+    "E2·s": {
+      "_name": "Join · signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Join Iron Week",
+      "b2.sub": "Staking 1,000 SKR alongside Riya, Dev and Arjun.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "E3·code": {
+      "_name": "Invalid code",
+      "b2.title": "That code doesn't exist.",
+      "b2.sub": "Check for typos. Codes look like IRON-7K2Q.",
+      "pin.0": "Try again",
+      "pin.1": "Start your own",
+      "nav.title": "Join an Oath"
+    },
+    "E3·late": {
+      "_name": "Already started",
+      "b2.title": "Too late. Iron Week started.",
+      "b2.sub": "Oaths lock on day 1 so nobody joins halfway. Start your own.",
+      "pin.0": "Start your own",
+      "pin.1": "Back",
+      "nav.title": "Join an Oath"
+    },
+    "E3·in": {
+      "_name": "Already joined",
+      "b2.title": "You're already in.",
+      "b2.sub": "You staked 1,000 SKR on Iron Week on Monday.",
+      "pin.0": "Open the Oath",
+      "pin.1": "Back",
+      "nav.title": "Join an Oath"
+    },
+    "E3·elig": {
+      "_name": "Not eligible",
+      "b2.title": "Group Oaths need a verified Seeker.",
+      "b2.sub": "Your wallet has no Genesis token. Solo Oaths are still yours.",
+      "pin.0": "Start a solo Oath",
+      "pin.1": "Back",
+      "nav.title": "Join an Oath"
+    },
+    "E3·skr": {
+      "_name": "Not enough SKR",
+      "b2.title": "You need 1,000 SKR.",
+      "b2.sub": "You have 620 SKR. Grab test SKR from the faucet in Profile.",
+      "pin.0": "Open the faucet",
+      "pin.1": "Start your own",
+      "nav.title": "Join an Oath"
+    },
+    "R1": {
+      "_name": "Rematch offer",
+      "b0.chip.0": "+500 SKR",
+      "b0.chip.1": "6d 23h left",
+      "b1.title": "Win back 500 SKR.",
+      "b1.sub": "Keep every day of the Rematch, and don't let it break. You get back half of what Guitar Days cost you.",
+      "b2.row0.l": "Original",
+      "b2.row0.v": "Guitar Days · 7 days · Guitar",
+      "b2.row1.l": "You lost",
+      "b2.row1.v": "−1,000 SKR",
+      "b2.row2.l": "You can win back",
+      "b2.row2.v": "+500 SKR",
+      "b2.row3.l": "New stake",
+      "b2.row3.v": "1,000 SKR",
+      "b2.row4.l": "Window",
+      "b2.row4.v": "6d 23h to start",
+      "b3.text": "IN THE REMATCH · 2 OF 4",
+      "b4.seat0": "joined",
+      "b4.seat1": "joined",
+      "b4.seat2": "you?",
+      "b4.seat3": "not yet",
+      "b5.text": "One Rematch per broken Oath. A Rematch can't be rematched.",
+      "pin.0": "Join Rematch",
+      "pin.1": "Not now",
+      "nav.title": "Rematch"
+    },
+    "R2": {
+      "_name": "Rematch · signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Stake again",
+      "b2.sub": "1,000 SKR into the Guitar Days Rematch.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "R3": {
+      "_name": "Rematch lobby",
+      "b0.chip.0": "Rematch",
+      "b0.chip.1": "Guitar Days · 7 days",
+      "b1.title": "3 of 4 back\nat the table.",
+      "b1.sub": "Anyone can start once 2 or more have joined.",
+      "b2.seat0": "in",
+      "b2.seat1": "in",
+      "b2.seat2": "in",
+      "b2.seat3": "waiting",
+      "b3.label": "STILL OUT",
+      "b3.r0.t": "Arjun",
+      "b3.r0.s": "Hasn't joined · window 6d 22h",
+      "b3.r0.r": "Nudge",
+      "pin.0": "Start the Rematch",
+      "pin.1": "Invite the rest",
+      "nav.title": "Rematch lobby"
+    },
+    "R·act": {
+      "_name": "Rematch, active",
+      "b0.chip.0": "Rematch",
+      "b0.chip.1": "No more rematches",
+      "b1.note": "Riya missed day 2: −20, then +10 heal.",
+      "b4.label": "KEEPERS",
+      "b4.r0.t": "You",
+      "b4.r0.s": "Recovery: 500 SKR on the line",
+      "b4.r0.r": "1,043",
+      "b4.r0.rs": "SKR",
+      "b4.r1.t": "Riya",
+      "b4.r1.s": "Recovery lost · missed day 2",
+      "b4.r1.r": "857",
+      "b4.r1.rs": "SKR",
+      "b4.r2.t": "Dev",
+      "b4.r2.s": "Recovery: 500 SKR on the line",
+      "b4.r2.r": "1,043",
+      "b4.r2.rs": "SKR",
+      "pin.0": "Prove today",
+      "nav.title": "Guitar Days",
+      "nav.right": "Day 3/7"
+    },
+    "R4": {
+      "_name": "Rematch result",
+      "b0.title": "Rematch kept.",
+      "b0.sub": "You kept all 7 days. The Rematch held.",
+      "b1.row0.l": "Start",
+      "b1.row0.v": "1,000",
+      "b1.row1.l": "Lost",
+      "b1.row1.v": "0",
+      "b1.row2.l": "Won from Riya",
+      "b1.row2.v": "+129",
+      "b1.row3.l": "Fee",
+      "b1.row3.v": "0",
+      "b1.row4.l": "Recovered from Guitar Days",
+      "b1.row4.v": "+500",
+      "b1.row5.l": "Final",
+      "b1.row5.v": "1,629 SKR",
+      "b2.title": "+500 SKR recovered from your broken Oath",
+      "b2.sub": "Half of what Guitar Days cost you.",
+      "pin.0": "Claim 1,629 SKR",
+      "nav.title": "Rematch result"
+    },
+    "R4·lost": {
+      "_name": "Rematch result · recovery lost",
+      "b0.title": "Rematch survived.\nRecovery didn't.",
+      "b1.row0.l": "Start",
+      "b1.row0.v": "1,000",
+      "b1.row1.l": "Lost (day 2)",
+      "b1.row1.v": "−143",
+      "b1.row2.l": "Won",
+      "b1.row2.v": "+86",
+      "b1.row3.l": "Fee",
+      "b1.row3.v": "−14",
+      "b1.row4.l": "Recovered",
+      "b1.row4.v": "0",
+      "b1.row5.l": "Final",
+      "b1.row5.v": "929 SKR",
+      "b2.title": "Recovery lost: you missed day 2",
+      "b2.sub": "Only Keepers who keep every day of a Rematch get the 50% back.",
+      "pin.0": "Claim 929 SKR",
+      "nav.title": "Rematch result"
+    },
+    "F1·perm": {
+      "_name": "Camera permission",
+      "b1.label": "Camera is off",
+      "b2.title": "KEPT needs your camera.",
+      "b2.sub": "Two photos a day. Checked by AI on our server, then deleted. Only a fingerprint is kept.",
+      "pin.0": "Allow camera",
+      "pin.1": "Not now"
+    },
+    "F1": {
+      "_name": "Photo 1 of 2",
+      "b0.label": "Dumbbell + victory sign",
+      "b1.chip.0": "Challenge expires 4:52",
+      "nav.title": "Iron Week · photo 1 of 2"
+    },
+    "F2": {
+      "_name": "Checking",
+      "b0.label": "Checking…",
+      "nav.title": "Iron Week · photo 1 of 2"
+    },
+    "F2a": {
+      "_name": "Failed",
+      "b0.label": "Couldn't see a victory sign",
+      "pin.0": "Try again",
+      "nav.title": "Iron Week · photo 1 of 2"
+    },
+    "F2b": {
+      "_name": "Check unavailable",
+      "b2.title": "We can't check photos\nright now.",
+      "b2.sub": "Your photo is saved. Retry in a minute. You still have time.",
+      "b3.value": "14:41:52",
+      "b3.caption": "left today",
+      "pin.0": "Retry check",
+      "nav.title": "Iron Week"
+    },
+    "F2c": {
+      "_name": "Challenge expired",
+      "b0.title": "That challenge expired.",
+      "b0.sub": "Challenges last 5 minutes, so nobody reuses old photos. Here's a fresh one.",
+      "b1.label": "New: dumbbell + thumbs up",
+      "pin.0": "Use new challenge",
+      "nav.title": "Iron Week"
+    },
+    "F3": {
+      "_name": "Photo 1 done",
+      "b1.chip": "Photo 1 passed",
+      "b2.title": "Photo 1 is in.",
+      "b2.sub": "Do your 20 minutes, then come back for photo 2. No timer. Any time before midnight.",
+      "b3.day.0": "Photo 1",
+      "b3.day.1": "Photo 2",
+      "b4.text": "Today shows \"In progress\" until photo 2.",
+      "pin.0": "Take photo 2",
+      "pin.1": "Back to Today",
+      "nav.title": "Iron Week"
+    },
+    "F4": {
+      "_name": "Photo 2 of 2",
+      "b0.label": "Dumbbell + open palm",
+      "b1.chip.0": "Different gesture this time",
+      "nav.title": "Iron Week · photo 2 of 2"
+    },
+    "F4·chk": {
+      "_name": "Checking photo 2",
+      "b0.label": "Checking…",
+      "nav.title": "Iron Week · photo 2 of 2"
+    },
+    "F4a": {
+      "_name": "3 fails · AI only",
+      "b2.title": "Today's proof didn't pass.",
+      "b2.sub": "Iron Week is AI only, so 3 failed checks is final. Today counts as missed.",
+      "b3.row0.l": "Your stake",
+      "b3.row0.v": "−143 SKR",
+      "b3.row1.l": "Oath HP",
+      "b3.row1.v": "−20 at midnight",
+      "b3.row2.l": "Streak",
+      "b3.row2.v": "resets to 0",
+      "pin.0": "Back to Today",
+      "nav.title": "Iron Week"
+    },
+    "F4a·g": {
+      "_name": "3 fails · group review",
+      "b0.label": "3 of 3 checks failed",
+      "b1.title": "Let the group decide.",
+      "b1.sub": "Send photo 2 to Riya, Arjun and Dev. Majority approves; a tie rejects. The photo is deleted after the vote, 48 hours at most.",
+      "pin.0": "Ask your group to review",
+      "pin.1": "Accept the miss",
+      "nav.title": "Iron Week"
+    },
+    "F5": {
+      "_name": "Day kept",
+      "b1.title": "Day 3 kept.",
+      "b3.chip.0": "HP 90",
+      "b3.chip.1": "1,043 SKR safe",
+      "b3.chip.2": "Streak 13",
+      "b4.label": "STILL PENDING",
+      "b4.r0.t": "Arjun",
+      "b4.r0.s": "Hasn't proved today",
+      "b4.r0.r": "Nudge",
+      "pin.0": "Done",
+      "brand.stamp": "VERIFIED · DAY 3 · 9:41"
+    },
+    "G1": {
+      "_name": "Review a photo",
+      "b0.title": "Dev wants your vote.",
+      "b0.sub": "Iron Week · day 3 · photo 2 needs a dumbbell and an open palm.",
+      "b1.label": "Dev's photo · AI failed 3 times",
+      "b2.chip.0": "1 of 3 votes",
+      "b2.chip.1": "Riya approved",
+      "b2.chip.2": "41h left",
+      "pin.0": "Approve",
+      "pin.1": "Reject",
+      "nav.title": "Review"
+    },
+    "G2": {
+      "_name": "Waiting for review",
+      "b1.value": "2 of 3",
+      "b1.caption": "votes in",
+      "b2.title": "Waiting for your group.",
+      "b2.sub": "Majority approves. A tie rejects.",
+      "b3.seat0": "approve",
+      "b3.seat1": "reject",
+      "b3.seat2": "waiting",
+      "b4.text": "Your photo is deleted after the decision, 48 hours at most.",
+      "nav.title": "Review"
+    },
+    "G3": {
+      "_name": "Review approved",
+      "b1.chip": "Approved 2–1",
+      "b2.title": "Day 3 counts as kept.",
+      "b2.sub": "Riya and Dev backed you. Your 1,000 SKR is safe tonight.",
+      "pin.0": "Back to Iron Week"
+    },
+    "G3·no": {
+      "_name": "Review rejected",
+      "b2.title": "Rejected 1–2.\nDay 3 counts as missed.",
+      "b3.row0.l": "Your stake",
+      "b3.row0.v": "−143 SKR",
+      "b3.row1.l": "Oath HP",
+      "b3.row1.v": "−20 at midnight",
+      "pin.0": "Back to Iron Week"
+    },
+    "H1": {
+      "_name": "Feed · Discover",
+      "b0.seg.0": "Discover",
+      "b0.seg.1": "Joined",
+      "b0.seg.2": "Created",
+      "b1.placeholder": "Search 1,240 Bounties",
+      "b2.i0.t": "All",
+      "b2.i1.t": "Fitness",
+      "b2.i2.t": "Reading",
+      "b2.i3.t": "Hydration",
+      "b2.i4.t": "Music",
+      "b2.i5.t": "Mind",
+      "b2.i6.t": "Outdoors",
+      "b3.brand": "Drift",
+      "b3.msg": "Hydrate Week\n50,000 SKR · 7 days · free",
+      "b3.tag.0": "Featured",
+      "b3.tag.1": "closes in 5h",
+      "b4.label": "CLOSING SOON",
+      "b4.i0.t": "Hydrate Week",
+      "b4.i0.v": "50,000 SKR",
+      "b4.i0.s": "Drift · closes in 5h",
+      "b4.i1.t": "Sol Strings",
+      "b4.i1.v": "8,000 SKR",
+      "b4.i1.s": "@riffs · closes in 9h",
+      "b4.i2.t": "Green Thumb",
+      "b4.i2.v": "12,000 SKR",
+      "b4.i2.s": "Sprout Co · closes in 12h",
+      "b4.i3.t": "Rope 1k",
+      "b4.i3.v": "15,000 SKR",
+      "b4.i3.s": "SkipLab · closes in 3h",
+      "b5.label": "BIGGEST POOLS",
+      "b5.i0.t": "Northbound Run Club",
+      "b5.i0.v": "120,000 SKR",
+      "b5.i0.s": "Northbound · 2d left",
+      "b5.i1.t": "Iron October",
+      "b5.i1.v": "75,000 SKR",
+      "b5.i1.s": "Forge Gym · 3d left",
+      "b5.i2.t": "Hydrate Week",
+      "b5.i2.v": "50,000 SKR",
+      "b5.i2.s": "Drift · closes in 5h",
+      "b5.i3.t": "Mat Month",
+      "b5.i3.v": "30,000 SKR",
+      "b5.i3.s": "Lotus · 1d left",
+      "b6.label": "FROM CREATORS YOU FOLLOW",
+      "b6.i0.t": "Hydrate Week",
+      "b6.i0.v": "50,000 SKR",
+      "b6.i0.s": "Drift · closes in 5h",
+      "b6.i1.t": "Dawn Pages",
+      "b6.i1.v": "20,000 SKR",
+      "b6.i1.s": "Inkwell · closes in 20h",
+      "b6.i2.t": "Iron October",
+      "b6.i2.v": "75,000 SKR",
+      "b6.i2.s": "Forge Gym · 3d left",
+      "header.title": "Bounties"
+    },
+    "H1·j": {
+      "_name": "Feed · Joined",
+      "b0.seg.0": "Discover",
+      "b0.seg.1": "Joined",
+      "b0.seg.2": "Created",
+      "b1.name": "Hydrate Week",
+      "b1.meta": "Drift · Day 3/7",
+      "b1.tag.0": "In",
+      "b1.tag.1": "31 of 40 in",
+      "b1.btn": "Prove",
+      "b2.name": "Dawn 5k",
+      "b2.meta": "Northbound · out on day 3",
+      "b2.tag.0": "Out",
+      "b3.name": "Sol Strings",
+      "b3.meta": "@riffs · ended",
+      "b3.tag.0": "Survived",
+      "b3.tag.1": "Claim 1,666 SKR",
+      "header.title": "Bounties"
+    },
+    "H1·c": {
+      "_name": "Feed · Created",
+      "b0.seg.0": "Discover",
+      "b0.seg.1": "Joined",
+      "b0.seg.2": "Created",
+      "b1.name": "Dawn Pages",
+      "b1.meta": "You funded 20,000 SKR · Day 4/14",
+      "b1.tag.0": "58 joined",
+      "b1.tag.1": "41 still in",
+      "b1.btn": "See stats",
+      "b3.btn.0": "Create a Bounty",
+      "header.title": "Bounties"
+    },
+    "H2": {
+      "_name": "Bounty detail",
+      "b0.brand": "Drift",
+      "b0.msg": "Two litres a day.\nSeven days. Don't blink.",
+      "b1.r0.t": "Drift",
+      "b1.r0.s": "Verified · hosted 6 · paid out 310,400 SKR",
+      "b2.row0.l": "Pool",
+      "b2.row0.v": "50,000 SKR",
+      "b2.row1.l": "Object",
+      "b2.row1.v": "Water bottle",
+      "b2.row2.l": "Length",
+      "b2.row2.v": "7 days",
+      "b2.row3.l": "Joins close",
+      "b2.row3.v": "in 5h 40m",
+      "b2.row4.l": "Entrants",
+      "b2.row4.v": "40",
+      "b2.row5.l": "Rule",
+      "b2.row5.v": "Miss a day and you're out",
+      "b3.chip.0": "Verified Seeker",
+      "b3.chip.1": "70%+ kept rate · you 91%",
+      "b4.title": "You're eligible",
+      "b4.sub": "Free to join. Survivors split the pool.",
+      "pin.0": "Join free",
+      "nav.title": "Bounty"
+    },
+    "H2·no": {
+      "_name": "Bounty · not eligible",
+      "b0.brand": "Northbound",
+      "b0.msg": "Run 5k every day\nfor 14 days.",
+      "b1.row0.l": "Pool",
+      "b1.row0.v": "120,000 SKR",
+      "b1.row1.l": "Object",
+      "b1.row1.v": "Running shoe",
+      "b1.row2.l": "Length",
+      "b1.row2.v": "14 days",
+      "b1.row3.l": "Entrants",
+      "b1.row3.v": "212",
+      "b2.chip.0": "Verified Seeker",
+      "b2.chip.1": "80%+ kept rate · you 74%",
+      "b3.title": "Not eligible yet",
+      "b3.sub": "Needs an 80% kept rate. Keep 6 more days in a row to get there.",
+      "pin.0": "Browse other Bounties",
+      "pin.1": "How kept rate works",
+      "nav.title": "Bounty"
+    },
+    "H3": {
+      "_name": "Bounty, joined",
+      "b0.title": "You're in.\n31 of 40 still standing.",
+      "b1.name": "Today's proof",
+      "b1.meta": "Water bottle · 2 photos",
+      "b1.tag.0": "0 of 2",
+      "b1.tag.1": "14h left",
+      "b1.btn": "Prove",
+      "b3.label": "RECENTLY OUT",
+      "b3.r0.t": "Marco",
+      "b3.r0.s": "missed day 2",
+      "b3.r0.r": "2h ago",
+      "b3.r1.t": "Lena",
+      "b3.r1.s": "missed day 2",
+      "b3.r1.r": "2h ago",
+      "b3.r2.t": "Kai",
+      "b3.r2.s": "missed day 1",
+      "b3.r2.r": "yesterday",
+      "b4.value": "≈ 1,613",
+      "b4.caption": "SKR each if 31 finish",
+      "nav.title": "Hydrate Week",
+      "nav.right": "Day 3/7"
+    },
+    "H4": {
+      "_name": "Eliminated",
+      "b2.title": "Missed day 3.\nYou're out of the pool.",
+      "b3.r0.t": "Kept rate",
+      "b3.r0.s": "Still yours to build",
+      "b3.r0.r": "90%",
+      "b3.r0.rs": "65 days",
+      "b3.r1.t": "Best streak",
+      "b3.r1.s": "Untouched",
+      "b3.r1.r": "21",
+      "b3.r1.rs": "days",
+      "b3.r2.t": "Start an Oath",
+      "b3.r2.s": "Put your own stake down",
+      "pin.0": "Browse Bounties",
+      "nav.title": "Hydrate Week"
+    },
+    "H5": {
+      "_name": "Bounty ended",
+      "b0.title": "27 survived.\nYou're one of them.",
+      "b1.value": "+1,666",
+      "b1.caption": "SKR, your share of 45,000",
+      "b2.seat0": "+1,666",
+      "b2.seat1": "+1,666",
+      "b2.seat2": "+1,666",
+      "b2.seat3": "+24",
+      "b3.btn.0": "Share card",
+      "b3.btn.1": "Follow @riffs",
+      "pin.0": "Claim 1,666 SKR",
+      "brand.stamp": "STRUM DAILY · SURVIVED",
+      "nav.title": "Sol Strings"
+    },
+    "H6": {
+      "_name": "My created Bounty",
+      "b0.title": "41 of 58 still reading.",
+      "b1.label": "Still in, per day",
+      "b2.row0.l": "Pool",
+      "b2.row0.v": "20,000 SKR",
+      "b2.row1.l": "Finish rate (est.)",
+      "b2.row1.v": "62%",
+      "b2.row2.l": "Cost per finisher (est.)",
+      "b2.row2.v": "≈ 556 SKR",
+      "b2.row3.l": "Finishers opted in to share",
+      "b2.row3.v": "12",
+      "b3.label": "FINISHERS (OPT-IN)",
+      "b3.r0.t": "@reads.sol",
+      "b3.r0.s": "4 of 4 days",
+      "b3.r0.r": "opted in",
+      "b3.r1.t": "@nomi",
+      "b3.r1.s": "4 of 4 days",
+      "b3.r1.r": "opted in",
+      "pin.0": "Export finishers",
+      "nav.title": "Dawn Pages",
+      "nav.right": "Day 4/14"
+    },
+    "I1": {
+      "_name": "My profile",
+      "b0.title": "Make it yours",
+      "b0.sub": "Build an avatar, add a bio and socials so friends spot you.",
+      "b1.name": "sam.skr",
+      "b1.handle": "7xKp…3F9q",
+      "b1.bio": "Lifting daily. Staking on myself.",
+      "b1.social.0": "@samkeeps",
+      "b1.act.0": "Edit",
+      "b1.act.1": "Share",
+      "b2.value": "91%",
+      "b2.line": "64 days · kept rate",
+      "b4.r0.t": "Streak",
+      "b4.r0.s": "Best: 21 days",
+      "b4.r0.r": "12",
+      "b4.r0.rs": "days",
+      "b4.r1.t": "Oaths",
+      "b4.r1.s": "41 kept · 9 broken",
+      "b4.r1.r": "50",
+      "b4.r2.t": "Bounties",
+      "b4.r2.s": "2 survived · 1 out",
+      "b4.r2.r": "3",
+      "b5.r0.t": "See how others see you",
+      "b5.r0.s": "Oaths: Oath partners only",
+      "header.title": "Profile"
+    },
+    "I2": {
+      "_name": "Someone's profile",
+      "b0.name": "riya.skr",
+      "b0.handle": "4mQa…9Lw2",
+      "b0.bio": "Morning runs, evening pages. Never broken an Oath.",
+      "b0.social.0": "@riyaruns",
+      "b0.social.1": "Telegram",
+      "b1.value": "94%",
+      "b1.line": "71 days · kept rate",
+      "b2.label": "OATHS",
+      "b2.r0.t": "Dawn Run",
+      "b2.r0.s": "Day 4/7 · 3 Keepers · HP 100",
+      "b2.r0.r": "Public",
+      "b2.r1.t": "Iron Week",
+      "b2.r1.s": "With you · Day 3/7",
+      "b2.r1.r": "Shared",
+      "b3.label": "BOUNTIES",
+      "b3.r0.t": "Sol Strings",
+      "b3.r0.s": "Survived · +1,666 SKR",
+      "b3.r1.t": "Hydrate Week",
+      "b3.r1.s": "In · Day 3/7",
+      "b4.chip.0": "3 Oaths together",
+      "b4.chip.1": "Never broken",
+      "pin.0": "Invite to an Oath",
+      "nav.title": "Riya"
+    },
+    "I3": {
+      "_name": "Creator profile",
+      "b0.brand": "Drift",
+      "b0.msg": "Drift\nHydration, on-chain.",
+      "b1.text": "We fund week-long hydration Bounties. Show up, drink up, split the pool.",
+      "b2.row0.l": "Hosted Bounties",
+      "b2.row0.v": "6",
+      "b2.row1.l": "Total paid out",
+      "b2.row1.v": "310,400 SKR",
+      "b2.row2.l": "Followers",
+      "b2.row2.v": "2,140",
+      "b3.label": "LINKS",
+      "b3.r0.t": "drift.water",
+      "b3.r0.s": "Website",
+      "b3.r1.t": "@driftwater",
+      "b3.r1.s": "X",
+      "b3.r2.t": "Drift Discord",
+      "b3.r2.s": "Community",
+      "b4.label": "HOSTED NOW",
+      "b4.r0.t": "Hydrate Week",
+      "b4.r0.s": "50,000 SKR · joins close 5h",
+      "b4.r0.r": "Open",
+      "pin.0": "Follow Drift",
+      "nav.title": "Drift"
+    },
+    "I4": {
+      "_name": "Settings",
+      "b0.label": "YOU",
+      "b0.r0.t": "Edit profile",
+      "b0.r0.s": "Avatar, name, bio, socials",
+      "b0.r1.t": "Wallet",
+      "b0.r1.s": "Add SKR, receive, claim",
+      "b0.r2.t": "Your activity",
+      "b0.r2.s": "Proofs, payments, votes",
+      "b0.r3.t": "Oath history",
+      "b0.r3.s": "50 finished",
+      "b0.r4.t": "Bounty history",
+      "b0.r4.s": "Joined and created",
+      "b0.r5.t": "Who sees what",
+      "b0.r5.s": "Oaths, Bounties, socials",
+      "b0.r6.t": "Host a Bounty",
+      "b0.r6.s": "You get a creator page when you host one",
+      "b1.label": "NOTIFICATIONS",
+      "b1.r0.t": "Nudges",
+      "b1.r0.s": "When a friend pokes you",
+      "b1.r1.t": "Deadline reminder",
+      "b1.r1.s": "2 hours before midnight",
+      "b1.r2.t": "Review requests",
+      "b1.r2.s": "When your group needs a vote",
+      "b1.r3.t": "Results",
+      "b1.r3.s": "Settlements and claims",
+      "b2.label": "WALLET & NETWORK",
+      "b2.r0.t": "Wallet",
+      "b2.r0.s": "Seeker Wallet · 7xKp…3F9q",
+      "b2.r1.t": "Network",
+      "b2.r1.s": "Devnet",
+      "b2.r1.r": "DEVNET",
+      "b2.r2.t": "Test SKR faucet",
+      "b2.r2.s": "Devnet only",
+      "b2.r2.r": "Get 5,000",
+      "nav.title": "Settings"
+    },
+    "J1": {
+      "_name": "Claim",
+      "b1.value": "1,186",
+      "b1.caption": "SKR ready to claim",
+      "b2.label": "HYDRA 14",
+      "b2.row0.l": "Start",
+      "b2.row0.v": "1,000",
+      "b2.row1.l": "Lost",
+      "b2.row1.v": "0",
+      "b2.row2.l": "Won from misses",
+      "b2.row2.v": "+186",
+      "b2.row3.l": "Fee",
+      "b2.row3.v": "0",
+      "b2.row4.l": "Claim",
+      "b2.row4.v": "1,186 SKR",
+      "pin.0": "Sign & claim",
+      "nav.title": "Claim"
+    },
+    "J1·p": {
+      "_name": "Claim · signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Confirm the claim",
+      "b2.sub": "Moving 1,186 SKR to your wallet.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "J1·ok": {
+      "_name": "Claimed",
+      "b2.title": "Claimed.",
+      "b2.sub": "1,186 SKR is in your wallet.",
+      "pin.0": "Done",
+      "brand.stamp": "CLAIMED · 1,186 SKR"
+    },
+    "J1·f": {
+      "_name": "Claim failed",
+      "b1.chip": "Transaction failed",
+      "b2.title": "Claim failed.",
+      "b2.sub": "Nothing moved. Your 1,186 SKR is still waiting.",
+      "pin.0": "Retry"
+    },
+    "K1": {
+      "_name": "Basics",
+      "b0.title": "Set the challenge.",
+      "b0.sub": "Public, free to join. Miss a day and you're out.",
+      "b1.label": "Title",
+      "b1.sug.0": "Dawn Pages",
+      "b1.sug.1": "Hydrate Week",
+      "b1.sug.2": "Iron Month",
+      "b2.o0.t": "Dumbbell",
+      "b2.o1.t": "Book",
+      "b2.o2.t": "Water bottle",
+      "b2.o3.t": "Guitar",
+      "b2.o4.t": "Running shoe",
+      "b2.o5.t": "Plant",
+      "b2.o6.t": "Skipping rope",
+      "b2.o7.t": "Yoga mat",
+      "b3.o0.t": "3",
+      "b3.o0.s": "days",
+      "b3.o1.t": "7",
+      "b3.o1.s": "days",
+      "b3.o2.t": "14",
+      "b3.o2.s": "days",
+      "b4.text": "JOINS CLOSE",
+      "b5.seg.0": "12 h",
+      "b5.seg.1": "24 h",
+      "b5.seg.2": "48 h",
+      "b5.seg.3": "Day 1 ends",
+      "pin.0": "Next"
+    },
+    "K2": {
+      "_name": "Pool",
+      "b0.title": "Fund the pool.",
+      "b0.sub": "Survivors split it equally at the end.",
+      "b1.value": "50,000",
+      "b1.caption": "SKR in the pool",
+      "b2.o0.t": "10k",
+      "b2.o1.t": "25k",
+      "b2.o2.t": "50k",
+      "b2.o3.t": "100k",
+      "b3.row0.l": "Pool",
+      "b3.row0.v": "50,000 SKR",
+      "b3.row1.l": "KEPT fee (10%)",
+      "b3.row1.v": "5,000 SKR",
+      "b3.row2.l": "You pay",
+      "b3.row2.v": "55,000 SKR",
+      "pin.0": "Next"
+    },
+    "K3": {
+      "_name": "Branding",
+      "b0.title": "Make it yours.",
+      "b0.sub": "Shown on the Bounty card and detail page.",
+      "b1.title": "Add a cover",
+      "b1.sub": "1200 × 600 · JPG or PNG",
+      "b2.label": "Message",
+      "b2.sug.0": "Read before your phone. 14 mornings.",
+      "b2.sug.1": "Prove it before breakfast.",
+      "b3.label": "One link",
+      "b3.sug.0": "dawnpages.xyz",
+      "pin.0": "Next"
+    },
+    "K4": {
+      "_name": "Requirements",
+      "b0.title": "Who can join?",
+      "b0.sub": "Optional. Every entrant needs a verified Seeker either way.",
+      "b1.r0.t": "Minimum kept rate",
+      "b1.r0.s": "Filters out flaky entrants",
+      "b2.o0.t": "60%",
+      "b2.o1.t": "70%",
+      "b2.o2.t": "80%",
+      "b2.o3.t": "90%",
+      "b3.r0.t": "Token held",
+      "b3.r0.s": "e.g. hold 1 PAGES",
+      "pin.0": "Next"
+    },
+    "K5": {
+      "_name": "Review & fund",
+      "b0.title": "Review and fund.",
+      "b1.brand": "You",
+      "b1.msg": "Dawn Pages\nRead before your phone.",
+      "b2.row0.l": "Object",
+      "b2.row0.v": "Book",
+      "b2.row1.l": "Length",
+      "b2.row1.v": "14 days",
+      "b2.row2.l": "Joins close",
+      "b2.row2.v": "24 h after launch",
+      "b2.row3.l": "Requirements",
+      "b2.row3.v": "70%+ kept rate",
+      "b2.row4.l": "Pool",
+      "b2.row4.v": "20,000 SKR",
+      "b2.row5.l": "Fee",
+      "b2.row5.v": "2,000 SKR",
+      "b2.row6.l": "You pay",
+      "b2.row6.v": "22,000 SKR",
+      "pin.0": "Sign & fund"
+    },
+    "K5·p": {
+      "_name": "Fund · signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Fund Dawn Pages",
+      "b2.sub": "22,000 SKR into the pool and fee.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "K5·ok": {
+      "_name": "Bounty live",
+      "b1.chip": "20,000 SKR pool",
+      "b2.title": "Dawn Pages is live.",
+      "b2.sub": "It's in Discover now. Joins close in 24 hours.",
+      "b3.btn.0": "Share",
+      "pin.0": "Open stats"
+    },
+    "L1": {
+      "_name": "Kept every day",
+      "b1.title": "Iron Week, kept.",
+      "b2.value": "1,186",
+      "b2.caption": "SKR · up 186",
+      "b3.row0.l": "Start",
+      "b3.row0.v": "1,000",
+      "b3.row1.l": "Lost",
+      "b3.row1.v": "0",
+      "b3.row2.l": "Won",
+      "b3.row2.v": "+186",
+      "b3.row3.l": "Final",
+      "b3.row3.v": "1,186 SKR",
+      "pin.0": "Claim 1,186 SKR",
+      "brand.stamp": "IRON WEEK · 7 OF 7"
+    },
+    "L2": {
+      "_name": "Missed some days",
+      "b1.title": "Iron Week is over.",
+      "b1.sub": "You missed days 4 and 6.",
+      "b2.value": "1,029",
+      "b2.caption": "SKR · up 29",
+      "b3.row0.l": "Start",
+      "b3.row0.v": "1,000",
+      "b3.row1.l": "Lost (2 misses)",
+      "b3.row1.v": "−357",
+      "b3.row2.l": "Won from others",
+      "b3.row2.v": "+386",
+      "b3.row3.l": "Final",
+      "b3.row3.v": "1,029 SKR",
+      "pin.0": "Claim 1,029 SKR",
+      "brand.stamp": "HYDRA 14 · SETTLED"
+    },
+    "L3": {
+      "_name": "Oath broken",
+      "b1.title": "Broken.",
+      "b1.sub": "Guitar Days hit 0 HP on day 6.",
+      "b2.value": "−1,000",
+      "b2.caption": "SKR · your whole stake",
+      "b3.label": "WHO MISSED",
+      "b3.r0.t": "Dev",
+      "b3.r0.s": "missed day 5",
+      "b3.r0.r": "−20 HP",
+      "b3.r1.t": "Arjun",
+      "b3.r1.s": "missed days 2 and 6",
+      "b3.r1.r": "−40 HP",
+      "pin.0": "Rematch · win back 500",
+      "pin.1": "Start a new Oath"
+    },
+    "L4": {
+      "_name": "Solo kept",
+      "b1.title": "Read 20 pages, kept.",
+      "b1.sub": "14 of 14 days.",
+      "b2.chip.0": "500 SKR back",
+      "b2.chip.1": "HP 100",
+      "b2.chip.2": "Streak 14",
+      "pin.0": "Claim 500 SKR"
+    },
+    "L4·m": {
+      "_name": "Solo missed some",
+      "b1.title": "Read 20 pages is over.",
+      "b1.sub": "Missed days 5 and 11.",
+      "b2.row0.l": "Start",
+      "b2.row0.v": "500",
+      "b2.row1.l": "Lost (2 misses)",
+      "b2.row1.v": "−89",
+      "b2.row2.l": "HP at the end",
+      "b2.row2.v": "65",
+      "b2.row3.l": "Final",
+      "b2.row3.v": "411 SKR",
+      "pin.0": "Claim 411 SKR"
+    },
+    "L4·b": {
+      "_name": "Solo broken",
+      "b1.title": "Read 20 pages broke\non day 9.",
+      "b1.sub": "Three misses at −35 HP each. Your 500 SKR burned.",
+      "b2.note": "Solo Oaths take heavier damage per miss.",
+      "pin.0": "Solo Rematch · win back 250",
+      "pin.1": "Start a new Oath"
+    },
+    "L6": {
+      "_name": "Rematch kept",
+      "b1.title": "You ran it back.",
+      "b1.sub": "Seven days kept. The Rematch held.",
+      "b2.value": "+500",
+      "b2.caption": "SKR recovered from Guitar Days",
+      "b3.row0.l": "Rematch final",
+      "b3.row0.v": "1,129",
+      "b3.row1.l": "Recovered",
+      "b3.row1.v": "+500",
+      "b3.row2.l": "Claim",
+      "b3.row2.v": "1,629 SKR",
+      "pin.0": "Claim 1,629 SKR",
+      "brand.stamp": "REMATCH · COMEBACK"
+    },
+    "L5": {
+      "_name": "Bounty survived / out",
+      "b0.title": "Bounty results live with the Bounty.",
+      "b1.r0.t": "Survived",
+      "b1.r0.s": "Sol Strings · +1,666 SKR",
+      "b1.r1.t": "Eliminated",
+      "b1.r1.s": "Hydrate Week · out on day 3"
+    },
+    "M1": {
+      "_name": "Notifications",
+      "b0.title": "9:41",
+      "b0.sub": "Wednesday 8 October",
+      "b1.r0.t": "Riya nudged you. Your move.",
+      "b1.r0.r": "now",
+      "b1.r1.t": "Iron Week: 2 hours to midnight.",
+      "b1.r1.r": "19:58",
+      "b1.r2.t": "Dev wants your vote on a photo.",
+      "b1.r2.r": "18:10",
+      "b1.r3.t": "Iron Week started. Day 1 is today.",
+      "b1.r3.r": "Mon",
+      "b1.r4.t": "Daily recap ready: +43 SKR.",
+      "b1.r4.r": "00:01",
+      "b1.r5.t": "Guitar Days broke. Rematch is open.",
+      "b1.r5.r": "Sun",
+      "b1.r6.t": "Rematch closes tomorrow.",
+      "b1.r6.r": "Sat",
+      "b1.r7.t": "Riya joined the Rematch.",
+      "b1.r7.r": "Sat",
+      "b1.r8.t": "1,186 SKR ready to claim.",
+      "b1.r8.r": "Fri",
+      "b1.r9.t": "Hydrate Week starts tomorrow.",
+      "b1.r9.r": "Thu",
+      "b1.r10.t": "Drift posted a new Bounty.",
+      "b1.r10.r": "Thu"
+    },
+    "M2": {
+      "_name": "No internet",
+      "b2.title": "You're offline.",
+      "b2.sub": "Photos need a connection to be checked. Reconnect before midnight.",
+      "pin.0": "Retry"
+    },
+    "M3": {
+      "_name": "Not enough SOL",
+      "b1.title": "Not enough SOL for fees.",
+      "b1.sub": "Signing costs about 0.000005 SOL. Your wallet has 0.",
+      "b2.btn.0": "Get devnet SOL",
+      "b2.btn.1": "Cancel"
+    },
+    "M4": {
+      "_name": "Not enough SKR",
+      "b0.title": "You need 1,000 SKR.",
+      "b0.sub": "You have 620 SKR. Pick a smaller stake, or grab test SKR from the faucet.",
+      "b1.btn.0": "Open the faucet",
+      "b1.btn.1": "Pick a smaller stake"
+    },
+    "A4": {
+      "_name": "Pick a look",
+      "b0.title": "Pick a look.",
+      "b0.sub": "No face needed. It's how friends spot you in an Oath.",
+      "b3.text": "You can change it any time from your Profile.",
+      "pin.0": "Looks like me",
+      "pin.1": "Customize it"
+    },
+    "N1": {
+      "_name": "Inbox",
+      "b1.label": "NEEDS YOU · 4",
+      "b1.inv1.t": "Riya invited you to Dawn Run",
+      "b1.inv1.s": "7 days · 1,000 SKR each · Dev is in",
+      "b1.inv1.btn0": "Accept",
+      "b1.inv1.btn1": "Decline",
+      "b1.rev1.t": "Dev wants your vote",
+      "b1.rev1.s": "Iron Week · photo 2 failed 3 times · 41h left",
+      "b1.rev1.btn0": "Review photo",
+      "b1.clm1.t": "1,186 SKR ready to claim",
+      "b1.clm1.s": "Hydra 14 ended Sunday",
+      "b1.clm1.btn0": "Claim",
+      "b1.rm1.t": "Rematch Guitar Days?",
+      "b1.rm1.s": "Win back 500 SKR · closes in 6d 23h",
+      "b1.rm1.btn0": "See Rematch",
+      "b2.label": "NEW",
+      "b2.action": "Mark all read",
+      "b2.ng1.t": "Riya nudged you",
+      "b2.ng1.s": "Iron Week · photo 2 is still due",
+      "b2.rc1.t": "Yesterday, settled",
+      "b2.rc1.s": "Arjun missed · +43 SKR to you",
+      "b2.st1.t": "Hydrate Week started",
+      "b2.st1.s": "Day 1 is today · 40 in",
+      "b2.fl1.t": "Drift posted a new Bounty",
+      "b2.fl1.s": "Hydrate Week · 50,000 SKR pool",
+      "b3.text": "Only what needs you, or happened since you last looked.",
+      "nav.title": "Inbox"
+    },
+    "W1": {
+      "_name": "Wallet",
+      "b1.value": "4,280",
+      "b1.caption": "SKR available · ≈ $42.80",
+      "b2.btn.0": "Add SKR",
+      "b2.btn.1": "Receive",
+      "b3.name": "1,186 SKR to claim",
+      "b3.meta": "Hydra 14 ended Sunday",
+      "b3.btn": "Claim now",
+      "b4.label": "BALANCES",
+      "b4.row0.l": "Available",
+      "b4.row0.v": "4,280 SKR",
+      "b4.row1.l": "Locked in Oaths",
+      "b4.row1.v": "1,500 SKR · 2 Oaths",
+      "b4.row2.l": "In a Rematch",
+      "b4.row2.v": "1,000 SKR",
+      "b4.row3.l": "SOL for fees",
+      "b4.row3.v": "0.84 SOL",
+      "b5.label": "RECENT",
+      "b5.r0.t": "+43 SKR from Arjun's miss",
+      "b5.r0.s": "Iron Week · yesterday",
+      "b5.r0.r": "+43",
+      "b5.r1.t": "Staked into Iron Week",
+      "b5.r1.s": "Mon 6 Oct",
+      "b5.r1.r": "−1,000",
+      "b5.r2.t": "All activity",
+      "nav.title": "Wallet"
+    },
+    "W2": {
+      "_name": "Add SKR",
+      "b0.title": "Add SKR.",
+      "b0.sub": "Pick how you want to top up.",
+      "b1.r0.t": "Swap SOL for SKR",
+      "b1.r0.s": "Right here, in a few seconds",
+      "b1.r1.t": "Receive from another wallet",
+      "b1.r1.s": "Show your address or QR",
+      "b1.r2.t": "Test SKR faucet",
+      "b1.r2.s": "Devnet only · free",
+      "b1.r2.r": "+5,000",
+      "b2.text": "Devnet SKR has no real value.",
+      "b3.btn.0": "Close"
+    },
+    "W3": {
+      "_name": "Swap SOL → SKR",
+      "b0.title": "Swap SOL for SKR.",
+      "b0.sub": "Pick an amount.",
+      "b1.o0.t": "0.1",
+      "b1.o0.s": "SOL",
+      "b1.o1.t": "0.25",
+      "b1.o1.s": "SOL",
+      "b1.o2.t": "0.5",
+      "b1.o2.s": "SOL",
+      "b1.o3.t": "1",
+      "b1.o3.s": "SOL",
+      "b2.value": "+4,950",
+      "b2.caption": "SKR you'll get",
+      "b3.row0.l": "You pay",
+      "b3.row0.v": "0.5 SOL",
+      "b3.row1.l": "Rate",
+      "b3.row1.v": "1 SOL ≈ 9,900 SKR",
+      "b3.row2.l": "Network fee",
+      "b3.row2.v": "0.000005 SOL",
+      "b3.row3.l": "You have",
+      "b3.row3.v": "0.84 SOL",
+      "b4.text": "Devnet rate. Swaps route through a public exchange.",
+      "pin.0": "Swap",
+      "nav.title": "Swap"
+    },
+    "W3·s": {
+      "_name": "Swap · signing",
+      "b1.chip": "Seeker Wallet",
+      "b2.title": "Confirm the swap",
+      "b2.sub": "Swapping SOL for SKR.",
+      "b3.text": "Waiting for your signature…"
+    },
+    "W3·ok": {
+      "_name": "Swap done",
+      "b1.chip": "Swap confirmed",
+      "b2.title": "SKR added.",
+      "b2.sub": "Your balance is now 4,280 SKR.",
+      "pin.0": "Back to wallet",
+      "pin.1": "Start an Oath"
+    },
+    "W4": {
+      "_name": "Receive",
+      "b0.title": "Your address.",
+      "b0.sub": "Send SKR or SOL here from any Solana wallet.",
+      "b1.code": "7xKp…3F9q",
+      "b1.link": "7xKpZ1a9Lw2QmR4vT8yN3F9q",
+      "b2.btn.0": "Copy address",
+      "b2.btn.1": "Share",
+      "b3.text": "Devnet only. Mainnet tokens sent here will be lost.",
+      "nav.title": "Receive"
+    },
+    "D5": {
+      "_name": "Oath history",
+      "b0.placeholder": "Search 50 Oaths",
+      "b1.seg.0": "All",
+      "b1.seg.1": "Kept",
+      "b1.seg.2": "Broken",
+      "b1.seg.3": "Rematch",
+      "b2.title": "50 finished · 41 kept · 9 broken",
+      "b2.sub": "+3,420 SKR won · −2,600 SKR lost, all time",
+      "b3.label": "OCTOBER",
+      "b3.r0.t": "Hydra 14",
+      "b3.r0.s": "Kept by 3 of 4 · ended Sun 5",
+      "b3.r0.r": "+186",
+      "b3.r1.t": "Pages Sprint · Rematch",
+      "b3.r1.s": "Kept every day · recovered 500",
+      "b3.r1.r": "+500",
+      "b3.r2.t": "Guitar Days",
+      "b3.r2.s": "Broke on day 6",
+      "b3.r2.r": "−1,000",
+      "b4.label": "SEPTEMBER",
+      "b4.r0.t": "Iron Week",
+      "b4.r0.s": "Kept · 7 of 7",
+      "b4.r0.r": "+72",
+      "b4.r1.t": "Dawn Run",
+      "b4.r1.s": "Solo · kept 7 of 7",
+      "b4.r1.r": "±0",
+      "b4.r2.t": "Cold Showers",
+      "b4.r2.s": "Solo · broke on day 4",
+      "b4.r2.r": "−500",
+      "b4.r3.t": "Read 20 pages",
+      "b4.r3.s": "Kept · missed 1 day",
+      "b4.r3.r": "+12",
+      "b4.r4.t": "Mat Mornings",
+      "b4.r4.s": "Kept by 2 of 3",
+      "b4.r4.r": "+140",
+      "b5.r0.t": "Load older",
+      "b5.r0.s": "August and earlier · 42 more",
+      "nav.title": "Oath history"
+    },
+    "H7": {
+      "_name": "Browse Bounties",
+      "b0.placeholder": "Search by name, brand or habit",
+      "b1.i0.t": "All",
+      "b1.i1.t": "Fitness",
+      "b1.i2.t": "Reading",
+      "b1.i3.t": "Hydration",
+      "b1.i4.t": "Music",
+      "b1.i5.t": "Mind",
+      "b1.i6.t": "Outdoors",
+      "b2.seg.0": "Closing soon",
+      "b2.seg.1": "Biggest pool",
+      "b2.seg.2": "Most joined",
+      "b3.r0.t": "Only ones I can join",
+      "b3.r0.s": "Off",
+      "b4.text": "1,240 live Bounties",
+      "b5.r0.t": "Rope 1k",
+      "b5.r0.s": "SkipLab · 120 in · closes in 3h",
+      "b5.r0.r": "15,000",
+      "b5.r0.rs": "SKR",
+      "b5.r1.t": "Hydrate Week",
+      "b5.r1.s": "Drift · 40 in · closes in 5h",
+      "b5.r1.r": "50,000",
+      "b5.r1.rs": "SKR",
+      "b5.r2.t": "Sol Strings",
+      "b5.r2.s": "@riffs · 58 in · closes in 9h",
+      "b5.r2.r": "8,000",
+      "b5.r2.rs": "SKR",
+      "b5.r3.t": "Green Thumb",
+      "b5.r3.s": "Sprout Co · 31 in · closes in 12h",
+      "b5.r3.r": "12,000",
+      "b5.r3.rs": "SKR",
+      "b5.r4.t": "Dawn Pages",
+      "b5.r4.s": "Inkwell · 58 in · closes in 20h",
+      "b5.r4.r": "20,000",
+      "b5.r4.rs": "SKR",
+      "b5.r5.t": "Mat Month",
+      "b5.r5.s": "Lotus · 88 in · 1d left",
+      "b5.r5.r": "30,000",
+      "b5.r5.rs": "SKR",
+      "b5.r6.t": "Northbound Run Club",
+      "b5.r6.s": "Northbound · 212 in · 2d left",
+      "b5.r6.r": "120,000",
+      "b5.r6.rs": "SKR",
+      "b5.r7.t": "Iron October",
+      "b5.r7.s": "Forge Gym · 340 in · 3d left",
+      "b5.r7.r": "75,000",
+      "b5.r7.rs": "SKR",
+      "b6.text": "Scroll for more. New Bounties land every day.",
+      "nav.title": "Browse"
+    },
+    "I2·me": {
+      "_name": "How others see you",
+      "b0.title": "This is how others see you",
+      "b0.sub": "Change it in Who sees what.",
+      "b1.name": "sam.skr",
+      "b1.handle": "7xKp…3F9q",
+      "b1.bio": "Lifting daily. Staking on myself.",
+      "b1.social.0": "@samkeeps",
+      "b2.value": "91%",
+      "b2.line": "64 days · kept rate",
+      "b3.title": "Oaths: only Oath partners",
+      "b3.sub": "People you share an Oath with see them.",
+      "b4.label": "BOUNTIES",
+      "b4.r0.t": "Hydrate Week",
+      "b4.r0.s": "In · Day 3/7",
+      "nav.title": "Preview"
+    },
+    "I2·p": {
+      "_name": "Private profile",
+      "b0.name": "arjun.skr",
+      "b0.handle": "9Tz2…Qe41",
+      "b1.value": "78%",
+      "b1.line": "40 days · kept rate",
+      "b2.title": "Arjun keeps his Oaths private",
+      "b2.sub": "You only see the ones you share.",
+      "b3.label": "SHARED WITH YOU",
+      "b3.r0.t": "Iron Week",
+      "b3.r0.s": "With you · Day 3/7",
+      "b3.r0.r": "Shared",
+      "pin.0": "Invite to an Oath",
+      "nav.title": "Arjun"
+    },
+    "I5": {
+      "_name": "Your activity",
+      "b0.seg.0": "All",
+      "b0.seg.1": "Money",
+      "b0.seg.2": "Proof",
+      "b0.seg.3": "Oaths",
+      "b1.label": "TODAY",
+      "b1.r0.t": "Kept Iron Week · day 3",
+      "b1.r0.s": "Photo 2 passed · 21:04",
+      "b1.r1.t": "Photo 1 passed",
+      "b1.r1.s": "Iron Week · 07:58",
+      "b2.label": "YESTERDAY",
+      "b2.r0.t": "+43 SKR from Arjun's miss",
+      "b2.r0.s": "Iron Week · settled 00:00",
+      "b2.r0.r": "+43",
+      "b2.r1.t": "Kept Read 20 pages",
+      "b2.r1.s": "Solo · day 8",
+      "b2.r2.t": "Voted on Dev's photo",
+      "b2.r2.s": "Approved",
+      "b3.label": "MON 6 OCT",
+      "b3.r0.t": "Staked into Iron Week",
+      "b3.r0.s": "1,000 SKR",
+      "b3.r0.r": "−1,000",
+      "b3.r1.t": "Joined Hydrate Week",
+      "b3.r1.s": "Bounty by Drift",
+      "b4.label": "SUN 5 OCT",
+      "b4.r0.t": "Claimed Hydra 14",
+      "b4.r0.s": "1,186 SKR",
+      "b4.r0.r": "+1,186",
+      "b4.r1.t": "Guitar Days broke",
+      "b4.r1.s": "HP hit 0 on day 6",
+      "b4.r1.r": "−1,000",
+      "b5.text": "Older activity loads as you scroll.",
+      "nav.title": "Your activity"
+    },
+    "I7": {
+      "_name": "Who sees what",
+      "b0.title": "Your kept rate is always public",
+      "b0.sub": "It's how people decide who to trust. The rest is up to you.",
+      "b1.text": "YOUR OATHS",
+      "b2.seg.0": "Everyone",
+      "b2.seg.1": "Oath partners",
+      "b2.seg.2": "Only me",
+      "b3.text": "YOUR BOUNTIES",
+      "b4.seg.0": "Everyone",
+      "b4.seg.1": "Oath partners",
+      "b4.seg.2": "Only me",
+      "b5.text": "YOUR SOCIALS",
+      "b6.seg.0": "Everyone",
+      "b6.seg.1": "Oath partners",
+      "b6.seg.2": "Only me",
+      "b7.r0.t": "Find me by name",
+      "b7.r0.s": "People can search for you",
+      "b7.r1.t": "Let anyone invite me",
+      "b7.r1.s": "Off: only people you've shared an Oath with",
+      "b8.r0.t": "See how others see you",
+      "nav.title": "Who sees what"
+    },
+    "I8": {
+      "_name": "Edit profile",
+      "b1.label": "Name",
+      "b1.sug.0": "sam.skr",
+      "b1.sug.1": "Sam K.",
+      "b1.sug.2": "samkeeps",
+      "b2.label": "Bio",
+      "b2.sug.0": "Lifting daily. Staking on myself.",
+      "b2.sug.1": "Building in public, one kept day at a time.",
+      "b2.sug.2": "Will out-keep you. Try me.",
+      "b3.label": "SOCIALS · SO PEOPLE CAN REACH YOU",
+      "b3.r0.t": "X",
+      "b3.r0.s": "@samkeeps · on your profile",
+      "b3.r1.t": "Telegram",
+      "b3.r1.s": "Tap to connect",
+      "b3.r2.t": "Discord",
+      "b3.r2.s": "Tap to connect",
+      "b3.r3.t": "Farcaster",
+      "b3.r3.s": "Tap to connect",
+      "b4.text": "Your wallet address can't be changed here. Who sees socials: Who sees what.",
+      "pin.0": "Save",
+      "nav.title": "Edit profile"
+    },
+    "I9": {
+      "_name": "Avatar builder",
+      "pin.0": "Done",
+      "nav.title": "Your avatar"
+    }
+  },
+  "keeper": {
+    "byScreen": {
+      "A1": [
+        {
+          "mood": "smug",
+          "line": "Step up.\nPlace your word."
+        }
+      ],
+      "A2·e": [
+        {
+          "mood": "shocked",
+          "line": "Cold feet already?"
+        }
+      ],
+      "B1": [
+        {
+          "mood": "side",
+          "line": "Tuesday again.\nYou missed the last two."
+        },
+        {
+          "mood": "side",
+          "line": "Photo 2 left. 9 hours.\nEasy money."
+        },
+        {
+          "mood": "side",
+          "line": "Riya kept at 07:12.\nShe's watching you."
+        }
+      ],
+      "B2": [
+        {
+          "mood": "shades",
+          "line": "Clean sweep.\nI'm almost impressed."
+        }
+      ],
+      "B3": [
+        {
+          "mood": "bored",
+          "line": "Nothing on the table."
+        }
+      ],
+      "B4": [
+        {
+          "mood": "stern",
+          "line": "Tick tock. Your 143\nis getting nervous."
+        }
+      ],
+      "B5": [
+        {
+          "mood": "side",
+          "line": "Petty? Me? Never."
+        }
+      ],
+      "C1": [
+        {
+          "mood": "soft",
+          "line": "Make it something\nyou'll actually do."
+        },
+        {
+          "mood": "soft",
+          "line": "Small and daily\nbeats big and never."
+        },
+        {
+          "mood": "soft",
+          "line": "I hold you to\nevery word. Choose well."
+        }
+      ],
+      "C7·no": [
+        {
+          "mood": "soft",
+          "line": "Cold feet happens."
+        }
+      ],
+      "D0": [
+        {
+          "mood": "side",
+          "line": "Iron Week needs\nyour photo 2."
+        },
+        {
+          "mood": "side",
+          "line": "Arjun's wobbling.\n3-to-1 he misses."
+        },
+        {
+          "mood": "side",
+          "line": "Two Oaths, one empty seat.\nFill it."
+        }
+      ],
+      "D2": [
+        {
+          "mood": "side",
+          "line": "Arjun's still on the couch.\n3-to-1 he misses."
+        }
+      ],
+      "D2·low": [
+        {
+          "mood": "stern",
+          "line": "Don't look at me.\nLook at Arjun."
+        }
+      ],
+      "E3·code": [
+        {
+          "mood": "shocked",
+          "line": "Nice try."
+        }
+      ],
+      "E3·late": [
+        {
+          "mood": "side",
+          "line": "You snooze, you watch."
+        }
+      ],
+      "E3·in": [
+        {
+          "mood": "wink",
+          "line": "Eager. I like it."
+        }
+      ],
+      "E3·elig": [
+        {
+          "mood": "soft",
+          "line": "Rules are rules, friend."
+        }
+      ],
+      "E3·skr": [
+        {
+          "mood": "bored",
+          "line": "Pockets a bit light."
+        }
+      ],
+      "R1": [
+        {
+          "mood": "smug",
+          "line": "Run it back?"
+        }
+      ],
+      "R·act": [
+        {
+          "mood": "side",
+          "line": "Riya burned her recovery.\nDon't be Riya."
+        }
+      ],
+      "F2": [
+        {
+          "mood": "neutral",
+          "line": "Hold still.\nI'm judging."
+        }
+      ],
+      "F2a": [
+        {
+          "mood": "soft",
+          "line": "Close. Two fingers,\nlike you mean it."
+        }
+      ],
+      "F2b": [
+        {
+          "mood": "bored",
+          "line": "The checker's napping.\nNot your fault."
+        }
+      ],
+      "F4·chk": [
+        {
+          "mood": "neutral",
+          "line": "Last look."
+        }
+      ],
+      "F4a": [
+        {
+          "mood": "soft",
+          "line": "It happens.\nEven to you."
+        }
+      ],
+      "F5": [
+        {
+          "mood": "happy",
+          "line": "Clean. Your 1,000\nsleeps safe tonight."
+        }
+      ],
+      "G1": [
+        {
+          "mood": "side",
+          "line": "Looks like a palm to me.\nMostly."
+        }
+      ],
+      "G3·no": [
+        {
+          "mood": "soft",
+          "line": "Tough crowd."
+        }
+      ],
+      "H1·c": [
+        {
+          "mood": "wink",
+          "line": "Generous. Suspicious,\nbut generous."
+        }
+      ],
+      "H3": [
+        {
+          "mood": "side",
+          "line": "Nine down already.\nMarco went first."
+        }
+      ],
+      "H4": [
+        {
+          "mood": "soft",
+          "line": "Pool's gone.\nYour word isn't."
+        }
+      ],
+      "I1": [
+        {
+          "mood": "wink",
+          "line": "I call you\nThe Early Bird."
+        },
+        {
+          "mood": "wink",
+          "line": "38 of your 64 kept days\nwere done before 9am."
+        },
+        {
+          "mood": "wink",
+          "line": "Keep it up and I'll\nthink of a better one."
+        }
+      ],
+      "J1·ok": [
+        {
+          "mood": "shades",
+          "line": "Pleasure doing\nbusiness."
+        }
+      ],
+      "L1": [
+        {
+          "mood": "shades",
+          "line": "Seven for seven.\nPay the Keeper."
+        }
+      ],
+      "L2": [
+        {
+          "mood": "wink",
+          "line": "Two slips.\nStill walked out up."
+        }
+      ],
+      "L3": [
+        {
+          "mood": "stern",
+          "line": "The pot burns.\nNobody eats."
+        }
+      ],
+      "L4": [
+        {
+          "mood": "happy",
+          "line": "Fourteen days.\nNo witnesses needed."
+        }
+      ],
+      "L4·m": [
+        {
+          "mood": "soft",
+          "line": "Two off days.\nYou still finished."
+        }
+      ],
+      "L4·b": [
+        {
+          "mood": "stern",
+          "line": "Solo burns too."
+        }
+      ],
+      "L6": [
+        {
+          "mood": "shades",
+          "line": "The comeback.\nTheatrical, even."
+        }
+      ],
+      "M2": [
+        {
+          "mood": "bored",
+          "line": "Can't reach the table."
+        }
+      ],
+      "M3": [
+        {
+          "mood": "shocked",
+          "line": "No gas in the tank."
+        }
+      ],
+      "A4": [
+        {
+          "mood": "shocked",
+          "line": "A fox. Sly. I respect it."
+        }
+      ],
+      "N1": [
+        {
+          "mood": "side",
+          "line": "4 things on the table.\nClaim first."
+        },
+        {
+          "mood": "side",
+          "line": "Dev needs your vote.\nBe fair. Or don't."
+        },
+        {
+          "mood": "side",
+          "line": "I sort these so\nyou don't have to."
+        }
+      ],
+      "W1": [
+        {
+          "mood": "smug",
+          "line": "You left 1,186\non my table."
+        },
+        {
+          "mood": "smug",
+          "line": "Claim it. I don't\nhold chips forever."
+        }
+      ],
+      "I9": [
+        {
+          "mood": "shocked",
+          "line": "A fox. Sly. I respect it."
+        }
+      ]
+    },
+    "byMoment": {
+      "onboarding": [
+        {
+          "screen": "A1",
+          "mood": "smug",
+          "line": "Step up.\nPlace your word."
+        },
+        {
+          "screen": "A2·e",
+          "mood": "shocked",
+          "line": "Cold feet already?"
+        },
+        {
+          "screen": "A4",
+          "mood": "shocked",
+          "line": "A fox. Sly. I respect it."
+        }
+      ],
+      "today": [
+        {
+          "screen": "B1",
+          "mood": "side",
+          "line": "Tuesday again.\nYou missed the last two."
+        },
+        {
+          "screen": "B1",
+          "mood": "side",
+          "line": "Photo 2 left. 9 hours.\nEasy money."
+        },
+        {
+          "screen": "B1",
+          "mood": "side",
+          "line": "Riya kept at 07:12.\nShe's watching you."
+        },
+        {
+          "screen": "B2",
+          "mood": "shades",
+          "line": "Clean sweep.\nI'm almost impressed."
+        },
+        {
+          "screen": "B3",
+          "mood": "bored",
+          "line": "Nothing on the table."
+        }
+      ],
+      "deadline": [
+        {
+          "screen": "B4",
+          "mood": "stern",
+          "line": "Tick tock. Your 143\nis getting nervous."
+        }
+      ],
+      "recap": [
+        {
+          "screen": "B5",
+          "mood": "side",
+          "line": "Petty? Me? Never."
+        }
+      ],
+      "setup": [
+        {
+          "screen": "C1",
+          "mood": "soft",
+          "line": "Make it something\nyou'll actually do."
+        },
+        {
+          "screen": "C1",
+          "mood": "soft",
+          "line": "Small and daily\nbeats big and never."
+        },
+        {
+          "screen": "C1",
+          "mood": "soft",
+          "line": "I hold you to\nevery word. Choose well."
+        },
+        {
+          "screen": "W1",
+          "mood": "smug",
+          "line": "You left 1,186\non my table."
+        },
+        {
+          "screen": "W1",
+          "mood": "smug",
+          "line": "Claim it. I don't\nhold chips forever."
+        }
+      ],
+      "errors": [
+        {
+          "screen": "C7·no",
+          "mood": "soft",
+          "line": "Cold feet happens."
+        },
+        {
+          "screen": "E3·code",
+          "mood": "shocked",
+          "line": "Nice try."
+        },
+        {
+          "screen": "E3·late",
+          "mood": "side",
+          "line": "You snooze, you watch."
+        },
+        {
+          "screen": "E3·in",
+          "mood": "wink",
+          "line": "Eager. I like it."
+        },
+        {
+          "screen": "E3·elig",
+          "mood": "soft",
+          "line": "Rules are rules, friend."
+        },
+        {
+          "screen": "E3·skr",
+          "mood": "bored",
+          "line": "Pockets a bit light."
+        },
+        {
+          "screen": "M2",
+          "mood": "bored",
+          "line": "Can't reach the table."
+        },
+        {
+          "screen": "M3",
+          "mood": "shocked",
+          "line": "No gas in the tank."
+        }
+      ],
+      "groupGossip": [
+        {
+          "screen": "D0",
+          "mood": "side",
+          "line": "Iron Week needs\nyour photo 2."
+        },
+        {
+          "screen": "D0",
+          "mood": "side",
+          "line": "Arjun's wobbling.\n3-to-1 he misses."
+        },
+        {
+          "screen": "D0",
+          "mood": "side",
+          "line": "Two Oaths, one empty seat.\nFill it."
+        },
+        {
+          "screen": "D2",
+          "mood": "side",
+          "line": "Arjun's still on the couch.\n3-to-1 he misses."
+        },
+        {
+          "screen": "D2·low",
+          "mood": "stern",
+          "line": "Don't look at me.\nLook at Arjun."
+        }
+      ],
+      "rematch": [
+        {
+          "screen": "R1",
+          "mood": "smug",
+          "line": "Run it back?"
+        },
+        {
+          "screen": "R·act",
+          "mood": "side",
+          "line": "Riya burned her recovery.\nDon't be Riya."
+        }
+      ],
+      "proofCheck": [
+        {
+          "screen": "F2",
+          "mood": "neutral",
+          "line": "Hold still.\nI'm judging."
+        },
+        {
+          "screen": "F2a",
+          "mood": "soft",
+          "line": "Close. Two fingers,\nlike you mean it."
+        },
+        {
+          "screen": "F2b",
+          "mood": "bored",
+          "line": "The checker's napping.\nNot your fault."
+        },
+        {
+          "screen": "F4·chk",
+          "mood": "neutral",
+          "line": "Last look."
+        }
+      ],
+      "proofFailed": [
+        {
+          "screen": "F4a",
+          "mood": "soft",
+          "line": "It happens.\nEven to you."
+        }
+      ],
+      "dayKept": [
+        {
+          "screen": "F5",
+          "mood": "happy",
+          "line": "Clean. Your 1,000\nsleeps safe tonight."
+        }
+      ],
+      "review": [
+        {
+          "screen": "G1",
+          "mood": "side",
+          "line": "Looks like a palm to me.\nMostly."
+        },
+        {
+          "screen": "G3·no",
+          "mood": "soft",
+          "line": "Tough crowd."
+        }
+      ],
+      "other": [
+        {
+          "screen": "H1·c",
+          "mood": "wink",
+          "line": "Generous. Suspicious,\nbut generous."
+        }
+      ],
+      "bountyOutFeed": [
+        {
+          "screen": "H3",
+          "mood": "side",
+          "line": "Nine down already.\nMarco went first."
+        }
+      ],
+      "gentleLoss": [
+        {
+          "screen": "H4",
+          "mood": "soft",
+          "line": "Pool's gone.\nYour word isn't."
+        }
+      ],
+      "profile": [
+        {
+          "screen": "I1",
+          "mood": "wink",
+          "line": "I call you\nThe Early Bird."
+        },
+        {
+          "screen": "I1",
+          "mood": "wink",
+          "line": "38 of your 64 kept days\nwere done before 9am."
+        },
+        {
+          "screen": "I1",
+          "mood": "wink",
+          "line": "Keep it up and I'll\nthink of a better one."
+        },
+        {
+          "screen": "N1",
+          "mood": "side",
+          "line": "4 things on the table.\nClaim first."
+        },
+        {
+          "screen": "N1",
+          "mood": "side",
+          "line": "Dev needs your vote.\nBe fair. Or don't."
+        },
+        {
+          "screen": "N1",
+          "mood": "side",
+          "line": "I sort these so\nyou don't have to."
+        },
+        {
+          "screen": "I9",
+          "mood": "shocked",
+          "line": "A fox. Sly. I respect it."
+        }
+      ],
+      "payout": [
+        {
+          "screen": "J1·ok",
+          "mood": "shades",
+          "line": "Pleasure doing\nbusiness."
+        },
+        {
+          "screen": "L1",
+          "mood": "shades",
+          "line": "Seven for seven.\nPay the Keeper."
+        },
+        {
+          "screen": "L2",
+          "mood": "wink",
+          "line": "Two slips.\nStill walked out up."
+        },
+        {
+          "screen": "L4",
+          "mood": "happy",
+          "line": "Fourteen days.\nNo witnesses needed."
+        },
+        {
+          "screen": "L4·m",
+          "mood": "soft",
+          "line": "Two off days.\nYou still finished."
+        }
+      ],
+      "broken": [
+        {
+          "screen": "L3",
+          "mood": "stern",
+          "line": "The pot burns.\nNobody eats."
+        },
+        {
+          "screen": "L4·b",
+          "mood": "stern",
+          "line": "Solo burns too."
+        }
+      ],
+      "comeback": [
+        {
+          "screen": "L6",
+          "mood": "shades",
+          "line": "The comeback.\nTheatrical, even."
+        }
+      ]
+    },
+    "idle": {
+      "today": {
+        "mood": "smug",
+        "line": "Quiet table. Go keep something."
+      },
+      "oaths": {
+        "mood": "side",
+        "line": "Every Oath here is a bet on someone."
+      },
+      "bounties": {
+        "mood": "wink",
+        "line": "Free pools. The catch is you have to last."
+      },
+      "profile": {
+        "mood": "smug",
+        "line": "Your record. I keep it honest."
+      }
+    },
+    "avatarBuilder": {
+      "base": [
+        "Human. Bold, honestly.",
+        "A fox. Sly. I respect it.",
+        "Cat. Lands on its feet. Mostly.",
+        "Frog. Very online of you.",
+        "Bear. Patient. Good for 14 days.",
+        "A bot. Do bots keep their word?",
+        "Skull? Hey, that's my look.",
+        "Alien. You're not from around here."
+      ],
+      "eyes": [
+        "Classic. Honest eyes.",
+        "Sleepy. Morning Oaths, huh?",
+        "Laser eyes. Bullish.",
+        "Shades. Now we're talking."
+      ],
+      "hat": [
+        "No hat. Clean.",
+        "Beanie. Cosy.",
+        "Backwards cap. Classic.",
+        "A crown? Earn it.",
+        "A halo. We'll see.",
+        "My visor! Flattered."
+      ],
+      "fit": [
+        "Hoodie. Builder energy.",
+        "Tee. Simple.",
+        "Chain. Flashy.",
+        "Jacket. Means business.",
+        "Turtleneck. Founder mode."
+      ],
+      "extra": [
+        "Nothing extra. Fair.",
+        "Ace behind the ear. Like me.",
+        "An earring. Nice.",
+        "Bandage. Rough week?"
+      ],
+      "back": [
+        "Lime. KEPT colours.",
+        "Violet. Royal.",
+        "Sky. Calm.",
+        "Pink. Loud. Good.",
+        "Sun. Optimist.",
+        "Mint. Fresh.",
+        "Night. Moody.",
+        "Ember. Spicy."
+      ]
+    }
+  },
+  "sampleData": {
+    "inbox": [
+      {
+        "id": "inv1",
+        "title": "Riya invited you to Dawn Run",
+        "body": "7 days · 1,000 SKR each · Dev is in",
+        "time": "2h",
+        "actions": [
+          "Accept",
+          "Decline"
+        ]
+      },
+      {
+        "id": "rev1",
+        "title": "Dev wants your vote",
+        "body": "Iron Week · photo 2 failed 3 times · 41h left",
+        "time": "3h",
+        "actions": [
+          "Review photo"
+        ]
+      },
+      {
+        "id": "clm1",
+        "title": "1,186 SKR ready to claim",
+        "body": "Hydra 14 ended Sunday",
+        "time": "1d",
+        "actions": [
+          "Claim"
+        ]
+      },
+      {
+        "id": "rm1",
+        "title": "Rematch Guitar Days?",
+        "body": "Win back 500 SKR · closes in 6d 23h",
+        "time": "2d",
+        "actions": [
+          "See Rematch"
+        ]
+      },
+      {
+        "id": "ng1",
+        "title": "Riya nudged you",
+        "body": "Iron Week · photo 2 is still due",
+        "time": "20m",
+        "actions": []
+      },
+      {
+        "id": "rc1",
+        "title": "Yesterday, settled",
+        "body": "Arjun missed · +43 SKR to you",
+        "time": "00:01",
+        "actions": []
+      },
+      {
+        "id": "st1",
+        "title": "Hydrate Week started",
+        "body": "Day 1 is today · 40 in",
+        "time": "Mon",
+        "actions": []
+      },
+      {
+        "id": "fl1",
+        "title": "Drift posted a new Bounty",
+        "body": "Hydrate Week · 50,000 SKR pool",
+        "time": "Mon",
+        "actions": []
+      }
+    ],
+    "history": [
+      {
+        "month": "October",
+        "name": "Hydra 14",
+        "sub": "Kept by 3 of 4 · ended Sun 5",
+        "delta": "+186"
+      },
+      {
+        "month": "October",
+        "name": "Pages Sprint · Rematch",
+        "sub": "Kept every day · recovered 500",
+        "delta": "+500"
+      },
+      {
+        "month": "October",
+        "name": "Guitar Days",
+        "sub": "Broke on day 6",
+        "delta": "−1,000"
+      },
+      {
+        "month": "September",
+        "name": "Iron Week",
+        "sub": "Kept · 7 of 7",
+        "delta": "+72"
+      },
+      {
+        "month": "September",
+        "name": "Dawn Run",
+        "sub": "Solo · kept 7 of 7",
+        "delta": "±0"
+      },
+      {
+        "month": "September",
+        "name": "Cold Showers",
+        "sub": "Solo · broke on day 4",
+        "delta": "−500"
+      },
+      {
+        "month": "September",
+        "name": "Read 20 pages",
+        "sub": "Kept · missed 1 day",
+        "delta": "+12"
+      },
+      {
+        "month": "September",
+        "name": "Mat Mornings",
+        "sub": "Kept by 2 of 3",
+        "delta": "+140"
+      }
+    ],
+    "bounties": [
+      {
+        "name": "Hydrate Week",
+        "by": "Drift",
+        "pool": 50000,
+        "entrants": 40,
+        "category": "Hydration"
+      },
+      {
+        "name": "Northbound Run Club",
+        "by": "Northbound",
+        "pool": 120000,
+        "entrants": 212,
+        "category": "Fitness"
+      },
+      {
+        "name": "Mat Month",
+        "by": "Lotus",
+        "pool": 30000,
+        "entrants": 88,
+        "category": "Mind"
+      },
+      {
+        "name": "Sol Strings",
+        "by": "@riffs",
+        "pool": 8000,
+        "entrants": 58,
+        "category": "Music"
+      },
+      {
+        "name": "Dawn Pages",
+        "by": "Inkwell",
+        "pool": 20000,
+        "entrants": 58,
+        "category": "Reading"
+      },
+      {
+        "name": "Iron October",
+        "by": "Forge Gym",
+        "pool": 75000,
+        "entrants": 340,
+        "category": "Fitness"
+      },
+      {
+        "name": "Green Thumb",
+        "by": "Sprout Co",
+        "pool": 12000,
+        "entrants": 31,
+        "category": "Outdoors"
+      },
+      {
+        "name": "Rope 1k",
+        "by": "SkipLab",
+        "pool": 15000,
+        "entrants": 120,
+        "category": "Fitness"
+      }
+    ],
+    "activity": [
+      {
+        "day": "TODAY",
+        "title": "Kept Iron Week · day 3",
+        "sub": "Photo 2 passed · 21:04",
+        "amount": null
+      },
+      {
+        "day": "TODAY",
+        "title": "Photo 1 passed",
+        "sub": "Iron Week · 07:58",
+        "amount": null
+      },
+      {
+        "day": "YESTERDAY",
+        "title": "+43 SKR from Arjun's miss",
+        "sub": "Iron Week · settled 00:00",
+        "amount": "+43"
+      },
+      {
+        "day": "YESTERDAY",
+        "title": "Kept Read 20 pages",
+        "sub": "Solo · day 8",
+        "amount": null
+      },
+      {
+        "day": "YESTERDAY",
+        "title": "Voted on Dev's photo",
+        "sub": "Approved",
+        "amount": null
+      },
+      {
+        "day": "MON 6 OCT",
+        "title": "Staked into Iron Week",
+        "sub": "1,000 SKR",
+        "amount": "−1,000"
+      },
+      {
+        "day": "MON 6 OCT",
+        "title": "Joined Hydrate Week",
+        "sub": "Bounty by Drift",
+        "amount": null
+      },
+      {
+        "day": "SUN 5 OCT",
+        "title": "Claimed Hydra 14",
+        "sub": "1,186 SKR",
+        "amount": "+1,186"
+      },
+      {
+        "day": "SUN 5 OCT",
+        "title": "Guitar Days broke",
+        "sub": "HP hit 0 on day 6",
+        "amount": "−1,000"
+      }
+    ],
+    "names": [
+      "sam.skr",
+      "Sam K.",
+      "samkeeps"
+    ],
+    "bios": [
+      "Lifting daily. Staking on myself.",
+      "Building in public, one kept day at a time.",
+      "Will out-keep you. Try me."
+    ]
+  }
+}

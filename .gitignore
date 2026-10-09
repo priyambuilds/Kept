@@ -1,0 +1,39 @@
+# OS / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# Env and secrets (keep .env.example files only)
+.env
+.env.*
+!.env.example
+*.keypair.json
+*-keypair.json
+id.json
+.aura-minter.json
+
+# Expo / Android
+.expo/
+android/
+ios/
+*.apk
+*.aab
+
+# Anchor / Rust
+target/
+.anchor/
+test-ledger/
+
+# Local data
+prisma/dev.db
+prisma/dev.db-journal
+.claude/

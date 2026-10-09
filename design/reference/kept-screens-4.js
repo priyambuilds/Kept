@@ -1,0 +1,116 @@
+(function () {
+  const { OBJ, n, B, T, TX, KP, CARD, ROWS, R, HP, BIG, OPTS, INPUT, SEG, BRK, BAN, SLOT, COVER, CHIPS, SIGN, BARS, BTNS, NOTE, RING, ID, UP, SP, sigScreen, PROF, HS, SEARCH } = window.KK; const K = window.KK;
+  const bseg = on => SEG(['Discover', 'Joined', 'Created'], { on, to: ['H1', 'H1·j', 'H1·c'] });
+  const drift = { brand: 'Drift', logo: 'D', ic: 'bottle-soda-outline', bg: 'linear-gradient(135deg,#3B82F6,#1E3A8A)' };
+  const S = [
+    // H · Bounties
+    { id: 'H1', name: 'Feed · Discover', tab: 'bounties', head: 'Bounties', blocks: s => { const BB = K.BOUNTIES, card = b => ({ t: b.n, ic: b.ic, pal: b.pal, v: n(b.pool) + ' SKR', s: b.by + ' · ' + K.closes(b.close), to: b.to }); return [bseg(0),
+      SEARCH({ t: 'Search 1,240 Bounties', to: 'H7', f: 1 }),
+      HS(K.CATS.map((t, i) => ({ t, i, to: 'H7' })), { chips: 1, id: 'bcat' }),
+      COVER({ ...drift, msg: 'Hydrate Week\n50,000 SKR · 7 days · free', to: 'H2', h: 160, tags: [['Featured', 'star-four-points'], ['closes in 5h', 'alarm']] }),
+      HS(BB.filter(b => b.close <= 12).map(card), { lab: 'CLOSING SOON', more: 'H7' }),
+      HS(BB.slice().sort((a, b) => b.pool - a.pool).slice(0, 4).map(card), { lab: 'BIGGEST POOLS', more: 'H7' }),
+      HS(BB.filter(b => ['Drift', 'Inkwell', 'Forge Gym'].includes(b.by)).map(card), { lab: 'FROM CREATORS YOU FOLLOW', more: 'H7' })]; } },
+    { id: 'H1·j', name: 'Feed · Joined', tab: 'bounties', head: 'Bounties', g: 'H', blocks: [bseg(1),
+      CARD({ ic: 'bottle-soda-outline', name: 'Hydrate Week', meta: 'Drift · Day 3/7', to: 'H3', tags: [['In', 'check', 'lime'], ['31 of 40 in', 'account-group', 'grey']], btn: B('Prove', 'F1', 'p', 'camera') }),
+      CARD({ ic: 'shoe-sneaker', name: 'Dawn 5k', meta: 'Northbound · out on day 3', to: 'H4', sm: 1, dim: 1, tags: [['Out', 'close', 'red']] }),
+      CARD({ ic: 'guitar-acoustic', name: 'Sol Strings', meta: '@riffs · ended', to: 'H5', sm: 1, tilt: 1, tags: [['Survived', 'trophy-outline', 'lime'], ['Claim 1,666 SKR', 'hand-coin-outline', 'lime']] })] },
+    { id: 'H1·c', name: 'Feed · Created', tab: 'bounties', head: 'Bounties', g: 'H', blocks: [bseg(2),
+      CARD({ ic: 'book-open-variant', name: 'Dawn Pages', meta: 'You funded 20,000 SKR · Day 4/14', to: 'H6', tags: [['58 joined', 'account-group', 'grey'], ['41 still in', 'check', 'lime']], btn: B('See stats', 'H6', 's', 'chart-bar') }),
+      KP('wink', 'Generous. Suspicious,\nbut generous.', { prop: 'sack', size: 100, side: 'l', h: 120 }),
+      BTNS([B('Create a Bounty', 'K1', 'p', 'plus')])] },
+    { id: 'H2', name: 'Bounty detail', nav: { t: 'Bounty' }, blocks: [
+      COVER({ ...drift, msg: 'Two litres a day.\nSeven days. Don\'t blink.', h: 160 }),
+      ROWS([R('Drift', 'Verified · hosted 6 · paid out 310,400 SKR', '', { av: 'D', lbg: '#3B82F6', lfg: '#fff', to: 'I3', chev: 1 })]),
+      BRK([['Pool', '50,000 SKR', '#C5F25C'], ['Object', 'Water bottle'], ['Length', '7 days'], ['Joins close', 'in 5h 40m', '#F87171'], ['Entrants', '40'], ['Rule', 'Miss a day and you\'re out']]),
+      CHIPS([['Verified Seeker', 'check', 'l', -2], ['70%+ kept rate · you 91%', 'check', 'l', 1]]),
+      BAN('lime', 'check-decagram', 'You\'re eligible', 'Free to join. Survivors split the pool.')],
+      pin: [B('Join free', 'H3', 'l', 'trophy-outline')] },
+    { id: 'H2·no', name: 'Bounty · not eligible', nav: { t: 'Bounty' }, blocks: [
+      COVER({ brand: 'Northbound', logo: 'N', ic: 'shoe-sneaker', bg: 'linear-gradient(135deg,#F97316,#7C2D12)', msg: 'Run 5k every day\nfor 14 days.', h: 160 }),
+      BRK([['Pool', '120,000 SKR', '#C5F25C'], ['Object', 'Running shoe'], ['Length', '14 days'], ['Entrants', '212']]),
+      CHIPS([['Verified Seeker', 'check', 'l', -2], ['80%+ kept rate · you 74%', 'close', 'r', 1]]),
+      BAN('red', 'shield-alert-outline', 'Not eligible yet', 'Needs an 80% kept rate. Keep 6 more days in a row to get there.')],
+      pin: [B('Browse other Bounties', 'H1'), B('How kept rate works', 'I1', 't')] },
+    { id: 'H3', name: 'Bounty, joined', nav: { t: 'Hydrate Week', right: 'Day 3/7' }, blocks: [
+      T('You\'re in.\n31 of 40 still standing.', '', { fs: 30, pt: 0 }),
+      CARD({ ic: 'bottle-soda-outline', name: 'Today\'s proof', meta: 'Water bottle · 2 photos', tags: [['0 of 2', 'camera', 'grey'], ['14h left', 'alarm', 'red']], btn: B('Prove', 'F1', 'p', 'camera'), stack: 1, mt: 24 }),
+      KP('side', 'Nine down already.\nMarco went first.', { prop: 'whisper', size: 92, side: 'r', h: 106 }),
+      ROWS([R('Marco', 'missed day 2', '2h ago', { av: 'M', lbg: '#3A3A3A', lfg: '#fff', rc: '#F87171' }),
+        R('Lena', 'missed day 2', '2h ago', { av: 'L', lbg: '#3A3A3A', lfg: '#fff', rc: '#F87171' }),
+        R('Kai', 'missed day 1', 'yesterday', { av: 'K', lbg: '#3A3A3A', lfg: '#fff', rc: '#F87171' })], 'RECENTLY OUT'),
+      BIG('≈ 1,613', 'SKR each if 31 finish', { fs: 40, c: '#C5F25C' })],
+      sim: [['Miss a day', 'H4'], ['Bounty ends', 'H5']] },
+    { id: 'H4', name: 'Eliminated', nav: { t: 'Hydrate Week', close: 1 }, tone: 'grey', blocks: [SP(10),
+      KP('soft', 'Pool\'s gone.\nYour word isn\'t.', { size: 130, side: 'c', h: 220 }),
+      T('Missed day 3.\nYou\'re out of the pool.', '', { al: 'center' }),
+      ROWS([R('Kept rate', 'Still yours to build', '90%', { ic: 'shield-check-outline', rs: '65 days' }),
+        R('Best streak', 'Untouched', '21', { ic: 'fire', lfg: '#FB923C', rs: 'days' }),
+        R('Start an Oath', 'Put your own stake down', '', { ic: 'plus', to: 'C1', chev: 1 })])],
+      pin: [B('Browse Bounties', 'H1')] },
+    { id: 'H5', name: 'Bounty ended', nav: { t: 'Sol Strings', close: 1 }, fx: 'coins', tone: 'lime', pops: [['+1,666', 'sack']], blocks: [
+      T('27 survived.\nYou\'re one of them.', '', { fs: 30, pt: 6 }),
+      BIG('+1,666', 'SKR, your share of 45,000', { fs: 56, c: '#C5F25C' }),
+      SLOT([['Y', '+1,666'], ['R', '+1,666'], ['D', '+1,666'], [null, '+24']]),
+      BTNS([B('Share card', 'toast:Share card saved', 's', 'share-variant'), B('Follow @riffs', 'toast:Following @riffs', 's', 'account-plus-outline')])],
+      pin: [B('Claim 1,666 SKR', 'J1', 'l', 'hand-coin-outline')] },
+    { id: 'H6', name: 'My created Bounty', nav: { t: 'Dawn Pages', right: 'Day 4/14' }, blocks: [
+      T('41 of 58 still reading.', '', { fs: 30, pt: 0 }),
+      BARS('Still in, per day', [['D1', 58], ['D2', 55], ['D3', 47], ['D4', 41], ['D5', 0], ['D6', 0], ['D7', 0]]),
+      BRK([['Pool', '20,000 SKR', '#C5F25C'], ['Finish rate (est.)', '62%'], ['Cost per finisher (est.)', '≈ 556 SKR'], ['Finishers opted in to share', '12']]),
+      ROWS([R('@reads.sol', '4 of 4 days', 'opted in', { av: 'R', lbg: '#A78BFA', lfg: '#131313' }), R('@nomi', '4 of 4 days', 'opted in', { av: 'N', lbg: '#FDE68A', lfg: '#131313' })], 'FINISHERS (OPT-IN)')],
+      pin: [B('Export finishers', 'toast:finishers.csv saved', 'p', 'export-variant')] },
+
+    // I · Profiles
+    { id: 'I1', name: 'My profile', tab: 'profile', head: 'Profile', headBtn: { ic: 'cog-outline', to: 'I4' }, blocks: s => [
+      s['n:pt1'] ? null : BAN('vio', 'account-edit-outline', 'Make it yours', 'Build an avatar, add a bio and socials so friends spot you.', { to: 'do:pt1|I8' }),
+      PROF({ p: 'Y', n: K.NAMES[s.nm ?? 0], h: '7xKp…3F9q', v: 1, bio: K.BIOS[s.bio ?? 0], soc: K.mySoc(s), ban: K.BANS[s.ban ?? 0], acts: [B('Edit', 'do:pt1|I8', 's', 'pencil-outline'), B('Share', 'toast:Profile link copied', 's', 'share-variant')] }),
+      RING('91%', '64 days · kept rate', .91, '#C5F25C'),
+      KP('wink', '', { prop: 'ledger', size: 80, side: 'l', h: 96, lines: ['I call you\nThe Early Bird.', '38 of your 64 kept days\nwere done before 9am.', "Keep it up and I'll\nthink of a better one."] }),
+      ROWS([R('Streak', 'Best: 21 days', '12', { ic: 'fire', lfg: '#FB923C', rs: 'days' }),
+        R('Oaths', '41 kept · 9 broken', '50', { ic: 'cards-outline', to: 'D5', chev: 1 }),
+        R('Bounties', '2 survived · 1 out', '3', { ic: 'trophy-outline', lfg: '#C5F25C', to: 'H1·j', chev: 1 })]),
+      ROWS([R('See how others see you', ['Oaths: everyone', 'Oaths: Oath partners only', 'Oaths: only you'][s.pv1 ?? 1], '', { ic: 'eye-outline', to: 'I2·me', chev: 1 })])] },
+    { id: 'I2', name: "Someone's profile", nav: { t: 'Riya' }, blocks: [
+      PROF({ p: 'R', n: 'riya.skr', h: '4mQa…9Lw2', v: 1, bio: 'Morning runs, evening pages. Never broken an Oath.', soc: [['X', null, '@riyaruns', 'toast:Opening X'], [null, 'send-outline', 'Telegram', 'toast:Opening Telegram']], ban: 'linear-gradient(135deg,#F472B6,#A78BFA)', banIc: 'shoe-sneaker' }),
+      RING('94%', '71 days · kept rate', .94, '#C5F25C'),
+      ROWS([R('Dawn Run', 'Day 4/7 · 3 Keepers · HP 100', 'Public', { ic: 'shoe-sneaker', to: 'E2', chev: 1 }), R('Iron Week', 'With you · Day 3/7', 'Shared', { ic: 'dumbbell', to: 'D2', chev: 1 })], 'OATHS'),
+      ROWS([R('Sol Strings', 'Survived · +1,666 SKR', '', { ic: 'guitar-acoustic', to: 'H5', chev: 1 }), R('Hydrate Week', 'In · Day 3/7', '', { ic: 'bottle-soda-outline', to: 'H3', chev: 1 })], 'BOUNTIES'),
+      CHIPS([['3 Oaths together', 'handshake-outline', 'g', -2], ['Never broken', 'shield-check-outline', 'l', 2]])],
+      pin: [B('Invite to an Oath', 'C1', 'p', 'account-plus-outline')], sim: [['A private profile', 'I2·p']] },
+    { id: 'I3', name: 'Creator profile', nav: { t: 'Drift' }, blocks: [
+      COVER({ ...drift, msg: 'Drift\nHydration, on-chain.', h: 140 }),
+      TX('We fund week-long hydration Bounties. Show up, drink up, split the pool.'),
+      BRK([['Hosted Bounties', '6'], ['Total paid out', '310,400 SKR', '#C5F25C'], ['Followers', '2,140']]),
+      ROWS([R('drift.water', 'Website', '', { ic: 'web', to: 'toast:Opening drift.water' }), R('@driftwater', 'X', '', { ic: 'at', to: 'toast:Opening X' }), R('Drift Discord', 'Community', '', { ic: 'forum-outline', to: 'toast:Opening Discord' })], 'LINKS'),
+      ROWS([R('Hydrate Week', '50,000 SKR · joins close 5h', 'Open', { ic: 'bottle-soda-outline', to: 'H2', chev: 1 })], 'HOSTED NOW')],
+      pin: [B('Follow Drift', 'toast:Following Drift', 'p', 'account-plus-outline')] },
+    { id: 'I4', name: 'Settings', nav: { t: 'Settings' }, blocks: [
+      ROWS([R('Edit profile', 'Avatar, name, bio, socials', '', { ic: 'account-edit-outline', to: 'do:pt1|I8', chev: 1 }),
+        R('Wallet', 'Add SKR, receive, claim', '', { ic: 'wallet-outline', to: 'W1', chev: 1 }),
+        R('Your activity', 'Proofs, payments, votes', '', { ic: 'history', to: 'I5', chev: 1 }),
+        R('Oath history', '50 finished', '', { ic: 'cards-outline', to: 'D5', chev: 1 }),
+        R('Bounty history', 'Joined and created', '', { ic: 'trophy-outline', lfg: '#C5F25C', to: 'H1·j', chev: 1 }),
+        R('Who sees what', 'Oaths, Bounties, socials', '', { ic: 'eye-outline', to: 'I7', chev: 1 }),
+        R('Host a Bounty', 'You get a creator page when you host one', '', { ic: 'bullhorn-outline', to: 'K1', chev: 1 })], 'YOU'),
+      ROWS([R('Nudges', 'When a friend pokes you', '', { ic: 'bell-ring-outline', tg: 'n1', on: 1 }), R('Deadline reminder', '2 hours before midnight', '', { ic: 'alarm', tg: 'n2', on: 1 }),
+        R('Review requests', 'When your group needs a vote', '', { ic: 'eye-outline', tg: 'n3', on: 1 }), R('Results', 'Settlements and claims', '', { ic: 'trophy-outline', tg: 'n4', on: 0 })], 'NOTIFICATIONS'),
+      ROWS([R('Wallet', 'Seeker Wallet · 7xKp…3F9q', '', { ic: 'wallet-outline', chev: 1, to: 'A2' }), R('Network', 'Devnet', 'DEVNET', { ic: 'web', rc: '#FB923C' }),
+        R('Test SKR faucet', 'Devnet only', 'Get 5,000', { ic: 'water-outline', rc: '#C5F25C', to: 'toast:+5,000 test SKR' })], 'WALLET & NETWORK')] },
+
+    // J · Claim
+    { id: 'J1', name: 'Claim', nav: { t: 'Claim', close: 1 }, blocks: [SP(10),
+      BIG('1,186', 'SKR ready to claim', { fs: 72, c: '#C5F25C' }),
+      BRK([['Start', '1,000'], ['Lost', '0'], ['Won from misses', '+186', '#C5F25C'], ['Fee', '0'], ['Claim', '1,186 SKR', '#C5F25C', 1]], 'HYDRA 14')],
+      pin: [B('Sign & claim', 'do:clm1|J1·p', 'l', 'hand-coin-outline')], sim: [['Claim fails', 'J1·f']] },
+    sigScreen('J1·p', 'Claim · signing', 'Confirm the claim', 'Moving 1,186 SKR to your wallet.', 'J1·ok', [['Failed', 'J1·f'], ['Not enough SOL', 'M3']]),
+    { id: 'J1·ok', name: 'Claimed', nav: { close: 1 }, fx: 'coins', tone: 'lime', beam: 1, pops: [['+1,186 SKR', 'sack']], blocks: [SP(10),
+      KP('shades', 'Pleasure doing\nbusiness.', { prop: 'sack', anim: 'jump', size: 170, side: 'c', h: 270 }),
+      T('Claimed.', '1,186 SKR is in your wallet.', { al: 'center', fs: 40 })],
+      pin: [B('Done', 'B1')] },
+    { id: 'J1·f', name: 'Claim failed', nav: { close: 1 }, blocks: [SP(60), SIGN('fail', 'Transaction failed'),
+      T('Claim failed.', 'Nothing moved. Your 1,186 SKR is still waiting.', { al: 'center', pt: 26 })],
+      pin: [B('Retry', 'J1·p', 'p', 'refresh')] },
+  ];
+  window.KS.push(...S.map(s => ({ ...s, g: s.g || s.id[0] })));
+})();

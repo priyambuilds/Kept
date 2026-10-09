@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:{{ size }}px;height:{{ size }}px;flex:none;line-height:0">
+<svg viewBox="0 0 100 100" width="{{ size }}" height="{{ size }}" style="display:block" stroke-linecap="round" stroke-linejoin="round">
+<rect width="100" height="100" fill="{{ bg }}"></rect>
+<path d="M50 0 L100 0 L100 100 L50 100 Z" fill="{{ bgD }}"></path>
+<circle cx="50" cy="50" r="45" fill="{{ bgL }}"></circle>
+<path d="M50 5 A45 45 0 0 1 50 95 Z" fill="{{ bg }}"></path>
+<circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1.6"></circle>
+
+<g display="{{ o0 }}"><path d="M29 80 C25 60 36 51 50 51 C64 51 75 60 71 80 Z" fill="{{ oc }}"></path><path d="M50 51 C64 51 75 60 71 80 L50 80 Z" fill="{{ ocD }}"></path></g>
+<g display="{{ i1 }}" transform="translate({{ erx }} {{ ery }}) rotate(22)"><rect x="-3" y="-19" width="12" height="16" rx="2" fill="#FAF8F2"></rect><rect x="-3" y="-19" width="12" height="16" rx="2" fill="none" stroke="#C5F25C" stroke-width="1"></rect><text x="-0.5" y="-10" font-size="6.5" font-weight="800" font-family="Geist,Arial,sans-serif" fill="#1E1B2E">A</text></g>
+<rect x="44" y="56" width="12" height="20" fill="{{ skD }}"></rect>
+<path d="M14 100 C14 82 29 73 50 73 L50 100 Z" fill="{{ oc }}"></path>
+<path d="M50 73 C71 73 86 82 86 100 L50 100 Z" fill="{{ ocD }}"></path>
+<g display="{{ o0 }}"><path d="M45 77 L44 91 M55 77 L56 91" fill="none" stroke="{{ ocL }}" stroke-width="2.4"></path><circle cx="44" cy="92" r="1.8" fill="{{ ocL }}"></circle><circle cx="56" cy="92" r="1.8" fill="{{ ocL }}"></circle></g>
+<g display="{{ o1 }}"><path d="M42 73 Q50 82 58 73 Z" fill="{{ skD }}"></path></g>
+<g display="{{ o2 }}"><path d="M42 73 Q50 82 58 73 Z" fill="{{ skD }}"></path><path d="M40 74 Q50 92 60 74" fill="none" stroke="#F2C14E" stroke-width="2.6" stroke-dasharray="0.1 3.4"></path><circle cx="50" cy="87" r="4.4" fill="#C5F25C"></circle><circle cx="50" cy="87" r="4.4" fill="none" stroke="#1E1B2E" stroke-width="1.2"></circle><path d="M48.6 85 L48.6 89 M48.6 87 L51.4 85 M48.6 87 L51.4 89" fill="none" stroke="#1E1B2E" stroke-width="1.1"></path></g>
+<g display="{{ o3 }}"><path d="M44 73 L50 86 L56 73 Z" fill="#F2F0EA"></path><path d="M41 73 L50 88 L44 100 L39 100 Z" fill="{{ ocL }}"></path><path d="M59 73 L50 88 L56 100 L61 100 Z" fill="{{ ocDD }}"></path></g>
+<g display="{{ o4 }}"><path d="M46 65 L50 65 L50 79 L46 79 A6 7 0 0 1 46 65 Z" fill="{{ oc }}"></path><path d="M50 65 L54 65 A6 7 0 0 1 54 79 L50 79 Z" fill="{{ ocD }}"></path><path d="M44 70 L56 70 M44 74 L56 74" stroke="{{ ocDD }}" stroke-width="1"></path></g>
+
+<g display="{{ s0 }}">
+  <circle cx="31" cy="48" r="4.2" fill="{{ sk }}"></circle><circle cx="69" cy="48" r="4.2" fill="{{ skD }}"></circle>
+  <path d="M50 26 A18 21 0 0 0 50 68 Z" fill="{{ sk }}"></path><path d="M50 26 A18 21 0 0 1 50 68 Z" fill="{{ skD }}"></path>
+  <path d="M31 44 C30 27 40 22 50 22 C61 22 71 28 69 44 C66 35 58 31 50 32 C43 32 37 35 31 44 Z" fill="#241E2E"></path><path d="M36 33 C40 27 46 25 52 25" fill="none" stroke="#3A3248" stroke-width="2.4"></path>
+  <path d="M51 50 Q53.5 53 51 54.5" fill="none" stroke="{{ skDD }}" stroke-width="1.8"></path><path d="M46 59 Q50 62 54 59" fill="none" stroke="#1E1B2E" stroke-width="2"></path>
+  <g display="{{ eD }}"><circle cx="43" cy="47" r="2.5" fill="#1E1B2E"></circle><circle cx="57" cy="47" r="2.5" fill="#1E1B2E"></circle><circle cx="43.8" cy="46.2" r="0.8" fill="#fff"></circle><circle cx="57.8" cy="46.2" r="0.8" fill="#fff"></circle></g>
+</g>
+<g display="{{ s1 }}">
+  <path d="M30 40 L27 15 L45 30 Z" fill="{{ sk }}"></path><path d="M70 40 L73 15 L55 30 Z" fill="{{ skD }}"></path><path d="M31.5 33 L29.5 21 L39.5 29 Z" fill="#2A1A14"></path><path d="M68.5 33 L70.5 21 L60.5 29 Z" fill="#2A1A14"></path>
+  <path d="M50 69 L27 38 C33 28 43 25 50 25 Z" fill="{{ sk }}"></path><path d="M50 69 L73 38 C67 28 57 25 50 25 Z" fill="{{ skD }}"></path>
+  <path d="M50 69 L32 45 C39 50 45 52 50 52 Z" fill="#F7F1E8"></path><path d="M50 69 L68 45 C61 50 55 52 50 52 Z" fill="#E2DAD0"></path>
+  <ellipse cx="50" cy="64" rx="3.4" ry="2.5" fill="#1E1B2E"></ellipse>
+  <g display="{{ eD }}"><path d="M38 44 Q41.5 40.5 45 44 Q41.5 46 38 44 Z" fill="#1E1B2E"></path><path d="M62 44 Q58.5 40.5 55 44 Q58.5 46 62 44 Z" fill="#1E1B2E"></path></g>
+</g>
+<g display="{{ s2 }}">
+  <path d="M32 38 L31 17 L47 30 Z" fill="{{ sk }}"></path><path d="M68 38 L69 17 L53 30 Z" fill="{{ skD }}"></path><path d="M34 33 L33.5 23 L41.5 29.5 Z" fill="#F49AB8"></path><path d="M66 33 L66.5 23 L58.5 29.5 Z" fill="#E07FA0"></path>
+  <path d="M50 31 A19 17 0 0 0 50 65 Z" fill="{{ sk }}"></path><path d="M50 31 A19 17 0 0 1 50 65 Z" fill="{{ skD }}"></path>
+  <path d="M47.5 53 L52.5 53 L50 56 Z" fill="#F472B6"></path><path d="M50 56 Q47.5 59.5 45 57.5 M50 56 Q52.5 59.5 55 57.5" fill="none" stroke="#1E1B2E" stroke-width="1.7"></path>
+  <path d="M29 52 L39 54 M29 57 L39 56 M71 52 L61 54 M71 57 L61 56" stroke="#1E1B2E" stroke-opacity="0.55" stroke-width="1.3"></path>
+  <g display="{{ eD }}"><ellipse cx="42" cy="47" rx="2.6" ry="3.2" fill="#1E1B2E"></ellipse><ellipse cx="58" cy="47" rx="2.6" ry="3.2" fill="#1E1B2E"></ellipse><circle cx="42.8" cy="46" r="0.9" fill="#fff"></circle><circle cx="58.8" cy="46" r="0.9" fill="#fff"></circle></g>
+</g>
+<g display="{{ s3 }}">
+  <circle cx="38" cy="37" r="8.5" fill="{{ sk }}"></circle><circle cx="62" cy="37" r="8.5" fill="{{ skD }}"></circle>
+  <path d="M50 37 A23 15 0 0 0 50 67 Z" fill="{{ sk }}"></path><path d="M50 37 A23 15 0 0 1 50 67 Z" fill="{{ skD }}"></path>
+  <path d="M33 55 Q50 67 67 55" fill="none" stroke="#1E1B2E" stroke-width="2.3"></path><circle cx="34" cy="58" r="2.6" fill="#F49AB8" fill-opacity="0.7"></circle><circle cx="66" cy="58" r="2.6" fill="#F49AB8" fill-opacity="0.7"></circle>
+  <g display="{{ eD }}"><circle cx="38" cy="37" r="5" fill="#fff"></circle><circle cx="62" cy="37" r="5" fill="#F1F1F1"></circle><circle cx="39" cy="38" r="2.6" fill="#1E1B2E"></circle><circle cx="63" cy="38" r="2.6" fill="#1E1B2E"></circle></g>
+</g>
+<g display="{{ s4 }}">
+  <circle cx="33" cy="31" r="7.5" fill="{{ sk }}"></circle><circle cx="67" cy="31" r="7.5" fill="{{ skD }}"></circle><circle cx="33" cy="31" r="3.6" fill="{{ skDD }}"></circle><circle cx="67" cy="31" r="3.6" fill="{{ skDD }}"></circle>
+  <path d="M50 28 A19 19 0 0 0 50 66 Z" fill="{{ sk }}"></path><path d="M50 28 A19 19 0 0 1 50 66 Z" fill="{{ skD }}"></path>
+  <ellipse cx="50" cy="56" rx="9.5" ry="7.5" fill="{{ skL }}"></ellipse><ellipse cx="50" cy="53" rx="3.6" ry="2.6" fill="#1E1B2E"></ellipse><path d="M50 55.5 L50 58.5 M46.5 59.5 Q50 62 53.5 59.5" fill="none" stroke="#1E1B2E" stroke-width="1.7"></path>
+  <g display="{{ eD }}"><circle cx="42" cy="45" r="2.5" fill="#1E1B2E"></circle><circle cx="58" cy="45" r="2.5" fill="#1E1B2E"></circle><circle cx="42.8" cy="44.2" r="0.8" fill="#fff"></circle><circle cx="58.8" cy="44.2" r="0.8" fill="#fff"></circle></g>
+</g>
+<g display="{{ s5 }}">
+  <path d="M50 28 L50 17" stroke="{{ skDD }}" stroke-width="2.6"></path><circle cx="50" cy="15" r="3.8" fill="#C5F25C"></circle><circle cx="50" cy="15" r="6.5" fill="#C5F25C" fill-opacity="0.25"></circle>
+  <rect x="26" y="41" width="6" height="13" rx="2.5" fill="{{ sk }}"></rect><rect x="68" y="41" width="6" height="13" rx="2.5" fill="{{ skD }}"></rect>
+  <path d="M50 28 L38 28 Q31 28 31 35 L31 58 Q31 65 38 65 L50 65 Z" fill="{{ sk }}"></path><path d="M50 28 L62 28 Q69 28 69 35 L69 58 Q69 65 62 65 L50 65 Z" fill="{{ skD }}"></path>
+  <rect x="35" y="38" width="30" height="13" rx="6.5" fill="#1E1B2E"></rect>
+  <path d="M41 58 L59 58" stroke="{{ skDD }}" stroke-width="2.2"></path><path d="M44 56 L44 60 M48 56 L48 60 M52 56 L52 60 M56 56 L56 60" stroke="{{ skDD }}" stroke-width="1.2"></path>
+  <g display="{{ eD }}"><rect x="39.5" y="42" width="7" height="5" rx="2" fill="#C5F25C"></rect><rect x="53.5" y="42" width="7" height="5" rx="2" fill="#C5F25C"></rect></g>
+</g>
+<g display="{{ s6 }}">
+  <path d="M50 25 A19 19 0 0 0 50 63 Z" fill="{{ sk }}"></path><path d="M50 25 A19 19 0 0 1 50 63 Z" fill="{{ skD }}"></path>
+  <path d="M41 56 L50 56 L50 68 L44 68 Q41 68 41 65 Z" fill="{{ sk }}"></path><path d="M59 56 L50 56 L50 68 L56 68 Q59 68 59 65 Z" fill="{{ skD }}"></path>
+  <ellipse cx="43" cy="45" rx="5.2" ry="5.8" fill="#1E1B2E"></ellipse><ellipse cx="57" cy="45" rx="5.2" ry="5.8" fill="#1E1B2E"></ellipse>
+  <path d="M48.5 52 L51.5 52 L50 55.5 Z" fill="#1E1B2E"></path><path d="M45 61 L45 67 M50 61 L50 67 M55 61 L55 67" stroke="{{ skDD }}" stroke-width="1.5"></path>
+  <g display="{{ eD }}"><circle cx="43.5" cy="45.5" r="1.7" fill="#C5F25C"></circle><circle cx="57.5" cy="45.5" r="1.7" fill="#C5F25C"></circle></g>
+</g>
+<g display="{{ s7 }}">
+  <path d="M50 22 C38 22 29 30 29 41 C29 55 41 66 50 66 Z" fill="{{ sk }}"></path><path d="M50 22 C62 22 71 30 71 41 C71 55 59 66 50 66 Z" fill="{{ skD }}"></path>
+  <path d="M47 58 Q50 60 53 58" fill="none" stroke="#1E1B2E" stroke-width="1.8"></path>
+  <g display="{{ eD }}"><path d="M35 41 C37 35 46 37 47 45 C42 48.5 36 47 35 41 Z" fill="#1E1B2E"></path><path d="M65 41 C63 35 54 37 53 45 C58 48.5 64 47 65 41 Z" fill="#1E1B2E"></path><ellipse cx="40" cy="41" rx="1.6" ry="1.1" fill="#fff"></ellipse><ellipse cx="60" cy="41" rx="1.6" ry="1.1" fill="#fff" fill-opacity="0.8"></ellipse></g>
+</g>
+
+<g display="{{ e1 }}"><path d="{{ sl }}" fill="none" stroke="#1E1B2E" stroke-width="2.3"></path></g>
+<g display="{{ e2 }}"><path d="{{ lz }}" fill="none" stroke="#C5F25C" stroke-opacity="0.55" stroke-width="3.4"></path><circle cx="{{ ex1 }}" cy="{{ ey }}" r="5.5" fill="#C5F25C" fill-opacity="0.35"></circle><circle cx="{{ ex2 }}" cy="{{ ey }}" r="5.5" fill="#C5F25C" fill-opacity="0.35"></circle><circle cx="{{ ex1 }}" cy="{{ ey }}" r="2.8" fill="#C5F25C"></circle><circle cx="{{ ex2 }}" cy="{{ ey }}" r="2.8" fill="#C5F25C"></circle><circle cx="{{ ex1 }}" cy="{{ ey }}" r="1.1" fill="#fff"></circle><circle cx="{{ ex2 }}" cy="{{ ey }}" r="1.1" fill="#fff"></circle></g>
+<g display="{{ e3 }}"><rect x="{{ shx }}" y="{{ shy }}" width="{{ shw }}" height="8.5" rx="3.5" fill="#1E1B2E"></rect><path d="{{ shg }}" fill="none" stroke="#C5F25C" stroke-width="1.6"></path></g>
+
+<g display="{{ i2 }}"><circle cx="{{ elx }}" cy="{{ ely }}" r="2.8" fill="none" stroke="#F2C14E" stroke-width="1.8"></circle></g>
+<g display="{{ i3 }}" transform="translate({{ bx }} {{ by }}) rotate(-24)"><rect x="-5" y="-2.2" width="10" height="4.4" rx="1.6" fill="#F7D9B5"></rect><path d="M-1 -1 L1 1 M1 -1 L-1 1" stroke="#C9A27A" stroke-width="0.8"></path></g>
+
+<g transform="translate(0 {{ dy }})">
+  <g display="{{ h1 }}"><path d="M30 38 C30 22 40 15 50 15 C60 15 70 22 70 38 Z" fill="{{ oc }}"></path><path d="M50 15 C60 15 70 22 70 38 L50 38 Z" fill="{{ ocD }}"></path><rect x="28" y="33" width="44" height="8" rx="4" fill="{{ ocL }}"></rect><circle cx="50" cy="13" r="4.6" fill="{{ ocL }}"></circle></g>
+  <g display="{{ h2 }}"><path d="M31 36 C31 22 40 17 50 17 C60 17 69 22 69 36 Z" fill="#C5F25C"></path><path d="M50 17 C60 17 69 22 69 36 L50 36 Z" fill="#9CC23A"></path><path d="M32 33 L15 35 Q14 39 20 39 L33 38 Z" fill="#7FA02A"></path><circle cx="50" cy="18" r="1.8" fill="#7FA02A"></circle></g>
+  <g display="{{ h3 }}"><path d="M36 27 L38 12 L44 19 L50 9 L56 19 L62 12 L64 27 Z" fill="#F2C14E"></path><path d="M50 9 L56 19 L62 12 L64 27 L50 27 Z" fill="#D9A42E"></path><circle cx="50" cy="22" r="2.2" fill="#F472B6"></circle><circle cx="42" cy="23" r="1.4" fill="#38BDF8"></circle><circle cx="58" cy="23" r="1.4" fill="#38BDF8"></circle></g>
+  <g display="{{ h4 }}"><ellipse cx="50" cy="13" rx="15" ry="4.4" fill="none" stroke="#C5F25C" stroke-opacity="0.35" stroke-width="6"></ellipse><ellipse cx="50" cy="13" rx="15" ry="4.4" fill="none" stroke="#C5F25C" stroke-width="2.6"></ellipse></g>
+  <g display="{{ h5 }}"><path d="M28 35 Q50 24 72 35 L72 39 Q50 30 28 39 Z" fill="#1E1B2E"></path><path d="M29 37 Q50 27 71 37 Q76 45 64 46 Q50 37 36 46 Q24 45 29 37 Z" fill="#C5F25C" fill-opacity="0.88"></path><path d="M34 38 Q50 31 62 36" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1.4"></path></g>
+</g>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:160,&quot;height&quot;:160},&quot;cfg&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;13050010&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:120,&quot;tsType&quot;:&quot;number&quot;}}">
+const SKN = ['#F6C9A8', '#C98E62', '#7A4A2E', '#F08A3C', '#7BC96F', '#A9B4C6', '#EFE8D8', '#9D86F9'];
+const OC = ['#7C3AED', '#C5F25C', '#38BDF8', '#F472B6', '#FB923C', '#F2F0EA', '#2A2A33'];
+const BG = ['#C5F25C', '#A78BFA', '#38BDF8', '#F9A8D4', '#FDE68A', '#5EEAD4', '#2E2E36', '#FB923C'];
+// per species: eye L x, eye R x, eye y, ear L, ear R, head top
+const SP = [[43, 57, 47, [31, 52], [69, 46], 22], [41.5, 58.5, 43.5, [33, 46], [64, 36], 26], [42, 58, 47, [34, 45], [65, 34], 30], [38, 62, 37, [29, 56], [69, 44], 28], [42, 58, 45, [32, 38], [66, 30], 24], [43, 57, 44.5, [29, 55], [71, 44], 26], [43, 57, 45, [33, 50], [66, 42], 25], [41, 59, 42.5, [31, 47], [68, 37], 22]];
+function mix(hex, t, to) { const h = hex.replace('#', ''), n = parseInt(h, 16), c = [n >> 16, (n >> 8) & 255, n & 255], d = to ? 255 : 0; return '#' + c.map(v => Math.round(v + (d - v) * t).toString(16).padStart(2, '0')).join(''); }
+class Component extends DCLogic {
+  renderVals() {
+    const d = String(this.props.cfg || '13050010').replace(/\D/g, '').padEnd(8, '0').split('').map(Number);
+    const s = d[0] % 8, e = d[2] % 4, hat = d[3] % 6, o = d[4] % 5, it = d[6] % 4, sp = SP[s];
+    const sk = SKN[d[1] % 8], oc = OC[d[5] % 7], bg = BG[d[7] % 8], on = c => c ? 'inline' : 'none';
+    const [x1, x2, y] = sp, f = v => Math.round(v * 10) / 10;
+    return { size: this.props.size ?? 120,
+      bg, bgD: mix(bg, .14), bgL: mix(bg, .12, 1), sk, skD: mix(sk, .2), skDD: mix(sk, .42), skL: mix(sk, .35, 1), oc, ocD: mix(oc, .22), ocDD: mix(oc, .42), ocL: mix(oc, .3, 1),
+      s0: on(s === 0), s1: on(s === 1), s2: on(s === 2), s3: on(s === 3), s4: on(s === 4), s5: on(s === 5), s6: on(s === 6), s7: on(s === 7),
+      o0: on(o === 0), o1: on(o === 1), o2: on(o === 2), o3: on(o === 3), o4: on(o === 4),
+      eD: on(e === 0), e1: on(e === 1), e2: on(e === 2), e3: on(e === 3),
+      ex1: x1, ex2: x2, ey: y,
+      sl: `M${f(x1 - 4)} ${y} Q${x1} ${f(y + 3)} ${f(x1 + 4)} ${y} M${f(x2 - 4)} ${y} Q${x2} ${f(y + 3)} ${f(x2 + 4)} ${y} M${f(x1 - 4.5)} ${f(y - 1.5)} L${f(x1 + 4.5)} ${f(y - 1.5)} M${f(x2 - 4.5)} ${f(y - 1.5)} L${f(x2 + 4.5)} ${f(y - 1.5)}`,
+      lz: `M${x1} ${y} L104 ${f(y + 22)} M${x2} ${y} L104 ${f(y + 12)}`,
+      shx: f(x1 - 7.5), shy: f(y - 4.5), shw: f(x2 - x1 + 15), shg: `M${f(x1 - 4)} ${f(y - 1.5)} L${f(x1 - 0.5)} ${f(y - 1.5)}`,
+      h1: on(hat === 1), h2: on(hat === 2), h3: on(hat === 3), h4: on(hat === 4), h5: on(hat === 5), dy: f(y - 50 - (s === 3 ? 4 : 0)),
+      i1: on(it === 1), i2: on(it === 2), i3: on(it === 3), erx: sp[4][0], ery: sp[4][1], elx: sp[3][0], ely: sp[3][1], bx: f(x1 - 1), by: f(y + 9) };
+  }
+}
+</script>
+</body>
+</html>

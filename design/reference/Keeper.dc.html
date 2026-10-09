@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:{{ w }}px;height:{{ h }}px;display:flex;align-items:center;justify-content:center;flex:none">
+<svg viewBox="{{ vb }}" style="width:100%;height:100%;overflow:{{ ov }}"><g transform="{{ rootT }}">
+  <defs>
+    <clipPath id="{{ idL }}"><path d="{{ E.dL }}"></path></clipPath>
+    <clipPath id="{{ idR }}"><path d="{{ E.dR }}"></path></clipPath>
+    <clipPath id="{{ idM }}"><path d="{{ M.d }}"></path></clipPath>
+  </defs>
+  <ellipse display="{{ body }}" cx="80" cy="176" rx="54" ry="4" fill="rgba(0,0,0,0.45)"></ellipse>
+  <g display="{{ P.scythe }}">
+    <path d="M126 34 L112 176" stroke="#2C2C33" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M126 34 L112 176" stroke="rgba(255,255,255,0.18)" stroke-width="1.2" transform="translate(1.6 0)"></path>
+    <path d="M128 38 C104 12 70 10 40 26 C68 22 98 28 120 50 Z" fill="#CFCFD6"></path>
+    <path d="M40 26 C68 22 98 28 120 50" stroke="#C5F25C" stroke-width="2" fill="none"></path>
+    <path d="M58 22 C80 16 100 20 116 34" stroke="#fff" stroke-width="1.4" fill="none" opacity=".6"></path>
+  </g>
+  <g display="{{ body }}">
+    <path d="M36 104 C27 128 21 150 15 172 L30 165 L40 176 L54 167 L67 177 L80 168 L93 177 L106 167 L120 176 L130 165 L145 172 C139 150 133 128 124 104 Z" fill="#1A1A1F"></path>
+    <path d="M36 104 C28 128 22 150 16 171 L30 165 L36 171 C38 148 40 126 46 108 Z" fill="#27272E"></path>
+    <path d="M62 116 C60 134 58 152 55 166 M98 116 C100 134 102 152 105 166 M80 122 L80 166" stroke="#0A0A0C" stroke-width="2.4" fill="none" stroke-linecap="round"></path>
+    <path d="M124 104 C133 128 139 150 145 172" stroke="#C5F25C" stroke-width="2" fill="none" opacity=".6"></path>
+    <path d="M68 112 L80 122 L92 112" stroke="#3A3A42" stroke-width="1.6" fill="none"></path>
+    <circle cx="80" cy="127" r="7.5" fill="#C5F25C"></circle><circle cx="80" cy="127" r="4.4" fill="none" stroke="#7FA02A" stroke-width="1.5"></circle><path d="M76 123 Q78 121 81 121" stroke="#EFFFC2" stroke-width="1.3" fill="none" stroke-linecap="round"></path>
+    <path d="{{ A.sl }}" stroke="#202026" stroke-width="16" stroke-linecap="round" fill="none"></path>
+    <path d="{{ A.sr }}" stroke="#202026" stroke-width="16" stroke-linecap="round" fill="none"></path>
+    <path d="{{ A.sr }}" stroke="rgba(255,255,255,0.16)" stroke-width="1.2" fill="none" transform="translate(5 -2)"></path>
+  </g>
+  <g transform="rotate({{ tilt }} 80 104)">
+    <g transform="rotate(-26 30 40)"><rect x="17" y="20" width="24" height="33" rx="3.5" fill="#0A0A0B"></rect><rect x="16" y="19" width="24" height="33" rx="3.5" fill="#FAF8F2"></rect><rect x="18.5" y="21.5" width="19" height="28" rx="2" fill="none" stroke="#C5F25C" stroke-width="1.2"></rect><text x="20.5" y="30" font-family="Unbounded,Geist,sans-serif" font-weight="800" font-size="8" fill="#0A0A0B">A</text><path d="M28 34 C24 38 23 41 26 42 C27 42.5 28 41.6 28 41 L27 45 L29 45 L28 41 C28 41.6 29 42.5 30 42 C33 41 32 38 28 34 Z" fill="#0A0A0B"></path><path d="M18 21 L36 21" stroke="#fff" stroke-width="1" opacity=".9"></path></g>
+    <path d="M80 8 C108 8 126 30 130 62 C132 84 128 104 122 118 C108 126 52 126 38 118 C32 104 28 84 30 62 C34 30 52 8 80 8 Z" fill="#232329"></path>
+    <path d="M90 10 C106 4 120 6 131 18 C118 13 106 15 98 19 Z" fill="#232329"></path>
+    <path d="M38 40 C33 56 32 74 35 92 C37 104 41 112 46 117 C40 100 38 80 40 62 C41 52 44 44 49 34 Z" fill="#34343C"></path>
+    <path d="M122 30 C130 44 133 64 131 86 C130 98 127 108 123 116" stroke="#C5F25C" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".75"></path><path d="M54 18 C64 11 84 9 100 13" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".3"></path>
+    <path d="M80 22 C100 22 114 38 116 62 C118 86 110 104 100 111 L60 111 C50 104 42 86 44 62 C46 38 60 22 80 22 Z" fill="#050506" stroke="#2E2E36" stroke-width="1.5"></path>
+    <path d="M80 23 C103 23 115 40 115 60 C115 79 104 93 92 99 C86 102 74 102 68 99 C56 93 45 79 45 60 C45 40 57 23 80 23 Z" fill="#F2EFE6"></path>
+    <path d="M100 31 C110 40 115 50 115 60 C115 79 104 93 92 99 C88 101 84 101.5 81 101.5 C92 96 104 84 106 66 C107 52 105 40 100 31 Z" fill="#D9D4C8"></path>
+    <path d="M58 33 C64 27 72 25 80 25" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"></path>
+    <path d="M51 76 Q53 86 60 92" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".55"></path>
+    <path d="M46 50 Q80 31 114 50 Q80 42 46 54 Z" fill="rgba(140,190,40,0.28)"></path>
+    <path d="M33 39 Q80 15 127 39" stroke="#0E0E10" stroke-width="7" fill="none" stroke-linecap="round"></path>
+    <path d="M33 39 Q80 15 127 39" stroke="#5E7A14" stroke-width="4" fill="none" stroke-linecap="round"></path>
+    <path d="M30 43 Q80 19 130 43 Q132 49 125 50 Q80 30 35 50 Q28 49 30 43 Z" fill="rgba(197,242,92,0.62)" stroke="#C5F25C" stroke-width="1.4"></path>
+    <path d="M38 43 Q80 24 122 43" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".75"></path>
+    <path d="M36 48 Q80 28 124 48" stroke="#3E5410" stroke-width="1.4" fill="none" opacity=".7"></path>
+    <g transform="{{ blinkT }}"><path display="{{ F.bean }}" d="{{ F.eL }}" fill="#0A0A0B"></path>
+    <path display="{{ F.beanR }}" d="{{ F.eR }}" fill="#0A0A0B"></path>
+    <circle display="{{ F.gl }}" cx="{{ F.gxL }}" cy="{{ F.gy }}" r="{{ F.gr }}" fill="#fff"></circle>
+    <circle display="{{ F.glR }}" cx="{{ F.gxR }}" cy="{{ F.gy }}" r="{{ F.gr }}" fill="#fff"></circle>
+    <circle display="{{ F.gl }}" cx="{{ F.gx2L }}" cy="{{ F.gy2 }}" r="1.2" fill="#fff"></circle>
+    <circle display="{{ F.glR }}" cx="{{ F.gx2R }}" cy="{{ F.gy2 }}" r="1.2" fill="#fff"></circle>
+    <path display="{{ F.arcL }}" d="M56 66 Q66 50 76 66" stroke="#0A0A0B" stroke-width="6.5" fill="none" stroke-linecap="round"></path>
+    <path display="{{ F.arcR }}" d="M84 66 Q94 50 104 66" stroke="#0A0A0B" stroke-width="6.5" fill="none" stroke-linecap="round"></path></g>
+    <path d="M80 77.5 C78.4 75.6 75.8 76.6 76.4 79 C77 80.8 78.6 82 80 83 C81.4 82 83 80.8 83.6 79 C84.2 76.6 81.6 75.6 80 77.5 Z" fill="#0A0A0B"></path>
+    <path display="{{ F.stitch }}" d="{{ F.sm }}" stroke="#0A0A0B" stroke-width="3.2" fill="none" stroke-linecap="round"></path>
+    <path display="{{ F.stitch }}" d="{{ F.ticks }}" stroke="#0A0A0B" stroke-width="2.4" fill="none" stroke-linecap="round"></path>
+    <path display="{{ F.hole }}" d="{{ M.d }}" fill="#0A0A0B"></path>
+    <g display="{{ F.teeth }}" clip-path="url(#{{ idM }})"><path d="{{ F.tp }}" fill="#F2EFE6"></path></g>
+    <g transform="{{ F.shT }}"><path d="M44 57 Q80 51 116 57 Q117 75 101 75 Q88 75 86 64 Q80 61 74 64 Q72 75 59 75 Q43 75 44 57 Z" fill="#070707" stroke="#2A2A30" stroke-width="1.2"></path><path d="M53 62 Q58 59 64 60 M89 62 Q94 59 100 60" stroke="#C5F25C" stroke-width="2.6" fill="none" stroke-linecap="round"></path><path d="M106 60 L110 66 M68 60 L71 64" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".55"></path></g>
+    <path display="{{ X.vein }}" d="M104 62 Q108 64 106 68 M112 62 Q108 64 110 68 M103 67 Q107 64 111 67" stroke="#F2EFE6" stroke-width="1.8" fill="none" stroke-linecap="round"></path>
+  </g>
+  <path display="{{ X.spark }}" d="M128 30 L130.5 37.5 L138 40 L130.5 42.5 L128 50 L125.5 42.5 L118 40 L125.5 37.5 Z" fill="#C5F25C"></path>
+  <path display="{{ X.lines }}" d="M62 2 L66 10 M80 -2 L80 7 M98 2 L94 10" stroke="#F2EFE6" stroke-width="2.4" stroke-linecap="round"></path>
+  <g display="{{ C.on }}"><path display="{{ C.trail }}" d="M140 110 Q144 {{ C.ty }} 136 {{ C.ty2 }}" stroke="#C5F25C" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-dasharray="2 5" opacity=".55"></path><g transform="translate(0 {{ C.y }})"><ellipse cx="133" cy="106" rx="10" ry="{{ C.ry }}" fill="#7FA02A"></ellipse><ellipse cx="133" cy="105" rx="10" ry="{{ C.ry }}" fill="{{ C.fill }}" stroke="#0A0A0B" stroke-width="1"></ellipse><ellipse display="{{ C.face }}" cx="133" cy="105" rx="5.5" ry="{{ C.ry2 }}" fill="none" stroke="#5E7A14" stroke-width="1.6"></ellipse><path display="{{ C.face }}" d="M127 101 Q130 99 134 99" stroke="#F4FFD0" stroke-width="1.8" fill="none" stroke-linecap="round"></path></g></g>
+  <g display="{{ P.seal }}"><rect x="122" y="80" width="12" height="22" rx="5" fill="#2C2C33" stroke="#4A4A52"></rect><rect x="116" y="100" width="24" height="9" rx="2.5" fill="#C5F25C"></rect><rect x="116" y="106" width="24" height="3" fill="#8FB52E"></rect></g>
+  <g display="{{ P.ledger }}" transform="rotate(-12 120 134)"><rect x="100" y="120" width="40" height="30" rx="3" fill="#2C2C33"></rect><rect x="102" y="118" width="36" height="28" rx="2" fill="#F2EFE6"></rect><path d="M120 119 L120 145" stroke="#BDB8AC" stroke-width="1.5"></path><path d="M106 126 L116 126 M106 131 L116 131 M106 136 L114 136 M124 126 L134 126 M124 131 L132 131" stroke="#8A8A8A" stroke-width="1.5"></path><rect x="128" y="114" width="5" height="12" fill="#C5F25C"></rect></g>
+  <g display="{{ P.lens }}"><path d="M131 104 L127 116" stroke="#4A4A52" stroke-width="5" stroke-linecap="round"></path><circle cx="137" cy="90" r="13" fill="rgba(197,242,92,0.16)" stroke="#D9D9DE" stroke-width="4"></circle><path d="M130 84 Q133 80 138 80" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"></path></g>
+  <g display="{{ P.coin }}"><circle cx="136" cy="98" r="12" fill="#8FB52E"></circle><circle cx="135" cy="96" r="12" fill="#C5F25C"></circle><circle cx="135" cy="96" r="7.5" fill="none" stroke="#7FA02A" stroke-width="1.8"></circle><path d="M129 90 Q132 87 136 87" stroke="#EFFFC2" stroke-width="1.6" fill="none" stroke-linecap="round"></path></g>
+  <g display="{{ P.sack }}"><path d="M129 98 Q126 92 133 91 L145 91 Q151 92 147 98 Q160 108 156 124 Q153 132 138 132 Q123 132 120 124 Q116 108 129 98 Z" fill="#C5F25C"></path><path d="M142 100 Q154 110 151 124 Q149 130 140 131 Q150 122 146 104 Z" fill="#9CC23A"></path><path d="M129 98 L147 98" stroke="#7FA02A" stroke-width="2.4"></path><path d="M133 116 L143 116 M138 110 L138 122" stroke="#5E7A14" stroke-width="2.2" stroke-linecap="round"></path></g>
+  <g display="{{ P.cup }}"><rect x="112" y="110" width="20" height="24" rx="4" fill="#F2EFE6"></rect><rect x="126" y="110" width="6" height="24" rx="3" fill="#D2CDC1"></rect><path d="M132 115 Q140 117 132 126" stroke="#F2EFE6" stroke-width="3" fill="none"></path><path d="M117 104 Q114 99 118 95 Q121 91 118 86 M124 104 Q121 99 125 95" stroke="#5A5A60" stroke-width="1.8" fill="none" stroke-linecap="round"></path></g>
+  <sc-for list="{{ hands }}" as="hd" hint-placeholder-count="0"><g transform="{{ hd.t }}">
+    <ellipse cx="0" cy="7.6" rx="6.4" ry="3.4" fill="#141418"></ellipse>
+    <g display="{{ hd.open }}" stroke="#0A0A0B" stroke-width=".8"><rect x="-11.4" y="-3.5" width="3.5" height="9" rx="1.75" transform="rotate(-50 -8 1)" fill="#F2EFE6"></rect><g transform="rotate({{ hd.wig }} 0 -5)"><rect x="-6.3" y="-15" width="3.2" height="11" rx="1.6" transform="rotate(-11 -4.6 -4)" fill="#F2EFE6"></rect><rect x="-2.6" y="-17" width="3.2" height="13" rx="1.6" transform="rotate(-3 -1 -4)" fill="#F2EFE6"></rect><rect x="1" y="-16.5" width="3.2" height="12.5" rx="1.6" transform="rotate(5 2.6 -4)" fill="#F2EFE6"></rect><rect x="4.5" y="-13.5" width="3" height="10" rx="1.5" transform="rotate(14 6 -4)" fill="#D9D4C8"></rect><path d="M-6.2 -9.6 l2.4 -.5 M-2.4 -11 l2.6 0 M1.5 -10.6 l2.6 .3 M5.2 -8.6 l2.2 .6" stroke-width=".75" fill="none"></path></g><rect x="-6.8" y="-6.5" width="13.6" height="13" rx="5.2" fill="#F2EFE6"></rect><path d="M3.4 -3.5 Q6 -1 5.2 4" stroke="#D2CDC1" stroke-width="2.4" fill="none" stroke-linecap="round"></path><path d="M-5 -2.5 Q-4 -4.6 -1.8 -5" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"></path></g>
+    <g display="{{ hd.fist }}" stroke="#0A0A0B" stroke-width=".8"><circle cx="-4.4" cy="-5.6" r="2.1" fill="#F2EFE6"></circle><circle cx="-1.4" cy="-6.3" r="2.1" fill="#F2EFE6"></circle><circle cx="1.7" cy="-6.2" r="2.1" fill="#F2EFE6"></circle><circle cx="4.6" cy="-5.4" r="2" fill="#D9D4C8"></circle><rect x="-6.8" y="-6.5" width="13.6" height="13" rx="5.2" fill="#F2EFE6"></rect><path d="M3.4 -3.5 Q6 -1 5.2 4" stroke="#D2CDC1" stroke-width="2.4" fill="none" stroke-linecap="round"></path><path d="M-2.9 -4.6 v3 M0.2 -4.9 v3.2 M3.2 -4.5 v3" stroke-width=".75"></path><rect x="-8.6" y="-0.4" width="9.6" height="3.7" rx="1.85" fill="#F2EFE6"></rect><path d="M-5 -2.5 Q-4 -4.6 -1.8 -5" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"></path></g>
+    <g display="{{ hd.point }}" stroke="#0A0A0B" stroke-width=".8"><rect x="-6.2" y="-19" width="3.4" height="14" rx="1.7" fill="#F2EFE6"></rect><path d="M-6 -12.5 l3 0" stroke-width=".75"></path><circle cx="-1.4" cy="-6.3" r="2.1" fill="#F2EFE6"></circle><circle cx="1.7" cy="-6.2" r="2.1" fill="#F2EFE6"></circle><circle cx="4.6" cy="-5.4" r="2" fill="#D9D4C8"></circle><rect x="-6.8" y="-6.5" width="13.6" height="13" rx="5.2" fill="#F2EFE6"></rect><path d="M3.4 -3.5 Q6 -1 5.2 4" stroke="#D2CDC1" stroke-width="2.4" fill="none" stroke-linecap="round"></path><path d="M0.2 -4.9 v3.2 M3.2 -4.5 v3" stroke-width=".75"></path><rect x="-8.6" y="-0.4" width="9.6" height="3.7" rx="1.85" fill="#F2EFE6"></rect><path d="M-5 -2.5 Q-4 -4.6 -1.8 -5" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"></path></g>
+    <g display="{{ hd.thumb }}" stroke="#0A0A0B" stroke-width=".8"><rect x="-9.8" y="-17" width="3.8" height="13" rx="1.9" transform="rotate(-6 -8 -4)" fill="#F2EFE6"></rect><circle cx="-4.4" cy="-5.6" r="2.1" fill="#F2EFE6"></circle><circle cx="-1.4" cy="-6.3" r="2.1" fill="#F2EFE6"></circle><circle cx="1.7" cy="-6.2" r="2.1" fill="#F2EFE6"></circle><circle cx="4.6" cy="-5.4" r="2" fill="#D9D4C8"></circle><rect x="-6.8" y="-6.5" width="13.6" height="13" rx="5.2" fill="#F2EFE6"></rect><path d="M3.4 -3.5 Q6 -1 5.2 4" stroke="#D2CDC1" stroke-width="2.4" fill="none" stroke-linecap="round"></path><path d="M-2.9 -4.6 v3 M0.2 -4.9 v3.2 M3.2 -4.5 v3" stroke-width=".75"></path><path d="M-5 -2.5 Q-4 -4.6 -1.8 -5" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"></path></g>
+  </g></sc-for>
+</g></svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:220,&quot;height&quot;:260},&quot;mood&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;neutral&quot;,&quot;options&quot;:[&quot;neutral&quot;,&quot;smug&quot;,&quot;happy&quot;,&quot;wink&quot;,&quot;stern&quot;,&quot;soft&quot;,&quot;bored&quot;,&quot;side&quot;,&quot;shocked&quot;,&quot;shades&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;prop&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;none&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;seal&quot;,&quot;ledger&quot;,&quot;lens&quot;,&quot;coin&quot;,&quot;sack&quot;,&quot;cup&quot;,&quot;whisper&quot;,&quot;scythe&quot;,&quot;flip&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:120,&quot;tsType&quot;:&quot;number&quot;},&quot;animate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;anim&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;idle&quot;,&quot;options&quot;:[&quot;idle&quot;,&quot;none&quot;,&quot;peek&quot;,&quot;popin&quot;,&quot;flip&quot;,&quot;wave&quot;,&quot;point&quot;,&quot;tap&quot;,&quot;thumbs&quot;,&quot;jump&quot;,&quot;shrug&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;hand&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;&quot;,&quot;options&quot;:[&quot;&quot;,&quot;open&quot;,&quot;fist&quot;,&quot;point&quot;,&quot;thumb&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;bust&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  uid = 'k' + Math.random().toString(36).slice(2, 8);
+  state = { t: 0 };
+  componentDidMount() {
+    const rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (rm || this.props.animate === false || this.props.anim === 'none') return;
+    const an = this.props.anim, off = (an === 'peek' || an === 'popin') ? 0 : Math.random() * 3000, t0 = performance.now() - off; let last = 0;
+    const loop = n => { this.raf = requestAnimationFrame(loop); if (n - last < 33) return; last = n; this.setState({ t: Math.max(0.001, (n - t0) / 1000) }); };
+    this.raf = requestAnimationFrame(loop);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+  renderVals() {
+    const mood = this.props.mood ?? 'neutral', prop = this.props.prop ?? 'none', size = Number(this.props.size ?? 120), bust = !!this.props.bust;
+    const on = b => b ? 'inline' : 'none';
+    const MD = {
+      neutral: { L: { ht: 4, hb: 11 }, mouth: [87, 89, 84], t2: -3 },
+      smug: { L: { ht: 3, hb: 10, yi: 1 }, R: { ht: 13, hb: 10, yo: -3 }, mouth: [88, 91, 82], t2: -6 },
+      happy: { arcs: 1, mouth: 'grin', t2: -5, spark: 1 },
+      wink: { L: { ht: 12, hb: 11 }, arcR: 1, mouth: [87, 92, 82], t2: -9 },
+      stern: { L: { ht: 2, hb: 12, yi: 5, yo: -4 }, noGl: 1, mouth: [91, 83, 91], t2: 0, vein: 1 },
+      soft: { L: { ht: 13, hb: 12, yo: 3, yi: -1 }, gr: 3.4, mouth: [85, 92, 85], t2: 8 },
+      bored: { L: { ht: 1, hb: 6, yo: 1, yi: 1 }, noGl: 1, mouth: [88, 88, 90], t2: 5 },
+      side: { L: { ht: 5, hb: 10 }, gx: 5, mouth: [88, 90, 83], t2: 10 },
+      shocked: { L: { ht: 14, hb: 14, w: 12 }, gr: 2.4, mouth: 'open', t2: 0, lines: 1 },
+      shades: { shades: 1, mouth: 'grin', t2: -7 },
+    }[mood] || {};
+    const eye = (cx, s, o) => { if (!o) return 'M0 0'; const cy = 62, w = o.w || 11, xo = cx - s * w, xi = cx + s * w, yo = cy + (o.yo || 0), yi = cy + (o.yi || 0);
+      return `M${xo} ${yo} C${xo} ${cy - o.ht} ${xi} ${cy - o.ht + (o.yi || 0)} ${xi} ${yi} C${xi} ${cy + o.hb} ${xo} ${cy + o.hb} ${xo} ${yo} Z`; };
+    const Lo = MD.L, Ro = MD.R || (MD.L && { ...MD.L }), beanR = !!Ro && !MD.arcR, gx = (MD.gx || 0) + (this.__gxA || 0), gy = 62 + ((Lo && Lo.hb) ? Math.min(2, Lo.hb / 4) : 0) - 2;
+    const grin = MD.mouth === 'grin', open = MD.mouth === 'open', st = Array.isArray(MD.mouth) ? MD.mouth : null;
+    const q = (t, a, c, b) => (1 - t) * (1 - t) * a + 2 * (1 - t) * t * c + t * t * b;
+    let tp = '';
+    if (grin) for (let x = 60; x < 100; x += 7) { const y = q((x + 3 - 56) / 48, 82, 92, 82) - 4; tp += `M${x} ${y} h6 v8 a3 3 0 0 1 -6 0 Z `; }
+    const F = {
+      eL: eye(66, 1, Lo), eR: eye(94, -1, Ro), bean: on(!!Lo && !MD.arcs), beanR: on(beanR && !MD.arcs),
+      arcL: on(MD.arcs), arcR: on(MD.arcs || MD.arcR), shades: 'inline', shT: (MD.shades || mood === 'neutral') ? '' : 'translate(80 12) scale(0.62 0.46) translate(-80 -60)',
+      gl: on(!!Lo && !MD.noGl && !MD.arcs), glR: on(beanR && !MD.noGl && !MD.arcs),
+      gxL: 69 + gx, gxR: 97 + gx, gy: gy + (this.__gyA || 0), gr: MD.gr || 2.8, gx2L: 63 + gx, gx2R: 91 + gx, gy2: gy + 4,
+      stitch: on(!!st), sm: st ? `M60 ${st[0]} Q80 ${st[1]} 100 ${st[2]}` : 'M0 0',
+      ticks: st ? [0.18, 0.39, 0.61, 0.82].map(t => { const x = q(t, 60, 80, 100), y = q(t, st[0], st[1], st[2]); return `M${x.toFixed(1)} ${(y - 4.5).toFixed(1)} Q${(x + 1).toFixed(1)} ${y.toFixed(1)} ${x.toFixed(1)} ${(y + 4.5).toFixed(1)}`; }).join(' ') : 'M0 0',
+      hole: on(grin || open), teeth: on(grin), tp: tp || 'M0 0',
+    };
+    const E = { dL: F.eL, dR: F.eR };
+    const M = { d: grin ? 'M56 82 Q80 92 104 82 Q101 107 80 107 Q59 107 56 82 Z' : open ? 'M80 85 C86 85 87 91 87 94 C87 99 84 101 80 101 C76 101 73 99 73 94 C73 91 74 85 80 85 Z' : 'M0 0' };
+    MD.t = MD.t2;
+    const X = { vein: on(MD.vein), spark: on(MD.spark && !bust), lines: on(MD.lines && !bust) };
+    const P = Object.fromEntries(['seal', 'ledger', 'lens', 'coin', 'sack', 'cup', 'scythe'].map(k => [k, on(!bust && prop === k)]));
+    const RH = { none: [118, 142, -10, 'fist'], seal: [128, 96, 0, 'fist'], flip: [124, 132, -20, 'fist'], ledger: [118, 136, -20, 'fist'], lens: [127, 116, 10, 'fist'], coin: [128, 108, -10, 'fist'], sack: [138, 98, 0, 'fist'], cup: [130, 124, -10, 'fist'], whisper: [106, 96, -25, 'open'], scythe: [118, 122, 0, 'fist'] }[prop] || [118, 142, -10, 'fist'];
+    let LH = mood === 'shades' ? [36, 120, 20, 'open'] : mood === 'shocked' ? [30, 108, 30, 'open'] : [40, 142, 10, 'fist'];
+    let RHm = [...RH]; if (this.props.hand) RHm = [128, 112, 0, this.props.hand];
+    const t = this.state.t || 0, live = t > 0, an = this.props.anim ?? (prop === 'flip' ? 'flip' : 'idle');
+    const S = Math.sin, ease = p => 1 - Math.pow(1 - p, 3), back = p => { const c = 1.9; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+    let ty = live ? S(t * 2.4) * 1.4 : 0, sx = 1, sy = 1, tiltA = 0, hsR = 1, gyA = 0, gxA = 0, wig = live ? S(t * 3) * 3 : 0;
+    const C = { on: on(!bust && (an === 'flip' || prop === 'flip')), y: -46, ry: 4, ry2: 2, fill: '#C5F25C', face: 'inline', trail: 'inline', ty: 80, ty2: 60 };
+    if (live) {
+      RHm[1] += S(t * 2.4 + .6) * 1.4; LH[1] += S(t * 2.4 + .9) * 1.4;
+      if (an === 'idle' && (t % 6.5) > 5.2) gxA = 4;
+      if (an === 'flip') { const p = (t % 1.7) / 1.7; RHm = [124, 130, -10, 'fist'];
+        if (p < .12) RHm[2] = -10 - p / .12 * 30; else if (p < .2) RHm[2] = -40 + (p - .12) / .08 * 60; else RHm[2] = 20 - Math.min(1, (p - .2) / .2) * 30;
+        if (p > .1 && p < .9) { const q = (p - .1) / .8, cy = -60 * 4 * q * (1 - q); C.y = cy; C.ry = Math.max(.8, 10 * Math.abs(Math.cos(q * Math.PI * 5))); C.fill = Math.cos(q * Math.PI * 5) > 0 ? '#C5F25C' : '#A9D23E'; C.ry2 = C.ry * .55; C.face = on(C.ry > 4); C.trail = on(q > .15 && q < .85); C.ty = 100 + cy * .5; C.ty2 = 100 + cy; gyA = cy * .05; tiltA = cy * .06; }
+        else { C.y = 4; C.ry = 10; C.ry2 = 5.5; C.trail = 'none'; if (p >= .9) RHm[1] += 3; } }
+      if (an === 'wave') { RHm = [136, 90, 18 * S(t * 9), 'open']; tiltA = 5; }
+      if (an === 'point') { RHm = [128, 112, -8, 'point']; hsR = 1 + .16 * Math.max(0, S(t * 5)); tiltA = -4; }
+      if (an === 'thumbs') { RHm = [130, 110 - 4 * Math.abs(S(t * 3)), 0, 'thumb']; hsR = 1 + .08 * Math.abs(S(t * 3)); }
+      if (an === 'tap') { LH = [48, 120, 85, 'fist']; RHm = [70, 108 - Math.max(0, S(t * 10)) * 4, -70, 'point']; tiltA = 4; }
+      if (an === 'shrug') { const k = Math.max(0, S(t * 2.2)); LH = [24, 114 - k * 6, -35, 'open']; RHm = [136, 114 - k * 6, 35, 'open']; tiltA = 7 * k; ty -= k * 2; }
+      if (an === 'jump') { const p = (t % 1.8) / 1.8; if (p < .15) { sy = 1 - .1 * S(p / .15 * Math.PI); sx = 2 - sy; } else if (p < .55) { const q = (p - .15) / .4; ty = -18 * S(q * Math.PI); sy = 1.05; sx = .96; LH = [26, 98, -30, 'open']; RHm = [134, 98, 30, 'open']; } else if (p < .68) { sy = 1 - .12 * S((p - .55) / .13 * Math.PI); sx = 2 - sy; } }
+      if (an === 'peek' || an === 'popin') { const p = an === 'peek' ? (t % 4.4) : Math.min(t, 3); let off = 0;
+        if (p < .55) { const q = back(p / .55); off = 120 * (1 - q); sy = .85 + .15 * Math.min(1, q); }
+        else if (p < 1.9) RHm = [136, 90, 18 * S(p * 9), 'open'];
+        else if (an === 'peek' && p > 3.7) { const q = Math.min(1, (p - 3.7) / .4); off = 130 * q * q; sy = 1 + .08 * q; sx = 1 - .05 * q; }
+        ty += off; }
+    }
+    const bl = live && an !== 'jump' && (t % 3.7) < .13 ? .12 : 1;
+    const rootT = `translate(0 ${ty.toFixed(2)}) translate(80 178) scale(${sx.toFixed(3)} ${sy.toFixed(3)}) translate(-80 -178)`;
+    this.__gxA = gxA; this.__gyA = gyA;
+    const blinkT = `translate(0 62) scale(1 ${bl}) translate(0 -62)`;
+    const pose = (p, k) => ({ open: on(p === 'open'), fist: on(p === 'fist'), point: on(p === 'point'), thumb: on(p === 'thumb'), wig: p === 'open' ? wig : 0 });
+    const hands = bust ? [] : [{ t: `translate(${LH[0]} ${LH[1].toFixed(1)}) rotate(${LH[2]}) scale(-1.75 1.75)`, ...pose(LH[3] || 'fist') }, { t: `translate(${RHm[0]} ${RHm[1].toFixed(1)}) rotate(${RHm[2].toFixed(1)}) scale(${(1.75 * hsR).toFixed(3)})`, ...pose(RHm[3]) }];
+    const sleeve = (sx, sy, hx, hy, bend) => `M${sx} ${sy} Q${(sx + hx) / 2 + bend} ${(sy + hy) / 2 + 8} ${hx} ${hy}`;
+    const A = {
+      lx: LH[0], ly: LH[1], lr: LH[2], rx: RH[0], ry: RH[1], rr: RH[2], fist: on(RH[3] === 'fist'), open: on(RH[3] === 'open'),
+      sl: sleeve(46, 108, LH[0], LH[1] + 6, -6), sr: sleeve(114, 108, RHm[0], RHm[1] + 6, 6),
+    };
+    return {
+      hands, rootT, blinkT, C,
+      idL: this.uid + 'L', idR: this.uid + 'R', idM: this.uid + 'M', E, M, F, X, P, A,
+      body: on(!bust), jaw: MD.mouth === 'open' ? 5 : MD.mouth === 'grin' ? 2 : 0,
+      tilt: ((MD.t2 || 0) + tiltA).toFixed(2), ov: bust ? 'hidden' : 'visible',
+      vb: bust ? '28 4 104 104' : '0 0 160 180', w: size, h: bust ? size : Math.round(size * 180 / 160),
+    };
+  }
+}
+</script>
+</body>
+</html>
