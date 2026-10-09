@@ -21,7 +21,7 @@ export interface WalletSession {
   forget(): Promise<void>;
 }
 
-export interface CreateOathInput { oathId: bigint; objectId: number; numDays: number; stake: bigint; goalText: string; tzOffsetMinutes: number }
+export interface CreateOathInput { objectId: number; numDays: number; stake: bigint; goalText: string; tzOffsetMinutes: number; isSolo: boolean; reviewMode: "ai" | "ai_group" }
 export interface FundBountyInput { bountyId: string; pool: bigint }
 export interface JoinRematchInput { oath: string }
 

@@ -23,12 +23,15 @@ export type DayPhase =
 /**
  * Where an Oath is in time. `day1StartsAt` is the first midnight after Start (as the program will
  * store it once BACKEND_GAPS P0-4 lands; until then the app derives it with nextMidnight()).
+ * `daySeconds` is 86,400 except on debug program builds (120 s days for testing); the deadline
+ * warning scales with it so a short day still has a "deadline close" phase.
  */
-export function dayPhase(day1StartsAt: number, numDays: number, now: number): DayPhase {
+export function dayPhase(day1StartsAt: number, numDays: number, now: number, daySeconds: number = DAY_SECONDS): DayPhase {
   if (now < day1StartsAt) return { phase: "waiting", startsAt: day1StartsAt, secondsToStart: day1StartsAt - now };
-  const dayIndex = Math.floor((now - day1StartsAt) / DAY_SECONDS);
-  if (dayIndex >= numDays) return { phase: "over", endedAt: day1StartsAt + numDays * DAY_SECONDS };
-  const dayEndsAt = day1StartsAt + (dayIndex + 1) * DAY_SECONDS;
+  const dayIndex = Math.floor((now - day1StartsAt) / daySeconds);
+  if (dayIndex >= numDays) return { phase: "over", endedAt: day1StartsAt + numDays * daySeconds };
+  const dayEndsAt = day1StartsAt + (dayIndex + 1) * daySeconds;
   const secondsToReset = dayEndsAt - now;
-  return { phase: "day", dayIndex, dayEndsAt, secondsToReset, deadlineClose: secondsToReset <= DEADLINE_WARN_SECONDS };
+  const warn = (DEADLINE_WARN_SECONDS * daySeconds) / DAY_SECONDS;
+  return { phase: "day", dayIndex, dayEndsAt, secondsToReset, deadlineClose: secondsToReset <= warn };
 }

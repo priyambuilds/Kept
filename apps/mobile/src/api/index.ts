@@ -5,6 +5,8 @@ import { useDev, flags as currentFlags } from "@/state/dev";
 import { useSession } from "@/state/session";
 import { createHttpClient } from "./http/client";
 import { httpAuth, httpInbox, httpInvites, httpNotify, httpProfile, httpWallet } from "./http/slices";
+import { httpOaths, httpProof } from "./http/oaths";
+import { mockOathsApi, mockProofApi } from "./mock/oaths";
 import { mockAuth, mockInbox, mockInvites, mockNotify, mockProfile, mockWallet } from "./mock/slices";
 import type { MockContext } from "./mock/slices";
 import type { KeptApi, Slice, SliceMode } from "./types";
@@ -16,12 +18,15 @@ const MOCK_LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 450;
 
 /** The mock backend. Built once per context so its state (done inbox items, faucet use) survives flag changes. */
 export function createMockApi(ctx: MockContext): KeptApi {
-  return { auth: mockAuth(ctx), wallet: mockWallet(ctx), inbox: mockInbox(ctx), invites: mockInvites(ctx), notify: mockNotify(ctx), profile: mockProfile(ctx) };
+  return { oaths: mockOathsApi(ctx), proof: mockProofApi(ctx), auth: mockAuth(ctx), wallet: mockWallet(ctx), inbox: mockInbox(ctx), invites: mockInvites(ctx), notify: mockNotify(ctx), profile: mockProfile(ctx) };
 }
 
 export function createApi(f: Record<Slice, SliceMode>, mock: KeptApi, getToken: () => string | null): KeptApi {
   const http = createHttpClient(getToken);
   return {
+    oaths: f.oaths === "http" ? httpOaths(http) : mock.oaths,
+    // Real proof still uses the mock for photo 1 and for Oaths that live on the mock.
+    proof: f.proof === "http" ? httpProof(http, mock.proof) : mock.proof,
     auth: f.auth === "http" ? httpAuth(http) : mock.auth,
     wallet: f.wallet === "http" ? httpWallet(http) : mock.wallet,
     inbox: f.inbox === "http" ? httpInbox() : mock.inbox,

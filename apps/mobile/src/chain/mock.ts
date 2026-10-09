@@ -1,6 +1,7 @@
 // Mock wallet and TxService: scripted outcomes per Dev scenario, with SignStatus-like delays.
 import { duration } from "@/theme";
 import { MOCK_WALLET } from "@/api/mock/slices";
+import { mockOaths } from "@/features/oaths/mockStore";
 import type { Scenario } from "@/api/mock/scenarios";
 import { TxFailure } from "./types";
 import type { TxService, WalletSession } from "./types";
@@ -33,21 +34,23 @@ export function createMockWallet(scenario: () => Scenario, delayMs: number = dur
   };
 }
 
-export function createMockTx(scenario: () => Scenario, delayMs: number = duration.signAuto): TxService {
-  async function sign<T extends object>(extra: T) {
+/** Mock transactions apply to the mock store, so the next read shows their effect. */
+export function createMockTx(scenario: () => Scenario, wallet: () => string | null, delayMs: number = duration.signAuto): TxService {
+  async function sign<T extends object>(effect: () => T): Promise<{ signature: string } & T> {
     await wait(delayMs);
     const f = forced(scenario());
     if (f) throw f;
-    return { signature: fakeSig(), ...extra };
+    return { signature: fakeSig(), ...effect() };
   }
+  const w = () => wallet() ?? MOCK_WALLET;
   return {
-    createOath: () => sign({ oath: MOCK_WALLET }),
-    joinOath: () => sign({}),
-    startOath: () => sign({}),
-    cancelOath: () => sign({}),
-    claim: () => sign({ amount: 1_186_000_000n }),
-    settle: () => sign({}),
-    fundBounty: () => sign({}),
-    joinRematch: () => sign({}),
+    createOath: (i) => sign(() => ({ oath: mockOaths.create({ wallet: w(), goal: i.goalText, objectId: i.objectId, numDays: i.numDays, stake: i.stake, isSolo: i.isSolo, reviewMode: i.reviewMode }).id })),
+    joinOath: (id) => sign(() => { mockOaths.join(id, w()); return {}; }),
+    startOath: (id) => sign(() => { mockOaths.start(id); return {}; }),
+    cancelOath: (id) => sign(() => { mockOaths.cancel(id); return {}; }),
+    claim: (id) => sign(() => ({ amount: mockOaths.claim(id, w()) })),
+    settle: () => sign(() => ({})),
+    fundBounty: () => sign(() => ({})),
+    joinRematch: () => sign(() => ({})),
   };
 }

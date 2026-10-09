@@ -4,6 +4,7 @@ import {
 } from "@kept/shared";
 import { SKR_UNIT } from "@kept/config";
 import { readBalances } from "@/chain/connection";
+import { programEnv } from "@/chain/program";
 import { ApiError } from "../errors";
 import type { AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
 import type { HttpClient } from "./client";
@@ -17,7 +18,9 @@ export const httpAuth = (c: HttpClient): AuthApi => ({
 export const httpWallet = (c: HttpClient): WalletApi => ({
   balances: async (wallet) => {
     try {
-      return await readBalances(wallet);
+      // The stake mint comes from the program's Config; the env value is only a fallback.
+      const mint = await programEnv().then((e) => e.stakeMint.toBase58()).catch(() => undefined);
+      return await readBalances(wallet, mint);
     } catch (e) {
       throw new ApiError("OFFLINE", e instanceof Error ? e.message : String(e), 0, true);
     }

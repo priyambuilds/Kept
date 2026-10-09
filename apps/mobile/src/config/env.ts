@@ -15,6 +15,8 @@ export const env = {
   rpcUrl: process.env.EXPO_PUBLIC_RPC_URL ?? "https://api.devnet.solana.com",
   programId: process.env.EXPO_PUBLIC_PROGRAM_ID ?? "6iXXBqsdiCnUTSVf8CW3Uuw8c7iYvZSj5haz64QMuMUh",
   stakeMint: process.env.EXPO_PUBLIC_STAKE_MINT ?? "",
+  /** Day length for new Oaths: 86400, or 120 with a debug program build for fast testing (BACKEND_GAPS P2-4). */
+  daySeconds: Number(process.env.EXPO_PUBLIC_DAY_SECONDS ?? "86400"),
   /** MWA app identity shown by the wallet. The URI should serve /.well-known/assetlinks.json. */
   identity: {
     name: process.env.EXPO_PUBLIC_APP_IDENTITY_NAME ?? "KEPT",

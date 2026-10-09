@@ -8,13 +8,16 @@ export function connection(): Connection {
   return conn;
 }
 
-/** SOL (lamports) and SKR (base units) for a wallet, read from RPC. Works for SPL and Token-2022 mints. */
-export async function readBalances(wallet: string): Promise<{ sol: bigint; skr: bigint }> {
+/**
+ * SOL (lamports) and SKR (base units) for a wallet, read from RPC. Works for SPL and Token-2022 mints.
+ * `mint` defaults to EXPO_PUBLIC_STAKE_MINT; callers pass the program Config's mint when they have it.
+ */
+export async function readBalances(wallet: string, mint: string = env.stakeMint): Promise<{ sol: bigint; skr: bigint }> {
   const owner = new PublicKey(wallet);
   const c = connection();
   const [lamports, tokens] = await Promise.all([
     c.getBalance(owner, "confirmed"),
-    env.stakeMint ? c.getParsedTokenAccountsByOwner(owner, { mint: new PublicKey(env.stakeMint) }, "confirmed") : Promise.resolve(null),
+    mint ? c.getParsedTokenAccountsByOwner(owner, { mint: new PublicKey(mint) }, "confirmed") : Promise.resolve(null),
   ]);
   let skr = 0n;
   for (const a of tokens?.value ?? []) {

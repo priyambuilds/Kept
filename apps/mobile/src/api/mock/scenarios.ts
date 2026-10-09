@@ -4,6 +4,7 @@
 export const SCENARIOS = [
   "fresh", "activeGroup", "deadlineClose", "allDone", "lowHp", "broken", "settledKept", "settledMissed",
   "rematchActive", "bountyJoined", "bountyOut", "notEligible", "offline", "walletRejected", "txFailed", "noSol", "noSkr",
+  "proofFail", "proofUnavailable",
 ] as const;
 export type Scenario = (typeof SCENARIOS)[number];
 export const DEFAULT_SCENARIO: Scenario = "activeGroup";
