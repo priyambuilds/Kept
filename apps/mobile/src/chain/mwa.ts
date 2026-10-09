@@ -109,26 +109,27 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
       const key = await authorize(w);
       if (!key.equals(payer)) throw new Error(`Wallet switched accounts: expected ${payer.toBase58()}, got ${key.toBase58()}`);
       return w.signAndSendTransactions({ transactions: [tx], minContextSlot }); // Phantom rejects without minContextSlot
-    });
     if (!signature) throw new Error("The wallet returned no signature");
-    try {
-      const res = await c.confirmTransaction({ signature, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, "confirmed");
-      if (res.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(res.value.err)}`);
-      return signature;
-    } catch (confirmErr: unknown) {
+    const start = Date.now();
+    const timeoutMs = 45_000;
+    while (Date.now() - start < timeoutMs) {
       try {
         const status = await c.getSignatureStatus(signature, { searchTransactionHistory: true });
         if (status?.value) {
           if (status.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(status.value.err)}`);
           if (status.value.confirmationStatus === "confirmed" || status.value.confirmationStatus === "finalized") return signature;
         }
-        const txInfo = await c.getTransaction(signature, { commitment: "confirmed", maxSupportedTransactionVersion: 0 });
-        if (txInfo && !txInfo.meta?.err) return signature;
-      } catch (verifyErr: unknown) {
-        if (verifyErr instanceof Error && verifyErr.message.includes("failed on chain")) throw verifyErr;
+      } catch (pollErr: unknown) {
+        if (pollErr instanceof Error && pollErr.message.includes("failed on chain")) throw pollErr;
       }
-      throw confirmErr;
+      await new Promise((r) => setTimeout(r, 1500));
     }
+    const txInfo = await c.getTransaction(signature, { commitment: "confirmed", maxSupportedTransactionVersion: 0 });
+    if (txInfo) {
+      if (txInfo.meta?.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(txInfo.meta.err)}`);
+      return signature;
+    }
+    throw new Error(`Transaction ${signature} confirmation timed out after 45s`);
   } catch (e) {
     throw classifyTxError(e);
   }
