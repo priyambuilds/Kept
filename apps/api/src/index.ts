@@ -3,6 +3,7 @@ import express from "express";
 import { config } from "./config.js";
 import { assetlinksRouter } from "./routes/assetlinks.js";
 import { startV4Scheduler, v4Router } from "./routes/v4.js";
+import { inboxRouter } from "./routes/inbox.js";
 
 const app = express();
 // Helius webhook batches can be large.
@@ -10,6 +11,7 @@ app.use(express.json({ limit: "12mb" }));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use(v4Router);
+app.use(inboxRouter);
 app.use(assetlinksRouter);
 startV4Scheduler();
 

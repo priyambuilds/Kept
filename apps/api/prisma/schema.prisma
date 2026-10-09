@@ -63,11 +63,32 @@ model OathWatch {
 }
 
 model OathDetails {
-  id        Int      @id @default(autoincrement())
-  oath      String   @unique
-  creator   String
-  goalText  String
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  oath       String   @unique
+  creator    String
+  goalText   String
+  name       String?
+  reviewMode String   @default("ai")
+  rematchOf  String?
+  createdAt  DateTime @default(now())
+}
+
+model InboxMessage {
+  id          String   @id @default(uuid())
+  wallet      String
+  type        String
+  actor       String?
+  title       String
+  body        String
+  needsAction Boolean  @default(false)
+  done        Boolean  @default(false)
+  refOath     String?
+  refCode     String?
+  refBounty   String?
+  refReview   String?
+  createdAt   DateTime @default(now())
+
+  @@index([wallet, createdAt(sort: Desc)])
 }
 
 model ReminderSent {
