@@ -120,6 +120,11 @@ export async function signAndSend(
   }
 
   const slot = await connection.getSlot("confirmed");
+  // Simulation can take time. Refresh immediately before handing the transaction
+  // to the wallet, while this app still owns the foreground network connection.
+  const walletLatest = await connection.getLatestBlockhash("confirmed");
+  tx.recentBlockhash = walletLatest.blockhash;
+  tx.lastValidBlockHeight = walletLatest.lastValidBlockHeight;
   const [signature] = await transact(async (wallet) => {
     const authorized = await authorizeInSession(wallet);
     if (!authorized.equals(payer)) {
@@ -133,11 +138,54 @@ export async function signAndSend(
   // Some Android builds block network access for backgrounded apps, and the wallet is still
   // in front right after signing. Wait until we are visible again before using the RPC.
   await waitForForeground();
-  const result = await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, "confirmed");
-  if (result.value.err) {
-    throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(result.value.err)}`);
+  return confirmSignature(signature, walletLatest.lastValidBlockHeight);
+}
+
+/**
+ * Waits for `signature` to reach "confirmed" by polling over HTTP. Never use
+ * `connection.confirmTransaction` in this app: it relies on the `signatureSubscribe` WebSocket,
+ * which Android drops while the wallet (or anything else) has the foreground.
+ * With `lastValidBlockHeight`, stops early with a clear error once the blockhash has expired.
+ */
+export async function confirmSignature(signature: string, lastValidBlockHeight?: number): Promise<string> {
+  const start = Date.now();
+  const timeoutMs = 45_000;
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const status = await connection.getSignatureStatus(signature, { searchTransactionHistory: true });
+      if (status?.value) {
+        if (status.value.err) {
+          throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(status.value.err)}`);
+        }
+        if (status.value.confirmationStatus === "confirmed" || status.value.confirmationStatus === "finalized") {
+          log.wallet(`Transaction ${signature} confirmed on chain (${status.value.confirmationStatus})`);
+          return signature;
+        }
+      } else if (lastValidBlockHeight !== undefined && (await connection.getBlockHeight("confirmed")) > lastValidBlockHeight) {
+        break; // blockhash expired and the network never saw it: one last lookup below, then fail
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes("failed on chain")) {
+        throw err;
+      }
+    }
+    await new Promise((r) => setTimeout(r, 1500));
   }
-  return signature;
+  const tx = await connection.getTransaction(signature, {
+    commitment: "confirmed",
+    maxSupportedTransactionVersion: 0,
+  });
+  if (tx) {
+    if (tx.meta?.err) {
+      throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(tx.meta.err)}`);
+    }
+    log.wallet(`Transaction ${signature} verified on chain via getTransaction`);
+    return signature;
+  }
+  if (lastValidBlockHeight !== undefined && (await connection.getBlockHeight("confirmed")) > lastValidBlockHeight) {
+    throw new Error(`Transaction ${signature} expired before it landed (blockhash too old). Nothing was charged; try again.`);
+  }
+  throw new Error(`Transaction ${signature} confirmation timed out after 45s`);
 }
 
 export async function solBalance(owner: PublicKey): Promise<number> {

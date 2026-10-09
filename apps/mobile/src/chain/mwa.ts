@@ -119,6 +119,8 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
         if (status?.value) {
           if (status.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(status.value.err)}`);
           if (status.value.confirmationStatus === "confirmed" || status.value.confirmationStatus === "finalized") return signature;
+        } else if (latest.lastValidBlockHeight !== undefined && (await c.getBlockHeight("confirmed")) > latest.lastValidBlockHeight) {
+          break; // blockhash expired and the network never saw it: one last lookup below, then fail
         }
       } catch (pollErr: unknown) {
         if (pollErr instanceof Error && pollErr.message.includes("failed on chain")) throw pollErr;
@@ -129,6 +131,9 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
     if (txInfo) {
       if (txInfo.meta?.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(txInfo.meta.err)}`);
       return signature;
+    }
+    if (latest.lastValidBlockHeight !== undefined && (await c.getBlockHeight("confirmed")) > latest.lastValidBlockHeight) {
+      throw new Error(`Transaction ${signature} expired before it landed (blockhash too old). Nothing was charged; try again.`);
     }
     throw new Error(`Transaction ${signature} confirmation timed out after 45s`);
   } catch (e) {
