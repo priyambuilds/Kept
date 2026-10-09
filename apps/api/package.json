@@ -1,5 +1,5 @@
 {
-  "name": "kept-backend",
+  "name": "@kept/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,8 @@
     "prisma:generate": "prisma generate",
     "v4:setup": "tsx scripts/v4-setup.ts",
     "test": "tsx --test test/*.test.ts",
-    "prisma:migrate": "prisma migrate dev --name init"
+    "prisma:migrate": "prisma migrate dev --name init",
+    "typecheck": "prisma generate && tsc -p tsconfig.json --noEmit"
   },
   "engines": {
     "node": ">=20"
@@ -29,14 +30,5 @@
   },
   "devDependencies": {
     "tsx": "^4.19.2"
-  },
-  "allowScripts": {
-    "@prisma/client@6.19.3": true,
-    "@prisma/engines@6.19.3": true,
-    "prisma@6.19.3": true,
-    "esbuild@0.28.2": true,
-    "bufferutil@4.1.0": true,
-    "utf-8-validate@6.0.6": true,
-    "utf-8-validate@5.0.10": true
   }
 }

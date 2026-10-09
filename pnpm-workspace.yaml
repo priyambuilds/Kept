@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+  - programs/kept
+
+# Dependencies allowed to run install scripts (replaces the npm-11 "allowScripts"
+# block that used to live in backend/package.json).
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  bigint-buffer: true
+  bufferutil: true
+  esbuild: true
+  prisma: true
+  utf-8-validate: true

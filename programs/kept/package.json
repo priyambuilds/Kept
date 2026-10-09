@@ -1,10 +1,12 @@
 {
-  "name": "kept-test-program",
+  "name": "@kept/program",
   "private": true,
   "description": "Tests for the kept_test Anchor program (LiteSVM, no validator needed)",
   "scripts": {
+    "build": "rm -f target/deploy/kept_test.so && cargo build-sbf --tools-version v1.57 --arch v2 --sbf-out-dir target/deploy && mkdir -p target/idl target/types && anchor idl build -o target/idl/kept_test.json -t target/types/kept_test.ts",
     "test": "ts-mocha -p ./tsconfig.json -t 120000 tests/**/*.ts",
-    "test:rust": "cargo test"
+    "test:rust": "cargo test -p kept_test",
+    "test:all": "pnpm run test && pnpm run test:rust"
   },
   "devDependencies": {
     "@anchor-lang/core": "^1.2.0",
