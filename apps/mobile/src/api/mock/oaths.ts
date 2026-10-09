@@ -1,6 +1,7 @@
 // Mock Oaths and proof, on the mock store (features/oaths/mockStore.ts).
 import { mockOaths } from "@/features/oaths/mockStore";
 import { useDeviceOaths } from "@/features/oaths/device";
+import { devWait } from "@/state/dev";
 import { ApiError } from "../errors";
 import type { GestureLabel, OathsApi, ProofApi } from "../types";
 import { clock } from "./clock";
@@ -49,6 +50,7 @@ export function mockProofApi(ctx: MockContext): ProofApi {
     },
     submit: async (oath, ch) => {
       await delay(ctx);
+      await devWait(0); // F2 / F4·chk held open by the dev deep link
       await new Promise((r) => setTimeout(r, ctx.latencyMs * 2)); // the checker takes a moment (F2 / F4·chk)
       if (Math.floor(clock.now() / 1000) > ch.expiresAt) return { status: "expired" };
       const s = ctx.scenario();

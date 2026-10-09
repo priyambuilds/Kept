@@ -26,6 +26,7 @@ import { useContinue, useGo } from "@/app/nav";
 import { useSigningFlow } from "@/app/useSigningFlow";
 import type { SignOutcome } from "@/app/useSigningFlow";
 import { useSession } from "@/state/session";
+import { useDevHold } from "@/state/dev";
 
 /** Splash shows at least this long so the brand sequence can play (motion.md › splash). */
 const SPLASH_MIN_MS = 1200;
@@ -42,7 +43,7 @@ export function A0() {
     void Promise.all([hydrated, new Promise((r) => setTimeout(r, SPLASH_MIN_MS))]).then(async () => {
       const { token, onboarded } = useSession.getState();
       const signedIn = token ? await restoreSession(getApi()) : false;
-      if (cancelled) return;
+      if (cancelled || useDevHold.getState().hold) return; // the dev deep link can hold the splash
       if (signedIn && onboarded) reset("B1");
       else if (signedIn) reset("A4");
       else reset("A1");

@@ -5,6 +5,8 @@ export const SCENARIOS = [
   "fresh", "activeGroup", "deadlineClose", "allDone", "lowHp", "broken", "settledKept", "settledMissed",
   "rematchActive", "bountyJoined", "bountyOut", "notEligible", "offline", "walletRejected", "txFailed", "noSol", "noSkr",
   "proofFail", "proofUnavailable",
+  // Finished Oaths for the result screens (L4, L4·m, L4·b, R4, R4·lost, L6).
+  "soloKept", "soloMissed", "soloBroken", "rematchKept", "rematchLost",
 ] as const;
 export type Scenario = (typeof SCENARIOS)[number];
 export const DEFAULT_SCENARIO: Scenario = "activeGroup";

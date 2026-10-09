@@ -116,12 +116,18 @@ export function routeInvite(url: string | null): string | null {
   return null;
 }
 
+/** `kept://dev/open/<screen>` (development builds only; Metro drops the require from release bundles). */
+function devLink(url: string): boolean {
+  if (!__DEV__) return false;
+  return (require("@/dev/devLink") as typeof import("@/dev/devLink")).openDevLinkWhenReady(url);
+}
+
 const linking: LinkingOptions<ParamListBase> = {
   prefixes: ["kept://"],
   config: { screens: { [routeName("E1")]: "join/:code" } },
-  getInitialURL: async () => routeInvite(await Linking.getInitialURL()),
+  getInitialURL: async () => { const url = await Linking.getInitialURL(); return url && devLink(url) ? null : routeInvite(url); },
   subscribe: (listener) => {
-    const sub = Linking.addEventListener("url", ({ url }) => { const u = routeInvite(url); if (u) listener(u); });
+    const sub = Linking.addEventListener("url", ({ url }) => { if (devLink(url)) return; const u = routeInvite(url); if (u) listener(u); });
     return () => sub.remove();
   },
 };

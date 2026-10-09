@@ -41,3 +41,14 @@ export const useDev = create<DevState>()(persist((set) => ({
 export function flags(state: Pick<DevState, "overrides"> = useDev.getState()): Record<Slice, SliceMode> {
   return { ...defaultFlags(env.apiMode), ...state.overrides };
 }
+
+/**
+ * Dev deep link (`kept://dev/open/…&hold=1`): mock signatures and proof checks never finish, so the
+ * pending screens (A2·s, C7, F2, …) can be looked at. Not persisted.
+ */
+export const useDevHold = create<{ hold: boolean; setHold(hold: boolean): void }>()((set) => ({
+  hold: false,
+  setHold: (hold) => set({ hold }),
+}));
+/** Waits `ms`, or forever while the dev hold is on. */
+export const devWait = (ms: number) => new Promise<void>((r) => { if (!useDevHold.getState().hold) setTimeout(r, ms); });

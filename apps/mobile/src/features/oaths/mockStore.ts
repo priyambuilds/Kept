@@ -71,11 +71,20 @@ export function seed(scenario: Scenario, wallet: string) {
       { creator: wallet, goal: "lift for 20 minutes", day1StartsAt: t - 7 * DAY - 60 });
     return;
   }
-  if (scenario === "broken" || scenario === "rematchActive") {
+  if (scenario === "soloKept" || scenario === "soloMissed" || scenario === "soloBroken") {
+    // L4 / L4·m / L4·b: Read 20 pages, finished. Like D-55, the design's "three misses" can't break a
+    // solo Oath (−35 then +10 a day), so the broken one misses days 6–9.
+    const pattern = scenario === "soloKept" ? "kkkkkkkkkkkkkk" : scenario === "soloMissed" ? "kkkkmkkkkkmkkk" : "kkkkkmmmm";
+    add({ name: "Read 20 pages", goal: "read 20 pages", objectId: 1, numDays: 14, stake: skr(500), isSolo: true, reviewMode: "ai", status: "active", creator: wallet,
+      day1StartsAt: t - pattern.length * DAY - 60, members: [me(wallet, { daysKept: mask(pattern) })], seeded: true });
+    return;
+  }
+  if (scenario === "broken" || scenario === "rematchActive" || scenario === "rematchKept" || scenario === "rematchLost") {
+    const finished = scenario === "rematchKept" || scenario === "rematchLost";
     const guitar = group("Guitar Days", 3, 7, 1000, wallet, [me(wallet, { daysKept: mask("kkkkkk") }), person("riya", mask("kkkkkk")), person("arjun", mask("kmkmkm")), person("dev", mask("kmkmmm"))],
       // HP 100 → 70 → 70 → 40 → 30 → break on day 6 (−40 from 30): the design's "Dev missed day 5,
       // Arjun missed day 6" alone can't reach 0 HP with four members.
-      { goal: "practise guitar for 30 min", day1StartsAt: t - (scenario === "broken" ? 6 * DAY + 60 : 9 * DAY) });
+      { goal: "practise guitar for 30 min", day1StartsAt: t - (scenario === "broken" ? 6 * DAY + 60 : finished ? 16 * DAY : 9 * DAY) });
     // R1: Riya and Dev are already in the Rematch; the user decides. R·act: it's on day 3.
     const r = rematchOf(guitar, [PEOPLE.riya.wallet, PEOPLE.dev.wallet], true);
     if (scenario === "rematchActive") {
@@ -85,6 +94,16 @@ export function seed(scenario: Scenario, wallet: string) {
       r.members.find((m) => m.wallet === PEOPLE.dev.wallet)!.daysKept = mask("kk");
       r.status = "active";
       r.day1StartsAt = startFor(today, left(9, 18));
+    }
+    if (finished) {
+      // R4 / L6: all 7 days kept, Riya missed day 2. R4·lost: the user missed day 2 instead.
+      const lost = scenario === "rematchLost";
+      r.members.unshift(me(wallet, { daysKept: mask(lost ? "kmkkkkk" : "kkkkkkk") }));
+      r.recovery = heldOf(guitar);
+      r.members.find((m) => m.wallet === PEOPLE.riya.wallet)!.daysKept = mask(lost ? "kkkkkkk" : "kmkkkkk");
+      r.members.find((m) => m.wallet === PEOPLE.dev.wallet)!.daysKept = mask("kkkkkkk");
+      r.status = "active";
+      r.day1StartsAt = t - 7 * DAY - 60;
     }
     return;
   }

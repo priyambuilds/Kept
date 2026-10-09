@@ -37,3 +37,6 @@ test-ledger/
 prisma/dev.db
 prisma/dev.db-journal
 .claude/
+
+# Phase 4.5 screenshots and compare page (local only)
+artifacts/

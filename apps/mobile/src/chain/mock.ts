@@ -3,10 +3,11 @@ import { duration } from "@/theme";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { mockOaths } from "@/features/oaths/mockStore";
 import type { Scenario } from "@/api/mock/scenarios";
+import { devWait } from "@/state/dev";
 import { TxFailure } from "./types";
 import type { TxService, WalletSession } from "./types";
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const wait = devWait;
 const fakeSig = () => Array.from({ length: 88 }, () => "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"[Math.floor(Math.random() * 58)]).join("");
 
 /** The failure a scenario forces on any signature, if any. */

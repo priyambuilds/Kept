@@ -47,7 +47,9 @@ export function DevMenu() {
   const session = useSession();
   const qc = useQueryClient();
   const toast = useToast();
-  const now = useSyncExternalStore(clock.subscribe, clock.now);
+  // The snapshot must be stable between renders: the offset is, clock.now() isn't (it ticks).
+  const offset = useSyncExternalStore(clock.subscribe, clock.offsetMs);
+  const now = Date.now() + offset;
   const f = flags(dev);
 
   const refresh = () => { void qc.resetQueries(); };
