@@ -53,15 +53,17 @@ export function ProfileTab() {
   const profile = useMyProfile();
   const stats = useStats();
   const vis = useSettings((s) => s.visibility.oaths);
+  const tipSeen = useSettings((s) => s.profileTipSeen);
+  const setSettings = useSettings((s) => s.set);
   const k = keeperLines("I1");
   const p = profile.data;
   const s = stats.data;
   if (!p) return <TabScreen tab="profile"><Skeleton height={260} /><Skeleton height={150} /></TabScreen>;
   return (
     <TabScreen tab="profile">
-      {!p.bio ? <Banner tone="lime" icon="account-edit-outline" title={t("screens.I1.b0.title")} sub={t("screens.I1.b0.sub")} onPress={() => go("I8")} /> : null}
+      {!tipSeen ? <Banner tone="vio" icon="account-edit-outline" title={t("screens.I1.b0.title")} sub={t("screens.I1.b0.sub")} onPress={() => { setSettings({ profileTipSeen: true }); go("I8"); }} /> : null}
       {card(p, { actions: [
-        { label: t("screens.I1.b1.act.0"), icon: "pencil-outline", onPress: () => go("I8") },
+        { label: t("screens.I1.b1.act.0"), icon: "pencil-outline", onPress: () => { setSettings({ profileTipSeen: true }); go("I8"); } },
         { label: t("screens.I1.b1.act.1"), icon: "share-variant-outline", onPress: () => { void Clipboard.setStringAsync(p.wallet).then(() => toast(t("toasts.12"))); } },
       ] })}
       <KeptRateRing {...rateLine(s?.keptRate ?? null, s?.rateDays ?? 0)} />

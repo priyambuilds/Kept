@@ -14,9 +14,11 @@ export interface SettingsState {
   /** Socials connected on I8 (X is the one with a handle in the prototype). */
   socials: { x: boolean; telegram: boolean; discord: boolean; farcaster: boolean };
   following: string[];
+  /** I1's "Make it yours" banner was opened once (the prototype's `pt1`): it stays hidden after. */
+  profileTipSeen: boolean;
   setNotify(k: keyof SettingsState["notify"], on: boolean): void;
   setVisibility(k: keyof SettingsState["visibility"], a: Audience): void;
-  set(p: Partial<Pick<SettingsState, "findByName" | "anyoneInvite" | "socials">>): void;
+  set(p: Partial<Pick<SettingsState, "findByName" | "anyoneInvite" | "socials" | "profileTipSeen">>): void;
   follow(name: string): void;
 }
 
@@ -27,6 +29,7 @@ export const useSettings = create<SettingsState>()(persist((set) => ({
   anyoneInvite: false,
   socials: { x: true, telegram: false, discord: false, farcaster: false },
   following: [],
+  profileTipSeen: false,
   setNotify: (k, on) => set((s) => ({ notify: { ...s.notify, [k]: on } })),
   setVisibility: (k, a) => set((s) => ({ visibility: { ...s.visibility, [k]: a } })),
   set: (p) => set(p),

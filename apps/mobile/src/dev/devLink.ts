@@ -27,6 +27,7 @@ import type { Params } from "@/app/nav";
 import { ROUTES, designIdOf, presentation } from "@/app/routes";
 import type { DesignId } from "@/app/routes";
 import { __resetSeenKeeperLines } from "@/components/keeper/ScreenKeeper";
+import { useSettings } from "@/state/settings";
 
 const W = MOCK_WALLET;
 /** The user's seeded Oath with this name; a running or finished one before an Open one ("Iron Week" is both). */
@@ -124,6 +125,7 @@ export function openDevLink(url: string): boolean {
   queryClient.clear();
   useUi.setState({ fx: null, devMenu: false });
   __resetSeenKeeperLines();
+  useSettings.setState({ profileTipSeen: false });
   useDraft.setState({ draft: SAMPLE_DRAFT });
   useBountyDraft.getState().reset();
   if (id.startsWith("K")) useBountyDraft.getState().set(SAMPLE_BOUNTY);
