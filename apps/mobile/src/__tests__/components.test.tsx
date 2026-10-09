@@ -4,7 +4,9 @@ import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { t } from "@/copy";
 import { Button } from "@/components/actions";
-import { AppHeader, Bell, BottomSheet, NavBar, TabBar, ToastHost, useToast } from "@/components/chrome";
+import { AppHeader, BalanceChip, Bell, BottomSheet, NavBar, TabBar, ToastHost, useToast } from "@/components/chrome";
+import { useDeviceOaths, useLastSeenHp } from "@/features/oaths/device";
+import { haptic } from "@/lib/haptics";
 import { Banner, Segmented } from "@/components/content/Basics";
 import { DayMemberGrid, HPPanel, OathCard, gridToday } from "@/components/content/Oath";
 import { Toggle } from "@/components/content/Rows";
@@ -135,5 +137,44 @@ describe("Gallery", () => {
     for (const s of ["AppHeader", "TabBar + PlusButton", "OathCard", "ProofCamera + Shutter", "SignStatus", "Overlays · FX"]) {
       expect(screen.getByText(s)).toBeTruthy();
     }
+  });
+});
+
+describe("unseen HP change and balance (S20)", () => {
+  beforeEach(() => { useDeviceOaths.setState({ seenHp: {} }); });
+
+  it("HPPanel plays damage from the seen value (warning haptic) and heal (light haptic)", async () => {
+    const warning = jest.spyOn(haptic, "warning").mockImplementation(() => undefined);
+    const light = jest.spyOn(haptic, "light").mockImplementation(() => undefined);
+    const dmg = await render(<HPPanel hp={70} from={90} />);
+    expect(screen.getByText("70")).toBeTruthy();
+    expect(warning).toHaveBeenCalledTimes(1);
+    await dmg.unmount();
+    const heal = await render(<HPPanel hp={80} from={70} />);
+    expect(screen.getByText("80")).toBeTruthy();
+    await heal.unmount();
+    expect(light).toHaveBeenCalledTimes(1);
+    expect(warning).toHaveBeenCalledTimes(1);
+    warning.mockRestore();
+    light.mockRestore();
+  });
+
+  it("BalanceChip shows a new balance", async () => {
+    const r = await render(<BalanceChip amount="–" />);
+    await r.rerender(<BalanceChip amount="4,280" />);
+    expect(screen.getByText("4,280")).toBeTruthy();
+    await r.rerender(<BalanceChip amount="4,323" />);
+    expect(screen.getByText("4,323")).toBeTruthy();
+  });
+  it("useLastSeenHp: nothing on a first visit, the last shown HP after a change, then records the new one", async () => {
+    let seen: number | undefined = -1;
+    function Probe({ hp }: { hp: number }) { seen = useLastSeenHp("o1", hp); return null; }
+    const first = await render(<Probe hp={90} />);
+    expect(seen).toBeUndefined();
+    expect(useDeviceOaths.getState().seenHp.o1).toBe(90);
+    await first.unmount();
+    await render(<Probe hp={70} />);
+    expect(seen).toBe(90);
+    expect(useDeviceOaths.getState().seenHp.o1).toBe(70);
   });
 });

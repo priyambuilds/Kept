@@ -1,10 +1,11 @@
 // Top-of-screen chrome (components.md › Chrome): DevnetBadge, AppHeader for tab screens, NavBar + StepBar
 // for flow screens. The real Android status bar is kept; the badge sits in a row under it.
+import { useState } from "react";
 import { Pressable, View } from "react-native";
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, metrics, space } from "@/theme";
-import { Icon, Pop, PressScale, Text, useAnimationLifecycle } from "../primitives";
+import { Icon, Pop, PressScale, Text, useAnimationLifecycle, Bump, CountText } from "../primitives";
 import type { IconName } from "../primitives";
 import { KeeperMark } from "../keeper/KeeperUI";
 import { useScreenKeeper } from "../keeper/ScreenKeeper";
@@ -36,13 +37,20 @@ export function RoundButton({ icon, size, iconSize, label, onPress }: { icon: Ic
 // ── BalanceChip ── 36 h pill: sack 17 lime, amount 14/600, plus-circle 15. Tap → W1.
 export function BalanceChip({ amount, onPress }: { amount: string; onPress?: () => void }) {
   const h = metrics.header;
+  // motion.md §4: a new balance counts from the old one (900 ms) and the chip pops. The first load
+  // ("–" → amount) just shows the amount.
+  const [seen, setSeen] = useState({ cur: amount, prev: amount });
+  if (amount !== seen.cur) setSeen({ cur: amount, prev: seen.cur });
+  const counting = seen.prev !== amount && /\d/.test(seen.prev);
   return (
     <PressScale onPress={onPress} accessibilityLabel={`${t("additions.a11y.wallet")}: ${amount} ${t("common.currency")}`} hit={{ w: h.chipH, h: h.chipH }}>
+      <Bump trigger={counting ? amount : "load"}>
       <View style={{ height: h.chipH, paddingLeft: h.chipPadL, paddingRight: h.chipPadR, borderRadius: h.chipH / 2, backgroundColor: color.surface[2], boxShadow: `inset 0 0 0 1px ${color.line.hairline2}`, flexDirection: "row", alignItems: "center", gap: space[6] }}>
         <Icon name="sack" size={h.chipIcon} color={color.lime.base} />
-        <Text variant="chipMd" style={{ fontSize: 14, fontVariant: ["tabular-nums"] }}>{amount}</Text>
+        <CountText key={amount} text={amount} from={counting ? seen.prev : amount} variant="chipMd" style={{ fontSize: 14 }} />
         <Icon name="plus-circle" size={h.chipPlus} color={color.text.tertiary} />
       </View>
+      </Bump>
     </PressScale>
   );
 }

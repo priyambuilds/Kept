@@ -1,13 +1,15 @@
+import { useEffect } from "react";
 import { View } from "react-native";
 import { hpFilledSegments } from "@kept/engine";
 import { t } from "@/copy";
 import { color, gradient, hpSegmentColor, metrics, shadow, space, stagger } from "@/theme";
 import { Button } from "../actions";
 import type { ButtonProps } from "../actions";
-import { Icon, InitialTile, Loop, Pop, PressScale, Surface, Text, Tile, CountText } from "../primitives";
+import { Icon, InitialTile, Loop, Pop, PressScale, Surface, Text, Tile, CountText, FadeOut } from "../primitives";
 import type { IconName } from "../primitives";
 import { Tag } from "./Basics";
 import type { ChipTone } from "./Basics";
+import { haptic } from "@/lib/haptics";
 
 // ── HPBar (mini) ── 20 segments, gap 2, h 8, radius 2; pop in left → right.
 export function HPBar({ hp, empty = color.line.empty, animate = true }: { hp: number; empty?: string; animate?: boolean }) {
@@ -23,23 +25,47 @@ export function HPBar({ hp, empty = color.line.empty, animate = true }: { hp: nu
 }
 
 // ── HPPanel (`hp`) ── value counts up; lost-today segments ring red and beat; ≤ 20 the last filled beats.
-export function HPPanel({ hp, lostToday = 0, note, warn }: { hp: number; lostToday?: number; note?: string; warn?: string }) {
+// `from`: the HP this device showed last time (an unseen change, motion.md §2–3). Damage counts down from
+// it and the lost segments empty (fill fades 200 ms) and ring; a heal counts up from it and the healed
+// segments pop left → right. Without `from`, the panel enters as before (count up, segments pop).
+export function HPPanel({ hp, lostToday = 0, note, warn, from }: { hp: number; lostToday?: number; note?: string; warn?: string; from?: number }) {
   const filled = hp / 5;
   const danger = hp <= color.hp.thresholds.dangerAtOrBelow;
+  const changed = from !== undefined && from !== hp;
+  const damage = changed && from > hp;
+  const heal = changed && from < hp;
+  const fromFilled = (from ?? 0) / 5;
+  useEffect(() => {
+    if (damage) haptic.warning();
+    else if (heal) haptic.light();
+  }, [damage, heal]);
   return (
     <View style={{ padding: metrics.hpPanel.pad, borderRadius: metrics.hpPanel.radius, backgroundColor: color.surface[1], boxShadow: `inset 0 0 0 1px ${color.line.hairline2}` }} accessibilityLabel={t("common.hpOf", { hp })}>
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: space[6] }}>
         <Text variant="monoLabel" color={color.text.secondary}>{t("common.oathHpLabel")}</Text>
         <View style={{ flex: 1 }} />
-        <CountText text={String(hp)} variant="hpNumber" color={danger ? color.red.base : color.text.primary} />
+        <CountText text={String(hp)} {...(changed ? { from: String(from) } : {})} variant="hpNumber" color={danger ? color.red.base : color.text.primary} />
         <Text variant="label" color={color.text.tertiary}>{t("common.hpOf", { hp: "" }).trim()}</Text>
       </View>
       <View style={{ marginTop: metrics.hpPanel.mt, flexDirection: "row", gap: metrics.hpPanel.gap }}>
         {Array.from({ length: metrics.hpBar.segments }, (_, i) => {
-          const lost = i >= filled && i < filled + lostToday / 5;
+          const lostNow = damage && i >= filled && i < fromFilled;
+          const lost = lostNow || (i >= filled && i < filled + lostToday / 5);
           const last = danger && i === Math.ceil(filled) - 1;
           const seg = <View style={{ height: metrics.hpPanel.height, borderRadius: metrics.hpPanel.segRadius, backgroundColor: hpSegmentColor(i, hp, color.line.emptyDark), ...(lost ? { boxShadow: `inset 0 0 0 ${metrics.hpPanel.lostRing}px ${color.red.base}` } : {}) }} />;
-          if (lost || last) return <Loop key={i} kind="beat" style={{ flex: 1 }}>{seg}</Loop>;
+          // Unseen damage: the old fill sits on top of the emptied segment and fades away.
+          const body = lostNow ? (
+            <View>
+              {seg}
+              <FadeOut delay={200} style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}>
+                <View style={{ flex: 1, borderRadius: metrics.hpPanel.segRadius, backgroundColor: hpSegmentColor(i, from!, color.line.emptyDark) }} />
+              </FadeOut>
+            </View>
+          ) : seg;
+          if (lost || last) return <Loop key={i} kind="beat" style={{ flex: 1 }}>{body}</Loop>;
+          // A heal pops only the new segments (28 ms stagger); the ones already seen stay put.
+          if (heal) return i >= fromFilled && i < filled ? <Pop key={i} delay={200 + (i - Math.floor(fromFilled)) * stagger.hpSeg} ms={300} style={{ flex: 1 }}>{seg}</Pop> : <View key={i} style={{ flex: 1 }}>{seg}</View>;
+          if (damage) return <View key={i} style={{ flex: 1 }}>{seg}</View>;
           return i < filled ? <Pop key={i} delay={200 + i * stagger.hpSeg} ms={300} style={{ flex: 1 }}>{seg}</Pop> : <View key={i} style={{ flex: 1 }}>{seg}</View>;
         })}
       </View>

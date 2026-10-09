@@ -98,6 +98,34 @@ export function FadeIn({ children, delay = 0, ms = 300, rise = 10, style }: { ch
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
+/** Opacity 1 → 0 (an HP segment's fill emptying on unseen damage, motion.md §2: 200 ms). */
+export function FadeOut({ children, delay = 0, ms = 200, style }: { children: ReactNode; delay?: number; ms?: number; style?: StyleProp<ViewStyle> }) {
+  const reduce = useReducedMotion();
+  const p = useSharedValue(reduce ? 0 : 1);
+  const onLayout = useAnimationLifecycle([p], () => {
+    if (reduce) return;
+    p.value = withDelay(delay, withTiming(0, { duration: ms, easing: Easing.out(Easing.ease) }));
+  }, [reduce, delay, ms]);
+  const a = useAnimatedStyle(() => ({ opacity: p.value }));
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
+}
+
+/**
+ * Scale 1 → 1.08 → 1 over 300 ms each time `trigger` changes after mount (the BalanceChip on a new
+ * balance, motion.md §4). Not on mount.
+ */
+export function Bump({ trigger, children, style }: { trigger: unknown; children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  const reduce = useReducedMotion();
+  const s = useSharedValue(1);
+  const first = useRef(trigger);
+  const onLayout = useAnimationLifecycle([s], () => {
+    if (reduce || trigger === first.current) return;
+    s.value = withSequence(withTiming(1.08, { duration: 150, easing: easing("spring") }), withTiming(1, { duration: 150, easing: easing("spring") }));
+  }, [trigger, reduce]);
+  const a = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
+  return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
+}
+
 /** kBub (scale .6 + translateY 8 → none) or kBubR (scale .6 rotate −6° → rotate 4°); springHard. */
 export function Bubble({ children, delay = 0, ms = duration.bubble, tilted, style }: { children: ReactNode; delay?: number; ms?: number; tilted?: boolean; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();

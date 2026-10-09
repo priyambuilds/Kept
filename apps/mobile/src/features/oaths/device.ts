@@ -5,6 +5,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { persistStorage } from "@/state/storage";
 import type { ReviewMode } from "./model";
+import { useEffect, useState } from "react";
 
 export interface DeviceOathState {
   names: Record<string, string>;
@@ -22,16 +23,19 @@ export interface DeviceOathState {
   recapShownOn: string | null;
   /** Oaths created or joined on this device, so they list even if an RPC index query misses them. */
   known: string[];
+  /** Oath id → the HP the Oath screen last showed (motion.md §2–3: damage / heal play from it). */
+  seenHp: Record<string, number>;
   remember(id: string, extra?: { name?: string; reviewMode?: ReviewMode; goal?: string; code?: string }): void;
   rename(id: string, name: string): void;
   passPhoto1(id: string, day: number): void;
   failPhoto2(id: string, day: number): number;
   markShown(key: string): void;
   markRecap(date: string): void;
+  seeHp(id: string, hp: number): void;
 }
 
 export const useDeviceOaths = create<DeviceOathState>()(persist((set, get) => ({
-  names: {}, reviewModes: {}, goals: {}, codes: {}, photo1: {}, fails: {}, shownResults: [], recapShownOn: null, known: [],
+  names: {}, reviewModes: {}, goals: {}, codes: {}, photo1: {}, fails: {}, shownResults: [], recapShownOn: null, known: [], seenHp: {},
   remember: (id, extra = {}) => set((s) => ({
     known: s.known.includes(id) ? s.known : [...s.known, id],
     ...(extra.name ? { names: { ...s.names, [id]: extra.name } } : {}),
@@ -49,4 +53,16 @@ export const useDeviceOaths = create<DeviceOathState>()(persist((set, get) => ({
   },
   markShown: (key) => set((s) => ({ shownResults: s.shownResults.includes(key) ? s.shownResults : [...s.shownResults, key] })),
   markRecap: (date) => set({ recapShownOn: date }),
+  seeHp: (id, hp) => set((s) => (s.seenHp[id] === hp ? s : { seenHp: { ...s.seenHp, [id]: hp } })),
 }), { name: "kept.oaths.device", storage: persistStorage }));
+
+/**
+ * The HP this device last showed for an Oath, when it differs from `hp` (an unseen change: the panel
+ * plays damage or heal from it, motion.md §2–3); undefined on a first visit or when nothing changed.
+ * Read once when the screen opens; the current HP is recorded as seen.
+ */
+export function useLastSeenHp(id: string, hp: number): number | undefined {
+  const [from] = useState(() => useDeviceOaths.getState().seenHp[id]);
+  useEffect(() => { useDeviceOaths.getState().seeHp(id, hp); }, [id, hp]);
+  return from === undefined || from === hp ? undefined : from;
+}

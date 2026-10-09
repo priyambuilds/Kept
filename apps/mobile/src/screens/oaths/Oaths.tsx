@@ -30,6 +30,7 @@ import { TabScreen } from "../tabs/TabScreen";
 import { SigningScreen } from "../shared/Signing";
 import { useResultMoments } from "../results/Results";
 import { recoveryLine } from "../rematch/Rematch";
+import { useLastSeenHp } from "@/features/oaths/device";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const rateText = (m: MemberView) => (m.facts.keptRate === null ? t("common.keptRateNew") : t("screens.D1.b3.seat0", { rate: Math.round(m.facts.keptRate * 100) }));
@@ -242,6 +243,8 @@ function Active({ v }: { v: OathView }) {
   const { go, back } = useGo();
   const toast = useToast();
   const f = v.facts;
+  // The HP this device showed last time: an unseen damage or heal plays from it (S20).
+  const seenHp = useLastSeenHp(f.id, v.hp);
   const low = isLowHp(v);
   const me = v.me >= 0 ? v.members[v.me]! : null;
   // Someone in group review has done their part; only people with nothing in get nudged.
@@ -271,7 +274,7 @@ function Active({ v }: { v: OathView }) {
           <Chip text={t("screens.R·act.b0.chip.1")} icon="lock-outline" tilt={1} />
         </ChipRow>
       ) : null}
-      <HPPanel hp={v.hp} lostToday={v.hpLostLastDay} {...(lostNote ? { note: lostNote } : {})} {...(low ? { warn: t("screens.D2·low.b0.warn") } : {})} />
+      <HPPanel hp={v.hp} lostToday={v.hpLostLastDay} {...(seenHp !== undefined ? { from: seenHp } : {})} {...(lostNote ? { note: lostNote } : {})} {...(low ? { warn: t("screens.D2·low.b0.warn") } : {})} />
       {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={startsTitle(v.secondsToStart ?? 0)} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
       {v.life === "over" ? <Over v={v} /> : null}
       {v.life === "active" && me ? <BodyText text={t("screens.D2.b1.text", { timeLeft: `<m${v.deadlineClose ? ' class="r"' : ""}>${shortDuration(v.secondsToReset ?? 0)}</m>`, cost: skrWhole(v.myMissCost) })} /> : null}
