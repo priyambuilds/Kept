@@ -16,6 +16,7 @@ import { KeptRateRing } from "@/components/content/Status";
 import { KeeperPlacement } from "@/components/keeper/KeeperUI";
 import { Screen } from "@/components/layout/Screen";
 import type { IconName } from "@/components/primitives";
+import { coverColors } from "../bounties/Bounties";
 import { color, metrics, tokens } from "@/theme";
 import { isApiError } from "@/api";
 import type { Profile } from "@kept/shared";
@@ -136,6 +137,9 @@ export function I2me() {
   );
 }
 
+/** Link rows by kind (reference/kept-screens-4.js › I3). */
+const LINK_ICON: Record<string, IconName> = { [t("screens.I3.b3.r0.s")]: "web", [t("screens.I3.b3.r1.s")]: "at" };
+
 // ── I3 Creator profile ──
 export function I3() {
   const { back, go } = useGo();
@@ -148,7 +152,8 @@ export function I3() {
   const c = creator.data;
   if (!c) return <Screen bar={<NavBar onBack={back} title={name ?? ""} />}><Skeleton height={170} /></Screen>;
   const hosted = (bounties ?? []).filter((b) => b.brand.name === c.name);
-  const colors = tokens.color.banner[2];
+  // The creator's cover, as on their Bounties (H2); the brand banner when they host none yet.
+  const colors = hosted[0] ? coverColors(hosted[0]) : tokens.color.banner[2];
   return (
     <Screen bar={<NavBar onBack={back} title={c.name} />} bottomInset={pinnedOne}
       pinned={<Button kind={following.includes(c.name) ? "s" : "p"} icon="account-plus-outline" label={t("screens.I3.pin.0", { name: c.name })} onPress={() => { follow(c.name); toast(t("toasts.16", { name: c.name })); }} />}>
@@ -156,14 +161,16 @@ export function I3() {
       {c.bio ? <BodyText text={c.bio} /> : null}
       <Breakdown rows={[
         { label: t("screens.I3.b2.row0.l"), value: String(c.hosted) },
-        { label: t("screens.I3.b2.row1.l"), value: t("screens.I3.b2.row1.v", { amount: skrWhole(c.paidOut) }) },
+        { label: t("screens.I3.b2.row1.l"), value: t("screens.I3.b2.row1.v", { amount: skrWhole(c.paidOut) }), color: color.lime.base },
         { label: t("screens.I3.b2.row2.l"), value: c.followers.toLocaleString("en-US") },
       ]} />
-      {c.links.length ? <RowList label={t("screens.I3.b3.label")} rows={c.links.map((l) => ({ title: l.title, sub: l.kind, leading: { kind: "icon" as const, icon: "link-variant" as const }, onPress: () => toast(t("toasts.13", { name: l.kind === t("screens.I3.b3.r0.s") ? l.title : l.kind })) }))} /> : null}
+      {c.links.length ? <RowList label={t("screens.I3.b3.label")} rows={c.links.map((l) => ({ title: l.title, sub: l.kind, leading: { kind: "icon" as const, icon: LINK_ICON[l.kind] ?? "forum-outline" }, onPress: () => toast(t("toasts.13", { name: l.kind === t("screens.I3.b3.r0.s") ? l.title : l.kind })) }))} /> : null}
       {hosted.length ? <RowList label={t("screens.I3.b4.label")} rows={hosted.map((b) => ({ title: b.name, sub: t("screens.I3.b4.r0.s", { amount: skrWhole(b.pool) }), value: t("screens.I3.b4.r0.r"), leading: { kind: "icon" as const, icon: objectIcon(b.objectId) }, chevron: true, onPress: () => go("H2", { id: b.id }) }))} /> : null}
     </Screen>
   );
 }
+
+const NOTIFY_ICON: IconName[] = ["bell-ring-outline", "alarm", "eye-outline", "trophy-outline"];
 
 // ── I4 Settings ──
 export function I4() {
@@ -196,7 +203,7 @@ export function I4() {
         { title: t("screens.I4.b0.r6.t"), sub: t("screens.I4.b0.r6.s"), leading: { kind: "icon", icon: "bullhorn-outline" }, chevron: true, onPress: () => go("K1") },
       ]} />
       <RowList label={t("screens.I4.b1.label")} rows={(["nudges", "deadline", "reviews", "results"] as const).map((key, i) => ({
-        title: t(`screens.I4.b1.r${i}.t` as CopyKey), sub: t(`screens.I4.b1.r${i}.s` as CopyKey), toggle: { on: notify[key], onChange: (on: boolean) => setNotify(key, on) },
+        title: t(`screens.I4.b1.r${i}.t` as CopyKey), sub: t(`screens.I4.b1.r${i}.s` as CopyKey), leading: { kind: "icon" as const, icon: NOTIFY_ICON[i]!, fg: color.text.primary }, toggle: { on: notify[key], onChange: (on: boolean) => setNotify(key, on) },
       }))} />
       <RowList label={t("screens.I4.b2.label")} rows={[
         { title: t("screens.I4.b2.r0.t"), sub: t("screens.I4.b2.r0.s", { address: wallet ? shortWallet(wallet) : "" }), leading: { kind: "icon", icon: "swap-horizontal" }, chevron: true, onPress: () => { void switchWallet(); } },

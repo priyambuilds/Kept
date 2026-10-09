@@ -50,7 +50,7 @@ export function J1() {
         { label: t("screens.J1.b2.row2.l"), value: t("screens.J1.b2.row2.v", { amount: signed(mine.won) }), ...(mine.won > 0n ? { color: color.lime.base } : {}) },
         // Fees come out of the losers' money; nobody pays a fee on what they kept (rules.md §3).
         { label: t("screens.J1.b2.row3.l"), value: t("screens.J1.b2.row3.v") },
-        { label: t("screens.J1.b2.row4.l"), value: t("screens.J1.b2.row4.v", { amount: skrWhole(amount) }), total: true },
+        { label: t("screens.J1.b2.row4.l"), value: t("screens.J1.b2.row4.v", { amount: skrWhole(amount) }), total: true, color: color.lime.base },
       ]} />
     </Screen>
   );

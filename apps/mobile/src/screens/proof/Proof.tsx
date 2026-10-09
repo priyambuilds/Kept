@@ -274,7 +274,7 @@ export function F5() {
       pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.F5.brand.stamp", { day, time })} /></>}>
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F5")} />
       <Title heading={t("screens.F5.b1.title", { day })} align="center" fs={40} />
-      {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => String(i + 1))} /> : null}
+      {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => t("additions.core.dayShort", { n: i + 1 }))} /> : null}
       <ChipRow justify="center">
         {view ? <Chip text={t("screens.F5.b3.chip.0", { hp: view.hp })} icon="heart-pulse" tone="lime" tilt={-2} /> : null}
         {me ? <Chip text={t("screens.F5.b3.chip.1", { amount: skrWhole(me.balance) })} icon="sack" tone="lime" tilt={2} /> : null}

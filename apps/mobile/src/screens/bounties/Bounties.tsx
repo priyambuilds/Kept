@@ -39,7 +39,7 @@ import { TabScreen } from "../tabs/TabScreen";
 const pinned = (n: number, stamp = false) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom + (stamp ? 40 : 0);
 const HERO: HeroPaletteName[] = ["lime", "vio", "sky", "pink", "amber", "orange"];
 const BANNERS = [tokens.color.banner[0], tokens.color.banner[1], tokens.color.banner[2], tokens.color.banner[3], tokens.color.banner[4]];
-const coverColors = (b: BountyFacts) => { const c = BANNERS[b.brand.palette % BANNERS.length]!; return [c[0]!, c[1]!] as const; };
+export const coverColors = (b: BountyFacts) => { const c = BANNERS[b.brand.palette % BANNERS.length]!; return [c[0]!, c[1]!] as const; };
 const isOpen = (b: BountyFacts, now: number) => b.joinClosesAt > now;
 const closes = (b: BountyFacts, now: number) => t("screens.H1.b4.i0.s", { brand: b.brand.name, time: shortDuration(Math.max(0, b.joinClosesAt - now)) });
 const categoryLabel = (c: Category | null) => t(`common.categories.${c ? CATEGORIES.indexOf(c) + 1 : 0}` as CopyKey);
@@ -263,6 +263,12 @@ export function H4() {
   );
 }
 
+/** A week of bars (D1–D7, or the week that holds today), finished days and today filled. */
+function weekBars(values: number[]) {
+  const start = Math.floor((values.length - 1) / 7) * 7;
+  return Array.from({ length: 7 }, (_, i) => ({ label: t("additions.core.dayShort", { n: start + i + 1 }), value: values[start + i] ?? 0 }));
+}
+
 // ── H5 Bounty ended ──
 export function H5() {
   const { go, reset } = useGo();
@@ -310,7 +316,7 @@ export function H6() {
     <Screen bar={<NavBar onBack={back} title={b.name} {...(started ? { right: t("screens.D2.nav.right", { day, length: b.numDays }) } : {})} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" icon="export-variant" label={t("screens.H6.pin.0")} disabled={!b.finishersOptIn.length} onPress={() => toast(t("toasts.11"))} />}>
       <Title heading={t("screens.H6.b0.title", { n: b.remaining, total: b.entrants })} />
-      {b.stillInByDay.length ? <BarChart label={t("screens.H6.b1.label")} bars={b.stillInByDay.map((value, i) => ({ label: String(i + 1), value }))} /> : <Note text={t("additions.bounty.noStatsYet")} />}
+      {b.stillInByDay.length ? <BarChart label={t("screens.H6.b1.label")} bars={weekBars([...b.stillInByDay, b.remaining])} /> : <Note text={t("additions.bounty.noStatsYet")} />}
       <Breakdown rows={[
         { label: t("screens.H6.b2.row0.l"), value: t("screens.H6.b2.row0.v", { amount: skrWhole(b.pool) }) },
         { label: t("screens.H6.b2.row1.l"), value: t("screens.H6.b2.row1.v", { pct: Math.round(rate * 100) }) },
