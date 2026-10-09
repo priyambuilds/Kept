@@ -19,6 +19,7 @@ import { useApi } from "@/api";
 import { qk, useInbox } from "@/api/queries";
 import type { DesignId } from "@/app/routes";
 import type { Params } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import { useGo } from "@/app/nav";
 import { useNow } from "@/features/time";
 
@@ -96,7 +97,7 @@ export function N1() {
 
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.N1.nav.title")} />}>
-      {keeper ? <KeeperPlacement mood={keeper.mood} line={keeper.line} size={80} side="r" height={100} /> : null}
+      {keeper ? <KeeperPlacement mood={keeper.mood} line={keeper.line} {...keeperAt("N1")} /> : null}
       {inbox.isLoading ? <><Skeleton height={96} /><Skeleton height={96} /><Skeleton height={96} /></> : null}
       {needs.length ? <InboxList label={t("screens.N1.b1.label", { n: needs.length })} items={needs.map(view)} /> : null}
       {fresh.length ? (

@@ -22,6 +22,7 @@ import { metrics } from "@/theme";
 import { useApi } from "@/api";
 import { qk } from "@/api/queries";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import { oathActions, useOath } from "@/features/oaths/hooks";
 import { memberColor, memberInitial, memberName, objectName, reviewText, skrWhole } from "@/features/oaths/present";
 import { screenFor } from "@/features/oaths/route";
@@ -56,7 +57,7 @@ export function C1() {
       <Title heading={t("screens.C1.b0.title")} sub={t("screens.C1.b0.sub")} />
       <SentenceInput label={t("screens.C1.b1.label")} prefix={t("screens.C1.b1.prefix")} value={draft.goal} onChange={(goal) => set({ goal })} max={GOAL_MAX}
         suggestions={[0, 1, 2, 3].map((i) => t(`screens.C1.b1.sug.${i}` as CopyKey))} />
-      <KeeperPlacement mood={k[0]!.mood} lines={k.map((l) => l.line)} size={100} side="r" height={130} />
+      <KeeperPlacement mood={k[0]!.mood} lines={k.map((l) => l.line)} {...keeperAt("C1")} />
     </Step>
   );
 }

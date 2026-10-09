@@ -21,6 +21,7 @@ import { shortDuration } from "@/lib/format";
 import { color, metrics, tokens } from "@/theme";
 import type { HeroPaletteName } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import type { DesignId } from "@/app/routes";
 import { CATEGORIES } from "@/features/bounties/mockStore";
 import type { BountyFacts, Category } from "@/features/bounties/mockStore";
@@ -143,7 +144,7 @@ function Created() {
             button={{ label: t("screens.H1·c.b1.btn"), kind: "s", icon: "chart-bar", onPress: () => go("H6", { id: b.id }) }} />
         );
       })}
-      <KeeperPlacement mood={k.mood} line={k.line} size={96} side="r" height={120} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H1·c")} />
       <ButtonRow><Button kind="l" icon="plus" label={t("screens.H1·c.b3.btn.0")} onPress={() => go("K1")} /></ButtonRow>
     </>
   );
@@ -226,7 +227,7 @@ export function H3() {
           tags={[{ text: t("screens.H3.b1.tag.0", { n: photos }), icon: "camera-outline", ...(photos === 2 ? { tone: "g" as const } : {}) }, { text: t("screens.H3.b1.tag.1", { time: shortDuration(v.secondsToReset ?? 0) }), icon: "timer-sand" }]}
           {...(me.pendingToday ? { button: { label: t("screens.H3.b1.btn"), kind: "p" as const, icon: "camera" as const, onPress: () => go(photos === 1 ? "F4" : "F1", { id: v.facts.id }) } } : {})} />
       ) : null}
-      <KeeperPlacement mood={k.mood} line={k.line} size={90} side="r" height={110} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H3")} />
       {b.recentlyOut.length ? <RowList label={t("screens.H3.b3.label")} rows={b.recentlyOut.map((o) => ({
         title: o.name, sub: t("screens.H3.b3.r0.s", { day: o.day }), value: shortDuration(Math.max(0, now - o.at)),
         leading: { kind: "initial" as const, initial: o.name.slice(0, 1), bg: color.surface[3] },
@@ -248,8 +249,8 @@ export function H4() {
   return (
     <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" label={t("screens.H4.pin.0")} onPress={() => reset("H1")} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={130} side="c" height={190} />
-      <Title heading={t("screens.H4.b2.title", { day })} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("H4")} />
+      <Title heading={t("screens.H4.b2.title", { day })} align="center" />
       <RowList rows={[
         { title: t("screens.H4.b3.r0.t"), sub: t("screens.H4.b3.r0.s"), value: s?.keptRate == null ? t("common.keptRateNew") : `${Math.round(s.keptRate * 100)}%`, valueSub: t("screens.H4.b3.r0.rs", { n: s?.rateDays ?? 0 }), leading: { kind: "icon", icon: "chart-arc" } },
         { title: t("screens.H4.b3.r1.t"), sub: t("screens.H4.b3.r1.s"), value: String(s?.bestStreak ?? 0), valueSub: t("screens.H4.b3.r1.rs"), leading: { kind: "icon", icon: "fire" } },

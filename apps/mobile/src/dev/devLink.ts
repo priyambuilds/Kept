@@ -64,7 +64,8 @@ function review(votes: [keyof typeof PEOPLE, boolean][]) {
 /** How to reach each design id (scenario, params). Ids not listed open on `activeGroup` with no params. */
 const SHOTS: Partial<Record<DesignId, Shot>> = {
   "A2·e": { scenario: "walletRejected" }, "A3·no": { scenario: "notEligible" },
-  B2: { scenario: "allDone" }, B3: { scenario: "fresh" }, B4: { scenario: "deadlineClose" },
+  // B2 needs nothing claimable (D-45), so take Hydra 14's claim first.
+  B2: { scenario: "allDone", setup: () => { mockOaths.claim(oath("Hydra 14"), W); } }, B3: { scenario: "fresh" }, B4: { scenario: "deadlineClose" },
   C7: { params: fail("C7", "C6") }, "C7·ok": { params: ironOpen }, "C7·no": { params: fail("C7", "C6") }, "C7·fail": { params: fail("C7", "C6") }, C8: { params: ironOpen },
   D1: { params: ironOpen }, "D1·m": { setup: joined, params: dawn }, "D1·x": { under: ["D1", ironOpen], params: ironOpen }, "D1·xs": { params: ironOpen }, "D1·go": { params: ironOpen },
   D2: { params: iron }, "D2·low": { scenario: "lowHp", params: iron }, D3: { scenario: "broken", params: () => ({ id: oath("Guitar Days") }) }, D4: { params: () => ({ id: oath("Hydra 14") }) },
@@ -91,6 +92,8 @@ const SHOTS: Partial<Record<DesignId, Shot>> = {
 
 const TODAY_STATES = new Set<string>(["B2", "B3", "B4"]);
 const ONBOARDING = new Set<string>(["A0", "A1", "A2", "A2·s", "A2·e", "A3", "A3·no", "A4"]);
+/** The prototype's "You" avatar (reference/kept-kit.js › P.Y). */
+const SAMPLE_AVATAR = "13050010";
 const SAMPLE_DRAFT = { goal: "lift for 20 minutes", objectId: 0, numDays: 7 as const, isSolo: false, stakeSkr: 1000, reviewMode: "ai_group" as const };
 
 /** Handles `kept://dev/open/…`. Returns false for any other URL. */
@@ -118,7 +121,7 @@ export function openDevLink(url: string): boolean {
   const signedOut = ONBOARDING.has(id);
   useSession.setState(signedOut
     ? { token: null, wallet: null, genesis: false, onboarded: false, avatar: null, invite: null }
-    : { token: `mock.${W}`, wallet: W, genesis: scenario !== "notEligible", onboarded: true, invite: null });
+    : { token: `mock.${W}`, wallet: W, genesis: scenario !== "notEligible", onboarded: true, avatar: SAMPLE_AVATAR, invite: null });
   mockOaths.ensureSeeded(scenario, W);
   shot.setup?.();
   // Results and the recap are moments shown once: mark them seen so they don't open over the target.

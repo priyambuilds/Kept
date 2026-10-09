@@ -62,7 +62,11 @@
     "test": "jest",
     "theme:gen": "node scripts/gen-theme.js",
     "assets:sync": "node scripts/sync-assets.mjs",
-    "routes:gen": "node scripts/gen-routes.mjs"
+    "routes:gen": "node scripts/gen-routes.mjs",
+    "layout:gen": "node scripts/gen-layout.mjs",
+    "shoot": "node scripts/shoot.mts",
+    "shoot:reference": "node scripts/shoot-reference.mjs",
+    "compare": "node scripts/compare.mjs"
   },
   "private": true
 }

@@ -37,6 +37,21 @@ export const supplement = {
     decoWhite20: "rgba(255,255,255,0.20)",
     /** Decor icons behind content (DESIGN.md §2.9). */
     decor: "#1E1E1E",
+    /**
+     * Screen tone washes (tokens color.toneWash, which only describes them): [colour, stop where it
+     * fades out]. Ember sits on its own base; lock uses color.bg.lock.
+     */
+    toneWash: {
+      lime: ["rgba(197,242,92,0.14)", 0.6],
+      red: ["rgba(248,113,113,0.17)", 0.62],
+      ember: ["rgba(251,146,60,0.18)", 0.6],
+      emberBase: "#151010",
+      grey: "rgba(0,0,0,0.30)",
+    },
+    /** The beam (tokens material.beam): white .22 → .05 at 55 % → 0, and its top light bar + glow. */
+    beam: [["#FFFFFF", 0.22, 0], ["#FFFFFF", 0.05, 0.55], ["#FFFFFF", 0, 1]],
+    beamBar: "#FFFFFF",
+    beamGlow: "rgba(255,255,255,0.55)",
     /** Keeper floor shadow (components.md › KeeperPlacement). */
     keeperShadow: "rgba(0,0,0,0.6)",
     /** KeeperNote tile: radial #2A2A30 → #131313 (tokens.material.keeperNoteTile). */

@@ -15,6 +15,7 @@ import { KeeperPlacement } from "@/components/keeper/KeeperUI";
 import { Screen } from "@/components/layout/Screen";
 import { color, metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import type { DesignId } from "@/app/routes";
 import { oathActions, useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
@@ -75,7 +76,7 @@ export function J1ok() {
   return (
     <Screen bar={<NavBar onBack={() => reset("B1")} close />} bottomInset={pinned(1, true)}
       pinned={<><Button kind="p" label={t("screens.J1·ok.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.J1·ok.brand.stamp", { amount })} /></>}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={150} side="c" height={230} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("J1·ok")} />
       <Title heading={t("screens.J1·ok.b2.title")} sub={t("screens.J1·ok.b2.sub", { amount })} align="center" fs={40} />
     </Screen>
   );
@@ -158,9 +159,9 @@ function GroupSettled({ missed }: { missed: boolean }) {
   const claim = <Button kind={missed ? "p" : "l"} icon="hand-coin-outline" label={t("screens.L1.pin.0", { amount: skrWhole(view.claimable || mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />;
   return (
     <Moment v={view} pins={claim} stamp={missed ? t("screens.L2.brand.stamp", { name: view.facts.name.toUpperCase() }) : t("screens.L1.brand.stamp", { name: view.facts.name.toUpperCase(), kept: me.keptDays, total: view.facts.numDays })}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={120} side="r" height={150} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(id)} />
       <Title heading={missed ? t("screens.L2.b1.title", { name: view.facts.name }) : t("screens.L1.b1.title", { name: view.facts.name })}
-        {...(missed ? { sub: t("screens.L2.b1.sub", { days: dayList(me.missed.map((d) => d + 1)) }) } : {})} />
+        {...(missed ? { sub: t("screens.L2.b1.sub", { days: dayList(me.missed.map((d) => d + 1)) }) } : {})} align="center" />
       <MoneyMoment value={t("screens.L1.b2.value", { amount: skrWhole(mine.final) })} tone="lime"
         caption={net >= 0n ? t("screens.L1.b2.caption", { amount: skrWhole(net) }) : t("additions.core.down", { amount: skrWhole(-net) })} />
       <Breakdown rows={[
@@ -191,8 +192,8 @@ export function L3() {
       <Button kind="l" icon="sword-cross" label={t("screens.L3.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
       <Button kind="t" label={t("screens.L3.pin.1")} onPress={() => go("C1")} />
     </>}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={120} side="c" height={170} />
-      <Title heading={t("screens.L3.b1.title")} sub={t("screens.L3.b1.sub", { name: view.facts.name, day })} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("L3")} />
+      <Title heading={t("screens.L3.b1.title")} sub={t("screens.L3.b1.sub", { name: view.facts.name, day })} align="center" />
       <MoneyMoment value={t("screens.L3.b2.value", { amount: skrWhole(-myLost) })} caption={t("screens.L3.b2.caption")} tone="red" />
       <RowList label={t("screens.L3.b3.label")} rows={view.members.filter((m) => m.missed.length).map((m) => ({
         title: memberName(m), sub: t("screens.L3.b3.r0.s", { days: dayList(m.missed.map((d) => d + 1)) }), value: t("screens.L3.b3.r0.r", { hp: dmg * m.missed.length }), valueColor: color.red.base,
@@ -213,9 +214,9 @@ function SoloSettled({ missed }: { missed: boolean }) {
   const claim = <Button kind={missed ? "p" : "l"} icon="hand-coin-outline" label={t("screens.L4.pin.0", { amount: skrWhole(view.claimable || mine.final) })} onPress={() => go("J1", { id: view.facts.id })} />;
   return (
     <Moment v={view} pins={claim}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={120} side="r" height={150} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(id)} />
       <Title heading={missed ? t("screens.L4·m.b1.title", { name: view.facts.name }) : t("screens.L4.b1.title", { name: view.facts.name })}
-        sub={missed ? t("screens.L4·m.b1.sub", { days: dayList(me.missed.map((d) => d + 1)) }) : t("screens.L4.b1.sub", { kept: me.keptDays, total: view.facts.numDays })} />
+        sub={missed ? t("screens.L4·m.b1.sub", { days: dayList(me.missed.map((d) => d + 1)) }) : t("screens.L4.b1.sub", { kept: me.keptDays, total: view.facts.numDays })} align="center" />
       {missed ? (
         <Breakdown rows={[
           { label: t("screens.L4·m.b2.row0.l"), value: skrWhole(mine.start) },
@@ -249,9 +250,9 @@ export function L4b() {
       <Button kind="l" icon="sword-cross" label={t("screens.L4·b.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
       <Button kind="t" label={t("screens.L4·b.pin.1")} onPress={() => go("C1")} />
     </>}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={120} side="c" height={170} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("L4·b")} />
       <Title heading={t("screens.L4·b.b1.title", { name: view.facts.name, day: (view.state.brokeOnDay ?? 0) + 1 })}
-        sub={t("screens.L4·b.b1.sub", { count: me.missed.length, amount: skrWhole(view.facts.stake) })} />
+        sub={t("screens.L4·b.b1.sub", { count: me.missed.length, amount: skrWhole(view.facts.stake) })} align="center" />
       <HPPanel hp={0} lostToday={view.lastDay?.hpBefore ?? 0} note={t("screens.L4·b.b2.note")} />
     </Moment>
   );

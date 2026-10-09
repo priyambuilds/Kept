@@ -1,7 +1,6 @@
 // Dev menu (long-press the DEVNET badge, development builds only): API mode per slice, mock
 // scenario, mock wallet, virtual clock, jump to any screen, the Gallery, and sign-out.
 // Developer-facing, so its labels are literals (lint-exempt like the Gallery).
-import { useSyncExternalStore } from "react";
 import { View } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { BottomSheet, useToast } from "@/components/chrome";
@@ -14,6 +13,7 @@ import { SLICES } from "@/api/types";
 import { clock } from "@/api/mock/clock";
 import { SCENARIOS } from "@/api/mock/scenarios";
 import { getWallet } from "@/chain";
+import { useNow } from "@/features/time";
 import { env } from "@/config/env";
 import type { ApiMode } from "@/config/env";
 import { flags, useDev } from "@/state/dev";
@@ -47,9 +47,8 @@ export function DevMenu() {
   const session = useSession();
   const qc = useQueryClient();
   const toast = useToast();
-  // The snapshot must be stable between renders: the offset is, clock.now() isn't (it ticks).
-  const offset = useSyncExternalStore(clock.subscribe, clock.offsetMs);
-  const now = Date.now() + offset;
+  // useNow follows the virtual clock (a useSyncExternalStore on clock.now looped: it changes every call).
+  const now = useNow() * 1000;
   const f = flags(dev);
 
   const refresh = () => { void qc.resetQueries(); };

@@ -19,6 +19,7 @@ import { Screen } from "@/components/layout/Screen";
 import { shortDuration } from "@/lib/format";
 import { color, metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import { useOath, useOathList, oathActions } from "@/features/oaths/hooks";
 import type { MemberView, OathView } from "@/features/oaths/model";
 import { isLowHp } from "@/features/oaths/model";
@@ -54,7 +55,7 @@ export function OathsTab() {
   const open1 = (v: OathView) => go(screenFor(v), { id: v.facts.id });
   return (
     <TabScreen tab="oaths">
-      <KeeperPlacement mood={k[0]!.mood} lines={k.map((l) => l.line)} size={90} side="r" height={110} />
+      <KeeperPlacement mood={k[0]!.mood} lines={k.map((l) => l.line)} {...keeperAt("D0")} />
       {active.length ? <BodyText mono text={t("screens.D0.b1.text", { n: active.length })} /> : <Note text={t("additions.core.noOathsYet")} />}
       {active.map((v) => {
         const me = v.me >= 0 ? v.members[v.me]! : null;
@@ -249,7 +250,7 @@ function Active({ v }: { v: OathView }) {
   const reviewer = v.members.find((m) => !m.isMe && m.facts.proofToday === "review");
   const nPins = (canProve ? 1 : 0) + (pending.length && !f.isSolo ? 1 : 0);
   return (
-    <Screen bar={<NavBar onBack={back} title={f.name} right={v.life === "active" ? t("screens.D2.nav.right", { day: v.dayNumber, length: f.numDays }) : undefined} />}
+    <Screen layout={f.rematchOf ? "R·act" : low ? "D2·low" : "D2"} bar={<NavBar onBack={back} title={f.name} right={v.life === "active" ? t("screens.D2.nav.right", { day: v.dayNumber, length: f.numDays }) : undefined} />}
       bottomInset={nPins ? pinned(nPins) : 0}
       pinned={nPins ? <>
         {canProve ? <Button kind={low ? "l" : "p"} icon="camera" label={proveLabel} onPress={() => go(myPhoto1 ? "F4" : "F1", { id: f.id })} /> : null}
@@ -265,7 +266,7 @@ function Active({ v }: { v: OathView }) {
       {v.life === "waiting" ? <Banner tone="vio" icon="weather-night" title={t("additions.waiting.startsTonight")} sub={t("additions.core.startsIn", { time: shortDuration(v.secondsToStart ?? 0) })} /> : null}
       {v.life === "over" ? <Over v={v} /> : null}
       {v.life === "active" && me ? <BodyText text={t("screens.D2.b1.text", { timeLeft: `<m${v.deadlineClose ? ' class="r"' : ""}>${shortDuration(v.secondsToReset ?? 0)}</m>`, cost: skrWhole(v.myMissCost) })} /> : null}
-      <KeeperPlacement mood={k.mood} line={k.line} size={84} side="r" height={100} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(low ? "D2·low" : "D2")} />
       <DayMemberGrid days={f.numDays} today={v.dayIndex ?? -1} members={v.members.map((m) => ({ key: m.facts.wallet, name: memberName(m), initial: memberInitial(m), color: memberColor(m), cells: m.cells }))} />
       {!f.isSolo && v.life === "active" ? <ChipRow>{v.members.filter((m) => !m.isMe).map((m) => <Odds key={m.facts.wallet} m={m} />)}</ChipRow> : null}
       {reviewer ? <Banner tone="vio" icon="eye-outline" title={t("screens.D2.b5.title")} sub={t("screens.D2.b5.sub")} onPress={() => go("G1", { id: f.id })} /> : null}
@@ -331,7 +332,7 @@ function Broken({ v }: { v: OathView }) {
   const myHeld = v.me >= 0 ? v.state.held[v.me] ?? 0n : 0n;
   useEffect(() => { playFx("embers"); }, [playFx]);
   return (
-    <Screen bar={<NavBar onBack={back} title={f.name} />} bottomInset={pinned(2)} pinned={<>
+    <Screen layout="D3" bar={<NavBar onBack={back} title={f.name} />} bottomInset={pinned(2)} pinned={<>
       <Button kind="l" icon="sword-cross" label={t("screens.D3.pin.0", { amount: skrWhole(myHeld) })} onPress={() => go("R1", { id: f.id })} />
       <Button kind="t" label={t("screens.D3.pin.1")} onPress={() => go("C1")} />
     </>}>

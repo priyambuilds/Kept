@@ -16,6 +16,7 @@ import { useBalances } from "@/api/queries";
 import { isApiError } from "@/api";
 import { classifyTxError } from "@/chain";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import type { Params } from "@/app/nav";
 import type { DesignId } from "@/app/routes";
 import { useSigningFlow } from "@/app/useSigningFlow";
@@ -72,8 +73,8 @@ export function C7no() {
       <Button kind="p" label={t("screens.C7·no.pin.0")} onPress={() => replace(retry as DesignId, rest)} />
       <Button kind="t" label={t("screens.C7·no.pin.1")} onPress={() => replace(edit as DesignId, rest)} />
     </>}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={150} side="c" height={230} />
-      <Title heading={t("screens.C7·no.b2.title")} sub={t("screens.C7·no.b2.sub")} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("C7·no")} />
+      <Title heading={t("screens.C7·no.b2.title")} sub={t("screens.C7·no.b2.sub")} align="center" />
     </Screen>
   );
 }
@@ -104,7 +105,7 @@ export function M3() {
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
-        <KeeperPlacement mood={k.mood} line={k.line} size={90} side="c" height={130} />
+        <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("M3")} />
         <Title heading={t("screens.M3.b1.title")} sub={t("screens.M3.b1.sub", { sol })} pt={0} />
         <ButtonRow direction="column">
           <Button kind="p" label={t("screens.M3.b2.btn.0")} onPress={() => replace("W2")} />

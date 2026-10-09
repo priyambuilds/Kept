@@ -3,7 +3,7 @@ import { Pressable, View } from "react-native";
 import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 import type { KeeperMood } from "@/copy";
 import { t } from "@/copy";
-import { color, metrics, shadow, space } from "@/theme";
+import { color, metrics, shadow, space, svgStop } from "@/theme";
 import { CheckK, Loop, Pop, Text } from "../primitives";
 import { Chip } from "../content/Basics";
 import type { ChipTone } from "../content/Basics";
@@ -17,8 +17,8 @@ export function RadialGlow({ size, colour, id }: { size: number; colour: string;
     <Svg width={size} height={size} pointerEvents="none">
       <Defs>
         <RadialGradient id={id} cx="50%" cy="50%" r="50%">
-          <Stop offset="0" stopColor={colour} stopOpacity={1} />
-          <Stop offset="1" stopColor={colour} stopOpacity={0} />
+          <Stop offset="0" {...svgStop(colour)} />
+          <Stop offset="1" {...svgStop(colour, 0)} />
         </RadialGradient>
       </Defs>
       <Rect width={size} height={size} fill={`url(#${id})`} />

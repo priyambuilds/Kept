@@ -17,7 +17,8 @@ const TAB_SCREEN: Record<TabId, DesignId> = { today: "B1", oaths: "D0", bounties
 /** Space under the content for the floating tab bar (bottom 28 + height 64 + 16). */
 export const TAB_BAR_SPACE = metrics.tabBar.bottom + metrics.tabBar.height + 16;
 
-export function TabScreen({ tab, children }: { tab: TabId; children?: ReactNode }) {
+/** `layout`: the designed state shown (B2–B4 are the Today tab), for its ambient light. */
+export function TabScreen({ tab, children, layout }: { tab: TabId; children?: ReactNode; layout?: DesignId }) {
   const { go } = useGo();
   const balances = useBalances();
   const inbox = useInbox();
@@ -27,6 +28,7 @@ export function TabScreen({ tab, children }: { tab: TabId; children?: ReactNode 
   return (
     <Screen
       bottomInset={TAB_BAR_SPACE}
+      {...(layout ? { layout } : {})}
       bar={
         <AppHeader
           title={t(`screens.${id}.header.title` as never)}

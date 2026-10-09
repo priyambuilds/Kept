@@ -19,6 +19,13 @@ export const metrics = {
   button: { height: 54, heightText: 44, heightCard: 50, icon: 19, gap: 8, shineWidthPct: 0.4, pressScale: 0.98, rowIcon: 18 },
   rowButton: { height: 36, padX: 16, radius: 18 },
   pinned: { x: 20, bottom: 34, gap: 6 },
+  /** Ambient light (DESIGN.md §2.8, renderer amb()): two drifting orbs, the beam, decor icons (§2.9). */
+  ambient: {
+    orbA: { size: 420, left: -120, top: -160, topLow: 560 },
+    orbB: { size: 380, right: -140, top: 20, topLow: 420, ms: 19000, offsetMs: 6000 },
+    drift: { dx: 40, dy: 30, scale: 1.18 },
+    beam: { width: 320, height: 580, top: -20, clipL: 0.43, clipR: 0.57, blur: 14, opacityMin: 0.7, barW: 130, barH: 4, barTop: -2, glow: 33 },
+  },
   card: { radius: 26, pad: 16, tile: 40, tileRadius: 12, tileIcon: 22, tileTilt: -4, gap: 11, chevron: 22, sectionGap: 12,
     tagH: 24, tagPadL: 7, tagPadR: 9, tagRadius: 12, tagIcon: 13, tagGap: 4, warnPadX: 12, warnPadY: 10, warnRadius: 14, warnIcon: 16,
     stack1: { inset: 11, top: -10, radius: 25 }, stack2: { inset: 22, top: -20, radius: 24 }, stackH: 60,
@@ -57,7 +64,6 @@ export const metrics = {
   brand: { splashTile: 112, splashRadius: 28, splashMark: 90, word: 32, stampTile: 22, stampMark: 18, lockTile: 44, lockRadius: 13, lockMark: 36 },
   note: { icon: 14, padX: 12 },
   decor: [{ x: -26, y: 120, s: 130, r: -14 }, { x: 290, y: 420, s: 96, r: 12 }, { x: 30, y: 660, s: 70, r: 8 }] as const,
-  ambient: { orbA: 420, orbB: 380 },
   fx: { coinBurst: 14, coinFall: 12, embers: 22, origin: { x: 183, y: 430 }, coin: 24, coinSizes: [20, 26, 32] as const, emberSizes: [4, 6, 8] as const,
     pill: { h: 42, padL: 11, padR: 17, icon: 17, gap: 6, rise: 60 } },
   hitSlop: 44,

@@ -143,3 +143,12 @@ export function easing(name: EasingName) {
   const [a, b, c, d] = tokens.motion.easing[name];
   return Easing.bezier(a, b, c, d);
 }
+
+/**
+ * react-native-svg on Android drops the alpha of an rgba() stopColor, so a .2 orb would draw opaque.
+ * Split it into an rgb colour and a stopOpacity (scaled by `k` for the fading stop).
+ */
+export function svgStop(c: string, k = 1): { stopColor: string; stopOpacity: number } {
+  const m = c.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)$/);
+  return m ? { stopColor: `rgb(${m[1]},${m[2]},${m[3]})`, stopOpacity: Number(m[4]) * k } : { stopColor: c, stopOpacity: k };
+}

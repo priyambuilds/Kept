@@ -14,6 +14,7 @@ import { Screen } from "@/components/layout/Screen";
 import { shortDuration } from "@/lib/format";
 import { metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import { useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { gestureKey, gestureText, listNames, memberColor, memberInitial, memberName, objectIcon, objectName, skrWhole } from "@/features/oaths/present";
@@ -63,7 +64,7 @@ export function G1() {
         {approvers.length ? <Chip text={t("screens.G1.b2.chip.1", { name: listNames(approvers) })} icon="check-bold" tone="g" /> : null}
         <Chip text={t("screens.G1.b2.chip.2", { time: shortDuration(Math.max(0, r.expiresAt - now)) })} icon="timer-sand" tone="grey" />
       </ChipRow>
-      <KeeperPlacement mood={k.mood} line={k.line} size={90} side="r" height={110} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("G1")} />
     </Screen>
   );
 }
@@ -143,8 +144,8 @@ export function G3no() {
   return (
     <Screen bar={<NavBar onBack={() => replace("D2", { id })} close />} bottomInset={pinned(1)}
       pinned={<Button kind="p" label={t("screens.G3·no.pin.0", { name: view.facts.name })} onPress={() => replace("D2", { id })} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={130} side="c" height={190} />
-      <Title heading={t("screens.G3·no.b2.title", { yes, no, day: r.dayIndex + 1 })} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("G3·no")} />
+      <Title heading={t("screens.G3·no.b2.title", { yes, no, day: r.dayIndex + 1 })} align="center" />
       <Breakdown rows={[
         { label: t("screens.G3·no.b3.row0.l"), value: t("screens.G3·no.b3.row0.v", { cost: skrWhole(view.myMissCost) }) },
         { label: t("screens.G3·no.b3.row1.l"), value: t("screens.G3·no.b3.row1.v", { hp: view.facts.isSolo ? 35 : 20 }) },

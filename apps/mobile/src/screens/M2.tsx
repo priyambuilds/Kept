@@ -9,6 +9,7 @@ import { KeeperPlacement } from "@/components/keeper/KeeperUI";
 import { Screen } from "@/components/layout/Screen";
 import { metrics } from "@/theme";
 import { useGo } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 
 /** toasts[18] is "Still offline" (copy.json; checked in navigation.test). */
 export const STILL_OFFLINE = 18;
@@ -30,8 +31,8 @@ export function M2() {
       bottomInset={metrics.button.height + metrics.pinned.bottom}
       pinned={<Button kind="p" icon="wifi-refresh" label={t("screens.M2.pin.0")} onPress={() => { void retry(); }} />}
     >
-      <KeeperPlacement mood={k.mood} line={k.line} size={150} side="c" height={230} />
-      <Title heading={t("screens.M2.b2.title")} sub={t("screens.M2.b2.sub")} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("M2")} />
+      <Title heading={t("screens.M2.b2.title")} sub={t("screens.M2.b2.sub")} align="center" />
     </Screen>
   );
 }

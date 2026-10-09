@@ -5,7 +5,7 @@ import { useEffect, useMemo } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, { Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withTiming } from "react-native-reanimated";
 import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
-import { color, duration, easing, fontFamily, gradient, metrics, shadow, stagger, tokens, z } from "@/theme";
+import { color, duration, easing, fontFamily, gradient, metrics, shadow, stagger, svgStop, tokens, z } from "@/theme";
 import { Gradient, Icon, Text } from "../primitives";
 import type { IconName } from "../primitives";
 
@@ -79,7 +79,7 @@ export function Coin({ size }: { size: number }) {
       <Svg width={size} height={size}>
         <Defs>
           <RadialGradient id="coin" cx={`${g.center[0] * 100}%`} cy={`${g.center[1] * 100}%`} r="75%">
-            {g.stops.map(([c, at]) => <Stop key={at} offset={at} stopColor={c} />)}
+            {g.stops.map(([c, at]) => <Stop key={at} offset={at} {...svgStop(c)} />)}
           </RadialGradient>
         </Defs>
         <Rect width={size} height={size} rx={size / 2} fill="url(#coin)" />

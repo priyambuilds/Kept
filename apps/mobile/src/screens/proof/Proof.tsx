@@ -20,6 +20,7 @@ import { metrics } from "@/theme";
 import { getApi, isApiError } from "@/api";
 import type { Challenge, ProofOutcome } from "@/api";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import type { DesignId } from "@/app/routes";
 import { oathActions, refreshOaths, useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
@@ -74,7 +75,7 @@ export function F1perm() {
       <Button kind="t" label={t("screens.F1·perm.pin.1")} onPress={back} />
     </>}>
       <ProofCamera state="off" object="camera-off-outline" label={t("screens.F1·perm.b1.label")} height={260} />
-      <Title heading={t("screens.F1·perm.b2.title")} sub={t("screens.F1·perm.b2.sub")} />
+      <Title heading={t("screens.F1·perm.b2.title")} sub={t("screens.F1·perm.b2.sub")} align="center" />
     </Screen>
   );
 }
@@ -139,7 +140,7 @@ function Check({ photo }: { photo: 1 | 2 }) {
   return (
     <Screen bar={<NavBar onBack={back} title={navTitle(view, photo)} />}>
       <ProofCamera photo={photo} state="check" object={view ? objectIcon(view.facts.objectId) : "camera"} label={t("screens.F2.b0.label")} {...(c && gestureKey(c.gesture) ? { gesture: gestureKey(c.gesture)! } : {})} />
-      <KeeperPlacement mood={k.mood} line={k.line} size={96} side="r" height={120} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt(photo === 2 ? "F4·chk" : "F2")} />
     </Screen>
   );
 }
@@ -166,7 +167,7 @@ export function F2a() {
     <Screen bar={<NavBar onBack={back} close title={navTitle(view, photo)} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" icon="camera-retake-outline" label={t("screens.F2a.pin.0")} onPress={() => replace(photo === 2 ? "F4" : "F1", { id, photo })} />}>
       <ProofCamera photo={photo} state="fail" object={view ? objectIcon(view.facts.objectId) : "camera"} label={c ? t("screens.F2a.b0.label", { gesture: gestureText(c.gesture) }) : ""} {...(c && gestureKey(c.gesture) ? { gesture: gestureKey(c.gesture)! } : {})} />
-      <KeeperPlacement mood={k.mood} line={k.line} size={96} side="r" height={120} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F2a")} />
     </Screen>
   );
 }
@@ -179,8 +180,8 @@ export function F2b() {
   return (
     <Screen bar={<NavBar onBack={back} close title={view ? t("screens.F2b.nav.title", { name: view.facts.name }) : ""} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" icon="refresh" label={t("screens.F2b.pin.0")} onPress={() => replace(photo === 2 ? "F4·chk" : "F2", { id, photo })} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={140} side="c" height={210} />
-      <Title heading={t("screens.F2b.b2.title")} sub={t("screens.F2b.b2.sub")} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F2b")} />
+      <Title heading={t("screens.F2b.b2.title")} sub={t("screens.F2b.b2.sub")} align="center" />
       <MoneyMoment value={t("screens.F2b.b3.value", { time: hms(view?.secondsToReset ?? 0) })} caption={t("screens.F2b.b3.caption")} fs={44} />
     </Screen>
   );
@@ -226,8 +227,8 @@ export function F4a() {
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(1)}
       pinned={<Button kind="p" label={t("screens.F4a.pin.0")} onPress={() => reset("B1")} />}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={130} side="c" height={190} />
-      <Title heading={t("screens.F4a.b2.title")} sub={view ? t("screens.F4a.b2.sub", { name: view.facts.name }) : ""} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F4a")} />
+      <Title heading={t("screens.F4a.b2.title")} sub={view ? t("screens.F4a.b2.sub", { name: view.facts.name }) : ""} align="center" />
       <Breakdown rows={[
         { label: t("screens.F4a.b3.row0.l"), value: t("screens.F4a.b3.row0.v", { cost: skrWhole(view?.myMissCost ?? 0n) }) },
         { label: t("screens.F4a.b3.row1.l"), value: t("screens.F4a.b3.row1.v", { hp: view?.facts.isSolo ? 35 : 20 }) },
@@ -268,7 +269,7 @@ export function F5() {
   return (
     <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1) + 40}
       pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /><BrandStamp text={t("screens.F5.brand.stamp", { day, time })} /></>}>
-      <KeeperPlacement mood={k.mood} line={k.line} size={130} side="c" height={190} />
+      <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F5")} />
       <Title heading={t("screens.F5.b1.title", { day })} align="center" fs={40} />
       {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => String(i + 1))} /> : null}
       <ChipRow justify="center">

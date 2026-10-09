@@ -23,6 +23,7 @@ import { qk, useBalances } from "@/api/queries";
 import { env } from "@/config/env";
 import { formatSol, formatUsd } from "@/lib/format";
 import { useGo, useParams } from "@/app/nav";
+import { keeperAt } from "@/app/layout";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
@@ -61,7 +62,7 @@ export function W1() {
   const b = balances.data;
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.W1.nav.title")} />}>
-      {k ? <KeeperPlacement mood={k.mood} line={k.line} size={80} side="r" height={100} /> : null}
+      {k ? <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("W1")} /> : null}
       {b ? (
         <MoneyMoment value={skrWhole(b.skr)} caption={price.data ? t("screens.W1.b1.caption", { usd: formatUsd(b.skr, price.data.usdPerSkr) }) : t("additions.wallet.available")} />
       ) : <Skeleton height={120} />}

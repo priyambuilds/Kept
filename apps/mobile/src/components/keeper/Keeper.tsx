@@ -26,7 +26,9 @@ export function Keeper({ mood, prop = "none", anim = "idle", size, bust }: Keepe
   if (bust) {
     return <Image source={KEEPER_BUST[mood]} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel={t("additions.a11y.keeper")} />;
   }
-  const src = prop !== "none" ? KEEPER_PROP[prop] : anim !== "idle" && anim !== "none" ? KEEPER_POSE[anim] : KEEPER_BODY[mood];
+  // PNG fallback (D-33) shows one image: a pose reads strongest in the prototype (A1 waves, L1 jumps),
+  // then a prop, then the mood's body.
+  const src = anim !== "idle" && anim !== "none" ? KEEPER_POSE[anim] : prop !== "none" ? KEEPER_PROP[prop] : KEEPER_BODY[mood];
   return (
     <View style={{ width: size, height: size * 1.125 }} accessible accessibilityLabel={t("additions.a11y.keeper")}>
       <Image source={src} style={{ position: "absolute", left: -size * PAD, top: -size * PAD, width: size * FULL_W, height: size * FULL_H }} resizeMode="contain" />

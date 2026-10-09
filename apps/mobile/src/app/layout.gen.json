@@ -1,0 +1,1205 @@
+{
+ "A0": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 190,
+  "keeper": null
+ },
+ "A1": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": true,
+  "decor": [
+   "sack",
+   "cards-playing-outline"
+  ],
+  "top": 2,
+  "keeper": {
+   "size": 196,
+   "side": "c",
+   "height": 300,
+   "anim": "wave",
+   "prop": "coin"
+  }
+ },
+ "A2": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "A2·s": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "A2·e": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 210,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "A3": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": true,
+  "decor": [],
+  "top": 50,
+  "keeper": null
+ },
+ "A3·no": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 50,
+  "keeper": null
+ },
+ "B1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 76,
+   "side": "r",
+   "height": 92,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "B2": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 150,
+   "side": "r",
+   "height": 190,
+   "anim": "thumbs",
+   "prop": "sack"
+  }
+ },
+ "B3": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [
+   "cards-outline"
+  ],
+  "top": 6,
+  "keeper": {
+   "size": 120,
+   "side": "l",
+   "height": 150,
+   "anim": null,
+   "prop": "cup"
+  }
+ },
+ "B4": {
+  "tone": "red",
+  "ambient": "red",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 110,
+   "side": "l",
+   "height": 140,
+   "anim": "tap",
+   "prop": null
+  }
+ },
+ "B5": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 96,
+   "side": "r",
+   "height": 112,
+   "anim": null,
+   "prop": "ledger"
+  }
+ },
+ "+": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "C1": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 76,
+   "side": "r",
+   "height": 92,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "C2": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "C3": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "C4": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "C5": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "C6": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "C7": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "C7·ok": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": true,
+  "decor": [],
+  "top": 70,
+  "keeper": null
+ },
+ "C7·no": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 40,
+  "keeper": {
+   "size": 120,
+   "side": "c",
+   "height": 200,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "C7·fail": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 70,
+  "keeper": null
+ },
+ "C8": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "D0": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 76,
+   "side": "l",
+   "height": 92,
+   "anim": null,
+   "prop": "whisper"
+  }
+ },
+ "D1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "D1·m": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "D1·x": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "D1·xs": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "D1·go": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "D2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 92,
+   "side": "r",
+   "height": 106,
+   "anim": null,
+   "prop": "whisper"
+  }
+ },
+ "D2·low": {
+  "tone": "red",
+  "ambient": "red",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 100,
+   "side": "l",
+   "height": 120,
+   "anim": null,
+   "prop": "scythe"
+  }
+ },
+ "D3": {
+  "tone": "ember",
+  "ambient": "ember",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "D4": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "E1": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "E2": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "E2·s": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "E3·code": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "E3·late": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "E3·in": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "E3·elig": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "E3·skr": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "R1": {
+  "tone": "ember",
+  "ambient": "ember",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 150,
+   "side": "c",
+   "height": 220,
+   "anim": "flip",
+   "prop": "flip"
+  }
+ },
+ "R2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "R3": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "R·act": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 90,
+   "side": "r",
+   "height": 104,
+   "anim": null,
+   "prop": "whisper"
+  }
+ },
+ "R4": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "R4·lost": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "F1·perm": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": null
+ },
+ "F1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "F2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 100,
+   "side": "l",
+   "height": 118,
+   "anim": null,
+   "prop": "lens"
+  }
+ },
+ "F2a": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 100,
+   "side": "l",
+   "height": 118,
+   "anim": "shrug",
+   "prop": null
+  }
+ },
+ "F2b": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 20,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": null,
+   "prop": "cup"
+  }
+ },
+ "F2c": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "F3": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": null
+ },
+ "F4": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "F4·chk": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 100,
+   "side": "l",
+   "height": 118,
+   "anim": null,
+   "prop": "lens"
+  }
+ },
+ "F4a": {
+  "tone": "red",
+  "ambient": "red",
+  "beam": false,
+  "decor": [],
+  "top": 20,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "F4a·g": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "F5": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": true,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 150,
+   "side": "c",
+   "height": 236,
+   "anim": "thumbs",
+   "prop": null
+  }
+ },
+ "G1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 84,
+   "side": "r",
+   "height": 98,
+   "anim": null,
+   "prop": "lens"
+  }
+ },
+ "G2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 20,
+  "keeper": null
+ },
+ "G3": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "G3·no": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 120,
+   "side": "c",
+   "height": 200,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "H1": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "H1·j": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "H1·c": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 100,
+   "side": "l",
+   "height": 120,
+   "anim": null,
+   "prop": "sack"
+  }
+ },
+ "H2": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "H2·no": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "H3": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 92,
+   "side": "r",
+   "height": 106,
+   "anim": null,
+   "prop": "whisper"
+  }
+ },
+ "H4": {
+  "tone": "grey",
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 10,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "H5": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "H6": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 80,
+   "side": "l",
+   "height": 96,
+   "anim": null,
+   "prop": "ledger"
+  }
+ },
+ "I2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I3": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I4": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "J1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 10,
+  "keeper": null
+ },
+ "J1·p": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "J1·ok": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": true,
+  "decor": [],
+  "top": 10,
+  "keeper": {
+   "size": 170,
+   "side": "c",
+   "height": 270,
+   "anim": "jump",
+   "prop": "sack"
+  }
+ },
+ "J1·f": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "K1": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "K2": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "K3": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "K4": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "K5": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "K5·p": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "K5·ok": {
+  "tone": null,
+  "ambient": "vio",
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "L1": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": true,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 170,
+   "side": "c",
+   "height": 260,
+   "anim": "jump",
+   "prop": "sack"
+  }
+ },
+ "L2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 140,
+   "side": "c",
+   "height": 230,
+   "anim": null,
+   "prop": "coin"
+  }
+ },
+ "L3": {
+  "tone": "ember",
+  "ambient": "ember",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 150,
+   "side": "c",
+   "height": 240,
+   "anim": null,
+   "prop": "scythe"
+  }
+ },
+ "L4": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 140,
+   "side": "c",
+   "height": 230,
+   "anim": "thumbs",
+   "prop": "ledger"
+  }
+ },
+ "L4·m": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "L4·b": {
+  "tone": "ember",
+  "ambient": "ember",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": null,
+   "prop": "scythe"
+  }
+ },
+ "L6": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": true,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 170,
+   "side": "c",
+   "height": 260,
+   "anim": "jump",
+   "prop": "sack"
+  }
+ },
+ "L5": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "M1": {
+  "tone": "lock",
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "M2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 30,
+  "keeper": {
+   "size": 130,
+   "side": "c",
+   "height": 220,
+   "anim": null,
+   "prop": "cup"
+  }
+ },
+ "M3": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 90,
+   "side": "l",
+   "height": 104,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "M4": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "A4": {
+  "tone": null,
+  "ambient": "lime",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 72,
+   "side": "r",
+   "height": 84,
+   "anim": "point",
+   "prop": null
+  }
+ },
+ "N1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 76,
+   "side": "r",
+   "height": 92,
+   "anim": null,
+   "prop": null
+  }
+ },
+ "W1": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 80,
+   "side": "r",
+   "height": 96,
+   "anim": null,
+   "prop": "sack"
+  }
+ },
+ "W2": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "W3": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "W3·s": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 60,
+  "keeper": null
+ },
+ "W3·ok": {
+  "tone": "lime",
+  "ambient": "lime",
+  "beam": true,
+  "decor": [],
+  "top": 50,
+  "keeper": null
+ },
+ "W4": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "D5": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "H7": {
+  "tone": null,
+  "ambient": "sky",
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I2·me": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I2·p": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I5": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I7": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I8": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": null
+ },
+ "I9": {
+  "tone": null,
+  "ambient": null,
+  "beam": false,
+  "decor": [],
+  "top": 0,
+  "keeper": {
+   "size": 72,
+   "side": "r",
+   "height": 84,
+   "anim": "point",
+   "prop": null
+  }
+ }
+}

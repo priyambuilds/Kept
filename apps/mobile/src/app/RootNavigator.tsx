@@ -119,6 +119,7 @@ export function routeInvite(url: string | null): string | null {
 /** `kept://dev/open/<screen>` (development builds only; Metro drops the require from release bundles). */
 function devLink(url: string): boolean {
   if (!__DEV__) return false;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- a static import would ship it in release
   return (require("@/dev/devLink") as typeof import("@/dev/devLink")).openDevLinkWhenReady(url);
 }
 
