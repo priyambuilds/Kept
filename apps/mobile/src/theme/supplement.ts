@@ -15,6 +15,12 @@ export const supplement = {
     tileHi45: "rgba(255,255,255,0.45)",
     tileShade15: "rgba(0,0,0,0.15)",
     tileShade20: "rgba(0,0,0,0.20)",
+    /** Floating orbs around a big Keeper (renderer › kpx): highlight, coin ring, coin drop, shadow. */
+    tileHi60: "rgba(255,255,255,0.60)",
+    tileHi18: "rgba(255,255,255,0.18)",
+    tileShade18: "rgba(0,0,0,0.18)",
+    coinDrop: "rgba(60,80,10,0.90)",
+    orbShadow: "rgba(0,0,0,0.45)",
     /** Grid legend swatches (renderer › grid legend). */
     legendPending: "#4A4A4A",
     legendReview: "rgba(167,139,250,0.5)",

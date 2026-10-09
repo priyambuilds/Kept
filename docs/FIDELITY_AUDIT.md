@@ -209,3 +209,38 @@ Findings from the code:
 | P-3 | P2 | Lists are plain `ScrollView` + `map` (D0, D5, H7, N1, I5): fine at today's sizes (≤ 20 rows); FlashList isn't installed and isn't needed until history/feeds paginate. |
 | P-4 | P2 | Each ambient orb is an SVG radial gradient (420 / 380 dp) animated with transforms: cheap on the UI thread; kept. |
 | P-5 | P2 | Keeper PNGs at 3x are ~200 KB each; the parametric Keeper replaces them on screen (PNGs stay as the fallback). |
+
+---
+
+## Handoff: progress and exact next steps (end of session 1, 2026-10-10)
+
+### Done
+- Audit written (this file), Design.pdf cropped per screen (`apps/mobile/scripts/pdf-screens.py` → `artifacts/pdf/`), compare page has app · prototype · PDF columns. Baseline app shots: `artifacts/before/` (116/116, no errors).
+- DECISIONS.md › I: Keeper placement table (inline vs mark, from the PDF) and conflicts D-70…D-73.
+- Clean baseline release APK (mock mode): `artifacts/before/app-release-mock.apk`. Cold start (release, emulator): 4488 / 2675 / 2376 ms. Frame stats not yet recorded.
+- **Committed in the WIP commit (not yet wired, not yet typechecked):**
+  - `components/keeper/rig.ts` + `KeeperSvg.tsx`: parametric Keeper port (UI-thread frames via `useFrameCallback`, pauses on blur). `Keeper.tsx` now renders it (PNG via `png` prop).
+  - `components/keeper/ScreenKeeper.tsx`: per-screen Keeper host (`useKeeperHost`, `ScreenKeeper`, `useScreenKeeper`, `keeperIsInline`, `isNoteOnlyKeeper`) implementing components.md › KeeperNote rules.
+  - `KeeperUI.tsx`: KeeperMark (dot + `Knock`), KeeperNote (`NoteDrop` from the mark, origin left/right, cycle pill), KeeperPlacement (`Bubble`, orbs, chip spots).
+  - `primitives/motion.tsx`: Pop (spring/springHard), Enter (+ `replay`), FadeIn, Bubble, NoteDrop, Knock, Shake, Loop (+ ping, glow, paused), CountText (leaf count-up), `flattenBlocks`. `lib/haptics.ts`. `lib/format.ts › groupDigits`.
+  - `TabBar.tsx`: animated pill (flex 1↔1.7, white fill + label fade 200 ms, PressScale flex 1), PlusButton kGlow.
+  - `gen-layout.mjs` → layout.gen.json now has Keeper `orbs` and `chips` spots; `app/layout.ts › keeperAt(id, chipTexts)`.
+  - metrics/supplement additions (keeperNote.originX/below, keeperPlacement.inlineMin/bubbleDelay/chipFloatMs, tabBar.labelGap, orb colours).
+  - `scripts/perf.mts` (release perf: cold start + gfxinfo for tabs/scroll/push). uiautomator can't go idle in release (loops), so taps fall back to coordinates; the last edit (fallback after 1 try) was not applied: change `tries >= 2` to `tries >= 1`.
+
+### Emulator note
+The emulator had animator scales at 0 (previous session's drive script), which Reanimated treats as **Reduce Motion**: motion looked absent. Reset with `adb shell settings put global {window_animation_scale,transition_animation_scale,animator_duration_scale} 1`. The dev build was replaced by the release APK; reinstall `apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk` (or `npx expo run:android`).
+
+### Next steps, in order
+1. `pnpm --filter @kept/mobile typecheck && lint && test`; fix the WIP (callers of `KeeperPlacement` still pass `keeperAt(...)`; `KeeperNote` no longer takes `autoHideMs`; TabScreen passes `keeper` to AppHeader).
+2. Wire the Keeper host into `components/layout/Screen.tsx`: kind from `presentation(routeId)` (tab/flow; sheets don't use Screen), idle line for tabs (`keeperIdle(tab)`), render `note` absolutely at `insets.top + devnetRow + barGap + barHeight + keeperNote.below`, wrap with `Provider`. AppHeader/NavBar read `useScreenKeeper()` for the mark (`hasNew = fresh`, `onPress = toggle`; NavBar shows the mark only when `lines` is set). Delete `KeeperNoteHost` / `useUi.keeperNote` / `showKeeperNote` and the TabScreen idle-note code.
+3. Replace every `<KeeperPlacement … {...keeperAt(id)} />` in screens with `<ScreenKeeper id="…" lines={keeperLines("…")} />` (A1/B3/R1 pass chip texts via `keeperAt(id, [...])`). Grep list in §1 S2.
+4. Screen-enter choreography in Screen: `flattenBlocks(children)`, skip `isNoteOnlyKeeper`, wrap each in `<Enter index={i}>` (tab screens replay on focus); PinnedActions enter at 200 ms.
+5. BottomSheet: animate close on `beforeRemove` (preventDefault → p→0 → dispatch action); sheet buttons with icons (S12), "+"/W2 Close as kind `s`.
+6. Fix grid today off-by-one (S5): pass `dayIndex + 1` in Oaths.tsx Active (and R·act), add a test.
+7. Swap `useCountUpText` in HPPanel / MoneyMoment / KeptRateRing for `CountText`; Option select tilt + Toggle 150 ms; Camera fail `Shake`; Splash sequence (S16); toast fade; SignStatus springHard.
+8. Haptics per motion.md (F5, L*, J1·ok, D3, L6 comeback, proof pass/fail, signing, splash, HP damage).
+9. Brand stamp as last content block (S13); B1/B4 stacked card + Bounty card (D-73); I1 "Make it yours" banner; remaining per-screen rows in §3.
+10. Routing: block back while signing pending; moments block back only until settled; E1 deep link no duplicates; add `__tests__/routes.test.tsx` (every flows.md edge) and KeeperNote behaviour tests.
+11. Pause `useNow(1000)` when unfocused (L-2).
+12. Re-shoot (`pnpm --filter @kept/mobile shoot`, then `compare`), release build with `EXPO_PUBLIC_API_MODE=mock`, run `node scripts/perf.mts <apk> --out artifacts/perf/after.json`, fill §7, update SHAKEDOWN.md, BUILD_PLAN.md (Phase 5 motion/Keeper replaced by this pass), DECISIONS.md. Commit small, push to main (the backend dev also pushes; `git fetch` + merge first; push with `-c http.postBuffer=157286400`).

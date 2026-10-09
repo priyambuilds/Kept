@@ -21,7 +21,61 @@
    "side": "c",
    "height": 300,
    "anim": "wave",
-   "prop": "coin"
+   "prop": "coin",
+   "orbs": [
+    {
+     "icon": "dumbbell",
+     "x": 26,
+     "y": 0,
+     "size": 50,
+     "palette": "lime",
+     "rotate": -14,
+     "coin": false
+    },
+    {
+     "icon": "book-open-variant",
+     "x": 272,
+     "y": 18,
+     "size": 46,
+     "palette": "vio",
+     "rotate": 12,
+     "coin": false
+    },
+    {
+     "icon": "sack",
+     "x": 290,
+     "y": 150,
+     "size": 40,
+     "palette": "lime",
+     "rotate": 0,
+     "coin": true
+    },
+    {
+     "icon": "bottle-soda-outline",
+     "x": 8,
+     "y": 150,
+     "size": 40,
+     "palette": "sky",
+     "rotate": 10,
+     "coin": false
+    }
+   ],
+   "chips": [
+    {
+     "icon": "sack",
+     "x": 10,
+     "y": 236,
+     "rotate": -6,
+     "tone": "l"
+    },
+    {
+     "icon": "cards-playing-outline",
+     "x": 236,
+     "y": 252,
+     "rotate": 5,
+     "tone": "d"
+    }
+   ]
   }
  },
  "A2": {
@@ -111,7 +165,16 @@
    "side": "l",
    "height": 150,
    "anim": null,
-   "prop": "cup"
+   "prop": "cup",
+   "chips": [
+    {
+     "icon": "camera",
+     "x": 236,
+     "y": 96,
+     "rotate": 5,
+     "tone": "d"
+    }
+   ]
   }
  },
  "B4": {
@@ -453,7 +516,43 @@
    "side": "c",
    "height": 220,
    "anim": "flip",
-   "prop": "flip"
+   "prop": "flip",
+   "orbs": [
+    {
+     "icon": "sack",
+     "x": 296,
+     "y": 26,
+     "size": 44,
+     "palette": "lime",
+     "rotate": 0,
+     "coin": true
+    },
+    {
+     "icon": "sack",
+     "x": 262,
+     "y": 0,
+     "size": 28,
+     "palette": "lime",
+     "rotate": 0,
+     "coin": true
+    }
+   ],
+   "chips": [
+    {
+     "icon": "sack",
+     "x": 228,
+     "y": 150,
+     "rotate": 6,
+     "tone": "l"
+    },
+    {
+     "icon": "alarm",
+     "x": 4,
+     "y": 168,
+     "rotate": -5,
+     "tone": "d"
+    }
+   ]
   }
  },
  "R2": {
@@ -911,7 +1010,36 @@
    "side": "c",
    "height": 260,
    "anim": "jump",
-   "prop": "sack"
+   "prop": "sack",
+   "orbs": [
+    {
+     "icon": "sack",
+     "x": 288,
+     "y": 40,
+     "size": 46,
+     "palette": "lime",
+     "rotate": 0,
+     "coin": true
+    },
+    {
+     "icon": "sack",
+     "x": 304,
+     "y": 124,
+     "size": 28,
+     "palette": "lime",
+     "rotate": 0,
+     "coin": true
+    },
+    {
+     "icon": "trophy-outline",
+     "x": 12,
+     "y": 176,
+     "size": 44,
+     "palette": "amber",
+     "rotate": -12,
+     "coin": false
+    }
+   ]
   }
  },
  "L2": {

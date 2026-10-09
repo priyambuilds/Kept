@@ -2,7 +2,7 @@
 // - tone, beam, decor icons: design/screens.md › "Layout:" lines (lock: the prototype's M1)
 // - ambient: the screen's tone, else the group default (tokens color.ambient.defaultByGroup)
 // - top: the spacer the prototype puts above the first block (design/reference, `SP(h)`)
-// - keeper: the KeeperPlacement's size, side, height, pose and prop (design/reference, `KP(…)`)
+// - keeper: the KeeperPlacement's size, side, height, pose, prop, floating orbs and chip spots (design/reference, `KP(…)`)
 // Run after design/ changes: pnpm --filter @kept/mobile layout:gen
 import { readFileSync, writeFileSync } from "node:fs";
 import vm from "node:vm";
@@ -43,7 +43,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const tone = s.lock ? "lock" : l.tone;
     const ambient = ["lime", "red", "ember", "vio", "sky"].includes(tone) ? tone : byGroup[s.id[0]] ?? null;
     const kp = blocks.map((b) => (typeof b === "function" ? b({}) : b)).find((b) => b?.k === "kp");
-    const keeper = kp ? { size: kp.size, side: kp.side, height: kp.h, anim: kp.anim ?? null, prop: kp.prop ?? null } : null;
+    // orbs: [icon, x, y, size, palette, rotation, "c" for a coin]; chips: [icon, x, y, rotation, tone] (text from copy).
+    const keeper = kp ? {
+      size: kp.size, side: kp.side, height: kp.h, anim: kp.anim ?? null, prop: kp.prop ?? null,
+      ...(kp.orbs ? { orbs: kp.orbs.map(([ic, x, y, s, pal, r, shape]) => ({ icon: ic, x, y, size: s, palette: pal, rotate: r ?? 0, coin: shape === "c" })) } : {}),
+      ...(kp.chips ? { chips: kp.chips.map(([, ic, x, y, r, tone]) => ({ icon: ic, x, y, rotate: r ?? 0, tone: tone ?? "g" })) } : {}),
+    } : null;
     out[s.id] = { tone, ambient, beam: l.beam, decor: l.decor, top: first?.k === "sp" ? first.h : 0, keeper };
   }
   const file = new URL("../src/app/layout.gen.json", import.meta.url);
