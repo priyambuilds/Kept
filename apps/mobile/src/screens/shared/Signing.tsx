@@ -15,7 +15,7 @@ import { metrics } from "@/theme";
 import { useBalances } from "@/api/queries";
 import { isApiError } from "@/api";
 import { classifyTxError } from "@/chain";
-import { useGo, useParams } from "@/app/nav";
+import { useGo, useParams, useSheetRoute } from "@/app/nav";
 import type { Params } from "@/app/nav";
 import type { DesignId } from "@/app/routes";
 import { useSigningFlow } from "@/app/useSigningFlow";
@@ -98,17 +98,18 @@ export function C7fail() {
 export function M3() {
   const { back, replace } = useGo();
   const insets = useSafeAreaInsets();
+  const sheet = useSheetRoute();
   const balances = useBalances();
   const k = keeperLines("M3")[0]!;
   const sol = balances.data ? (Number(balances.data.sol) / 1e9).toString() : "0";
   return (
     <View style={{ flex: 1 }}>
-      <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
+      <BottomSheet {...sheet} bottomInset={insets.bottom}>
         <ScreenKeeper id="M3" lines={[k]} />
         <Title heading={t("screens.M3.b1.title")} sub={t("screens.M3.b1.sub", { sol })} pt={0} fs={26} />
         <ButtonRow direction="column">
-          <Button kind="p" label={t("screens.M3.b2.btn.0")} onPress={() => replace("W2")} />
-          <Button kind="t" label={t("screens.M3.b2.btn.1")} onPress={back} />
+          <Button kind="p" icon="water-outline" label={t("screens.M3.b2.btn.0")} onPress={() => replace("W2")} />
+          <Button kind="s" label={t("screens.M3.b2.btn.1")} onPress={back} />
         </ButtonRow>
       </BottomSheet>
     </View>
@@ -117,17 +118,18 @@ export function M3() {
 
 // ── M4 Not enough SKR ──
 export function M4() {
-  const { back, replace } = useGo();
+  const { replace } = useGo();
   const p = useParams<{ need: string }>();
   const insets = useSafeAreaInsets();
+  const sheet = useSheetRoute();
   const balances = useBalances();
   const have = balances.data ? skrWhole(balances.data.skr) : "0";
   return (
     <View style={{ flex: 1 }}>
-      <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
+      <BottomSheet {...sheet} bottomInset={insets.bottom}>
         <Title heading={t("screens.M4.b0.title", { amount: p.need ?? "" })} sub={t("screens.M4.b0.sub", { have })} pt={0} fs={26} />
         <ButtonRow direction="column">
-          <Button kind="l" label={t("screens.M4.b1.btn.0")} onPress={() => replace("I4")} />
+          <Button kind="p" icon="water-outline" label={t("screens.M4.b1.btn.0")} onPress={() => replace("I4")} />
           <Button kind="s" label={t("screens.M4.b1.btn.1")} onPress={() => replace("C4")} />
         </ButtonRow>
       </BottomSheet>

@@ -15,13 +15,15 @@ export interface BottomSheetProps {
   onClose: () => void;
   children: ReactNode;
   bottomInset?: number;
+  /** Called once the close animation has finished (a sheet route removes itself then). */
+  onHidden?: () => void;
 }
 
 /** Drag further than this (dp) or fling faster than this (dp/s) to dismiss. */
 const DISMISS_DRAG = 120;
 const DISMISS_VELOCITY = 900;
 
-export function BottomSheet({ visible, onClose, children, bottomInset = 0 }: BottomSheetProps) {
+export function BottomSheet({ visible, onClose, children, bottomInset = 0, onHidden }: BottomSheetProps) {
   const { height: screenH } = useWindowDimensions();
   const reduce = useReducedMotion();
   const [mounted, setMounted] = useState(visible);
@@ -30,15 +32,16 @@ export function BottomSheet({ visible, onClose, children, bottomInset = 0 }: Bot
   const ms = reduce ? 0 : duration.note - 120;
   // Mount as soon as it becomes visible; unmount only after the close animation finishes.
   if (visible && !mounted) setMounted(true);
+  const hide = useCallback(() => { setMounted(false); onHidden?.(); }, [onHidden]);
 
   useEffect(() => {
     if (visible) {
       drag.value = 0;
       p.value = withTiming(1, { duration: ms, easing: easing("enter") });
     } else if (mounted) {
-      p.value = withTiming(0, { duration: ms, easing: easing("enter") }, (done) => { if (done) runOnJS(setMounted)(false); });
+      p.value = withTiming(0, { duration: ms, easing: easing("enter") }, (done) => { if (done) runOnJS(hide)(); });
     }
-  }, [visible, mounted, ms, p, drag]);
+  }, [visible, mounted, ms, p, drag, hide]);
 
   const pan = useMemo(() => Gesture.Pan()
     .onUpdate((e) => { drag.set(Math.max(0, e.translationY)); })

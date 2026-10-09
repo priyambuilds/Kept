@@ -1,8 +1,8 @@
 // Navigation by design id. Screens never spell route names: they call go("D2"), replace("C7·ok"),
 // back(). Tab ids route into the Tabs navigator; signing screens are replaced, never pushed back to.
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CommonActions, StackActions, createNavigationContainerRef, useNavigation, useRoute } from "@react-navigation/native";
-import type { NavigationProp, ParamListBase } from "@react-navigation/native";
+import type { NavigationAction, NavigationProp, ParamListBase } from "@react-navigation/native";
 import { useSession } from "@/state/session";
 import { presentation, routeName } from "./routes";
 import type { DesignId } from "./routes";
@@ -57,4 +57,25 @@ export function navigateTo(id: DesignId, params?: Params) {
 /** Route params as strings/numbers (every screen reads them through this). */
 export function useParams<P extends Params>(): Partial<P> {
   return (useRoute().params ?? {}) as Partial<P>;
+}
+
+/**
+ * A sheet route (flows.md: sheets as sheets). Going back (hardware back, the scrim, a swipe, its button)
+ * first slides the sheet down (BottomSheet's close, 300 ms), then removes the route. Forward actions
+ * (replace by a flow) go straight through.
+ */
+export function useSheetRoute(enabled = true) {
+  const nav = useNavigation<NavigationProp<ParamListBase>>();
+  const [visible, setVisible] = useState(true);
+  const pending = useRef<NavigationAction | null>(null);
+  useEffect(() => enabled ? nav.addListener("beforeRemove", (e) => {
+    const type = e.data.action.type;
+    if (pending.current || (type !== "GO_BACK" && type !== "POP")) return;
+    e.preventDefault();
+    pending.current = e.data.action;
+    setVisible(false);
+  }) : undefined, [nav, enabled]);
+  const onClose = useCallback(() => { if (nav.canGoBack()) nav.goBack(); }, [nav]);
+  const onHidden = useCallback(() => { if (pending.current) nav.dispatch(pending.current); }, [nav]);
+  return { visible, onClose, onHidden };
 }

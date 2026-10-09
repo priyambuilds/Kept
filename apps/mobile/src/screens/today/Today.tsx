@@ -14,7 +14,7 @@ import { BountyCover } from "@/components/content/Social";
 import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { clock as hms, shortDuration } from "@/lib/format";
 import { color } from "@/theme";
-import { useGo } from "@/app/nav";
+import { useGo, useSheetRoute } from "@/app/nav";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { useDeviceOaths } from "@/features/oaths/device";
@@ -184,12 +184,13 @@ export function RecapSheet() {
   const { views } = useOathList();
   const { back, replace } = useGo();
   const insets = useSafeAreaInsets();
+  const sheet = useSheetRoute();
   const rows = recapOf(views);
   const k = keeperLines("B5")[0]!;
   const lead = rows.find((r) => r.missed.length);
   return (
     <View style={{ flex: 1 }}>
-      <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
+      <BottomSheet {...sheet} bottomInset={insets.bottom}>
         <BodyText mono text={t("screens.B5.b0.text")} />
         {lead ? <Title heading={t("screens.B5.b1.title", { name: listNames(lead.missed) })} pt={0} fs={28} /> : null}
         <ScreenKeeper id="B5" lines={[k]} />

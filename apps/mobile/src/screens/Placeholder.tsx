@@ -10,7 +10,7 @@ import { BottomSheet, NavBar } from "@/components/chrome";
 import { Note, Title } from "@/components/content/Basics";
 import { RowList } from "@/components/content/Rows";
 import { Screen } from "@/components/layout/Screen";
-import { useGo } from "@/app/nav";
+import { useGo, useSheetRoute } from "@/app/nav";
 import { designIdOf, presentation, routeInfo } from "@/app/routes";
 import type { DesignId } from "@/app/routes";
 
@@ -21,6 +21,7 @@ export function Placeholder() {
   const kind = presentation(id);
   const { go, replace, back } = useGo();
   const insets = useSafeAreaInsets();
+  const sheet = useSheetRoute(kind === "sheet");
   // Signing screens replace themselves; everything else pushes.
   const open = (to: DesignId) => (kind === "signing" ? replace(to) : go(to));
   const body = (
@@ -35,7 +36,7 @@ export function Placeholder() {
   if (kind === "sheet") {
     return (
       <View style={{ flex: 1 }}>
-        <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
+        <BottomSheet {...sheet} bottomInset={insets.bottom}>
           {body}
           <Button kind="t" label={t("additions.a11y.close")} onPress={back} />
         </BottomSheet>

@@ -22,7 +22,7 @@ import { isApiError, useApi } from "@/api";
 import { qk, useBalances } from "@/api/queries";
 import { env } from "@/config/env";
 import { formatSol, formatUsd } from "@/lib/format";
-import { useGo, useParams } from "@/app/nav";
+import { useGo, useParams, useSheetRoute } from "@/app/nav";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
@@ -100,21 +100,22 @@ export function W2() {
   const { back, replace } = useGo();
   const toast = useToast();
   const insets = useSafeAreaInsets();
+  const sheet = useSheetRoute();
   const faucet = async () => {
     try { await walletActions.faucet(); toast(t("toasts.21")); back(); }
     catch (e) { toast(isApiError(e) && e.code === "FAUCET_USED" ? t("additions.wallet.faucetUsed") : t("screens.C7·fail.b2.title")); }
   };
   return (
     <View style={{ flex: 1 }}>
-      <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
+      <BottomSheet {...sheet} bottomInset={insets.bottom}>
         <Title heading={t("screens.W2.b0.title")} sub={t("screens.W2.b0.sub")} pt={0} fs={26} />
         <RowList rows={[
-          { title: t("screens.W2.b1.r0.t"), sub: t("screens.W2.b1.r0.s"), leading: { kind: "icon", icon: "swap-horizontal" }, chevron: true, onPress: () => replace("W3") },
+          { title: t("screens.W2.b1.r0.t"), sub: t("screens.W2.b1.r0.s"), leading: { kind: "icon", icon: "swap-horizontal", bg: color.lime.base, fg: color.text.onLime }, chevron: true, onPress: () => replace("W3") },
           { title: t("screens.W2.b1.r1.t"), sub: t("screens.W2.b1.r1.s"), leading: { kind: "icon", icon: "qrcode" }, chevron: true, onPress: () => replace("W4") },
-          ...(env.cluster === "devnet" ? [{ title: t("screens.W2.b1.r2.t"), sub: t("screens.W2.b1.r2.s"), value: t("screens.W2.b1.r2.r"), valueColor: color.lime.base, leading: { kind: "icon" as const, icon: "water" as const }, onPress: () => { void faucet(); } }] : []),
+          ...(env.cluster === "devnet" ? [{ title: t("screens.W2.b1.r2.t"), sub: t("screens.W2.b1.r2.s"), value: t("screens.W2.b1.r2.r"), valueColor: color.lime.base, leading: { kind: "icon" as const, icon: "water-outline" as const }, onPress: () => { void faucet(); } }] : []),
         ]} />
-        <Note text={t("screens.W2.b2.text")} />
-        <ButtonRow><Button kind="t" label={t("screens.W2.b3.btn.0")} onPress={back} /></ButtonRow>
+        <Note text={t("screens.W2.b2.text")} icon="flask-outline" />
+        <ButtonRow><Button kind="s" label={t("screens.W2.b3.btn.0")} onPress={back} /></ButtonRow>
       </BottomSheet>
     </View>
   );

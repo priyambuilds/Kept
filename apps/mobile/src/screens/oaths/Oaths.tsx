@@ -19,7 +19,7 @@ import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
 import { shortDuration } from "@/lib/format";
 import { color, metrics } from "@/theme";
-import { useGo, useParams } from "@/app/nav";
+import { useGo, useParams, useSheetRoute } from "@/app/nav";
 import { useOath, useOathList, oathActions } from "@/features/oaths/hooks";
 import type { MemberView, OathView } from "@/features/oaths/model";
 import { isLowHp } from "@/features/oaths/model";
@@ -185,17 +185,18 @@ function OpenMember({ v }: { v: OathView }) {
 export function D1x() {
   const { back, replace } = useGo();
   const insets = useSafeAreaInsets();
+  const sheet = useSheetRoute();
   const { view } = useOathScreen();
   if (!view) return null;
   const f = view.facts;
   const others = view.members.filter((m) => !m.isMe).map(memberName);
   return (
     <View style={{ flex: 1 }}>
-      <BottomSheet visible onClose={back} bottomInset={insets.bottom}>
+      <BottomSheet {...sheet} bottomInset={insets.bottom}>
         <Title heading={t("screens.D1·x.b0.title", { name: f.name })} pt={0}
           sub={others.length ? t("screens.D1·x.b0.sub", { names: listNames(others), amount: skrWhole(f.stake) }) : t("additions.core.cancelAlone", { amount: skrWhole(f.stake) })} fs={26} />
         <ButtonRow direction="column">
-          <Button kind="d" label={t("screens.D1·x.b1.btn.0")} onPress={() => replace("D1·xs", { id: f.id })} />
+          <Button kind="d" icon="close" label={t("screens.D1·x.b1.btn.0")} onPress={() => replace("D1·xs", { id: f.id })} />
           <Button kind="s" label={t("screens.D1·x.b1.btn.1")} onPress={back} />
         </ButtonRow>
       </BottomSheet>
