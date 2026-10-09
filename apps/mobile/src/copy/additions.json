@@ -141,5 +141,17 @@
  },
  "profile": {
   "privateOaths": "{name} keeps their Oaths private"
+ },
+ "mode": {
+  "$source": "owner: Live and Demo modes (docs/LIVE_DEMO_PLAN.md, DECISIONS D-80)",
+  "badge": "DEMO",
+  "title": "How do you want to start?",
+  "demo": "Try the demo",
+  "live": "Use my wallet",
+  "simulated": "Demo: the approval is simulated.",
+  "exit": "Exit demo",
+  "restart": "Restart demo",
+  "restarted": "Demo restarted",
+  "noServer": "This build has no server address, so Live can't start. Try the demo instead."
  }
 }

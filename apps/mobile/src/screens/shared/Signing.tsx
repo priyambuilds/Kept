@@ -22,6 +22,7 @@ import type { DesignId } from "@/app/routes";
 import { useSigningFlow } from "@/app/useSigningFlow";
 import type { SignOutcome } from "@/app/useSigningFlow";
 import { skrWhole } from "@/features/oaths/present";
+import { useIsDemo } from "@/state/mode";
 
 /** Where a failed signature goes. `retry` re-runs the same signing screen with the same params. */
 export interface FailRoutes { retry: DesignId; edit: DesignId; params?: Params; failed?: DesignId; noSkr?: DesignId }
@@ -53,6 +54,7 @@ export function SigningScreen<T>({ title, sub, task, onDone, fail }: {
   const resolve = useCallback((r: { ok: true; value: T } | { ok: false; error: unknown }): SignOutcome =>
     (r.ok ? onDone(r.value) : failureOutcome(r.error, fail)), [onDone, fail]);
   const state = useSigningFlow(task, resolve);
+  const demo = useIsDemo();
   // Transient (flows.md): hardware back can't leave while the wallet is signing; the close button cancels.
   const pending = state === "pending";
   useFocusEffect(useCallback(() => {
@@ -64,7 +66,8 @@ export function SigningScreen<T>({ title, sub, task, onDone, fail }: {
     <Screen bar={<NavBar onBack={back} close />}>
       <SignStatus state={state} chip={t("screens.C7.b1.chip")} />
       <Title heading={title} sub={sub} align="center" />
-      <Note text={t("screens.C7.b3.text")} icon="timer-sand" />
+      {/* Demo has no wallet: the mock approves, and the screen says so. */}
+      {demo ? <Note text={t("additions.mode.simulated")} icon="information-outline" /> : <Note text={t("screens.C7.b3.text")} icon="timer-sand" />}
     </Screen>
   );
 }

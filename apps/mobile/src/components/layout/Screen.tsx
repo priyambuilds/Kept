@@ -8,7 +8,7 @@ import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboardHeight } from "@/lib/keyboard";
 import { env } from "@/config/env";
-import { color, metrics } from "@/theme";
+import { color, metrics, space } from "@/theme";
 import { useUi } from "@/state/ui";
 import { useContext } from "react";
 import { NavigationContext, NavigationRouteContext } from "@react-navigation/native";
@@ -19,7 +19,8 @@ import { isNoteOnlyKeeper, useKeeperHost } from "../keeper/ScreenKeeper";
 import { Enter, flattenBlocks } from "../primitives";
 import { Ambient } from "../chrome/Ambient";
 import { Spacer } from "../content/Basics";
-import { DevnetBadge } from "../chrome/Header";
+import { DemoBadge, DevnetBadge } from "../chrome/Header";
+import { useIsDemo } from "@/state/mode";
 import { PinnedActions } from "../actions";
 import { momentSettleMs, pinnedDelay, useBackBlockedFor } from "./moment";
 
@@ -72,7 +73,9 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   const top = l?.top ? <Spacer h={l.top} /> : null;
   const openDev = useUi((s) => s.setDevMenu);
   const m = metrics.screen;
+  const demo = useIsDemo();
   const devnet = env.cluster === "devnet";
+  const badges = devnet || demo;
   const kind = routeId && presentation(routeId) === "tab" ? "tab" : "flow";
   const keeper = useKeeperHost(routeId, kind, keeperIdle ?? null);
   // The note drops from just under the bar (components.md › KeeperNote: top 106 header / 104 nav, bar at 56).
@@ -88,14 +91,15 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   const pinnedAll = pinned ? flattenBlocks(pinned) : [];
   const pinnedBlocks = pinned ? pinnedAll.map((c, i) => <Enter key={c.key ?? `p${i}`} delay={pinnedDelay(i)} replay={replay}>{c}</Enter>) : null;
   useBackBlockedFor(momentSettleMs(blocks.length, pinnedAll.length), !!routeId && presentation(routeId) === "moment");
-  const noteTop = insets.top + (devnet ? metrics.statusBar.badgeRow : 0) + m.barGap + (kind === "tab" ? k.topHeader : k.topNav) - metrics.header.top;
+  const noteTop = insets.top + (badges ? metrics.statusBar.badgeRow : 0) + m.barGap + (kind === "tab" ? k.topHeader : k.topNav) - metrics.header.top;
   return (
     <keeper.Provider value={keeper.value}>
     <View style={{ flex: 1, backgroundColor: color.bg.app, paddingTop: insets.top }}>
       {l ? <Ambient tone={l.tone} ambient={l.ambient} beam={l.beam} decor={l.decor} /> : null}
-      {devnet ? (
-        <View style={{ height: metrics.statusBar.badgeRow, paddingHorizontal: m.padX, justifyContent: "center" }}>
-          <DevnetBadge {...(__DEV__ ? { onLongPress: () => openDev(true) } : {})} />
+      {badges ? (
+        <View style={{ height: metrics.statusBar.badgeRow, paddingHorizontal: m.padX, flexDirection: "row", alignItems: "center", gap: space[6] }}>
+          {devnet ? <DevnetBadge {...(__DEV__ ? { onLongPress: () => openDev(true) } : {})} /> : null}
+          {demo ? <DemoBadge /> : null}
         </View>
       ) : null}
       {bar ? <View style={{ paddingHorizontal: m.padX, marginTop: m.barGap }}>{bar}</View> : null}
