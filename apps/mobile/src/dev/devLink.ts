@@ -55,7 +55,7 @@ const joined = () => { mockOaths.join(mockOaths.byCode("DAWN-R7Q2")!.id, W); };
 const dawn = () => ({ id: mockOaths.byCode("DAWN-R7Q2")?.id ?? "" });
 function review(votes: [keyof typeof PEOPLE, boolean][]) {
   return () => {
-    const o = mockOaths.byName("Iron Week", W)!;
+    const o = mockOaths.get(oath("Iron Week"))!;
     const r = mockReviews.request(o, W, today(o.id), "open_palm");
     for (const [p, yes] of votes) mockReviews.vote(r.id, PEOPLE[p].wallet, yes);
     return { id: o.id, review: r.id };

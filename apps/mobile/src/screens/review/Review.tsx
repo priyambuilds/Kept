@@ -11,7 +11,7 @@ import type { Seat } from "@/components/content/Inputs";
 import { SignStatus } from "@/components/content/Status";
 import { KeeperPlacement } from "@/components/keeper/KeeperUI";
 import { Screen } from "@/components/layout/Screen";
-import { shortDuration } from "@/lib/format";
+import { hoursLeft } from "@/lib/format";
 import { metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
 import { keeperAt } from "@/app/layout";
@@ -62,7 +62,7 @@ export function G1() {
       <ChipRow>
         <Chip text={t("screens.G1.b2.chip.0", { n: Object.keys(r.votes).length, total: r.voters.length })} icon="vote-outline" tilt={-2} />
         {approvers.length ? <Chip text={t("screens.G1.b2.chip.1", { name: listNames(approvers) })} icon="check" tone="lime" tilt={1} /> : null}
-        <Chip text={t("screens.G1.b2.chip.2", { time: shortDuration(Math.max(0, r.expiresAt - now)) })} icon="timer-outline" tone="ora" tilt={-1} />
+        <Chip text={t("screens.G1.b2.chip.2", { time: hoursLeft(Math.max(0, r.expiresAt - now)) })} icon="timer-outline" tone="ora" tilt={-1} />
       </ChipRow>
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("G1")} />
     </Screen>

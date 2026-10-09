@@ -49,6 +49,8 @@ export function shortDuration(seconds: number): string {
   const m = Math.floor((s % 3600) / 60);
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
+/** 147600 → "41h" (G1: a 48-hour review window is counted in hours). */
+export const hoursLeft = (seconds: number): string => `${Math.floor(Math.max(0, seconds) / 3600)}h`;
 /** Seconds since → "20m", "2h", "3d" (inbox times). */
 export function ago(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));

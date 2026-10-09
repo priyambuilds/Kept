@@ -16,7 +16,7 @@ import { DayStrip, SignStatus } from "@/components/content/Status";
 import { KeeperPlacement } from "@/components/keeper/KeeperUI";
 import { Screen } from "@/components/layout/Screen";
 import { clock as hms } from "@/lib/format";
-import { metrics } from "@/theme";
+import { color, metrics } from "@/theme";
 import { getApi, isApiError } from "@/api";
 import type { Challenge, ProofOutcome } from "@/api";
 import { useGo, useParams } from "@/app/nav";
@@ -230,8 +230,8 @@ export function F4a() {
       <KeeperPlacement mood={k.mood} line={k.line} {...keeperAt("F4a")} />
       <Title heading={t("screens.F4a.b2.title")} sub={view ? t("screens.F4a.b2.sub", { name: view.facts.name }) : ""} align="center" />
       <Breakdown rows={[
-        { label: t("screens.F4a.b3.row0.l"), value: t("screens.F4a.b3.row0.v", { cost: skrWhole(view?.myMissCost ?? 0n) }) },
-        { label: t("screens.F4a.b3.row1.l"), value: t("screens.F4a.b3.row1.v", { hp: view?.facts.isSolo ? 35 : 20 }) },
+        { label: t("screens.F4a.b3.row0.l"), value: t("screens.F4a.b3.row0.v", { cost: skrWhole(view?.myMissCost ?? 0n) }), color: color.red.base },
+        { label: t("screens.F4a.b3.row1.l"), value: t("screens.F4a.b3.row1.v", { hp: view?.facts.isSolo ? 35 : 20 }), color: color.red.base },
         { label: t("screens.F4a.b3.row2.l"), value: t("screens.F4a.b3.row2.v") },
       ]} />
     </Screen>
@@ -243,12 +243,14 @@ export function F4ag() {
   const { back, replace, reset } = useGo();
   const { id, view } = useProofScreen();
   const others = view ? view.members.filter((m) => !m.isMe).map(memberName) : [];
+  const c = useProof((s) => s.challenges[key(id, 2)]);
+  const gk = c ? gestureKey(c.gesture) : undefined;
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(2)} pinned={<>
       <Button kind="p" icon="account-group-outline" label={t("screens.F4a·g.pin.0")} onPress={() => replace("G2", { id })} />
       <Button kind="t" label={t("screens.F4a·g.pin.1")} onPress={() => reset("B1")} />
     </>}>
-      <ProofCamera state="review" object={view ? objectIcon(view.facts.objectId) : "camera"} label={t("screens.F4a·g.b0.label")} height={260} />
+      <ProofCamera photo={2} state="fail" object={view ? objectIcon(view.facts.objectId) : "camera"} {...(gk ? { gesture: gk } : {})} label={t("screens.F4a·g.b0.label")} height={260} />
       <Title heading={t("screens.F4a·g.b1.title")} sub={t("screens.F4a·g.b1.sub", { names: listNames(others) })} />
     </Screen>
   );
@@ -262,7 +264,8 @@ export function F5() {
   const playFx = useUi((s) => s.playFx);
   const k = keeperLines("F5")[0]!;
   const me = view && view.me >= 0 ? view.members[view.me]! : null;
-  const pending = view ? view.members.filter((m) => !m.isMe && m.pendingToday) : [];
+  // Someone in group review has done their part (D-47): not "hasn't proved today".
+  const pending = view ? view.members.filter((m) => !m.isMe && m.pendingToday && m.facts.proofToday !== "review") : [];
   const day = view?.dayNumber ?? 1;
   useEffect(() => { playFx("coins", [{ text: t("screens.F5.b1.title", { day }), icon: "check-bold" }]); }, [playFx, day]);
   const time = new Date().toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });

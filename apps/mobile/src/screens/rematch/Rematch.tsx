@@ -182,12 +182,12 @@ function RematchResult({ lost }: { lost: boolean }) {
   const firstMiss = me.missed[0] !== undefined ? me.missed[0] + 1 : 0;
   const rows = [
     { label: t(`screens.${id}.b1.row0.l`), value: t(`screens.${id}.b1.row0.v`, { amount: skrWhole(mine.start) }) },
-    { label: lost ? t("screens.R4·lost.b1.row1.l", { days: dayList(me.missed.map((d) => d + 1)) }) : t("screens.R4.b1.row1.l"), value: t(`screens.${id}.b1.row1.v`, { amount: mine.lost > 0n ? skrWhole(-mine.lost) : "0" }) },
-    { label: t(`screens.${id}.b1.row2.l`, { name: listNames(view.members.filter((m) => m.missed.length && !m.isMe).map(memberName)) }), value: t(`screens.${id}.b1.row2.v`, { amount: signed(mine.won) }) },
+    { label: lost ? t("screens.R4·lost.b1.row1.l", { days: dayList(me.missed.map((d) => d + 1)) }) : t("screens.R4.b1.row1.l"), value: t(`screens.${id}.b1.row1.v`, { amount: mine.lost > 0n ? skrWhole(-mine.lost) : "0" }), ...(mine.lost > 0n ? { color: color.red.base } : {}) },
+    { label: t(`screens.${id}.b1.row2.l`, { name: listNames(view.members.filter((m) => m.missed.length && !m.isMe).map(memberName)) }), value: t(`screens.${id}.b1.row2.v`, { amount: signed(mine.won) }), ...(mine.won > 0n ? { color: color.lime.base } : {}) },
     // The fee comes out of the money lost (rules.md §3), so it isn't charged again here (DECISIONS D-64).
     { label: t(`screens.${id}.b1.row3.l`), value: lost ? t("screens.R4·lost.b1.row3.v", { amount: "0" }) : t("screens.R4.b1.row3.v") },
-    { label: t(`screens.${id}.b1.row4.l`, { name: source?.facts.name ?? "" }), value: t(`screens.${id}.b1.row4.v`, { amount: signed(recovered) }) },
-    { label: t(`screens.${id}.b1.row5.l`), value: t(`screens.${id}.b1.row5.v`, { amount: skrWhole(mine.final) }), total: true },
+    { label: t(`screens.${id}.b1.row4.l`, { name: source?.facts.name ?? "" }), value: t(`screens.${id}.b1.row4.v`, { amount: signed(recovered) }), ...(recovered > 0n ? { color: color.lime.base } : {}) },
+    { label: t(`screens.${id}.b1.row5.l`), value: t(`screens.${id}.b1.row5.v`, { amount: skrWhole(mine.final) }), total: true, ...(!lost ? { color: color.lime.base } : {}) },
   ];
   return (
     <Screen bar={<NavBar onBack={back} close title={t("screens.R4.nav.title")} />} bottomInset={pinned(1)}
@@ -195,8 +195,8 @@ function RematchResult({ lost }: { lost: boolean }) {
       <Title heading={t(`screens.${id}.b0.title`)} {...(!lost ? { sub: t("screens.R4.b0.sub", { n: view.facts.numDays }) } : {})} />
       <Breakdown rows={rows} />
       {lost
-        ? <Banner tone="red" icon="heart-broken" title={t("screens.R4·lost.b2.title", { days: dayList([firstMiss]) })} sub={t("screens.R4·lost.b2.sub")} />
-        : <Banner tone="lime" icon="sack" title={t("screens.R4.b2.title", { amount: skrWhole(recovered) })} sub={t("screens.R4.b2.sub", { name: source?.facts.name ?? "" })} />}
+        ? <Banner tone="red" icon="close-circle-outline" title={t("screens.R4·lost.b2.title", { days: dayList([firstMiss]) })} sub={t("screens.R4·lost.b2.sub")} />
+        : <Banner tone="lime" icon="sword-cross" title={t("screens.R4.b2.title", { amount: skrWhole(recovered) })} sub={t("screens.R4.b2.sub", { name: source?.facts.name ?? "" })} />}
     </Screen>
   );
 }

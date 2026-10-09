@@ -246,7 +246,7 @@ function Active({ v }: { v: OathView }) {
     toast(pending.length === 1 ? t("toasts.3", { name: memberName(pending[0]!) }) : t("toasts.4", { n: pending.length }));
   };
   const myPhoto1 = me?.facts.proofToday === "photo1";
-  const proveLabel = myPhoto1 ? t("screens.D2.pin.0") : t("screens.B1.b4.btn");
+  const proveLabel = myPhoto1 ? t("screens.D2.pin.0") : f.rematchOf ? t("screens.R·act.pin.0") : t("screens.B1.b4.btn");
   const canProve = v.life === "active" && me?.pendingToday && me.facts.proofToday !== "review";
   const lostNote = noteFor(v);
   const reviewer = v.members.find((m) => !m.isMe && m.facts.proofToday === "review");
