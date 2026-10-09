@@ -2,7 +2,7 @@
 
 **For:** the backend / Solana program developer.
 **Source of truth:** `design/rules.md` and `design/screens.md`. Where the backend differs, the backend should change unless we agree otherwise (decisions in `docs/DECISIONS.md`).
-**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1; updated at the end of Phase 2 (sign-in) and Phase 3 (the core loop on the real program and API: create, join, start, cancel, proof, settle, claim). The short checklist is at the top. Every item below was checked by reading the file and line cited.
+**Status:** verified against the code on 2026-10-09 (v3: updated with the product owner's decisions of 2026-10-09 and the Phase 0 move; re-checked at the end of Phase 1; updated at the end of Phase 2 (sign-in), Phase 3 (the core loop on the real program and API: create, join, start, cancel, proof, settle, claim) and Phase 4 (Rematch, group review, Bounties, profiles, inbox, wallet: all on the app's mock, with the shapes below). The short checklist is at the top. Every item below was checked by reading the file and line cited.
 
 **Paths.** Phase 0 moved the code with `git mv` and didn't change it, so line numbers are unchanged:
 `backend/src` → `apps/api/src` · `backend/prisma` → `apps/api/prisma` · `backend/scripts` → `apps/api/scripts` · `backend/kept-example/program` → `programs/kept` · `backend/kept-example/app` → `legacy/harness-app`. Short forms used below: **`v4.ts`** = `apps/api/src/routes/v4.ts`, **`lib.rs`** / **`state.rs`** = `programs/kept/programs/kept_test/src/{lib,state}.rs`, **`schema`** = `apps/api/prisma/schema.prisma`. Other `backend/…` paths below map the same way.
@@ -45,6 +45,10 @@ The checklist for the backend developer. Each line points to the full item below
 - [ ] Oath name + rename (P1-7); review mode stored with the details (P1-1).
 - [ ] Streak and kept rate (P1-16), profiles and activity (P1-8, P1-9).
 - [ ] Rematch (P1-2), Bounties (P1-10), inbox (P1-11), balances (P0-10, optional).
+- [ ] Swap quote + swap on Devnet, or confirm it stays a mock (P1-12).
+- [ ] The review photo for voters (P1-1) and Bounty cover upload (P1-10): both need short-lived storage.
+
+**Phase 4 status in the app:** every screen in groups R, G, H, K, I, N, W and M is built and runs end to end on the mock. Each item below has an "App today (Phase 4)" line with the TypeScript shape the app calls (`apps/mobile/src/api/types.ts`). When a route lands, the app switches that slice from `mock` to `http` (`BACKEND_HAS` in the same file).
 
 **Remove**
 - [ ] `GET /api/photos/:oath/:day` and `/api/photos/file/:id`: members must not see each other's photos (P0-11).
@@ -154,7 +158,16 @@ The checklist for the backend developer. Each line points to the full item below
 - **Design:** the creator picks *AI only* or *AI + group review* at creation (C5); solo is always AI only. After 3 failed photo-2 checks, a group-review Oath lets the user send photo 2 to the group (F4a·g). A **majority of the other members** approves, **a tie rejects**, one vote each, and the photo is deleted after the decision (48 hours max). An approval records the check-in (G1–G3).
 - **Change:** `reviewMode` locked at creation (on chain, or in `OathDetails`, written in the same flow as the goal); `POST /api/reviews`, `GET /api/oaths/:oath/reviews`, `POST /api/reviews/:id/vote`; expiry and cleanup jobs; a push "review requested".
 
-- **App today (Phase 3):** C5's choice is stored on the creator's phone only; everyone else sees "AI only". F4a·g → G2 is a placeholder until Phase 4.
+- **App today (Phase 3):** C5's choice is stored on the creator's phone only; everyone else sees "AI only". F4a·g → G2 sends the review (Phase 4, below).
+- **App today (Phase 4):** G1, G2, G3 and G3·no run on the mock (`ReviewsApi`). The shapes the app is coded against:
+  - `POST /api/reviews` `{oath, dayIndex, gesture}` → `Review`
+  - `GET /api/reviews/:id` → `Review`
+  - `GET /api/oaths/:oath/reviews?open=1` → `Review[]` (reviews waiting for my vote)
+  - `POST /api/reviews/:id/vote` `{approve: boolean}` → `204`
+  - `Review = {id, oathId, by, dayIndex, objectId, gesture: "thumbs_up"|"victory"|"open_palm", votes: {[wallet]: boolean}, voters: wallet[], createdAt, expiresAt, status: "pending"|"approved"|"rejected"|"expired"}`
+  - Rules the mock applies: voters are the other members. A majority of them approves. It's rejected once a majority rejects, or when everyone has voted without a majority (so a tie rejects). With no decision after 48 h it's `expired`, which counts as a miss. An approval must record the check-in on chain (the verifier signs `check_in` for that day).
+  - **Also needed:** `GET /api/reviews/:id/photo` for voters only, deleted after the decision. G1 shows the challenge frame where the photo goes until this exists.
+
 ### P1-2. Rematch · CONFIRMED
 - **Now:** doesn't exist.
 - **Design** (rules.md §4):
@@ -166,6 +179,11 @@ The checklist for the backend developer. Each line points to the full item below
   - start: the original creator, or anyone once 2+ have joined
 - **Recovery formula (decided, D-9):** recovery_i = **50 % of member i's balance at the moment of the break**, which is exactly the amount held for them in P0-5. It's solvent by construction. Paid only if member i keeps every day of a Rematch that doesn't break; otherwise their held amount is released to the treasury.
 - **Change:** program: an escrow hold on break (per-member held amounts), `create_rematch` linked by `rematch_of`, the recovery payout at Rematch settlement, release to the treasury on expiry or miss. Backend: `GET /api/oaths/:oath/rematch` (offer, countdown, who has joined, my held amount).
+- **App today (Phase 4):** R1, R2, R3, R·act, R4, R4·lost and L6 run on the mock (`RematchApi`). A Rematch is shown as an ordinary Oath with `rematchOf` (the broken Oath) and `recovery` (wallet → held amount), so D2, the grid, proof and claim are the same screens. Shapes:
+  - `GET /api/oaths/:oath/rematch` → `{rematch: Oath | null, closesAt}` (`closesAt` = break + 7 days)
+  - `POST /api/oaths/:oath/rematch/join` → `Oath` (the Rematch; the stake transfer is a program instruction, `joinRematch` in `TxService`)
+  - `Oath` needs `rematchOf: Address | null` and, per member, the held amount (D-9).
+  - Settlement must pay `recovery` on top of the normal payout to members who kept every day of a Rematch that didn't break.
 
 ### P1-3. Leaving before Start · CONFIRMED
 - **Now:** only the creator's `cancel_oath` (`lib.rs:121-130`, `CreatorOath` has `has_one=creator`, `lib.rs:338`).
@@ -199,12 +217,20 @@ The checklist for the backend developer. Each line points to the full item below
 - **Now:** not computed. The Keeper account has `current_streak`, `best_streak`, `oaths_kept`, `oaths_missed` (`state.rs:18-27`), updated only at settle (`lib.rs:170-188`) with the old all-or-nothing meaning.
 - **Design** (rules.md §7): days kept and missed across Oaths and Bounties, recency-weighted, plus clean finishes; a neutral baseline for new users; "92% · 64 days", or "New" under 10 days; visible on E2, D1, D2, I1/I2, H2.
 - **Change:** an indexer or job storing per-day outcomes per wallet, computed with `packages/engine`, and returned from the profile and Oath routes. Formula parameters: DECISIONS D-12.
+- **App today (Phase 4):** I1, I2 and H2 show the kept rate from `GET /api/me/stats` and the profile (mock). H2 checks a Bounty's minimum rate on the client; the server must enforce it on join.
 
 ### P1-9. Profiles · CONFIRMED
 - **Now:** only `GET /api/me` (Genesis status, `v4.ts:40-48`).
 - **Design** (I1–I9): my profile and someone else's, a creator profile (bio, links, verified, hosted Bounties, total paid out, follow), activity (I5), visibility (I7), edit (I8), avatar builder (I9, 8-digit avatar config).
 - **Change:** a `Profile` table (name, handle, avatar config, banner, bio, socials, visibility) and routes `GET /api/profiles/:wallet`, `PATCH /api/me/profile`, `GET /api/me/activity`, follow/unfollow.
 - **App today (Phase 2):** the avatar picked on A4 is kept on the device and in the mock profile (`ProfileApi.save`, coded against the `Profile` schema in `packages/shared/src/proposed.ts`). Once `PATCH /api/me/profile` exists, onboarding saves it there.
+- **App today (Phase 4):** I1–I9 run on the mock (`ProfileApi`). Shapes:
+  - `GET /api/me/profile` and `GET /api/profiles/:wallet` → `Profile` (`packages/shared/src/proposed.ts`); fields hidden per the owner's visibility.
+  - `PATCH /api/me/profile` with any of `name, avatar, banner, bio, socials, visibility` → `Profile`
+  - `GET /api/me/activity` → `ActivityItem[]` = `{id, day, title, sub, amount: string | null, kind: "money"|"proof"|"oath"}`. Plain values are fine; the app can format them if you send `{at, type, oath, amount}` instead. Say which.
+  - `GET /api/creators/:handle` → `{name, logo, palette, verified, bio, tagline, hosted, paidOut, followers, links: {title, kind}[]}` (I3)
+  - follow: `POST/DELETE /api/me/following/:handle`. The app keeps follows on the device until then.
+  - Visibility (I7) has three audiences per area: **Oaths, Bounties, socials** × everyone / Oath partners / only me, plus "find me by name" and "anyone can invite me". The current `Profile.visibility` is a single value, so please store the I7 settings as `{oaths, bounties, socials: 0|1|2, findByName: boolean, anyoneInvite: boolean}`. The app keeps them on the device until then.
 
 ### P1-10. Bounties · CONFIRMED
 - **Now:** none in this code (program or API).
@@ -217,17 +243,32 @@ The checklist for the backend developer. Each line points to the full item below
   - survivors split the pool equally
   - a recently-out feed, creator stats (H6), an opt-in finisher list
 - **Change:** program: Bounty escrow (fund, join, check-in, eliminate, settle, claim). Backend: feed, detail, create, join, proof, recently-out, stats, branding upload/storage, requirement checks. Pool split rounding and what happens with no survivors: DECISIONS D-19.
+- **App today (Phase 4):** H1–H7, L5 and K1–K5·ok run on the mock (`BountiesApi`). A joined Bounty is a stake-0 solo Oath with `bountyId`, so proof and the grid are reused; a miss eliminates. Shapes (`BountyFacts` in `apps/mobile/src/features/bounties/mockStore.ts`; this replaces the earlier `Bounty` draft in `proposed.ts`):
+  - `GET /api/bounties` → `Bounty[]`; `GET /api/bounties/:id` → `Bounty`
+  - `POST /api/bounties/:id/join` → my participation `Oath`; `GET /api/bounties/:id/me` → `Oath | null`
+  - `POST /api/bounties` `{name, objectId, numDays, pool, joinWindowHours | null, message, link | null, minKeptRate | null, tokenHeld | null}` → `Bounty`, after the funding transaction (`fundBounty` in `TxService`, pool × 1.10)
+  - `Bounty = {id, name, brand {name, verified, logo, palette}, message, detail, link, objectId, numDays, pool (after fee), joinClosesAt, startsAt, entrants, remaining, category, minKeptRate, tokenHeld, createdBy, featured, recentlyOut: {name, day, at}[], stillInByDay: number[], finishersOptIn: string[]}`
+  - **Also needed:** cover image upload (K3). The app shows the brand gradient and a "coming later" toast. "Token held" (K4) is collected but not checked yet (D-27).
 
 ### P1-11. Inbox and notifications · PARTLY DONE
 - **Done:** FCM v1 sending (`v4.ts:231-262`), device token registration (`v4.ts:195-199`), nudge push with one-per-day dedupe (`v4.ts:201-215`, `schema:49-57`), and the 2-hour deadline reminder (`v4.ts:286-294`). This matches the design's 2 h threshold. FCM delivery is still unverified per the README.
 - **Missing:** an inbox store with done/undone state (N1), and these pushes: review requested, Oath started, daily recap ready, Oath broken, Rematch available (+ reminder 1 day before the window closes), someone joined your Rematch, ready to claim, Bounty start/end, followed creator posted a Bounty.
 - **Change:** a `Notification` table, `GET /api/inbox`, `POST /api/inbox/:id/done`, and the push types above, sent from the same events.
 - **App today (Phase 2):** the bell count on every tab header is `unread` from the mock inbox (`InboxResponse` in `packages/shared/src/proposed.ts`: `{items: InboxItem[], unread: number}`, `unread` = items with `needsAction`).
+- **App today (Phase 4):** N1 is built. Each item opens its screen from `type` + `ref`, so the server must send a `ref`:
+  - invite → E2 (`ref.oath`, `ref.code`) · review → G1 (`ref.oath`, `ref.review`) · claim → J1 · rematch / broken → R1 · nudge / deadline → D2 (`ref.oath`) · recap → B5 · started → H3 (`ref.bounty`) or D2 · bounty → H2 (`ref.bounty`)
+  - I changed `ref.oath` in `InboxItem` from an address to any string (a mock Oath id isn't an address) and added `ref.code`. `unread` = items with `needsAction` and not `done`.
+  - "Accept" / "Decline" / "Mark all read" call `POST /api/inbox/done` `{ids: string[]}` (one call for many). M1 is the system tray's look; the push texts are in its copy.
 
 ### P1-12. Wallet screens (W1–W4) · PARTLY DONE
 - **Done:** a 5,000 SKR Devnet faucet (`v4.ts:73-98`).
 - **Missing:** it's **once per wallet** (`FaucetClaim.wallet @unique`, `schema:82-86`; 429 at `v4.ts:77`), there's no balances route (P0-10), no swap quote, and W1's history needs the activity route (P1-9).
 - **Decision:** DECISIONS D-21 (repeatable faucet as "Add SKR" on Devnet; swap is a mock on Devnet).
+- **App today (Phase 4):** W1–W4 are built.
+  - Balances are real (RPC) and the faucet is real (`POST /api/faucet`, with "already used" shown from the 429).
+  - The swap is a mock at 1 SOL ≈ 9,900 SKR: `WalletApi.quote(lamports)` → `{skr, skrPerSol, feeLamports}`, then `WalletApi.swap(lamports)` → `{skr}`. Not enough SOL comes back as `code: INSUFFICIENT_SOL` and opens M3.
+  - W1's "Locked in Oaths" and "In a Rematch" are summed in the app from the Oath views. "Recent" uses `GET /api/me/activity` (P1-9).
+  - W4 shows the real address and its QR.
 
 ### P1-13. Price · PARTLY DONE
 - **Now:** `GET /api/price` → `{usdPerSkr: 0.01, skrForUsd10: 1000, devnet: true, label: "placeholder rate"}` (`v4.ts:217`). It sits behind the auth and Genesis middleware (registered after `v4.ts:37` and `v4.ts:50`), so non-Seekers and signed-out screens (A1 chips) can't read it.
@@ -250,6 +291,7 @@ The checklist for the backend developer. Each line points to the full item below
 - **Design:** B2 chips "Streak 13" and "Kept rate 91%", F5 "Streak 13", L4 "Streak 14", D2/E2 member rows "91% · 64 days".
 - **App today (Phase 3):** streak chips are left out; kept rates show "New" for real members (mock members have the prototype's numbers).
 - **Change:** `GET /api/me/stats` → `{ streak: number, keptRate: number | null, rateDays: number }`, and `keptRate` / `rateDays` per member in `GET /api/oaths/:oath`.
+- **App today (Phase 4):** the mock `MyStats` the profile uses is `{streak, bestStreak, keptRate, rateDays, oaths: {kept, broken}, bounties: {survived, out}}`. Please return all of it from `GET /api/me/stats`.
 
 ### P1-17. Claim needs the member's token account to exist · NEW
 - **Now:** `claim` sends to `destination` (`lib.rs:194-214`), which must already be a token account of the stake mint. The app passes the member's associated token account. It exists if they staked from it, but not if they closed it afterwards.
