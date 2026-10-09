@@ -49,10 +49,10 @@ let seeded = false;
 let counter = 0;
 
 const BRANDS: Record<string, { verified: boolean; palette: number; detail: string; link: string | null }> = {
-  Drift: { verified: true, palette: 2, detail: "Two litres a day.\nSeven days. Don't blink.", link: "drift.water" },
+  Drift: { verified: true, palette: 3, detail: "Two litres a day.\nSeven days. Don't blink.", link: "drift.water" },
   Northbound: { verified: true, palette: 3, detail: "Run 5k every day\nfor 14 days.", link: null },
   Lotus: { verified: true, palette: 1, detail: "Ten minutes on the mat.\nEvery day this month.", link: null },
-  "@riffs": { verified: false, palette: 4, detail: "Strum daily.\nTwo weeks, no skipped days.", link: null },
+  "@riffs": { verified: false, palette: 2, detail: "Strum daily.\nTwo weeks, no skipped days.", link: null },
   Inkwell: { verified: true, palette: 0, detail: "Read before your phone.\n14 mornings.", link: "dawnpages.xyz" },
   "Forge Gym": { verified: true, palette: 3, detail: "Lift every day in October.", link: null },
   "Sprout Co": { verified: false, palette: 0, detail: "Water and photograph\nyour plant daily.", link: null },
