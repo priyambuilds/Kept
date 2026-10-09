@@ -2000,5 +2000,17 @@
    "remaining": "31",
    "joined": "40"
   }
+ },
+ "screens.B2.b4.chip.0": {
+  "template": "Streak {n}",
+  "sample": {
+   "n": "13"
+  }
+ },
+ "screens.B2.b4.chip.1": {
+  "template": "Kept rate {rate}%",
+  "sample": {
+   "rate": "91"
+  }
  }
 }

@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { keeperLines, t } from "@/copy";
 import { Button, ButtonRow } from "@/components/actions";
 import { BottomSheet } from "@/components/chrome";
-import { Banner, BodyText, Skeleton, Title } from "@/components/content/Basics";
+import { Banner, BodyText, Skeleton, Title, Chip, ChipRow } from "@/components/content/Basics";
 import { OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
@@ -22,7 +22,7 @@ import { useDeviceOaths } from "@/features/oaths/device";
 import { listNames, memberColor, memberInitial, memberName, objectIcon, skrWhole, weekday } from "@/features/oaths/present";
 import { TabScreen } from "../tabs/TabScreen";
 import { useResultMoments } from "../results/Results";
-import { useBounties } from "@/features/phase4";
+import { useBounties, useStats } from "@/features/phase4";
 
 const myToday = (v: OathView) => (v.me >= 0 ? v.members[v.me]! : null);
 const keptToday = (v: OathView) => myToday(v)?.pendingToday === false;
@@ -153,13 +153,22 @@ function AllDone({ items }: { items: OathView[] }) {
   const brands = useBrands();
   const k = keeperLines("B2")[0]!;
   const reset = Math.min(...items.map((v) => v.secondsToReset ?? Infinity));
-  const safe = items.map((v) => skrWhole(myToday(v)!.balance)).join(" + ");
+  // Free Bounties have nothing at stake: leave their 0 out of "1,043 + 500".
+  const safe = items.map((v) => myToday(v)!.balance).filter((b) => b > 0n).map(skrWhole).join(" + ");
+  const stats = useStats();
   return (
     <TabScreen tab="today" layout="B2">
       <BodyText text={t("screens.B2.b0.text", { kept: items.length, total: items.length, time: `<m>${hms(reset)}</m>` })} />
       <ScreenKeeper id="B2" lines={[k]} />
       <Title heading={t("screens.B2.b2.title")} sub={t("screens.B2.b2.sub", { amounts: safe })} />
       <RowList rows={items.map(rowOf(go, brands))} />
+      {/* B2 chips: the streak and kept rate from the profile stats (the backend has no streaks yet, P1-16). */}
+      {stats.data ? (
+        <ChipRow>
+          {stats.data.streak > 0 ? <Chip text={t("screens.B2.b4.chip.0", { n: stats.data.streak })} icon="fire" tone="ora" tilt={-2} /> : null}
+          {stats.data.keptRate !== null ? <Chip text={t("screens.B2.b4.chip.1", { rate: Math.round(stats.data.keptRate * 100) })} icon="shield-check-outline" tilt={2} /> : null}
+        </ChipRow>
+      ) : null}
     </TabScreen>
   );
 }
