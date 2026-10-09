@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { BN } from "@anchor-lang/core";
+import BN from "bn.js";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { accountsCoder, IDL, PROGRAM_ERRORS } from "./idl";
 import { decodeOath, memberSlotOffset, oathDiscriminator } from "./accounts";
