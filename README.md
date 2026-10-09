@@ -45,4 +45,9 @@ After the first install you only need Metro: `pnpm mobile:start`, then open **KE
 
 Deep link test: `adb shell am start -a android.intent.action.VIEW -d "kept://join/IRON-7K2Q"`.
 
+### Testing the core loop
+- **On the mock (one phone, fastest):** Dev menu → API mode `mock` + Mock wallet on. Pick a scenario (`activeGroup`, `deadlineClose`, `allDone`, `lowHp`, `broken`, `settledKept`, `settledMissed`, `proofFail`, `proofUnavailable`, `walletRejected`, `txFailed`, `noSol`, `noSkr`, `offline`). Use **End day** / **To deadline** to move time: a started mock Oath begins at the next midnight, other members prove on their own, and the Oath settles after its last day.
+- **On Devnet (two phones or two wallets, `hybrid` mode):** both wallets need devnet SOL and SKR (`POST /api/faucet` gives 5,000 SKR once). Phone 1: + → Start an Oath → Group → Sign & stake → Invite (QR). Phone 2: + → Join with code → scan → Join & stake. Phone 1: Start. Both: take photo 1 and photo 2 (photo 2 is checked by the API). For a quick settle, run the API against a program built with `debug-tools` and set `EXPO_PUBLIC_DAY_SECONDS=120` on both phones; after the last day, open the Oath and tap **Settle now** (or wait for the scheduler), then claim.
+- Solo Oaths in `hybrid` stay on the mock so they can carry a stake (D-30).
+
 See `docs/ARCHITECTURE.md` and `docs/BUILD_PLAN.md`.

@@ -40,6 +40,8 @@ Each phase ends with: `pnpm typecheck && pnpm lint && pnpm test` green, exact st
 **Phone milestone:** cold start → Splash → Welcome → **connect your real wallet and sign in against the local API** → A3 (allowlisted) or A3·no (not) → tabs. Tap every tab, `+`, bell, balance chip and Keeper mark. Open `kept://join/abc123` from `adb shell am start -d` and land on E1. Switch scenarios in the Dev menu.
 
 ## Phase 3: Core loop (A, B, F, C, D, E, J, L)
+**Status: done** (2026-10-09). Typecheck, lint and tests green (mobile: 70 tests, including end-to-end runs for onboarding, create, join, proof and results on the mock). Android bundle builds. The real-program path (create → join → start → proof → settle → claim on Devnet) is wired but hasn't been run on phones yet. R1 / G2 / H2 / I2 / I4 / W2 are still placeholders (Phase 4).
+
 Real where the backend and program support it, mock elsewhere:
 
 | Feature | Mode in `hybrid` | Notes |

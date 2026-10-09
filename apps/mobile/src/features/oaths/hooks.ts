@@ -15,6 +15,7 @@ import { useDeviceOaths } from "./device";
 import { oathView } from "./model";
 import type { OathFacts, OathSource, OathView } from "./model";
 import { oathName } from "./names";
+import { mockOaths } from "./mockStore";
 
 export const oathKeys = {
   all: ["oaths"] as const,
@@ -82,6 +83,16 @@ export const oathActions = {
     await getTx(o.source).joinOath(o.id);
     await getApi().oaths.watch(o).catch(() => undefined);
     await refreshOaths();
+  },
+  /** Leaving before Start has no program instruction (BACKEND_GAPS P1-3); mock Oaths only. */
+  async leave(o: OathFacts) {
+    if (o.source !== "mock") throw new Error("Leaving needs program support (BACKEND_GAPS P1-3)");
+    mockOaths.leave(o.id, useSession.getState().wallet ?? "");
+    await refreshOaths();
+  },
+  async nudge(o: OathFacts, recipients: string[], dayIndex: number) {
+    const api = getApi();
+    if (o.source === "chain") await Promise.all(recipients.map((recipient) => api.notify.nudge({ oath: o.id, recipient, dayIndex })));
   },
   async start(o: OathFacts) { await getTx(o.source).startOath(o.id); await refreshOaths(); },
   async cancel(o: OathFacts) { await getTx(o.source).cancelOath(o.id); await refreshOaths(); },

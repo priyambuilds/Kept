@@ -25,6 +25,14 @@
           "imageWidth": 112,
           "backgroundColor": "#131313"
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "KEPT uses the camera for your two daily proof photos and to scan invite QR codes.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
       ]
     ]
   }

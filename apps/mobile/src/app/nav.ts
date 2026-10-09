@@ -1,7 +1,7 @@
 // Navigation by design id. Screens never spell route names: they call go("D2"), replace("C7·ok"),
 // back(). Tab ids route into the Tabs navigator; signing screens are replaced, never pushed back to.
 import { useCallback, useMemo } from "react";
-import { CommonActions, StackActions, createNavigationContainerRef, useNavigation } from "@react-navigation/native";
+import { CommonActions, StackActions, createNavigationContainerRef, useNavigation, useRoute } from "@react-navigation/native";
 import type { NavigationProp, ParamListBase } from "@react-navigation/native";
 import { useSession } from "@/state/session";
 import { presentation, routeName } from "./routes";
@@ -52,4 +52,9 @@ export function navigateTo(id: DesignId, params?: Params) {
   if (!navigationRef.isReady()) return;
   const [n, p] = target(id, params);
   navigationRef.navigate(n, p);
+}
+
+/** Route params as strings/numbers (every screen reads them through this). */
+export function useParams<P extends Params>(): Partial<P> {
+  return (useRoute().params ?? {}) as Partial<P>;
 }

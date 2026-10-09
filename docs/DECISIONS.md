@@ -3,7 +3,7 @@
 Every open decision from `design/rules.md`, plus everything else I found ambiguous, with the assumption I'll build with.
 **Status:** `DECIDED` = answered by the product owner (2026-10-09) · `ACCEPTED` = my assumption, accepted by the product owner on 2026-10-09 · `ASSUMED` = made during a build phase, not yet reviewed · `ASK` = still open. Where the build differs from the design, it's also in `BACKEND_GAPS.md`.
 
-All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. Phase 2 added D-35 to D-42 (section E) for review.
+All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24), and every other assumption was accepted. Phase 2 added D-35 to D-42 (section E) and Phase 3 added D-43 to D-52 (section F) for review. D-52 (new copy) needs your OK.
 
 ## Rules amendments (owner-approved, 2026-10-09)
 `design/` is read-only in this repo (CLAUDE.md), so these amendments to `design/rules.md` live here. They override rules.md where they conflict, and `packages/engine` implements them.
@@ -17,6 +17,7 @@ All six questions were answered on 2026-10-09 (D-6, D-9, D-10, D-14, D-16, D-24)
 These strings aren't in `design/copy.json`. They go in `apps/mobile/src/copy/additions.json`, which `t()` reads alongside copy.json. Each one is listed here and nowhere else:
 - `"Starts tonight at midnight"`: D1 / D2 / B1 state between Start and day 1 (amendment 1).
 - `"Win back half of what you had left."`: R1 Rematch offer (amendment 3).
+- `additions.core.*`: Phase 3 strings for cases the design only shows one sample of (D-52). **Please review.**
 - `additions.placeholder.*`: dev-only note on screens not built yet (D-36). Removed once every screen exists.
 - Rename: creator action on D1 (sheet title, field label, save button), plus the generated-name word table (D-16). Exact wording to be proposed in Phase 3 for your review.
 
@@ -89,4 +90,18 @@ New assumptions made while building Phase 2. None touches money logic; all are e
 | D-40 | The avatar picked on A4 | Saved on the device (session store) and in the mock profile until profiles exist (BACKEND_GAPS P1-9). | ASSUMED |
 | D-41 | Mock wallet | The Dev menu can swap MWA for a mock wallet (for emulators with no wallet app). It only pairs with mock auth: the real backend rejects its signature. | ASSUMED |
 | D-42 | ESLint version | ESLint 9 in `apps/mobile`: `eslint-config-expo` 57 crashes on ESLint 10. | ASSUMED |
+
+## F. Phase 3 (core loop)
+| # | Question | Build with | Status |
+|---|---|---|---|
+| D-43 | Day boundary on **real** Oaths before the program change (P0-4) | Real Oaths follow the program as it is: day 1 at Start, 24 h windows from `start_ts` (otherwise the proof route rejects check-ins). D1·go says "Day 1 begins now." for real Oaths and "Starts tonight at midnight." for mock ones. | ASSUMED |
+| D-44 | Which Oath screen a card opens | Cards and rows open the screen for the Oath's state: D1 / D1·m while Open, D2 while running (including waiting for day 1 and "settling"), D3 broken, D4 ended or cancelled. | ASSUMED |
+| D-45 | Today with several Oaths | B4 wins when any unproved Oath is under the deadline; B2 when every Oath today is kept and nothing is claimable; B3 with no Oaths and nothing to claim; otherwise B1. The main card is the most urgent group Oath; the rest are rows. | ASSUMED |
+| D-46 | "Kept {time}" (B1 float, B2 rows) | No proof times exist yet (P0-2), so the float reads "Riya kept" and rows say "kept". | ASSUMED |
+| D-47 | Nudges | Only members with nothing in today; someone in group review isn't nudged. Real Oaths call `POST /api/nudges`; mock Oaths only show the toast. | ASSUMED |
+| D-48 | Streak chips (B2, F5, L4) | Left out until the backend has streaks (P1-16). Kept rate shows "New" for members without data. | ASSUMED |
+| D-49 | Keeper lines | Static lines from `copy.keeper.byScreen`, even where they name prototype people ("Arjun"). Data-aware lines come with the Keeper work in Phase 5. | ASSUMED |
+| D-50 | Results "shown once" | Results open automatically from Today or Oaths the first time a settled or broken Oath is seen (per device, D-29). Closing goes to D3/D4. | ASSUMED |
+| D-51 | The settle fallback | When a real Oath's last day is over and it isn't settled, D2 shows "The last day is over" with a **Settle now** button (permissionless `settle_oath`). | ASSUMED |
+| D-52 | New copy for cases the design shows only one sample of | `additions.core.*`: neutral D4 sub ("{names} missed some days. Their lost SKR went to everyone who kept."), "Everyone kept every day.", cancel when alone, "SKR · down {n}", settling title/sub, "Settle now", "Day 1 starts in {time}", lower-case names of the two backend-only gestures, list words. | ASK |
 

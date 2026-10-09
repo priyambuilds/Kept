@@ -17,7 +17,14 @@ import { M2 } from "@/screens/M2";
 import { Placeholder } from "@/screens/Placeholder";
 import { PlusSheet } from "@/screens/sheets/PlusSheet";
 import { A0, A1, A2, A2e, A2s, A3, A3no, A4 } from "@/screens/onboarding/Onboarding";
-import { BountiesTab, OathsTab, ProfileTab, TodayTab } from "@/screens/tabs/Tabs";
+import { BountiesTab, ProfileTab } from "@/screens/tabs/Tabs";
+import { RecapSheet, TodayTab } from "@/screens/today/Today";
+import { C1, C2, C3, C4, C5, C6, C7, C7ok, C8 } from "@/screens/create/Create";
+import { C7fail, C7no, M3, M4 } from "@/screens/shared/Signing";
+import { D1, D1go, D1m, D1x, D1xs, D2, D4, D5, OathsTab } from "@/screens/oaths/Oaths";
+import { E1, E2, E2s, E3code, E3elig, E3in, E3late, E3skr } from "@/screens/join/Join";
+import { F1, F1perm, F2, F2a, F2b, F2c, F3, F4, F4a, F4ag, F4chk, F5 } from "@/screens/proof/Proof";
+import { J1, J1f, J1ok, J1p, L1, L2, L3, L4, L4b, L4m } from "@/screens/results/Results";
 import { useSession } from "@/state/session";
 import { navigationRef } from "./nav";
 import { ROUTES, presentation, routeName } from "./routes";
@@ -29,6 +36,14 @@ const Tab = createBottomTabNavigator();
 /** Screens built so far; every other id renders Placeholder. */
 const BUILT: Partial<Record<DesignId, ComponentType>> = {
   A0, A1, A2, "A2·s": A2s, "A2·e": A2e, A3, "A3·no": A3no, A4, M2, "+": PlusSheet,
+  B5: RecapSheet,
+  C1, C2, C3, C4, C5, C6, C7, "C7·ok": C7ok, "C7·no": C7no, "C7·fail": C7fail, C8,
+  D1, "D1·m": D1m, "D1·x": D1x, "D1·xs": D1xs, "D1·go": D1go, D2, "D2·low": D2, D3: D2, D4, D5,
+  E1, E2, "E2·s": E2s, "E3·code": E3code, "E3·late": E3late, "E3·in": E3in, "E3·elig": E3elig, "E3·skr": E3skr,
+  "F1·perm": F1perm, F1, F2, F2a, F2b, F2c, F3, F4, "F4·chk": F4chk, F4a, "F4a·g": F4ag, F5,
+  J1, "J1·p": J1p, "J1·ok": J1ok, "J1·f": J1f,
+  L1, L2, L3, L4, "L4·m": L4m, "L4·b": L4b,
+  M3, M4,
 };
 const TAB_SCREENS: { id: DesignId; key: TabKey; component: ComponentType }[] = [
   { id: "B1", key: "today", component: TodayTab },
@@ -72,7 +87,8 @@ function blockBack<P extends object>(C: ComponentType<P>): ComponentType<P> {
 const flowIds = ROUTES.filter((r) => !["tab", "sheet", "moment"].includes(presentation(r.id)));
 const sheetIds = ROUTES.filter((r) => presentation(r.id) === "sheet");
 const momentIds = ROUTES.filter((r) => presentation(r.id) === "moment");
-const MomentPlaceholder = blockBack(Placeholder);
+/** Built once: wrapping inside render would remount every moment on each navigator render. */
+const MOMENTS = new Map(momentIds.map((r) => [r.id, blockBack(BUILT[r.id] ?? Placeholder)]));
 
 /**
  * `kept://join/<code>`: signed-in and onboarded users land on E1 with the code. Otherwise the code is
@@ -110,7 +126,7 @@ export function RootNavigator({ onReady }: { onReady?: () => void }) {
             options={r.id === "A0" ? { animation: "fade" } : presentation(r.id) === "modal" ? { animation: "slide_from_bottom" } : {}} />
         ))}
         <Stack.Group screenOptions={{ animation: "fade", gestureEnabled: false }}>
-          {momentIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={BUILT[r.id] ?? MomentPlaceholder} />)}
+          {momentIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={MOMENTS.get(r.id)!} />)}
         </Stack.Group>
         {/* Sheets draw their own scrim and slide (BottomSheet), over the screen below. */}
         <Stack.Group screenOptions={{ presentation: "transparentModal", animation: "none", contentStyle: { backgroundColor: "transparent" } }}>

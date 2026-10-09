@@ -22,7 +22,5 @@ function TabPlaceholder({ tab, id }: { tab: TabId; id: DesignId }) {
   );
 }
 
-export const TodayTab = () => <TabPlaceholder tab="today" id="B1" />;
-export const OathsTab = () => <TabPlaceholder tab="oaths" id="D0" />;
 export const BountiesTab = () => <TabPlaceholder tab="bounties" id="H1" />;
 export const ProfileTab = () => <TabPlaceholder tab="profile" id="I1" />;
