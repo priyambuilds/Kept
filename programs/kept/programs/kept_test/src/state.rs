@@ -24,6 +24,8 @@ pub struct Keeper {
     pub last_kept_day: i64,
     pub bump: u8,
     pub version_tag: [u8; 8],
+    /// Reserved to keep the V4 account allocation stable for future fields.
+    pub reserved: [u8; 57],
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, InitSpace, Default, PartialEq, Eq)]
