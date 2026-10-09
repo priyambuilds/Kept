@@ -238,6 +238,8 @@ export function AvatarBuilder({ config, onChange, variant = "full", tab = 0, onT
       </View>
       {edit && onBanner ? (
         <View style={{ flexDirection: "row", alignItems: "center", gap: space[8] }}>
+          {/* reference › I8: the swatches carry a "Banner" label. */}
+          <Text variant="caption" color={color.text.tertiary}>{t("additions.avatarBuilder.banner")}</Text>
           {([0, 1, 2, 3, 4] as const).map((i) => (
             <PressScale key={i} onPress={() => onBanner(i)} accessibilityState={{ selected: bannerIndex === i }} accessibilityLabel={t("additions.a11y.banner", { n: i + 1 })}>
               <Gradient g={banner(i)} style={{ width: a.bannerSwatch[0], height: a.bannerSwatch[1], borderRadius: 9, ...(bannerIndex === i ? { boxShadow: `0 0 0 2px ${color.bg.app}, 0 0 0 4px ${color.text.primary}` } : {}) }} />
