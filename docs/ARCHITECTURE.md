@@ -35,7 +35,7 @@
 
 | Change | Why |
 |---|---|
-| **Added `packages/chain`** | The Oath account is decoded by hand with byte offsets in two places today (`backend/src/routes/v4.ts:362-376` and `backend/kept-example/app/src/chain/oaths.ts:20-27`), and the instruction discriminators are hashed by hand in the API (`v4.ts:326`, `v4.ts:379`). One package that owns the IDL, PDAs, decoder and instruction builders lets the mobile `TxService` and the new API read routes share one source. The **existing** API routes keep their own code in Phase 0 (no behavior change); they can switch later. |
+| **Added `packages/chain`** | The Oath account is decoded by hand with byte offsets in two places today (`backend/src/routes/v4.ts:362-376` and `backend/kept-example/app/src/chain/oaths.ts:20-27`), and the instruction discriminators are hashed by hand in the API (`v4.ts:326`, `v4.ts:379`). One package that owns the IDL, PDAs, decoder and instruction builders gives the mobile `TxService` and the app's on-chain reads one source. The backend can adopt it later if the backend developer wants to (`apps/api` is read-only for us). |
 | **Program crate keeps the name `kept_test`** (folder is `programs/kept`) | Renaming the crate changes the IDL file name, `metadata.name` and the generated `KeptTest` type. The program ID (`6iXX…MUh`) and the discriminators don't depend on the crate name, but there's no benefit to the churn, and CLAUDE.md says not to change the program. A rename can go to the backend developer as a P2 item. |
 | **Anchor workspace root is `programs/kept`, not `programs/`** | `Anchor.toml`, `Cargo.toml`, `Cargo.lock` and `tests/` move as one unit, so `anchor build` / `cargo test` keep working unchanged from that folder. |
 | **IDL lives in `packages/chain/idl/`** | Today it's copied into the app (`kept-example/app/scripts/sync-idl.js`). One copy, synced from `programs/kept/target/` by a script in `packages/chain`. |
@@ -54,7 +54,7 @@ Dead V3 Rust files inside `programs/kept_test/src/` (`constants.rs`, `day.rs`, `
 - **`.npmrc`: `node-linker=hoisted`.** React Native autolinking, Gradle and Metro are most reliable with a flat `node_modules`, and the Anchor TS tests expect it too. If Expo still has trouble, the fallback is npm workspaces (per CLAUDE.md); the layout stays the same.
 - **Build scripts:** Prisma, esbuild and the native modules need install scripts. They're allowlisted in `pnpm-workspace.yaml`, replacing the npm-11 `allowScripts` block in `backend/package.json`.
 - **Node:** `engines.node >= 20` (the backend's current constraint). Local Node is 26.7.
-- **Internal package format:** packages are TypeScript source. Each one has `exports` with a `react-native` condition pointing at `src/index.ts` (Metro compiles it directly) and a `default` condition pointing at `dist/` built by `tsc -b` (for `apps/api`, which runs compiled ESM in production).
+- **Internal package format:** packages are TypeScript source. Each one has `exports` with a `react-native` condition pointing at `src/index.ts` (Metro compiles it directly) and a `default` condition pointing at `dist/` built by `tsc -b` (for any Node consumer; `apps/api` doesn't use these packages today and is the backend developer's code).
 - **Root scripts:** `pnpm typecheck`, `pnpm lint`, `pnpm test` (all packages), `pnpm api:dev`, `pnpm mobile:android`, `pnpm idl:sync`, `pnpm theme:gen`.
 - **Rust is outside pnpm.** `programs/kept` keeps its Cargo workspace. `cargo`, `anchor` and `solana` are **not installed on this machine**, so I can't build or run the program's tests here. See DECISIONS D-24.
 - **Secrets:** a root `.gitignore` covers `.env*` (except `.env.example`), keypairs, `target/`, `android/`, `.DS_Store`, `node_modules/` and `dist/`. I checked: there are no `.env` or keypair files in the tree today.
@@ -79,8 +79,8 @@ Dead V3 Rust files inside `programs/kept_test/src/` (`constants.rs`, `day.rs`, `
          │──────────────────────────────► programs/kept (Rust tests, later)
          ▼              ▼                 ▼
    ┌──────────────────────────────────────────────┐
-   │ apps/mobile   uses engine + shared + chain   │──HTTP──► apps/api
-   │ apps/api      uses engine + shared + chain   │◄─RPC───► Solana Devnet ◄── programs/kept (deployed)
+   │ apps/mobile   uses engine + shared + chain   │──HTTP──► apps/api (read-only for us)
+   │                                              │◄─RPC───► Solana Devnet ◄── programs/kept (deployed)
    └──────────────────────────────────────────────┘
 ```
 

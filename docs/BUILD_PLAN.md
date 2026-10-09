@@ -21,7 +21,7 @@ Each phase ends with: `pnpm typecheck && pnpm lint && pnpm test` green, exact st
 ## Phase 1: Packages, scaffold, theme, components, Gallery
 - `packages/config` (objects in on-chain order, gestures, stakes, lengths, `GOAL_MAX = 60`, fee bps, HP constants, tsconfig/eslint presets).
 - `packages/engine`: `missCost`, `simulateOath(days pattern) → per-day ledger {hp, lost, fee, shares, burned, broken}`, `settlement`, `rematchRecovery`, `keptRate`, `odds`. **Worked-example test** (1,468.75 / 779.17 / 1,468.75 / 166.67, fee 116.67) plus edge cases (cap, solo, all-miss day, break day, 14 days) exported to `test-vectors/*.json`.
-- `packages/shared` (zod schemas for every existing route + the planned read routes, `ApiErrorCode` enum) and `packages/chain` (IDL from the harness JSON, PDAs, IDL-coder decoder tested against a fixture account, instruction builders).
+- `packages/shared` (zod schemas for every existing route + the proposed routes in BACKEND_GAPS (marked proposed), `ApiErrorCode` enum) and `packages/chain` (IDL from the harness JSON, PDAs, IDL-coder decoder tested against a fixture account, instruction builders).
 - `apps/mobile`: Expo SDK 57 dev build, `app.kept.mobile`, fonts, `theme:gen` from tokens.json, `t()` + templates with the exact-match test, ESLint rules banning raw colors/numbers/strings.
 - **Every component in components.md** with tests, plus the dev-only **Gallery** showing every state (Keeper uses the PNG fallback, D-33).
 
@@ -45,7 +45,7 @@ Real where the backend and program support it, mock elsewhere:
 | Create solo Oath | **mock** (stake) / real with stake 0 in `http` | D-30 |
 | Join by code / QR / link (E1–E3) | **real** | error states mapped by status (P1-14) |
 | Start, Cancel (D1·go, D1·x) | **real** | cancel refund claim: D-31 |
-| Today list, Oaths list, D2 view, recap | **real** via new read-only routes in `apps/api` using the engine | P0-10 |
+| Today list, Oaths list, D2 view, recap | Oath accounts **real** from RPC, details from `/api/oaths/:oath/details`; HP, grid and balances **computed in the app** with the engine; Oath index and proof status **mock** until the backend adds them | P0-10 |
 | Daily proof F1–F5 | photo 1 **mock**, photo 2 **real** `/api/proof` (dev force, D-23) | F2b/F2c from mock |
 | HP / break (D2·low, D3, L3) | engine estimate from real bitmasks; break is display-only on real Oaths | P0-5 |
 | Settle | **real** (scheduler, or permissionless app fallback) | P0-9 |

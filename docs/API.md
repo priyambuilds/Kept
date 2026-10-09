@@ -88,5 +88,5 @@ Devnet only. Sends 5,000 SKR once per wallet → `200 {signature, amount: "5000"
 
 ---
 
-## Routes added for the mobile app
-None yet. Read-only aggregation routes (`GET /api/me/oaths`, `GET /api/oaths/:oath/view`, `…/recap`, `…/settlement`, `GET /api/balances`) are planned for Phase 3 and will be documented here (BACKEND_GAPS P0-10).
+## Proposed routes (not implemented)
+The app codes against these through `KeptApi` with a **mock** until the backend developer adds them. Shapes and reasons are in `BACKEND_GAPS.md` (P0-2, P0-10, P1-1, P1-2, P1-7, P1-9, P1-10, P1-11, P1-14). Each one is **proposed**: none exists in `apps/api` today.
