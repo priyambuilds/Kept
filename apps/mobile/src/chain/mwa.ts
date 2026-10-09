@@ -110,10 +110,24 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
       if (!key.equals(payer)) throw new Error(`Wallet switched accounts: expected ${payer.toBase58()}, got ${key.toBase58()}`);
       return w.signAndSendTransactions({ transactions: [tx], minContextSlot }); // Phantom rejects without minContextSlot
     });
-    if (!signature) throw new Error("Wallet returned no signature");
-    const res = await c.confirmTransaction({ signature, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, "confirmed");
-    if (res.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(res.value.err)}`);
-    return signature;
+    try {
+      const res = await c.confirmTransaction({ signature, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, "confirmed");
+      if (res.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(res.value.err)}`);
+      return signature;
+    } catch (confirmErr: unknown) {
+      try {
+        const status = await c.getSignatureStatus(signature, { searchTransactionHistory: true });
+        if (status?.value) {
+          if (status.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(status.value.err)}`);
+          if (status.value.confirmationStatus === "confirmed" || status.value.confirmationStatus === "finalized") return signature;
+        }
+        const txInfo = await c.getTransaction(signature, { commitment: "confirmed", maxSupportedTransactionVersion: 0 });
+        if (txInfo && !txInfo.meta?.err) return signature;
+      } catch (verifyErr: unknown) {
+        if (verifyErr instanceof Error && verifyErr.message.includes("failed on chain")) throw verifyErr;
+      }
+      throw confirmErr;
+    }
   } catch (e) {
     throw classifyTxError(e);
   }
