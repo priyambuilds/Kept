@@ -6,10 +6,11 @@
 // - flow screens open the note once on entry and close it after 4.8 s; the nav bar then shows the mark;
 // - the note always closes on blur (navigation, tab change, a sheet opening, back) and lives inside its
 //   screen, so it can never stay up on another screen.
-import { createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import { create } from "zustand";
+import { useScreenFocused } from "@/lib/focus";
 import type { KeeperLine, KeeperMood } from "@/copy";
 import { metrics } from "@/theme";
 import { keeperAt, layoutOf } from "@/app/layout";
@@ -61,14 +62,7 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
   const [index, setIndex] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoOpened = useRef(false);
-  // Read through a store so a focus that fires before any listener subscribes (a reset, a deep link) is seen.
-  const subscribe = useCallback((cb: () => void) => {
-    if (!nav) return () => {};
-    const a = nav.addListener("focus", cb);
-    const b = nav.addListener("blur", cb);
-    return () => { a(); b(); };
-  }, [nav]);
-  const focused = useSyncExternalStore(subscribe, () => (nav ? nav.isFocused() : true));
+  const focused = useScreenFocused();
   const key = lines && id ? lineKey(id, lines) : null;
   const seen = useSeen((s) => (key ? !!s.seen[key] : true));
   const markSeen = useSeen((s) => s.mark);
