@@ -3,6 +3,9 @@ packages:
   - packages/*
   - programs/kept
 
+# React Native autolinking, Gradle and Metro are most reliable with a flat node_modules.
+nodeLinker: hoisted
+
 # Dependencies allowed to run install scripts (replaces the npm-11 "allowScripts"
 # block that used to live in backend/package.json).
 allowBuilds:

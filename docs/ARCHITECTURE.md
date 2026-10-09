@@ -51,7 +51,7 @@ Dead V3 Rust files inside `programs/kept_test/src/` (`constants.rs`, `day.rs`, `
 ## 2. Package manager and workspace setup
 
 - **pnpm workspaces** (pnpm 12.6 is installed here). `pnpm-workspace.yaml` lists `apps/*`, `packages/*`, `programs/kept` (for its TS LiteSVM tests only). `legacy/` is excluded.
-- **`.npmrc`: `node-linker=hoisted`.** React Native autolinking, Gradle and Metro are most reliable with a flat `node_modules`, and the Anchor TS tests expect it too. If Expo still has trouble, the fallback is npm workspaces (per CLAUDE.md); the layout stays the same.
+- **`nodeLinker: hoisted`** (in `pnpm-workspace.yaml`; pnpm 12 ignores `.npmrc` for this). React Native autolinking, Gradle and Metro are most reliable with a flat `node_modules`, and the Anchor TS tests expect it too. If Expo still has trouble, the fallback is npm workspaces (per CLAUDE.md); the layout stays the same.
 - **Build scripts:** Prisma, esbuild and the native modules need install scripts. They're allowlisted in `pnpm-workspace.yaml`, replacing the npm-11 `allowScripts` block in `backend/package.json`.
 - **Node:** `engines.node >= 20` (the backend's current constraint). Local Node is 26.7.
 - **Internal package format:** packages are TypeScript source. Each one has `exports` with a `react-native` condition pointing at `src/index.ts` (Metro compiles it directly) and a `default` condition pointing at `dist/` built by `tsc -b` (for any Node consumer; `apps/api` doesn't use these packages today and is the backend developer's code).
