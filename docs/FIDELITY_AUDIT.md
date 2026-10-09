@@ -212,7 +212,51 @@ Findings from the code:
 
 ---
 
-## Handoff: progress and exact next steps (end of session 1, 2026-10-10)
+## Status after session 2 (2026-10-10)
+
+### Fixed (session 2, steps 1–11 of the session-1 list)
+| Item | Fix | Commit |
+|---|---|---|
+| WIP | typecheck / lint / tests green; rig palette moved to `theme/keeperRig.ts`; Jest mock for `useFrameCallback` | Keeper: per-screen host… |
+| S2, S3, S4, N1, L-3 | `Screen` hosts the Keeper (`useKeeperHost`): AppHeader/NavBar read the mark (dot + knock while unread); notes close on blur; `KeeperNoteHost` and `useUi.keeperNote` removed. All screens use `ScreenKeeper` (inline only at size ≥ 120 or on sheets) | same |
+| S6 | Screen-enter choreography: blocks `Enter` at 40 + 65·i, pinned at 200 ms, tabs replay on focus. Note-only Keepers mount outside the block list (regression caught by the new KeeperNote test) | Screen: enter choreography…; Tests: … |
+| S7, N2 | `useSheetRoute`: back / scrim / swipe / Close slide the sheet down (300 ms) before the route is removed (D-75) | Sheets: slide down… |
+| S12 | + / W2 Close secondary; D1·x `close` icon; M3/M4 `water-outline`, M4 primary white; W2 swap tile lime; note icons | same |
+| S5, L-1 | `gridToday(dayIndex)`; D2 / D2·low / R·act light today's day; test | Grid: today's column… |
+| S11, P-1 | HPPanel, MoneyMoment, KeptRateRing count with the leaf `CountText` | Motion: leaf count-ups… |
+| S15 | Option select eases its tilt (`Tilt`, 250 ms spring); Toggle already slid 150 ms | same |
+| S17 | Proof fail: gesture badge `Shake` + `notificationError` | same / Haptics |
+| S18, S19 | Toast fades out 200 ms, pops springHard; Bell badge springHard; SignStatus icon springHard | same |
+| S16 | Splash: check draw 320 ms at 350, stem 600, leg 750, KEPT 900, tagline 1050, impactLight at 350 (checked on the emulator) | Splash… |
+| S8 | Haptics: FX moments (kept / payout / broken / comeback via `playFx(…, feel)`), impactLight per value pill, signing success/fail, proof pass/fail, splash | Haptics… |
+| S13 | Brand stamp is the last content block (F5, J1·ok, L1/L2/L4, L6, H5) | Brand stamp… |
+| I1 | "Make it yours" banner (vio) until opened once (D-76) | I1: … |
+| B1, B4 (D-73) | Main card stacked; pending Bounties as a small tilted card (31 of 40 in · Not started · Prove) | B1: … |
+| N3, N4, N5 | Signing blocks hardware back only while pending; moments only until settled (1.6 s, D-74); a join link pops back to the E1 in the stack with the new code | Routing: … |
+| N7 + tests | `__tests__/routes.test.ts` (flows.md table: every edge wired and resolvable, every screen reachable from launch or its event, signing transient) and `__tests__/keeperNote.test.tsx` (tab never auto-opens, mark toggles, idle line, flow drops and closes at 4.8 s, closes on navigation, never leaks) | Tests: … |
+| L-2, P-2 | `useNow` pauses while its screen is unfocused (`lib/focus.ts › useScreenFocused`, shared with the Keeper host) | Clocks pause… |
+
+Checked on the emulator (dev build): B1 mark dot + knock, tap drops the note with the parametric bust; D2 drops the note on entry from the nav mark; + sheet slides down on back; splash sequence; F5 (parametric Keeper thumbs, stamp last); B1 stacked + Bounty card.
+
+### Remaining
+| # | P | What |
+|---|---|---|
+| S20 | P2 | HP damage / heal from the last-seen value (lost segments fade + ring, heal pop) and the BalanceChip count + pop on change. Needs a "last seen HP per Oath" store. |
+| S14 / R1 | P1 | R1: the chips "6d 23h left" / "+500 SKR" float around the Keeper (pass chip texts: `<ScreenKeeper id="R1" … {...keeperAt("R1", [left, amount])}>`); orbs are wired through `keeperAt` (verify A1, L1, J1·ok, L6 on device). |
+| A1 | P1 | Chip positions ("1,000 SKR pot" bottom-left, "3-to-1 on you" right): use the layout's chip spots instead of the hand-placed chips. |
+| C1 | P1 | Input focused on entry (lime ring + caret) as the PDF. |
+| D0 | P1 | Active cards use the default (gradient) card. |
+| P2 rows | P2 | A2 wallet glyphs, B2 kept times + chips (D-46/48), H6 finisher icons, I2 social glyph, I3 cover, I5 row tiles, I7 row icons, I8 "Banner" label + focus, L5 "Eliminated" fixture, N1 leading tiles. |
+| §7 | — | Release-build perf numbers (see below). |
+
+### Next steps, in order
+1. R1 / A1 chips through `keeperAt(id, texts)`; check orbs on A1, R1, L1, J1·ok, L6 on the emulator.
+2. C1 autofocus; D0 default card variant.
+3. S20 (HP last-seen store + BalanceChip pop), with a test.
+4. The P2 rows above, group by group.
+5. Re-shoot (`pnpm --filter @kept/mobile shoot`, then `compare`), release build (`EXPO_PUBLIC_API_MODE=mock`), `node scripts/perf.mts <apk> --out artifacts/perf/after.json`, fill §7.
+
+## Session 1 handoff (kept for history)
 
 ### Done
 - Audit written (this file), Design.pdf cropped per screen (`apps/mobile/scripts/pdf-screens.py` → `artifacts/pdf/`), compare page has app · prototype · PDF columns. Baseline app shots: `artifacts/before/` (116/116, no errors).
