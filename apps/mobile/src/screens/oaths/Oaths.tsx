@@ -57,11 +57,11 @@ export function OathsTab() {
     <TabScreen tab="oaths">
       <ScreenKeeper id="D0" lines={k} />
       {active.length ? <BodyText mono text={t("screens.D0.b1.text", { n: active.length })} /> : <Note text={t("additions.core.noOathsYet")} />}
-      {active.map((v) => {
+      {active.map((v, i) => {
         const me = v.me >= 0 ? v.members[v.me]! : null;
         const pending = v.members.filter((m) => !m.isMe && m.pendingToday);
         return (
-          <OathCard key={v.facts.id} variant="sm" icon={objectIcon(v.facts.objectId)} name={v.facts.name} onPress={() => open1(v)}
+          <OathCard key={v.facts.id} variant="sm" tilt={i % 2 ? 1 : 0} icon={objectIcon(v.facts.objectId)} name={v.facts.name} onPress={() => open1(v)}
             meta={v.facts.isSolo ? t("screens.D0.b3.meta", { day: v.dayNumber, length: v.facts.numDays }) : t("screens.D0.b2.meta", { day: v.dayNumber, length: v.facts.numDays })}
             hp={v.hp}
             tags={[

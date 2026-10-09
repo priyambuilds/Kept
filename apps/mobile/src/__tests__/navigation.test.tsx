@@ -7,11 +7,13 @@ import { ToastHost } from "@/components/chrome";
 import { queryClient } from "@/api/queries";
 import { SLICES } from "@/api/types";
 import { RootNavigator, routeInvite } from "@/app/RootNavigator";
+import { FxHost } from "@/app/hosts";
 import { navigateTo } from "@/app/nav";
 import { ROUTES, presentation, routeName } from "@/app/routes";
 import { STILL_OFFLINE } from "@/screens/M2";
 import { useDev } from "@/state/dev";
 import { useSession } from "@/state/session";
+import { useUi } from "@/state/ui";
 import { useDeviceOaths } from "@/features/oaths/device";
 import { mockOaths } from "@/features/oaths/mockStore";
 import { mockBounties } from "@/features/bounties/mockStore";
@@ -26,7 +28,7 @@ function App() {
   return (
     <SafeAreaProvider initialMetrics={metrics}>
       <QueryClientProvider client={queryClient}>
-        <ToastHost><RootNavigator /></ToastHost>
+        <ToastHost><RootNavigator /><FxHost /></ToastHost>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
@@ -124,8 +126,11 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("screens.C6.b1.row0.v", { goal: "read 20 pages" }))).toBeTruthy();
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.C6.pin.0") }));
     expect(await screen.findByText(t("screens.C7·ok.b2.title", { amount: "1,000" }), {}, slow)).toBeTruthy();
+    expect(useUi.getState().fx?.kind).toBe("coins");
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.C7·ok.pin.0") }));
     expect(await screen.findByText(t("screens.C8.b0.title"))).toBeTruthy();
+    // The moment's coins stay with it: leaving C7·ok clears the FX layer.
+    expect(useUi.getState().fx).toBeNull();
   }, 30000);
 
   it("shows a settled Oath's result once, then the claim screen", async () => {
@@ -152,7 +157,7 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("toasts.3", { name: "Arjun" }))).toBeTruthy();
     await fireEvent.press(screen.getByRole("button", { name: t("screens.D2.pin.0") }));
     await fireEvent.press(await screen.findByLabelText(t("additions.a11y.shutter")));
-    expect(await screen.findByText(t("screens.F5.b1.title", { day: 3 }), {}, slow)).toBeTruthy();
+    expect((await screen.findAllByText(t("screens.F5.b1.title", { day: 3 }), {}, slow)).length).toBeGreaterThan(0); // title + FX pill
   }, 30000);
 
   it("an expired challenge from earlier is replaced, not sent to F2c (found on the emulator)", async () => {
@@ -168,7 +173,7 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("screens.F4.b1.chip.0"))).toBeTruthy();
     expect(screen.queryByText(t("screens.F2c.b0.title"))).toBeNull();
     await fireEvent.press(await screen.findByLabelText(t("additions.a11y.shutter")));
-    expect(await screen.findByText(t("screens.F5.b1.title", { day: 3 }), {}, slow)).toBeTruthy();
+    expect((await screen.findAllByText(t("screens.F5.b1.title", { day: 3 }), {}, slow)).length).toBeGreaterThan(0); // title + FX pill
     expect(screen.queryByText(t("screens.F2c.b0.title"))).toBeNull();
   }, 30000);
 

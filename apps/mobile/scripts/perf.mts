@@ -29,12 +29,13 @@ function dump(): Node[] {
 }
 /**
  * Tap by text; release builds run ambient loops, so uiautomator often never goes idle and finds nothing.
- * `at` is the fallback position (1080×2400 emulator, px) used after a few tries.
+ * `at` is the position on the 1080×2400 emulator (px); when given it's tapped directly.
  */
 async function tap(q: string, at?: [number, number], timeoutMs = 15000) {
   const end = Date.now() + timeoutMs;
-  for (let tries = 0; ; tries++) {
-    if (at && tries >= 1) { adb("shell", "input", "tap", String(at[0]), String(at[1])); return; }
+  for (;;) {
+    // uiautomator dumps can block for many seconds in release (never idle): with a known spot, skip them.
+    if (at) { adb("shell", "input", "tap", String(at[0]), String(at[1])); return; }
     const n = dump().find((d) => d.text === q || d.desc === q || d.desc.startsWith(`${q},`) || d.text.split("&#10;").includes(q));
     if (n) { adb("shell", "input", "tap", String(Math.round(n.x)), String(Math.round(n.y))); return; }
     if (Date.now() > end) throw new Error(`not found: ${q}`);

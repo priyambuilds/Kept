@@ -24,6 +24,7 @@ import { useNow } from "@/features/time";
 import { useSession } from "@/state/session";
 import { useUi } from "@/state/ui";
 import { SigningScreen } from "../shared/Signing";
+import { keeperAt } from "@/app/layout";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const signed = (u: bigint) => (u > 0n ? `+${skrWhole(u)}` : u < 0n ? skrWhole(u) : "0");
@@ -61,11 +62,8 @@ export function R1() {
       <Button kind="l" icon="sword-cross" label={t("screens.R1.pin.0")} disabled={left <= 0} onPress={() => go("R2", { id: f.id })} />
       <Button kind="t" label={t("screens.R1.pin.1")} onPress={back} />
     </>}>
-      <ChipRow>
-        <Chip text={t("screens.R1.b0.chip.0", { amount: skrWhole(held) })} icon="sack" tone="lime" />
-        <Chip text={t("screens.R1.b0.chip.1", { time: shortDuration(left) })} icon="timer-sand" tone="ora" />
-      </ChipRow>
-      <ScreenKeeper id="R1" lines={[k]} />
+      {/* The chips float around the Keeper at the design's spots (layout.gen.json). */}
+      <ScreenKeeper id="R1" lines={[k]} chips={keeperAt("R1", [t("screens.R1.b0.chip.0", { amount: skrWhole(held) }), t("screens.R1.b0.chip.1", { time: shortDuration(left) })]).chips ?? []} />
       <Title heading={t("screens.R1.b1.title", { amount: skrWhole(held) })} sub={t("additions.rematch.winBackHalf")} />
       <Breakdown rows={[
         { label: t("screens.R1.b2.row0.l"), value: t("screens.R1.b2.row0.v", { name: f.name, n: f.numDays, object: objectName(f.objectId) }) },

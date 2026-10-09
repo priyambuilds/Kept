@@ -1,6 +1,7 @@
 // Transient UI driven from anywhere: FX bursts, the Dev menu. (The Keeper's note lives in its screen:
 // components/keeper/ScreenKeeper.)
 import { create } from "zustand";
+import { navigationRef } from "@/app/nav";
 import type { FxKind, FxPill } from "@/components/chrome";
 
 /**
@@ -10,17 +11,23 @@ import type { FxKind, FxPill } from "@/components/chrome";
 export type FxFeel = "kept" | "payout" | "broken" | "comeback" | "none";
 
 export interface UiState {
-  fx: { kind?: FxKind; pills: FxPill[]; feel: FxFeel; id: number } | null;
+  /** `route`: the key of the screen that played it; the layer clears when that screen isn't current. */
+  fx: { kind?: FxKind; pills: FxPill[]; feel: FxFeel; id: number; route?: string } | null;
   devMenu: boolean;
-  playFx(kind: FxKind | undefined, pills?: FxPill[], feel?: FxFeel): void;
+  playFx(kind: FxKind | undefined, pills?: FxPill[], feel?: FxFeel, route?: string): void;
   clearFx(): void;
   setDevMenu(open: boolean): void;
 }
 
+const currentRouteKey = () => (navigationRef.isReady() ? navigationRef.getCurrentRoute()?.key : undefined);
+
 export const useUi = create<UiState>()((set) => ({
   fx: null, devMenu: false,
-  playFx: (kind, pills = [], feel) => set((s) => ({
-    fx: { ...(kind ? { kind } : {}), pills, feel: feel ?? (kind === "coins" ? "payout" : kind === "embers" ? "broken" : "none"), id: (s.fx?.id ?? 0) + 1 },
+  playFx: (kind, pills = [], feel, route) => set((s) => ({
+    fx: {
+      ...(kind ? { kind } : {}), pills, feel: feel ?? (kind === "coins" ? "payout" : kind === "embers" ? "broken" : "none"), id: (s.fx?.id ?? 0) + 1,
+      ...(route ?? currentRouteKey() ? { route: route ?? currentRouteKey()! } : {}),
+    },
   })),
   clearFx: () => set({ fx: null }),
   setDevMenu: (devMenu) => set({ devMenu }),

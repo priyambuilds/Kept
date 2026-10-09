@@ -16,7 +16,6 @@ import { SignStatus } from "@/components/content/Status";
 import { randomAvatar } from "@/components/avatar/palette";
 import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
-import { Enter } from "@/components/primitives";
 import { color, duration, metrics } from "@/theme";
 import { getApi, isApiError } from "@/api";
 import { getWallet, isTxFailure } from "@/chain";
@@ -27,6 +26,7 @@ import { useSigningFlow } from "@/app/useSigningFlow";
 import type { SignOutcome } from "@/app/useSigningFlow";
 import { useSession } from "@/state/session";
 import { useDevHold } from "@/state/dev";
+import { keeperAt } from "@/app/layout";
 
 /** Splash shows at least this long so the brand sequence can play (motion.md › splash). */
 const SPLASH_MIN_MS = 1200;
@@ -73,11 +73,9 @@ export function A1() {
         <Button kind="t" label={t("screens.A1.pin.1")} onPress={() => { setInvite(useSession.getState().invite ?? ""); go("A2"); }} />
       </>}
     >
-      <ScreenKeeper id="A1" lines={[k]} chips={[
-        { text: t("screens.A1.b1.chip.0"), icon: "sack", x: 200, y: 150, tilt: 4, tone: "lime" },
-        { text: t("screens.A1.b1.chip.1"), icon: "cards-playing-outline", x: 190, y: 200, tilt: -3, tone: "white" },
-      ]} />
-      <Enter index={1}><Title heading={t("screens.A1.b2.title")} sub={t("screens.A1.b2.sub")} fs={32} /></Enter>
+      {/* Chip spots, icons and tones are the design's (layout.gen.json); the texts are copy. */}
+      <ScreenKeeper id="A1" lines={[k]} chips={keeperAt("A1", [t("screens.A1.b1.chip.0"), t("screens.A1.b1.chip.1")]).chips ?? []} />
+      <Title heading={t("screens.A1.b2.title")} sub={t("screens.A1.b2.sub")} fs={32} />
     </Screen>
   );
 }

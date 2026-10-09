@@ -11,6 +11,12 @@ import { designIdOf } from "./routes";
 export function FxHost() {
   const fx = useUi((s) => s.fx);
   const id = fx?.id;
+  // FX belong to the screen that played them: leaving it (navigation, back, a tab change) clears the
+  // layer, so falling coins and embers never loop on the next screen.
+  useEffect(() => navigationRef.addListener("state", () => {
+      const cur = useUi.getState().fx;
+      if (cur?.route && navigationRef.getCurrentRoute()?.key !== cur.route) useUi.getState().clearFx();
+  }), []);
   // One haptic sequence per moment, plus impactLight per value pill as it rises.
   useEffect(() => {
     const cur = useUi.getState().fx;
