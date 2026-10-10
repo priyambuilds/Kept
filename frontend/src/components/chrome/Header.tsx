@@ -2,7 +2,7 @@
 // for flow screens. The real Android status bar is kept; the badge sits in a row under it.
 import { useState } from "react";
 import { Pressable, View } from "react-native";
-import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { interpolateColor, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, metrics, space } from "@/theme";
 import { Icon, Pop, PressScale, Text, useAnimationLifecycle, Bump, CountText } from "../primitives";
@@ -124,8 +124,9 @@ export function StepBar({ current, total }: { current: number; total: number }) 
 const STEP_LEVEL = { next: 0, current: 1, done: 2 } as const;
 function Step({ state }: { state: "done" | "current" | "next" }) {
   // Colour eases between next → current → done; starts at its state (no tween on mount).
+  const reduce = useReducedMotion();
   const q = useSharedValue<number>(STEP_LEVEL[state]);
-  const onLayout = useAnimationLifecycle([q], () => { q.value = withTiming(STEP_LEVEL[state], { duration: duration.note - 20 }); }, [state]);
+  const onLayout = useAnimationLifecycle([q], () => { q.set(reduce ? STEP_LEVEL[state] : withTiming(STEP_LEVEL[state], { duration: duration.note - 20 })); }, [state, reduce]);
   const a = useAnimatedStyle(() => ({ backgroundColor: interpolateColor(q.value, [0, 1, 2], [color.line.empty, color.lime.base, color.text.primary]) }));
   return (
     <Animated.View onLayout={onLayout} style={[{ flex: 1, height: metrics.nav.step.h, borderRadius: metrics.nav.step.radius }, state === "current" ? { boxShadow: `0 0 12px ${color.lime.ring45}` } : null, a]} />
