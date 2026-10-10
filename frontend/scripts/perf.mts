@@ -99,6 +99,14 @@ let phaseCounts: { syncFailures: number } | null = null;
 let lastSync = 0;
 function syncSince(): number { const n = phaseCounts ? phaseCounts.syncFailures - lastSync : 0; lastSync += n; return n; }
 
+/** A screen at rest for `ms`: frame stats plus frames per second (did it keep up with the display?). */
+async function idle(name: string, ms = 6000) {
+  const s = await measure(name, () => sleep(ms));
+  const fps = Math.round((s.frames / (ms / 1000)) * 10) / 10;
+  console.log("".padEnd(16), `fps ${fps}`);
+  return { ...s, fps };
+}
+
 async function measure(name: string, act: () => Promise<void>) {
   adb("shell", "dumpsys", "gfxinfo", PKG, "reset");
   syncSince();
@@ -126,6 +134,9 @@ async function main() {
     await sleep(3500);
   }
   console.log("cold start (ms)", cold, "sync-props failures", syncSince());
+  // A1 at rest: the Keeper's idle (the ambient loops have run out by now, D-84).
+  await sleep(8000);
+  const a1Idle = await idle("A1 at rest");
   // Onboard in Demo: A1 → A1·m (Try the demo) → A4 → Today.
   await tap("Get started", [540, 2046]);
   await sleep(2500);
@@ -134,6 +145,8 @@ async function main() {
   await tap("Looks like me", [540, 2081]);
   await sleep(4000);
   console.log("onboarding       sync-props failures", syncSince());
+  await sleep(8000);
+  const todayIdle = await idle("Today at rest");
   let active = 0;
   const tab = async (i: number) => { await tap(TAB_NAMES[i]!, tabAt(i, active)); active = i; };
   const tabs = await measure("tab switches", async () => {
@@ -159,7 +172,9 @@ async function main() {
   log.stop();
   const { syncFailures, anrs } = log.counts;
   console.log("sync-props failures", syncFailures, "ANRs", anrs);
-  const res = { apk, date: new Date().toISOString(), coldStartMs: cold, tabs, scroll, push, syncFailures, anrs };
+  const refreshHz = Number(adb("shell", "dumpsys", "display").match(/renderFrameRate ([\d.]+)/)?.[1] ?? NaN);
+  const device = adb("shell", "getprop", "ro.product.model").trim();
+  const res = { apk, device, refreshHz, date: new Date().toISOString(), coldStartMs: cold, a1Idle, todayIdle, tabs, scroll, push, syncFailures, anrs };
   mkdirSync(path.dirname(out), { recursive: true });
   writeFileSync(out, JSON.stringify(res, null, 1));
   console.log(`wrote ${out}`);

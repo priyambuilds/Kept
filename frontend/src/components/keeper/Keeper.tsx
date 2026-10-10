@@ -3,6 +3,7 @@
 import { View } from "react-native";
 import type { KeeperMood } from "@/copy";
 import { t } from "@/copy";
+import { env } from "@/config/env";
 import { KeeperSvg } from "./KeeperSvg";
 import type { KeeperAnimName, KeeperPropName } from "./rig";
 
@@ -23,7 +24,7 @@ export interface KeeperProps {
 export function Keeper({ mood, prop = "none", anim = "idle", size, bust, animate = true }: KeeperProps) {
   return (
     <View accessible accessibilityRole="image" accessibilityLabel={t("additions.a11y.keeper")}>
-      <KeeperSvg mood={mood} prop={prop} anim={anim} size={size} bust={!!bust} animate={animate} />
+      <KeeperSvg mood={mood} prop={prop} anim={anim} size={size} bust={!!bust} animate={animate && !env.keeperStill} />
     </View>
   );
 }
