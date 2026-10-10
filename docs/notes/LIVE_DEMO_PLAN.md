@@ -254,3 +254,29 @@ blocked, then stops for Q1–Q3. Phase 6 does the removals that need no approval
 typecheck, lint, tests; all 116 screens shoot (Demo); `perf.mts` on a release build; Demo in airplane mode
 on a release build; Live sign-in against a local backend if one can be started (Postgres + `.env`); a list
 of what was not verified end to end.
+
+---
+
+## Status at the end of this session (2026-10-10)
+
+| Phase | Done | Not done / waiting |
+|---|---|---|
+| 1 Audit and plan | This file | — |
+| 2 App mode | `state/mode.ts`, scoped storage (`kept.demo.*` / `kept.live.*`), API / wallet / TxService by mode, Dev menu dev-only, DEMO badge, "approval is simulated" on signing screens, tests (`mode.test.ts`) | — |
+| 3 Onboarding | A1·m sheet (route amendment, D-80), Demo path A1 → A1·m → A4 → Tabs, invite links and "I have an invite" force Live, Restart / Exit demo, Live sign-out to A1, localhost guard, navigation tests | D-80 copy to confirm |
+| 4 Demo content | `judges` scenario (default; the only one in release Demo), calm first Today, `demoOffline.test.tsx` (no fetch / XHR / WebSocket) | Q6 fast-forward: proposed, not built |
+| 5 Live mode | No mock in `api/http` (import-graph test) or the Live API (test); real challenge; inbox; reputation stats and kept rates; profiles from the device + reputation; Rematch / create Bounty / swap / creator pages hidden; empty Bounty list and reviews; D5 from real Oaths; literals (version, faucet toast, D0, M1, B3) from data | Blocked on Q1 (proof check), Q2 (money and HP numbers), Q3 (Bounties) |
+| 6 Bloat | Placeholder gone (B2–B4 now open the Today tab), Dev menu and Gallery out of release bundles, dead exports, `proofTarget`, unused templates | Q5 deletions (Keeper PNGs, unused design PNGs, `legacy/`, SESSION_HANDOFF) |
+
+**Sizes** (release, Demo): APK 131,163,530 → 131,160,260 bytes; JS bundle 6,612,168 → 6,608,976 bytes (at `8ca2b28` vs `ced5a41`, with all the new mode code in). The APK is 98 MB native libraries for four ABIs; see Q7.
+
+**Verified**
+- typecheck, lint, 234 tests; all 117 ids (116 + A1·m) shoot with 0 errors at 1080×2400 and at 360×720 dp.
+- Demo on a release build with airplane mode on (emulator): A1 → A1·m → A4 → Today (judges account, DEMO badge), Oaths tab.
+- Live sign-in against a locally running backend (Postgres in Docker, `backend` started unchanged): the app's own `signIn` and Live slices, with a test keypair signing like a wallet: nonce → verify → `/api/me`, reputation stats, profile, Bounty list. That run found that a non-Seeker gets 403 on `/api/inbox` (now an empty inbox).
+
+**Not verified end to end**
+- Live with a real wallet (MWA) on a phone: the emulator has no wallet app.
+- Live create / join / start / claim on Devnet after this session's changes (the chain code didn't change).
+- Live proof: by design it ends on F2b until Q1.
+- Any number on a physical phone (perf, small screens): emulator only.
