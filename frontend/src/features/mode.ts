@@ -2,7 +2,7 @@
 // scoped store from the new mode's storage and drops cached queries. Leaving Demo wipes it.
 import { resetMockApi } from "@/api";
 import { queryClient } from "@/api/queries";
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { mockOaths } from "@/features/oaths/mockStore";
 import { mockReviews } from "@/features/reviews/mockStore";

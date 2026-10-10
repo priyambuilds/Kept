@@ -5,7 +5,7 @@ import { ApiError, toApiError } from "@/api/errors";
 import { createHttpClient } from "@/api/http/client";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import type { Scenario } from "@/api/mock/scenarios";
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
 import { SLICES } from "@/api/types";
 import { classifyTxError } from "@/chain/classify";
 import { createMockWallet } from "@/chain/mock";
@@ -127,5 +127,43 @@ describe("classifyTxError", () => {
     [new Error("custom program error: 0x1771"), "failed"],
   ])("%s → %s", (e, kind) => {
     expect(classifyTxError(e).kind).toBe(kind);
+  });
+});
+
+describe("Live has no mock (D-80)", () => {
+  it("composes no mock slice", () => {
+    const mock = mockApi();
+    const live = createApi(defaultFlags("live"), mock, () => null);
+    for (const s of SLICES) expect(live[s]).not.toBe(mock[s]);
+  });
+
+  it("no import path from the http code reaches the mock", () => {
+     
+    const fs = require("fs") as typeof import("fs");
+     
+    const path = require("path") as typeof import("path");
+    const src = path.join(__dirname, "..");
+    const resolve = (from: string, spec: string): string | null => {
+      const base = spec.startsWith("@/") ? path.join(src, spec.slice(2)) : spec.startsWith(".") ? path.join(path.dirname(from), spec) : null;
+      if (!base) return null; // packages: no mock lives there
+      for (const ext of [".ts", ".tsx", "/index.ts", "/index.tsx"]) if (fs.existsSync(base + ext)) return base + ext;
+      return fs.existsSync(base) && fs.statSync(base).isFile() ? base : null;
+    };
+    const seen = new Set<string>();
+    const reached: string[] = [];
+    const walk = (file: string, chain: string[]) => {
+      if (seen.has(file)) return;
+      seen.add(file);
+      const rel = path.relative(src, file);
+      if (/^api\/mock\/|mockStore\.ts$|^chain\/mock\.ts$/.test(rel)) { reached.push([...chain, rel].join(" → ")); return; }
+      const text = fs.readFileSync(file, "utf8");
+      for (const m of text.matchAll(/^import\s+(?!type\b)[^;]*?from\s+"([^"]+)"/gm)) {
+        const next = resolve(file, m[1]!);
+        if (next) walk(next, [...chain, rel]);
+      }
+    };
+    for (const f of fs.readdirSync(path.join(src, "api/http"))) walk(path.join(src, "api/http", f), []);
+    expect(seen.size).toBeGreaterThan(10); // the walk really follows imports
+    expect(reached).toEqual([]);
   });
 });

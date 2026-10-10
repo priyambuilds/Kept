@@ -13,6 +13,7 @@ import type { DesignId } from "@/app/routes";
 import { setAppMode } from "@/features/mode";
 import { mockOaths } from "@/features/oaths/mockStore";
 import { oathView } from "@/features/oaths/model";
+import { historyOf, historyTotals } from "@/features/oaths/history";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { useDev } from "@/state/dev";
 import { useMode } from "@/state/mode";
@@ -87,4 +88,15 @@ it("the judges' account has every core idea one tap from Today", () => {
   expect(guitar.life).toBe("broken");
   expect(mockOaths.rematchFor(guitar.facts.id)).not.toBeNull();
   expect(views.some((v) => v.facts.bountyId && v.life === "active")).toBe(true);
+});
+
+it("D5 history comes from the account's finished Oaths, not sample data", () => {
+  mockOaths.ensureSeeded("judges", MOCK_WALLET);
+  const now = Math.floor(Date.now() / 1000);
+  const rows = historyOf(mockOaths.list(MOCK_WALLET, { seeded: true }).map((f) => oathView(f, now, MOCK_WALLET)));
+  expect(rows.map((r) => r.name).sort()).toEqual(["Guitar Days", "Hydra 14"]);
+  const guitar = rows.find((r) => r.name === "Guitar Days")!;
+  expect(guitar).toMatchObject({ kind: "broken", sub: t("screens.D5.b3.r2.s", { day: 6 }) });
+  expect(guitar.net).toBeLessThan(0n);
+  expect(historyTotals(rows)).toMatchObject({ n: 2, kept: 1, broken: 1 });
 });

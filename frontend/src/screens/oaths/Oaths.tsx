@@ -1,12 +1,11 @@
 // D · Oaths (screens.md D0–D5). Every number here comes from the engine view (features/oaths/model);
 // screens only lay it out.
-import type { IconName } from "@/components/primitives";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MAX_MEMBERS, OBJECTS } from "@kept/config";
-import { keeperLines, sampleData, t } from "@/copy";
+import { MAX_MEMBERS } from "@kept/config";
+import { keeperLines, t } from "@/copy";
 import { Button, ButtonRow } from "@/components/actions";
 import { BottomSheet, NavBar, useToast } from "@/components/chrome";
 import { Banner, BodyText, Breakdown, Chip, ChipRow, Note, OddsChip, SearchBar, Segmented, Skeleton, Title } from "@/components/content/Basics";
@@ -31,6 +30,9 @@ import { SigningScreen } from "../shared/Signing";
 import { useResultMoments } from "../results/Results";
 import { recoveryLine } from "../rematch/Rematch";
 import { useLastSeenHp } from "@/features/oaths/device";
+import { useFeature } from "@/features/availability";
+import { historyOf, historyTotals } from "@/features/oaths/history";
+import type { HistoryRow } from "@/features/oaths/history";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const rateText = (m: MemberView) => (m.facts.keptRate === null ? t("common.keptRateNew") : t("screens.D1.b3.seat0", { rate: Math.round(m.facts.keptRate * 100) }));
@@ -94,12 +96,6 @@ export function OathsTab() {
     </TabScreen>
   );
 }
-
-/** Icons for the sample history (reference/kept-kit.js › HIST; copy.json's sampleData has none). Mock until P1-16. */
-const HISTORY_ICON: Record<string, IconName> = {
-  "Hydra 14": "trophy-outline", "Pages Sprint · Rematch": "sword-cross", "Guitar Days": "guitar-acoustic", "Iron Week": "dumbbell",
-  "Dawn Run": "shoe-sneaker", "Cold Showers": "water-outline", "Read 20 pages": "book-open-variant", "Mat Mornings": "yoga",
-};
 
 const endOf = (v: OathView) => (v.facts.day1StartsAt ?? v.facts.createdAt) + v.facts.numDays * v.facts.daySeconds;
 
@@ -343,16 +339,18 @@ function Broken({ v }: { v: OathView }) {
   const missedText = missers.map((m) => t("additions.core.personMissed", { name: memberName(m), days: dayList(m.missed.map((d) => d + 1)) })).join(" ");
   const myHeld = v.me >= 0 ? v.state.held[v.me] ?? 0n : 0n;
   useEffect(() => { playFx("embers"); }, [playFx]);
+  // Rematch has no backend yet: Live hides it (D-80, BACKEND_GAPS P1-2).
+  const rematch = useFeature("rematch");
   return (
-    <Screen layout="D3" bar={<NavBar onBack={back} title={f.name} />} bottomInset={pinned(2)} pinned={<>
-      <Button kind="l" icon="sword-cross" label={t("screens.D3.pin.0", { amount: skrWhole(myHeld) })} onPress={() => go("R1", { id: f.id })} />
+    <Screen layout="D3" bar={<NavBar onBack={back} title={f.name} />} bottomInset={pinned(rematch ? 2 : 1)} pinned={<>
+      {rematch ? <Button kind="l" icon="sword-cross" label={t("screens.D3.pin.0", { amount: skrWhole(myHeld) })} onPress={() => go("R1", { id: f.id })} /> : null}
       <Button kind="t" label={t("screens.D3.pin.1")} onPress={() => go("C1")} />
     </>}>
       <HPPanel hp={0} lostToday={v.lastDay?.hpBefore ?? 0} note={t("screens.D3.b0.note", { day: broke })} />
       <Title heading={t("screens.D3.b1.title")} sub={t("screens.D3.b1.sub", { missed: missedText })} />
       <DayMemberGrid days={f.numDays} today={-1} members={v.members.map((m) => ({ key: m.facts.wallet, name: memberName(m), initial: memberInitial(m), color: memberColor(m), cells: m.cells }))} />
       <Breakdown label={t("screens.D3.b3.label")} rows={v.members.map((m) => ({ label: memberName(m), value: t("screens.D3.b3.row0.v", { amount: skrWhole(-v.results[m.index]!.lost) }), color: color.red.base }))} />
-      <OathCard variant="lime" icon="sword-cross" name={t("screens.D3.b4.name")} meta={t("screens.D3.b4.meta")} line={t("additions.rematch.winBackHalf")} onPress={() => go("R1", { id: f.id })} />
+      {rematch ? <OathCard variant="lime" icon="sword-cross" name={t("screens.D3.b4.name")} meta={t("screens.D3.b4.meta")} line={t("additions.rematch.winBackHalf")} onPress={() => go("R1", { id: f.id })} /> : null}
     </Screen>
   );
 }
@@ -396,20 +394,25 @@ export function D5() {
   const { back } = useGo();
   const toast = useToast();
   const [seg, setSeg] = useState(0);
-  const months = [...new Set(sampleData.history.map((h) => h.month))];
-  const filter = (delta: string) => seg === 0 || (seg === 1 && !delta.startsWith("−")) || (seg === 2 && delta.startsWith("−"));
+  const { views } = useOathList();
+  const rows = historyOf(views);
+  const shown = rows.filter((r) => seg === 0 || (seg === 1 && r.kind === "kept") || (seg === 2 && r.kind === "broken") || (seg === 3 && r.rematch));
+  const month = (r: HistoryRow) => new Date(r.endedAt * 1000).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+  const months = [...new Set(shown.map(month))];
+  const totals = historyTotals(rows);
+  const net = (n: bigint) => (n === 0n ? t("screens.D5.b4.r1.r") : skrText(n, true));
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.D5.nav.title")} />}>
-      <SearchBar placeholder={t("screens.D5.b0.placeholder")} onPress={() => toast(t("toasts.23"))} />
+      <SearchBar placeholder={t("screens.D5.b0.placeholder", { n: rows.length })} onPress={() => toast(t("toasts.23"))} />
       <Segmented items={[0, 1, 2, 3].map((i) => t(`screens.D5.b1.seg.${i}` as never))} value={seg} onChange={setSeg} />
-      <Banner tone="grey" icon="chart-box-outline" title={t("screens.D5.b2.title")} sub={t("screens.D5.b2.sub")} />
+      <Banner tone="grey" icon="chart-box-outline" title={t("screens.D5.b2.title", { n: totals.n, kept: totals.kept, broken: totals.broken })}
+        sub={t("screens.D5.b2.sub", { won: skrWhole(totals.won), lost: skrWhole(totals.lost) })} />
       {months.map((m) => (
-        <RowList key={m} label={m.toUpperCase()} rows={sampleData.history.filter((h) => h.month === m && filter(h.delta)).map((h) => ({
-          title: h.name, sub: h.sub, value: h.delta, valueColor: h.delta.startsWith("−") ? color.red.base : h.delta.startsWith("+") ? color.lime.base : color.text.secondary,
-          leading: { kind: "icon" as const, icon: HISTORY_ICON[h.name] ?? OBJECTS[0].icon },
+        <RowList key={m} label={m.split(" ")[0]!.toUpperCase()} rows={shown.filter((r) => month(r) === m).map((r) => ({
+          title: r.name, sub: r.sub, value: net(r.net), valueColor: r.net < 0n ? color.red.base : r.net > 0n ? color.lime.base : color.text.secondary,
+          leading: { kind: "icon" as const, icon: r.rematch ? "sword-cross" as const : objectIcon(r.objectId) },
         }))} />
       ))}
-      <RowList rows={[{ title: t("screens.D5.b5.r0.t"), sub: t("screens.D5.b5.r0.s"), onPress: () => toast(t("toasts.24")) }]} />
     </Screen>
   );
 }

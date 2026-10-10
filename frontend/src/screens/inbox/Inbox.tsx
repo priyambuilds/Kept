@@ -22,6 +22,7 @@ import type { DesignId } from "@/app/routes";
 import type { Params } from "@/app/nav";
 import { useGo } from "@/app/nav";
 import { useNow } from "@/features/time";
+import { featureAvailable } from "@/features/availability";
 
 type Kind = InboxItem["type"];
 /** Where an item opens, from its type and ref (flows.md N1). */
@@ -31,7 +32,8 @@ function targetOf(it: InboxItem): [DesignId, Params] | null {
     case "invite": return oath ? ["E2", { id: oath, ...(code ? { code } : {}) }] : code ? ["E1", { code }] : null;
     case "review": return oath ? ["G1", { id: oath }] : null;
     case "claim": return oath ? ["J1", { id: oath }] : null;
-    case "rematch": case "broken": return oath ? ["R1", { id: oath }] : null;
+    // Rematch has no backend yet (P1-2): Live opens the broken Oath instead.
+    case "rematch": case "broken": return oath ? (featureAvailable("rematch") ? ["R1", { id: oath }] : ["D3", { id: oath }]) : null;
     case "nudge": case "deadline": return oath ? ["D2", { id: oath }] : null;
     case "recap": return ["B5", {}];
     case "started": return bounty ? ["H3", { id: bounty }] : oath ? ["D2", { id: oath }] : null;

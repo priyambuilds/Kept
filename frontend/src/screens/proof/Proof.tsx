@@ -55,9 +55,8 @@ function useChallenge(v: OathView | null, photo: 1 | 2, fresh = false) {
   const stored = useProof((s) => (v ? s.challenges[key(v.facts.id, photo)] : undefined));
   // An expired stored challenge (photo 1 this morning, photo 2 tonight) is replaced, not shown: Shoot
   // sends an expired one to F2c, which is for a challenge that ran out while shooting.
-  // An expired stored challenge (photo 1 this morning, photo 2 tonight) is replaced, not shown: Shoot
-  // sends an expired one to F2c, which is for a challenge that ran out while shooting.
   const [c, setC] = useState<Challenge | undefined>(() => (!fresh && stored && stored.expiresAt > nowSeconds() ? stored : undefined));
+  const { replace } = useGo();
   useEffect(() => {
     if (!v || v.dayIndex === null) return;
     if (c && c.dayIndex === v.dayIndex && c.expiresAt > nowSeconds()) return;
@@ -65,8 +64,8 @@ function useChallenge(v: OathView | null, photo: 1 | 2, fresh = false) {
     void getApi().proof.challenge(v.facts, photo, v.dayIndex, avoid).then((n) => {
       useProof.getState().set({ challenges: { ...useProof.getState().challenges, [key(v.facts.id, photo)]: n } });
       setC(n);
-    });
-  }, [v, photo, c]);
+    }, (e: unknown) => replace(isApiError(e) && e.code === "OFFLINE" ? "M2" : "F2b", { id: v.facts.id, photo }));
+  }, [v, photo, c, replace]);
   return c;
 }
 

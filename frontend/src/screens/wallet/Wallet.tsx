@@ -31,6 +31,7 @@ import { useActivity, walletActions } from "@/features/phase4";
 import { useSession } from "@/state/session";
 import { useUi } from "@/state/ui";
 import { SigningScreen } from "../shared/Signing";
+import { useFeature } from "@/features/availability";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const LAMPORTS = 1_000_000_000n;
@@ -98,11 +99,12 @@ export function W1() {
 // ── W2 Add SKR (sheet over W1) ──
 export function W2() {
   const { back, replace } = useGo();
+  const swap = useFeature("swap");
   const toast = useToast();
   const insets = useSafeAreaInsets();
   const sheet = useSheetRoute();
   const faucet = async () => {
-    try { await walletActions.faucet(); toast(t("toasts.21")); back(); }
+    try { const amount = await walletActions.faucet(); toast(t("toasts.21", { amount: skrWhole(amount) })); back(); }
     catch (e) { toast(isApiError(e) && e.code === "FAUCET_USED" ? t("additions.wallet.faucetUsed") : t("screens.C7·fail.b2.title")); }
   };
   return (
@@ -110,7 +112,8 @@ export function W2() {
       <BottomSheet {...sheet} bottomInset={insets.bottom}>
         <Title heading={t("screens.W2.b0.title")} sub={t("screens.W2.b0.sub")} pt={0} fs={26} />
         <RowList rows={[
-          { title: t("screens.W2.b1.r0.t"), sub: t("screens.W2.b1.r0.s"), leading: { kind: "icon", icon: "swap-horizontal", bg: color.lime.base, fg: color.text.onLime }, chevron: true, onPress: () => replace("W3") },
+          // Swap is a Devnet mock (D-21): Live leaves it out.
+          ...(swap ? [{ title: t("screens.W2.b1.r0.t"), sub: t("screens.W2.b1.r0.s"), leading: { kind: "icon" as const, icon: "swap-horizontal" as const, bg: color.lime.base, fg: color.text.onLime }, chevron: true, onPress: () => replace("W3") }] : []),
           { title: t("screens.W2.b1.r1.t"), sub: t("screens.W2.b1.r1.s"), leading: { kind: "icon", icon: "qrcode" }, chevron: true, onPress: () => replace("W4") },
           ...(env.cluster === "devnet" ? [{ title: t("screens.W2.b1.r2.t"), sub: t("screens.W2.b1.r2.s"), value: t("screens.W2.b1.r2.r"), valueColor: color.lime.base, leading: { kind: "icon" as const, icon: "water-outline" as const }, onPress: () => { void faucet(); } }] : []),
         ]} />

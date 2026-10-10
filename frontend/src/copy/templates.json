@@ -2012,5 +2012,84 @@
   "sample": {
    "rate": "91"
   }
+ },
+ "screens.D5.b0.placeholder": {
+  "template": "Search {n} Oaths",
+  "sample": {
+   "n": "50"
+  }
+ },
+ "screens.D5.b2.title": {
+  "template": "{n} finished · {kept} kept · {broken} broken",
+  "sample": {
+   "n": "50",
+   "kept": "41",
+   "broken": "9"
+  }
+ },
+ "screens.D5.b2.sub": {
+  "template": "+{won} SKR won · −{lost} SKR lost, all time",
+  "sample": {
+   "won": "3,420",
+   "lost": "2,600"
+  }
+ },
+ "screens.D5.b3.r0.s": {
+  "template": "Kept by {n} of {total} · ended {date}",
+  "sample": {
+   "n": "3",
+   "total": "4",
+   "date": "Sun 5"
+  }
+ },
+ "screens.D5.b3.r1.s": {
+  "template": "Kept every day · recovered {amount}",
+  "sample": {
+   "amount": "500"
+  }
+ },
+ "screens.D5.b3.r2.s": {
+  "template": "Broke on day {day}",
+  "sample": {
+   "day": "6"
+  }
+ },
+ "screens.D5.b4.r1.s": {
+  "template": "Solo · kept {n} of {days}",
+  "sample": {
+   "n": "7",
+   "days": "7"
+  }
+ },
+ "screens.D5.b4.r2.s": {
+  "template": "Solo · broke on day {day}",
+  "sample": {
+   "day": "4"
+  }
+ },
+ "screens.D5.b4.r3.s": {
+  "template": "Kept · missed {days}",
+  "sample": {
+   "days": "1 day"
+  }
+ },
+ "common.version": {
+  "template": "v{version} · {cluster} · SEEKER",
+  "sample": {
+   "version": "0.9",
+   "cluster": "DEVNET"
+  }
+ },
+ "toasts.17": {
+  "template": "+{amount} test SKR",
+  "sample": {
+   "amount": "5,000"
+  }
+ },
+ "toasts.21": {
+  "template": "+{amount} test SKR added",
+  "sample": {
+   "amount": "5,000"
+  }
  }
 }

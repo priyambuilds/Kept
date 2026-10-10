@@ -1,6 +1,6 @@
 // Routes that exist today in backend (docs/API.md). Shapes match backend/src/routes/v4.ts exactly.
 import { z } from "zod";
-import { Address, Amount } from "./primitives";
+import { Address, Amount, IsoTime } from "./primitives";
 
 // POST /api/auth/nonce
 export const NonceRequest = z.object({ wallet: Address });
@@ -59,22 +59,37 @@ export const PriceResponse = z.object({ usdPerSkr: z.number().positive(), skrFor
 export type Price = z.infer<typeof PriceResponse>;
 // POST /api/faucet  (amount is whole SKR as a string, e.g. "5000")
 export const FaucetResponse = z.object({ signature: z.string(), amount: z.string().regex(/^\d+$/), mint: Address });
-// POST /api/proof (today's single-photo route; detection is client-supplied, BACKEND_GAPS P0-1)
-export const LegacyProofRequest = z.object({
-  oath: Address,
-  dayIndex: z.number().int().nonnegative(),
-  photo: z.string().min(1),
-  detection: z.object({
-    object: z.object({ label: z.string(), confidence: z.number() }),
-    gesture: z.object({ label: z.string(), confidence: z.number() }),
-    target: z.object({ object: z.string(), gesture: z.string() }),
-  }),
+// POST /api/proof/challenge: today's step for the caller (two-photo proof, docs/API.md › Proof).
+export const ChallengeGesture = z.enum(["Thumb_Up", "Victory", "Open_Palm"]);
+const SessionStart = { startedAt: IsoTime, endAllowedAt: IsoTime, startGesture: ChallengeGesture };
+export const ProofChallengeResponse = z.discriminatedUnion("phase", [
+  z.object({ phase: z.literal("start"), photo: z.literal(1), gesture: ChallengeGesture, issuedAt: IsoTime, expiresAt: IsoTime }),
+  z.object({ phase: z.literal("end"), photo: z.literal(2), gesture: ChallengeGesture, issuedAt: IsoTime, expiresAt: IsoTime, ...SessionStart }),
+  z.object({ phase: z.literal("wait"), photo: z.literal(2), waitSeconds: z.number().int(), ...SessionStart }),
+]);
+export type ProofChallenge = z.infer<typeof ProofChallengeResponse>;
+
+// GET /reputation/:wallet (kept rate in percent with one decimal; null with no closed days yet)
+export const ReputationResponse = z.object({
+  wallet: Address,
+  keptRate: z.object({ percentage: z.number().min(0).max(100).nullable(), keptDays: z.number().int(), missedDays: z.number().int(), sampleSize: z.number().int() }),
+  oathsKept: z.number().int(),
+  oathsBroken: z.number().int(),
+  streak: z.object({ current: z.number().int(), best: z.number().int() }),
+  bounties: z.object({ joined: z.number().int(), completed: z.number().int(), out: z.number().int() }),
 });
-export const LegacyProofResponse = z.object({
-  signature: z.string(),
-  proofHash: z.string(),
-  target: z.object({ object: z.string(), gesture: z.string() }),
-  recovered: z.boolean().optional(),
+export type Reputation = z.infer<typeof ReputationResponse>;
+
+// GET /api/inbox: as the proposed InboxResponse, but `type` is free text and `ref` fields may be absent.
+export const InboxLiveResponse = z.object({
+  items: z.array(z.object({
+    id: z.string(), type: z.string(), actor: z.string().nullable(), title: z.string(), body: z.string(), createdAt: IsoTime,
+    needsAction: z.boolean(), done: z.boolean(),
+    ref: z.object({ oath: z.string().optional(), code: z.string().optional(), bounty: z.string().optional(), review: z.string().optional() }),
+  })),
+  unread: z.number().int(),
 });
+// PUT /api/inbox/:id
+export const InboxDoneResponse = z.object({ success: z.literal(true) });
 
 export { Amount };

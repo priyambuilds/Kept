@@ -13,6 +13,8 @@ import { RowList } from "@/components/content/Rows";
 import { SignStatus } from "@/components/content/Status";
 import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { Screen } from "@/components/layout/Screen";
+import { flattenBlocks } from "@/components/primitives";
+import { useFeature } from "@/features/availability";
 import { color, metrics } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
 import type { DesignId } from "@/app/routes";
@@ -130,7 +132,8 @@ export function useResultMoments(views: OathView[]) {
 
 function Moment({ v, children, pins, stamp }: { v: OathView; children: React.ReactNode; pins: React.ReactNode; stamp?: string }) {
   const { replace } = useGo();
-  const n = Array.isArray(pins) ? pins.filter(Boolean).length : 1;
+  // Pins come as a fragment: count its buttons so the content ends above all of them.
+  const n = Math.max(1, flattenBlocks(pins).length);
   return (
     <Screen bar={<NavBar onBack={() => replace(screenFor(v), { id: v.facts.id })} close />} bottomInset={pinned(n)}
       pinned={<>{pins}</>}>
@@ -181,6 +184,7 @@ export const L2 = () => <GroupSettled missed />;
 export function L3() {
   const { go } = useGo();
   const { view, playFx } = useResult();
+  const rematch = useFeature("rematch");
   useEffect(() => { if (view) playFx("embers"); }, [view, playFx]);
   if (!view) return null;
   const k = keeperLines("L3")[0]!;
@@ -190,7 +194,7 @@ export function L3() {
   const dmg = view.facts.isSolo ? 35 : 20;
   return (
     <Moment v={view} pins={<>
-      <Button kind="l" icon="sword-cross" label={t("screens.L3.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
+      {rematch ? <Button kind="l" icon="sword-cross" label={t("screens.L3.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} /> : null}
       <Button kind="t" label={t("screens.L3.pin.1")} onPress={() => go("C1")} />
     </>}>
       <ScreenKeeper id="L3" lines={[k]} />
@@ -242,6 +246,7 @@ export const L4m = () => <SoloSettled missed />;
 export function L4b() {
   const { go } = useGo();
   const { view, playFx } = useResult();
+  const rematch = useFeature("rematch");
   useEffect(() => { if (view) playFx("embers"); }, [view, playFx]);
   if (!view) return null;
   const k = keeperLines("L4·b")[0]!;
@@ -249,7 +254,7 @@ export function L4b() {
   const held = view.state.held[view.me] ?? 0n;
   return (
     <Moment v={view} pins={<>
-      <Button kind="l" icon="sword-cross" label={t("screens.L4·b.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} />
+      {rematch ? <Button kind="l" icon="sword-cross" label={t("screens.L4·b.pin.0", { amount: skrWhole(held) })} onPress={() => go("R1", { id: view.facts.id })} /> : null}
       <Button kind="t" label={t("screens.L4·b.pin.1")} onPress={() => go("C1")} />
     </>}>
       <ScreenKeeper id="L4·b" lines={[k]} />

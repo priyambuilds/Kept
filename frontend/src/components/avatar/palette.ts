@@ -38,6 +38,13 @@ export function randomAvatar(rand: () => number = Math.random): string {
   return [r(8), r(8), r(4), r(6), r(5), r(7), r(4), r(8)].join("");
 }
 
+/** A stable avatar for a wallet that hasn't picked one (no profiles backend yet, BACKEND_GAPS P1-9). */
+export function avatarFor(wallet: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < wallet.length; i++) h = Math.imul(h ^ wallet.charCodeAt(i), 16777619) >>> 0;
+  return randomAvatar(() => { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; return (h % 10000) / 10000; });
+}
+
 /** The prototype's renderVals(): every colour, path and visibility flag for one config. */
 export function avatarValues(config: string) {
   const d = parseAvatar(config);

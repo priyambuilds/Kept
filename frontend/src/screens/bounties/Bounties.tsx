@@ -23,8 +23,8 @@ import { color, metrics, tokens } from "@/theme";
 import type { HeroPaletteName } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
 import type { DesignId } from "@/app/routes";
-import { CATEGORIES } from "@/features/bounties/mockStore";
-import type { BountyFacts, Category } from "@/features/bounties/mockStore";
+import { CATEGORIES } from "@/features/bounties/model";
+import type { BountyFacts, Category } from "@/features/bounties/model";
 import { useOath, useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { objectIcon, objectName, skrWhole, startsTitle } from "@/features/oaths/present";
@@ -34,6 +34,7 @@ import { useSession } from "@/state/session";
 import { useSettings } from "@/state/settings";
 import { useUi } from "@/state/ui";
 import { TabScreen } from "../tabs/TabScreen";
+import { useFeature } from "@/features/availability";
 
 const pinned = (n: number) => metrics.button.height * n + metrics.pinned.gap * (n - 1) + metrics.pinned.bottom;
 const HERO: HeroPaletteName[] = ["lime", "vio", "sky", "pink", "amber", "orange"];
@@ -129,6 +130,7 @@ function Joined() {
 
 function Created() {
   const { go } = useGo();
+  const canCreate = useFeature("createBounty");
   const { data } = useBounties();
   const wallet = useSession((s) => s.wallet);
   const now = useNow(60_000);
@@ -145,7 +147,7 @@ function Created() {
         );
       })}
       <ScreenKeeper id="H1·c" lines={[k]} />
-      <ButtonRow><Button kind="p" icon="plus" label={t("screens.H1·c.b3.btn.0")} onPress={() => go("K1")} /></ButtonRow>
+      {canCreate ? <ButtonRow><Button kind="p" icon="plus" label={t("screens.H1·c.b3.btn.0")} onPress={() => go("K1")} /></ButtonRow> : null}
     </>
   );
 }
@@ -153,6 +155,7 @@ function Created() {
 // ── H2 / H2·no Bounty detail ──
 export function H2() {
   const { back, go } = useGo();
+  const creatorPages = useFeature("creatorPages");
   const toast = useToast();
   const { id } = useParams<{ id: string }>();
   const { data: b } = useBounty(id);
@@ -177,7 +180,7 @@ export function H2() {
         <Button kind="t" label={t("screens.H2·no.pin.1")} onPress={() => go("I1")} />
       </>}>
       <BountyCover brand={b.brand.name} logo={b.brand.logo} verified={b.brand.verified} colors={coverColors(b)} icon={objectIcon(b.objectId)} message={b.detail} />
-      <RowList rows={[{ title: b.brand.name, sub: b.brand.verified ? t("screens.H2.b1.r0.s") : t("additions.bounty.creatorUnverified"), leading: { kind: "initial", initial: b.brand.logo, bg: coverColors(b)[0] }, chevron: true, onPress: () => go("I3", { name: b.brand.name }) }]} />
+      <RowList rows={[{ title: b.brand.name, sub: b.brand.verified ? t("screens.H2.b1.r0.s") : t("additions.bounty.creatorUnverified"), leading: { kind: "initial", initial: b.brand.logo, bg: coverColors(b)[0] }, ...(creatorPages ? { chevron: true, onPress: () => go("I3", { name: b.brand.name }) } : {}) }]} />
       <Breakdown rows={[
         { label: t("screens.H2.b2.row0.l"), value: t("screens.H2.b2.row0.v", { amount: skrWhole(b.pool) }) },
         { label: t("screens.H2.b2.row1.l"), value: objectName(b.objectId) },

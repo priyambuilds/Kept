@@ -28,17 +28,16 @@ export function createApi(f: Record<Slice, SliceMode>, mock: KeptApi, getToken: 
   const http = createHttpClient(getToken);
   return {
     oaths: f.oaths === "http" ? httpOaths(http) : mock.oaths,
-    // Real proof still uses the mock for photo 1 and for Oaths that live on the mock.
-    proof: f.proof === "http" ? httpProof(http, mock.proof) : mock.proof,
+    proof: f.proof === "http" ? httpProof(http) : mock.proof,
     bounties: f.bounties === "http" ? httpBounties() : mock.bounties,
     rematch: f.rematch === "http" ? httpRematch() : mock.rematch,
     reviews: f.reviews === "http" ? httpReviews() : mock.reviews,
     auth: f.auth === "http" ? httpAuth(http) : mock.auth,
     wallet: f.wallet === "http" ? httpWallet(http) : mock.wallet,
-    inbox: f.inbox === "http" ? httpInbox() : mock.inbox,
+    inbox: f.inbox === "http" ? httpInbox(http) : mock.inbox,
     invites: f.invites === "http" ? httpInvites(http) : mock.invites,
     notify: f.notify === "http" ? httpNotify(http) : mock.notify,
-    profile: f.profile === "http" ? httpProfile() : mock.profile,
+    profile: f.profile === "http" ? httpProfile(http) : mock.profile,
   };
 }
 

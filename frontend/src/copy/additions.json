@@ -121,7 +121,9 @@
   "startsNow": "Day 1 begins now.",
   "personMissed": "{name} missed {days}.",
   "it": "it",
-  "dayShort": "D{n}"
+  "dayShort": "D{n}",
+  "oneDay": "{n} day",
+  "nDays": "{n} days"
  },
  "bounty": {
   "$source": "phase 4: states the design doesn't draw (DECISIONS › Copy additions)",

@@ -34,6 +34,7 @@ import { useSettings } from "@/state/settings";
 import type { Audience } from "@/state/settings";
 import { TabScreen } from "../tabs/TabScreen";
 import type { ActivityType } from "@/api/types";
+import { useFeature } from "@/features/availability";
 
 const pinnedOne = metrics.button.height + metrics.pinned.bottom;
 /** X shows its letter glyph (Design.pdf I2 / I1), not the old bird. */
@@ -189,10 +190,11 @@ export function I4() {
   const setNotify = useSettings((s) => s.setNotify);
   const stats = useStats();
   const faucet = async () => {
-    try { await walletActions.faucet(); toast(t("toasts.17")); }
+    try { const amount = await walletActions.faucet(); toast(t("toasts.17", { amount: skrWhole(amount) })); }
     catch (e) { toast(isApiError(e) && e.code === "FAUCET_USED" ? t("additions.wallet.faucetUsed") : e instanceof Error ? e.message : String(e)); }
   };
   const demo = useIsDemo();
+  const canCreate = useFeature("createBounty");
   /** Live: sign out and forget the wallet; A1 asks for the mode again (D-80). */
   const switchWallet = async () => {
     await getWallet().forget();
@@ -219,7 +221,7 @@ export function I4() {
         { title: t("screens.I4.b0.r3.t"), sub: t("screens.I4.b0.r3.s", { n: finished }), leading: { kind: "icon", icon: "cards-outline" }, chevron: true, onPress: () => go("D5") },
         { title: t("screens.I4.b0.r4.t"), sub: t("screens.I4.b0.r4.s"), leading: { kind: "icon", icon: "trophy-outline" }, chevron: true, onPress: () => go("H1·j") },
         { title: t("screens.I4.b0.r5.t"), sub: t("screens.I4.b0.r5.s"), leading: { kind: "icon", icon: "eye-outline" }, chevron: true, onPress: () => go("I7") },
-        { title: t("screens.I4.b0.r6.t"), sub: t("screens.I4.b0.r6.s"), leading: { kind: "icon", icon: "bullhorn-outline" }, chevron: true, onPress: () => go("K1") },
+        ...(canCreate ? [{ title: t("screens.I4.b0.r6.t"), sub: t("screens.I4.b0.r6.s"), leading: { kind: "icon" as const, icon: "bullhorn-outline" as const }, chevron: true, onPress: () => go("K1") }] : []),
       ]} />
       <RowList label={t("screens.I4.b1.label")} rows={(["nudges", "deadline", "reviews", "results"] as const).map((key, i) => ({
         title: t(`screens.I4.b1.r${i}.t` as CopyKey), sub: t(`screens.I4.b1.r${i}.s` as CopyKey), leading: { kind: "icon" as const, icon: NOTIFY_ICON[i]!, fg: color.text.primary }, toggle: { on: notify[key], onChange: (on: boolean) => setNotify(key, on) },

@@ -3,12 +3,12 @@
 // members prove on their own), and an Oath settles with the engine's numbers once its last day ends.
 import { SKR_UNIT, STAKES_SKR } from "@kept/config";
 import { nextMidnight, simulate, marksFromBitmasks, settlement } from "@kept/engine";
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
 import type { Scenario } from "@/api/mock/scenarios";
 import type { MemberFacts, OathFacts, ProofToday, ReviewMode } from "./model";
 import { oathName } from "./names";
 import { mockBounties, seedBounties } from "../bounties/mockStore";
-import type { BountyFacts } from "../bounties/mockStore";
+import type { BountyFacts } from "../bounties/model";
 
 const DAY = 86_400;
 const now = () => Math.floor(clock.now() / 1000);

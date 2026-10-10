@@ -8,12 +8,13 @@ export type TokenSource = () => string | null;
 export interface HttpClient {
   get<S extends z.ZodType>(path: string, schema: S): Promise<z.output<S>>;
   post<S extends z.ZodType>(path: string, body: unknown, schema: S): Promise<z.output<S>>;
+  put<S extends z.ZodType>(path: string, body: unknown, schema: S): Promise<z.output<S>>;
   /** POST that returns no body (204). */
   send(path: string, body: unknown): Promise<void>;
 }
 
 export function createHttpClient(getToken: TokenSource, baseUrl = env.apiUrl, fetchImpl: typeof fetch = fetch): HttpClient {
-  async function request(method: "GET" | "POST", path: string, body?: unknown): Promise<unknown> {
+  async function request(method: "GET" | "POST" | "PUT", path: string, body?: unknown): Promise<unknown> {
     const token = getToken();
     let res: Response;
     try {
@@ -42,6 +43,7 @@ export function createHttpClient(getToken: TokenSource, baseUrl = env.apiUrl, fe
   return {
     get: async (path, schema) => parse(path, schema, await request("GET", path)),
     post: async (path, body, schema) => parse(path, schema, await request("POST", path, body)),
+    put: async (path, body, schema) => parse(path, schema, await request("PUT", path, body)),
     send: async (path, body) => { await request("POST", path, body); },
   };
 }

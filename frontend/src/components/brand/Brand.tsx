@@ -6,6 +6,8 @@ import { t } from "@/copy";
 import { color, duration, easing, fontFamily, gradient, metrics, space } from "@/theme";
 import { haptic } from "@/lib/haptics";
 import { CheckK, FadeIn, Pop, Surface, Text, useAnimationLifecycle } from "../primitives";
+import Constants from "expo-constants";
+import { env } from "@/config/env";
 
 const APath = Animated.createAnimatedComponent(Path);
 /** Length of the check stroke M23 44L40 60L78 24 in the 100-unit mark. */
@@ -90,7 +92,7 @@ export function BrandLockup() {
       <View style={{ width: b.lockTile, height: b.lockTile, borderRadius: b.lockRadius, backgroundColor: color.lime.base, alignItems: "center", justifyContent: "center", boxShadow: "inset 0 -3px 0 rgba(0,0,0,0.14)" }}><CheckK size={b.lockMark} variant="ink" /></View>
       <Text variant="rowTitle" style={{ fontFamily: fontFamily("sans", 900), letterSpacing: -0.4 }}>{t("common.brand")}</Text>
       <Text variant="caption" color={color.text.tertiary}>{t("common.tagline")}</Text>
-      <Text variant="monoMicro" color={color.text.quaternary}>{t("common.version")}</Text>
+      <Text variant="monoMicro" color={color.text.quaternary}>{t("common.version", { version: Constants.expoConfig?.version ?? "", cluster: env.cluster.toUpperCase() })}</Text>
     </View>
   );
 }

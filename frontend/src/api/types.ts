@@ -1,10 +1,9 @@
 // The app's single API surface (docs/ARCHITECTURE.md §6). Each slice has an `http` and a `mock`
-// implementation; `api/flags.ts` picks one per slice. Phase 3+ adds today, oaths, proof, reviews,
-// rematch and bounties.
+// implementation; the app mode picks them (Demo: mock, Live: http, D-80).
 import type { Balances, InboxItem, InviteResolve, Me, OathRead, Price, Profile } from "@kept/shared";
 import type { OathFacts } from "@/features/oaths/model";
-import type { BountyFacts } from "@/features/bounties/mockStore";
-import type { ReviewFacts } from "@/features/reviews/mockStore";
+import type { BountyFacts } from "@/features/bounties/model";
+import type { ReviewFacts } from "@/features/reviews/model";
 
 export interface AuthApi {
   /** The exact message the wallet must sign (POST /api/auth/nonce). */
@@ -148,17 +147,3 @@ export type Slice = keyof KeptApi;
 export const SLICES: readonly Slice[] = ["oaths", "proof", "bounties", "rematch", "reviews", "auth", "wallet", "inbox", "invites", "notify", "profile"];
 export type SliceMode = "http" | "mock";
 
-/** Which slices the backend supports today (docs/API.md); `hybrid` uses http for these only. */
-export const BACKEND_HAS: Record<Slice, boolean> = {
-  oaths: true,    // program accounts over RPC + /api/oaths/:oath/details
-  proof: true,    // photo 2 via POST /api/proof; photo 1 is always mocked (D-23)
-  bounties: false, // BACKEND_GAPS P1-10
-  rematch: false,  // BACKEND_GAPS P1-2
-  reviews: false,  // BACKEND_GAPS P1-1
-  auth: true,
-  wallet: true,   // price + faucet routes; balances from RPC
-  inbox: false,   // BACKEND_GAPS P1-11
-  invites: true,
-  notify: true,
-  profile: false, // BACKEND_GAPS P1-9
-};
