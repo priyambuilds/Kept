@@ -7,7 +7,7 @@ import { ToastHost } from "@/components/chrome";
 import { queryClient } from "@/api/queries";
 import { SLICES } from "@/api/types";
 import { RootNavigator, routeInvite } from "@/app/RootNavigator";
-import { FxHost } from "@/app/hosts";
+import { FxHost, LoadFailHost } from "@/app/hosts";
 import { navigateTo, navigationRef } from "@/app/nav";
 import { ROUTES, presentation, routeName } from "@/app/routes";
 import { STILL_OFFLINE } from "@/screens/M2";
@@ -34,7 +34,7 @@ function App() {
   return (
     <SafeAreaProvider initialMetrics={metrics}>
       <QueryClientProvider client={queryClient}>
-        <ToastHost><RootNavigator /><FxHost /></ToastHost>
+        <ToastHost><RootNavigator /><FxHost /><LoadFailHost /></ToastHost>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
@@ -308,6 +308,13 @@ describe("Bounties, Rematch, review, profile and wallet on mocks", () => {
     expect(rootStack()).toEqual(["Tabs", "B5"]);
     clock.reset();
     await setAppMode(null);
+  }, 30000);
+
+  it("a screen whose data can't load ends on M2 (server copy), not a skeleton (D-89)", async () => {
+    await signedIn("activeGroup");
+    await act(async () => { navigateTo("D2", { id: "no-such-oath" }); });
+    expect(await screen.findByText(t("additions.loadFailed.title"), {}, slow)).toBeTruthy();
+    expect(await screen.findByRole("button", { name: t("screens.M2.pin.0") })).toBeTruthy();
   }, 30000);
 
   it("group review: the inbox opens G1 and a vote goes back to D2", async () => {

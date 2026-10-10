@@ -181,5 +181,10 @@
  "session": {
   "$source": "owner: Live resilience, a token rejected mid-session (DECISIONS D-89)",
   "expired": "Signed out. Connect your wallet to sign in again."
+ },
+ "loadFailed": {
+  "$source": "owner: Live resilience, M2 when a screen's data failed to load for a reason other than the network (DECISIONS D-89)",
+  "title": "Couldn't load this.",
+  "sub": "KEPT's server didn't answer, or this is gone. Nothing you staked moved."
  }
 }
