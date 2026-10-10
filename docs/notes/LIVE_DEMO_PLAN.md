@@ -161,10 +161,12 @@ cost-per-miss and daily distribution are not what the program pays. In Live, sho
 
 **Q3 (Bounties in Live).** The backend runs one admin-created Bounty at a time. Proposal: H1 lists only
 that one, no creator page (I3 unavailable), K (create / fund) hidden in Live. Its proof is blocked by Q1. OK?
+**Answered 2026-10-10: yes.** Done (`api/http/bounties.ts`): list, detail, join and my entry from `/bounty/current`; its proof ends on F2b until Q1.
 
 **Q4 (kept rate).** The backend's kept rate is plain kept / (kept + missed) over all days. The design's is
 recency-weighted and shows "New" under 10 days. In Live, show the backend's number as is (and "New" under
 10 days), or hide it until the backend matches?
+**Answered 2026-10-10: show the backend's number, "New" under 10 days.** Done (`liveKeptRate` in `api/http/slices.ts`): my stats and profiles. Other members' rates on Oath screens still show "New" in Live: the Oath route doesn't carry them and fetching each member's reputation is not built.
 
 **Q5 (deletions).** Delete (a) the Keeper PNG fallbacks (~4.8 MB repo, also shrinks the APK), (b) the
 unused object, gesture, coin and mark PNGs plus their lines in `sync-assets.mjs`, (c) `legacy/`,
@@ -174,6 +176,7 @@ unused object, gesture, coin and mark PNGs plus their lines in `sync-assets.mjs`
 with `packages/engine`. Proposal: in Demo, Profile › Settings gets one row, "Skip to tomorrow". It ends the
 day, the mock settles (HP drops or heals, a miss is redistributed), and Today shows the result. The copy goes
 in additions.json. About 1 hour of work. **Not built without your OK.**
+**Answered 2026-10-10: yes.** Built (D-88): the clock moves 24 h, not to midnight, because the demo's days end at seeded times.
 
 **Q7 (APK size).** Out of this task's scope: an arm64-only release and R8 shrinking would bring the APK from
 131 MB to about 40 MB. Want it as a follow-up?

@@ -51,12 +51,12 @@ On first launch, **Get started** asks how to start (D-80):
 cd frontend/android && ./gradlew assembleRelease     # → app/build/outputs/apk/release/app-release.apk
 ```
 - **Demo** works in any release APK.
-- **Live** needs the API's address baked in at build time: set `EXPO_PUBLIC_API_URL` (and `EXPO_PUBLIC_STAKE_MINT`) in `frontend/.env` before building. A release build still pointing at `localhost` refuses Live with a message.
+- **Live** uses the hosted Devnet API at `https://kepttestapp.onrender.com` by default. Set `EXPO_PUBLIC_API_URL` (and `EXPO_PUBLIC_STAKE_MINT`) in `frontend/.env` before building only when overriding that API. A release build still pointing at `localhost` refuses Live with a message.
 
 ### Live against your local API (development build)
 1. Start the backend (Setup above). In `backend/.env` put your phone wallet's address in `SGT_MOCK_ALLOWLIST` to get **A3 Seeker verified**; leave it out to see **A3·no**.
-2. `cp frontend/.env.example frontend/.env` and set `EXPO_PUBLIC_STAKE_MINT` (the `STAKE_MINT` printed by the API's `v4-setup` script) so the balance chip shows SKR.
-3. `adb reverse tcp:3000 tcp:3000` so `localhost:3000` on the phone reaches the API (and `adb reverse tcp:8081 tcp:8081` for Metro).
+2. `cp frontend/.env.example frontend/.env` and set `EXPO_PUBLIC_STAKE_MINT` (the `STAKE_MINT` printed by the API's `v4-setup` script) so the balance chip shows SKR. The example points to Render; to use the local API, set `EXPO_PUBLIC_API_URL=http://localhost:3000`.
+3. Use `adb reverse tcp:8081 tcp:8081` for Metro. If using the local API, also run `adb reverse tcp:3000 tcp:3000`.
 4. Open KEPT → **Get started** → **Use my wallet** → pick a wallet row → approve the connect, then the sign-in message in your wallet.
 
 Proof photos in Live end on "Check unavailable" until the app has the on-device checker the backend now expects (`docs/notes/LIVE_DEMO_PLAN.md` Q1).

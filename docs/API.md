@@ -89,6 +89,10 @@ Errors: `400` invalid wallet address.
 Public. Send the ed25519 signature of that exact message, base64-encoded. The response contains a
 7-day session token. Each nonce can be used once.
 
+The signature is the **bare 64 bytes**. A wallet's MWA `signMessages` answers with the *signed payload*
+(the message followed by the 64-byte signature), so the app cuts the last 64 bytes before sending
+(`frontend/src/chain/signature.ts`). Anything longer gets `401`, same as a wrong signature.
+
 ```bash
 curl -s -X POST $API/api/auth/verify -H 'content-type: application/json' \
   -d '{"wallet":"<WALLET>","message":"<MESSAGE>","signature":"<BASE64_SIGNATURE>"}'

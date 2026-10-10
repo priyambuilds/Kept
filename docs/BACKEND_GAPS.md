@@ -35,7 +35,7 @@ Live (D-80) uses only `frontend/src/api/http/*`. Where the backend lacks somethi
 | P1-2 Rematch | None | Hidden (D3, L3, L4·b, N1 open the broken Oath instead) | As before |
 | P1-8 / P1-16 kept rate, streak | `GET /reputation/:wallet`: `keptRate.percentage` (plain kept / total, one decimal), `streak`, `oathsKept/Broken`, `bounties` | Stats, kept rates and B2 chips from it (`ReputationResponse`) | The design's rate is recency-weighted with "New" under 10 days (Q4) |
 | P1-9 profiles | `GET /identity/:wallet` only (no name, avatar, bio, socials) | My avatar from A4 on the device; others a stable avatar from the wallet and the short address; I5 activity empty | Profile routes as `Profile` in `proposed.ts` |
-| P1-10 Bounties | One admin-made Bounty at a time (`/bounty/current`, join, its own proof, payouts by the job); no list, creators, categories, user funding | Empty list; create (K), creator pages (I3) hidden | **Decision** (Q3); a list route with the `Bounty` shape in `proposed.ts` |
+| P1-10 Bounties | One admin-made Bounty at a time (`/bounty/current`, join, its own proof, payouts by the job); no list, creators, categories, user funding | Q3 (owner: yes): H1 lists the current one (`api/http/bounties.ts`), shown as KEPT's own, verified, category from its object, no entry rules; join is real; my entry is a stake-0 solo Oath in the Oath list; proof ends on F2b until Q1. Create (K) and creator pages (I3) hidden | Brand, category, cover message and rules fields on the Bounty; a list route with the `Bounty` shape in `proposed.ts` |
 | P1-11 inbox | `GET /api/inbox`, `PUT /api/inbox/:id`; **nothing writes inbox rows**; `type` is free text | Parsed with `InboxLiveResponse`; unknown types dropped; N1 empty state | Write rows for invites, reviews, nudges, results; constrain `type` to `InboxItem.type` |
 | P1-12 swap | None (D-21) | W3 hidden in Live | As before |
 | P1-14 error codes | Still `{error}` text only | Mapped by status + message | As before |
@@ -324,7 +324,7 @@ The checklist for the backend developer. Each line points to the full item below
 
 ### P1-18. Solo Oaths should start on create · NEW (Phase 4.5)
 - **Now:** `start_oath` is required for every Oath, solo included (`lib.rs:114` allows a solo start with one member). The design has no Start step for solo: C7 → C7·ok → D2 (flows.md, happy path 3).
-- **App until then:** after creating a solo Oath the app immediately sends `start_oath` too (`features/oaths/hooks.ts`), so on chain that's a second wallet approval.
+- **App until then:** since 2026-10-10 the app sends `create_oath` + `start_oath` as **one transaction** for a solo Oath (`chain/realTx.ts`), so it is one wallet approval. Checked by simulating that transaction on Devnet (no error, ~51k compute units, 545 bytes). No program change is needed for the approval count; starting inside `create_oath` would still save an instruction.
 - **Change:** start solo Oaths inside `create_oath` (day 1 at the creator's next midnight, D-6), or accept `start` as part of the same transaction.
 
 ### P1-19. A web link for invites · NEW (Phase 4.5)
@@ -336,6 +336,11 @@ The checklist for the backend developer. Each line points to the full item below
 - **Design:** H5 shows the survivors' avatars with their share.
 - **Now:** nothing lists a Bounty's survivors (Bounties are mock-only, P1-10). H5 shows the user and "+N others".
 - **Change:** include the first few survivors (name, avatar, share) in the Bounty result.
+
+### P1-21. The gesture challenge lasts 2 minutes; the design says 5 · NEW (2026-10-10, found on the emulator)
+- **Now:** `CHALLENGE_TTL_MS = 2 * 60_000` (`backend/src/v4/rules.ts:44`, plus a 60 s upload grace). A fresh challenge shows about 2:00 on F1, and F2c reads from the design's copy.
+- **Design:** F2c says "Challenges last 5 minutes, so nobody reuses old photos" (`design/copy.json`, F2c).
+- **Change:** set the TTL to 5 minutes, or decide the design copy should say 2 (the app shows whatever `expiresAt` the backend sends, so only the F2c sentence disagrees).
 
 ### Local setup note (Phase 4.5)
 Running `backend` locally needs `VERIFIER_SECRET_KEY` and `FAUCET_SECRET_KEY` for the **configured** Devnet verifier/admin (`FFAZTtBd…`, read from the on-chain Config). Without them sign-in, invites, nudges and price work, but the faucet has no SKR and real photo-2 check-ins are rejected on chain. A throwaway key was used for the shakedown.
@@ -352,10 +357,15 @@ Running `backend` locally needs `VERIFIER_SECRET_KEY` and `FAUCET_SECRET_KEY` fo
 6. **Stale code in the harness chain folder** · NEW. `chain/idl.ts` embeds the old V3 IDL (`buy_soul`, `check_in`), `chain/errors.ts` only maps V3 errors, `constants.ts` is V3, and `chain/oaths.ts:4` imports `@noble/hashes` without declaring it. The JSON IDL `chain/idl/kept_test.json` **is** V4. The new `packages/chain` uses only the JSON IDL.
 7. **Android app identity drift** · NEW. Three package names in three places: `assetlinks.ts` serves `com.kept.backendtest`, `backend/assetlinks.json` lists `app.kept.mobile` and `com.kept.testharness`, and the harness `app.json` uses `com.kept.backendtest`. The new app's package name and debug and release fingerprints must be added (DECISIONS D-22).
    **Phase 2 impact:** the new app (`app.kept.mobile`) now signs in through MWA with identity URI `EXPO_PUBLIC_APP_IDENTITY_URI`. Until the served `/.well-known/assetlinks.json` (`backend/src/routes/assetlinks.ts:10-18`) lists `app.kept.mobile` with the debug-keystore fingerprint (`FA:C6:17:45:…:3B:9C`, the same Expo debug key), wallets show "identity could not be verified" and may not re-authorize silently, so every transaction asks to connect again.
+   **Emulator check, 2026-10-10 (Android 15 emulator, Phantom in Testnet mode, debug build):** the public `https://keptdapp.vercel.app/.well-known/assetlinks.json` lists `app.kept.mobile` with the debug-keystore fingerprint, and it equals the installed APK's signing certificate (`apksigner`: `FA:C6:17:45:…:3B:9C`). Phantom still showed "This app's identity could not be verified" for `keptdapp.vercel.app`, and logged `Declining sol_mwa_reauthorize: dApp identity is not verified`. Effect on the app: the silent re-authorize before the message signature is declined, so the user taps **Connect** twice (once to connect, once more before the sign prompt); sign-in still works. The app falls back correctly and nothing in it needs to change. Needs a look on the Seeker's own wallet (Seed Vault) and on a release-signed build; if Phantom's check is not the file alone (the earlier attempt in BACKEND_PART_1 P40 saw the same), say what it needs.
 8. **Thin tests** · NEW. `backend/test/v4.test.ts` has 3 tests, all on pure helpers (`auth`, `proofRejection`, `nudgeRejection`). No route, scheduler or decoder tests. The program has LiteSVM tests (`tests/v4.test.ts`, 14 cases) and 6 Rust unit tests for the payout function that will be replaced (`lib.rs:252-261`).
 9. **Duplicated hand-written decoders** · NEW. The Oath account layout is decoded by byte offset in the API (`v4.ts:362-376`) and the app (`oaths.ts:20-27`), with hand-hashed discriminators (`v4.ts:326, 379`). Any layout change (P0-5, P1-1, P1-2) breaks both silently. Use the IDL coder (`packages/chain`).
 10. **Odds:** display-only, computed in the app from the kept rate (rules.md §8). No backend work.
 11. **API docs:** `docs/API.md` (created in Phase 0) must stay in sync. The app validates every response with zod schemas in `packages/shared`.
+12. **Sign-in prerequisites on the host (checked against Render, 2026-10-10)** · NEW. Verified by a real login with a throwaway key (no secrets used): `SESSION_SECRET` is set (`issueSession` would throw without it), the database answers (`/api/me` reads `sessionSeat`), and the nonce, verify and `/api/me` routes behave as `docs/API.md` says. `/health` and a bad `verify` don't prove any of this: both pass without `SESSION_SECRET` or a database. What the host must keep true:
+    - **One instance.** Nonces are process memory (item 2): a sleep, restart or second instance between `nonce` and `verify` turns a valid sign-in into `401 Invalid or expired sign-in signature`. A free Render instance asleep for the first request answers after a cold start (~30–60 s); the app shows "signing in" until then.
+    - **Genesis for a real Seeker.** `GET /api/me` reports `genesis: true` only if `GENESIS_GROUP` matches a Token-2022 group member in the wallet **on the cluster `DEVNET_RPC_URL` points to**, or if `SGT_MOCK=true` and the wallet is in `SGT_MOCK_ALLOWLIST` (never on mainnet RPC). A Seeker's Genesis Token lives on mainnet, so on a Devnet host the Seeker's wallet needs to be on the allowlist (`genesis.ts:34-37`) or it signs in as A3·no (solo only). Checked on the emulator: Phantom's test account came back `genesis: true`.
+    - A genesis `409` on `/api/me` ("assigned to a different wallet") is handled by the app: signed in, solo only.
 
 ---
 
