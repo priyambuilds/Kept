@@ -2,7 +2,7 @@
 // Demo and Live keep separate data (session, settings, drafts, device Oath facts): every store made with
 // `scopedPersist` lives under `kept.<scope>.<name>`, where the scope is the app mode (state/mode.ts).
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
+import { secureStore } from "@/lib/secureStore";
 import { createJSONStorage } from "zustand/middleware";
 import type { PersistOptions } from "zustand/middleware";
 
@@ -56,7 +56,7 @@ export async function rehydrateScoped(): Promise<void> { await Promise.all(scope
 export async function clearScope(s: StorageScope): Promise<void> {
   const keys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(`kept.${s}.`));
   if (keys.length) await AsyncStorage.multiRemove(keys);
-  await Promise.all([...secretNames].map((n) => SecureStore.deleteItemAsync(secretKey(n, s)).catch(() => undefined)));
+  await Promise.all([...secretNames].map((n) => secureStore.deleteItem(secretKey(n, s)).catch(() => undefined)));
 }
 
 // ── Secrets ── Fields named in `secretPersist` (the sign-in token) never reach AsyncStorage, which is a
@@ -84,23 +84,23 @@ function secretStorage(fields: readonly string[]) {
       if (fields.some((f) => saved.state?.[f] != null)) {
         // An older build's plain copy: move it, then rewrite without it.
         const { rest, secrets } = split(raw);
-        await SecureStore.setItemAsync(secretKey(name), secrets);
+        await secureStore.setItem(secretKey(name), secrets);
         await scopedAsync.setItem(name, rest);
         return raw;
       }
-      const stored = await SecureStore.getItemAsync(secretKey(name)).catch(() => null);
+      const stored = await secureStore.getItem(secretKey(name)).catch(() => null);
       if (stored && saved.state) Object.assign(saved.state, JSON.parse(stored) as Record<string, unknown>);
       return JSON.stringify(saved);
     },
     setItem: async (name: string, value: string): Promise<void> => {
       await keyFor(name);
       const { rest, secrets } = split(value);
-      await SecureStore.setItemAsync(secretKey(name), secrets);
+      await secureStore.setItem(secretKey(name), secrets);
       await scopedAsync.setItem(name, rest);
     },
     removeItem: async (name: string): Promise<void> => {
       await keyFor(name);
-      await SecureStore.deleteItemAsync(secretKey(name)).catch(() => undefined);
+      await secureStore.deleteItem(secretKey(name)).catch(() => undefined);
       await scopedAsync.removeItem(name);
     },
   };
