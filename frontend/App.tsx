@@ -5,6 +5,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastHost } from "@/components/chrome";
 import { FxHost, OfflineHost } from "@/app/hosts";
+import { CrashBoundary } from "@/app/CrashBoundary";
 import { RootNavigator } from "@/app/RootNavigator";
 import { queryClient } from "@/api/queries";
 import { color } from "@/theme";
@@ -23,10 +24,12 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <ToastHost>
             <StatusBar style="light" />
-            <RootNavigator />
-            <FxHost />
-            <OfflineHost />
-            {DevMenu ? <DevMenu /> : null}
+            <CrashBoundary>
+              <RootNavigator />
+              <FxHost />
+              <OfflineHost />
+              {DevMenu ? <DevMenu /> : null}
+            </CrashBoundary>
           </ToastHost>
         </QueryClientProvider>
       </SafeAreaProvider>
