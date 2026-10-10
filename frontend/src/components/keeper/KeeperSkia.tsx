@@ -170,7 +170,7 @@ export const KeeperSkia = memo(function KeeperSkia({ mood, prop = "none", anim =
       {bust ? null : <Body />}
     </>
   ));
-  const head = usePiece("head", <Head font={font} />, !!font);
+  const head = usePiece("headPiece", <Head font={font} />, !!font);
   const eyes = usePiece(`eyes:${mood}`, (
     <>
       {face.bean ? <FP d={face.eL} c={K.ink} /> : null}

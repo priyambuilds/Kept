@@ -25,6 +25,7 @@ jest.mock("@shopify/react-native-skia", () => {
     useFont: () => null,
     rect: (x, y, width, height) => ({ x, y, width, height }),
     vec: (x, y) => ({ x, y }),
+    drawAsPicture: async () => ({}),
   };
   return new Proxy(api, { get: (t, k) => (k in t ? t[k] : Noop) });
 });
