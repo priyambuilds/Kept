@@ -61,6 +61,7 @@
     "lint": "eslint .",
     "test": "jest",
     "theme:gen": "node scripts/gen-theme.js",
+    "icons:gen": "node scripts/gen-icons.js",
     "assets:sync": "node scripts/sync-assets.mjs",
     "routes:gen": "node scripts/gen-routes.mjs",
     "layout:gen": "node scripts/gen-layout.mjs",
