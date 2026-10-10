@@ -80,6 +80,14 @@ describe("mock api", () => {
     await api.inbox.markDone(["inv1"]);
     expect((await api.inbox.list()).unread).toBe(first.unread - 1);
   });
+  it("the vote request leaves the inbox once I've voted", async () => {
+    const api = mockApi("judges");
+    const rev = (await api.inbox.list()).items.find((i) => i.id === "rev1");
+    expect(rev?.ref.oath).toBeTruthy();
+    const [open] = await api.reviews.openFor(rev!.ref.oath!, MOCK_WALLET);
+    await api.reviews.vote(open!.id, MOCK_WALLET, false);
+    expect((await api.inbox.list()).items.some((i) => i.id === "rev1")).toBe(false);
+  });
   it("scenarios drive eligibility, balances and offline", async () => {
     expect((await mockApi("notEligible").auth.me()).genesis).toBe(false);
     expect((await mockApi().auth.me()).genesis).toBe(true);
