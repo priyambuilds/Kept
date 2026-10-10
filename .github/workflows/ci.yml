@@ -34,4 +34,4 @@ jobs:
       - name: Lint (app)
         run: pnpm --filter @kept/mobile exec eslint . --max-warnings 0
       - name: Tests (app)
-        run: pnpm --filter @kept/mobile test -- --ci
+        run: pnpm --filter @kept/mobile exec jest --ci
