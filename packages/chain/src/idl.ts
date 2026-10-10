@@ -2,7 +2,7 @@ import { BorshAccountsCoder, BorshInstructionCoder } from "@anchor-lang/core";
 import type { Idl } from "@anchor-lang/core";
 import idlJson from "../idl/kept_test.json";
 
-/** The kept_test IDL, synced from programs/kept/target by `pnpm --filter @kept/chain idl:sync`. */
+/** The kept_test IDL, synced from onchain/target by `pnpm --filter @kept/chain idl:sync`. */
 export const IDL = idlJson as unknown as Idl;
 export const accountsCoder = new BorshAccountsCoder(IDL);
 export const instructionCoder = new BorshInstructionCoder(IDL);

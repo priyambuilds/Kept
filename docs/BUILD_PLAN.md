@@ -11,20 +11,20 @@ Each phase ends with: `pnpm typecheck && pnpm lint && pnpm test` green, exact st
 ## Phase 0: Commit, restructure, backend green
 1. `git add` + **initial commit of the current state** (adds a root `.gitignore` first so `.DS_Store` stays out; I checked that there are no secrets in the tree).
 2. Restructure with `git mv` per ARCHITECTURE §1; add the root `package.json`, `pnpm-workspace.yaml`, `.npmrc`. Second commit.
-3. `apps/api`: pnpm install, `prisma generate`, `tsc` build, the existing 3 tests passing. Add `docker-compose.yml` (Postgres 16) for local dev and `docs/API.md` describing the **existing** routes. No behavior changes.
-4. `programs/kept`: moved intact; tests run only if you approve the toolchain install (D-24).
+3. `backend`: pnpm install, `prisma generate`, `tsc` build, the existing 3 tests passing. Add `docker-compose.yml` (Postgres 16) for local dev and `docs/API.md` describing the **existing** routes. No behavior changes.
+4. `onchain`: moved intact; tests run only if you approve the toolchain install (D-24).
 5. `legacy/harness-app` is not built.
 
-**Phone milestone:** none yet (no new app). You can still run the old harness from `legacy/harness-app` against `apps/api` to confirm the move didn't break the backend (I'll give the commands).
+**Phone milestone:** none yet (no new app). You can still run the old harness from `legacy/harness-app` against `backend` to confirm the move didn't break the backend (I'll give the commands).
 **Exit check:** `pnpm --filter @kept/api test` and `build` pass; `git log --follow` shows history on moved files.
 
 ## Phase 1: Packages, scaffold, theme, components, Gallery
-**Status: done** (2026-10-09). Typecheck, lint and tests green for every package except `programs/kept`, whose tests need a built program (`pnpm program:build`, Rust/Solana/Anchor toolchain). The Android bundle builds (`expo export`). Not yet run on a physical device.
+**Status: done** (2026-10-09). Typecheck, lint and tests green for every package except `onchain`, whose tests need a built program (`pnpm program:build`, Rust/Solana/Anchor toolchain). The Android bundle builds (`expo export`). Not yet run on a physical device.
 
 - `packages/config` (objects in on-chain order, gestures, stakes, lengths, `GOAL_MAX = 60`, fee bps, HP constants, tsconfig/eslint presets).
 - `packages/engine`: `missCost`, `simulateOath(days pattern) → per-day ledger {hp, lost, fee, shares, burned, broken}`, `settlement`, `rematchRecovery`, `keptRate`, `odds`. **Worked-example test** (1,468.75 / 779.17 / 1,468.75 / 166.67, fee 116.67) plus edge cases (cap, solo, all-miss day, break day, 14 days) exported to `test-vectors/*.json`.
 - `packages/shared` (zod schemas for every existing route + the proposed routes in BACKEND_GAPS (marked proposed), `ApiErrorCode` enum) and `packages/chain` (IDL from the harness JSON, PDAs, IDL-coder decoder tested against a fixture account, instruction builders).
-- `apps/mobile`: Expo SDK 57 dev build, `app.kept.mobile`, fonts, `theme:gen` from tokens.json, `t()` + templates with the exact-match test, ESLint rules banning raw colors/numbers/strings.
+- `frontend`: Expo SDK 57 dev build, `app.kept.mobile`, fonts, `theme:gen` from tokens.json, `t()` + templates with the exact-match test, ESLint rules banning raw colors/numbers/strings.
 - **Every component in components.md** with tests, plus the dev-only **Gallery** showing every state (Keeper uses the PNG fallback, D-33).
 
 **Phone milestone:** install the dev build; the app opens straight into the **Gallery**. Scroll every component and state on the device: buttons, OathCard, HPPanel at 100/40/20, DayMemberGrid 7 and 14 days, ProofCamera states, SignStatus, sheets, toasts, KeeperNote.
@@ -80,7 +80,7 @@ Rematch, group review, Bounties (feed, detail, join, eliminated, ended, my Bount
 **Phone milestone:** walk all 116 screens on the device in mock mode via scenarios; real faucet top-up from W2; real push for a nudge and the 2 h reminder (if FCM is configured).
 
 ## Phase 4.5: Device shakedown
-**Status: done, partly** (2026-10-09). First run on a device since Phase 1 (Pixel 8 emulator, API 34). Details, every fix and what's left: `docs/SHAKEDOWN.md`.
+**Status: done, partly** (2026-10-09). First run on a device since Phase 1 (Pixel 8 emulator, API 34). Details, every fix and what's left: `docs/notes/SHAKEDOWN.md`.
 
 - Dev-only deep link `kept://dev/open/<screen>?scenario=…` (dropped from release bundles), screenshot scripts for the app and the prototype, `artifacts/compare/index.html` (gitignored).
 - 116 / 116 screens with no logcat errors or crashes; 14 / 14 flows.md happy paths pass with adb taps (`scripts/drive.mts`).
@@ -91,6 +91,6 @@ Rematch, group review, Bounties (feed, detail, join, eliminated, ended, my Bount
 ## Phase 5: Motion, haptics, Keeper, accessibility, performance, E2E
 Signature animations from motion.md (HP damage/heal, money, day kept, broken, payout, Rematch) with haptics; the parametric Keeper in `react-native-svg`; Reduce Motion fallbacks; labels and 48 dp targets audited; list virtualization and a startup-time pass; Maestro smoke flows (onboarding, create, join, proof, claim) on mock scenarios.
 
-**Mostly replaced by the fidelity pass (docs/FIDELITY_PASS.md, checklist in docs/FIDELITY_AUDIT.md):** the parametric Keeper (rig.ts + KeeperSvg), the per-screen KeeperMark/KeeperNote host, screen-enter choreography, the motion primitives (Pop, Enter, Bubble, NoteDrop, Knock, Shake, Tilt, Loop, CountText), the splash sequence, sheet close, haptics per motion.md and route / KeeperNote tests are done there. What stays in Phase 5: HP damage / heal on an unseen change and the BalanceChip count (S20), the accessibility audit, Maestro flows.
+**Mostly replaced by the fidelity pass (docs/notes/FIDELITY_PASS.md, checklist in docs/notes/FIDELITY_AUDIT.md):** the parametric Keeper (rig.ts + KeeperSvg), the per-screen KeeperMark/KeeperNote host, screen-enter choreography, the motion primitives (Pop, Enter, Bubble, NoteDrop, Knock, Shake, Tilt, Loop, CountText), the splash sequence, sheet close, haptics per motion.md and route / KeeperNote tests are done there. What stays in Phase 5: HP damage / heal on an unseen change and the BalanceChip count (S20), the accessibility audit, Maestro flows.
 
 **Phone milestone:** the full app with motion; `maestro test .maestro/` runs green against your connected phone (Maestro install needed).

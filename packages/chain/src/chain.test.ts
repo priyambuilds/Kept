@@ -29,7 +29,7 @@ async function fixture() {
   });
 }
 
-/** apps/api/src/routes/v4.ts:363-376, the backend's hand-written decoder, reproduced to prove layout parity. */
+/** backend/src/routes/v4.ts:363-376, the backend's hand-written decoder, reproduced to prove layout parity. */
 function apiReadOath(d: Buffer) {
   const count = d[138]!;
   const members: string[] = [], daysKept: Record<string, number> = {};

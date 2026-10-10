@@ -1,6 +1,6 @@
 # KEPT: Architecture
 
-**Status:** proposal, waiting for approval. Nothing has been moved yet.
+**Status:** implemented. Top-level folders renamed later to `frontend/`, `backend/`, `onchain/` (from `apps/mobile`, `apps/api`, `programs/kept`).
 **Inputs:** `CLAUDE.md`, `design/*`, `backend/*` (as of 2026-10-09).
 **Companion docs:** `BACKEND_GAPS.md` (what the backend must change), `DECISIONS.md` (assumptions to confirm), `BUILD_PLAN.md` (phases and phone milestones).
 
@@ -10,11 +10,11 @@
 
 ```
 /                         pnpm workspace root (package.json, pnpm-workspace.yaml, .npmrc, .gitignore)
-├─ apps/
-│  ├─ mobile/             NEW Expo app (TypeScript strict, Android only), built from design/
-│  └─ api/                Express + Prisma backend   ← backend/{src,prisma,test,scripts,package.json,tsconfig.json,.env.example,assetlinks.json,temp_public}
-├─ programs/
-│  └─ kept/               Anchor workspace           ← backend/kept-example/program (Anchor.toml, Cargo.*, programs/kept_test, tests/)
+├─ frontend/             NEW Expo app (TypeScript strict, Android only), built from design/ (was apps/mobile)
+├─ backend/              Express + Prisma backend (was apps/api)  ← backend/{src,prisma,test,scripts,package.json,tsconfig.json,.env.example}
+│                         (assetlinks.json and temp_public/ now live in backend/static/)
+├─ onchain/              Anchor workspace (was programs/kept)  ← backend/kept-example/program (Anchor.toml, Cargo.*, programs/kept_test, tests/)
+│                         (ad-hoc devnet scripts test_*.ts now live in onchain/scripts/)
 ├─ packages/
 │  ├─ config/             constants (objects, gestures, stakes, lengths, limits) + tsconfig / eslint presets
 │  ├─ engine/             pure TS rules: HP, miss cost, daily distribution, Rematch recovery, kept rate, odds
@@ -22,12 +22,14 @@
 │  ├─ shared/             zod schemas + API contract types (requests, responses, error codes)
 │  └─ chain/              NEW: program client: IDL, PDAs, account decoder, instruction builders, error map
 ├─ design/                unchanged, read-only
+├─ infra/                 local dev infrastructure (docker-compose.yml: Postgres 16 for backend)
 ├─ docs/                  ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API (added in Phase 0)
+│  └─ notes/              session reports and plans (fidelity audit/pass, shakedown, live/demo plan, handoff)
 └─ legacy/                kept for reference, not built, not in the workspace
    ├─ harness-app/        ← backend/kept-example/app
-   ├─ v3-app/             ← backend/kept-example/legacy-app
-   ├─ v3-aura/            ← backend/legacy
-   ├─ v3-program-tests.ts ← backend/kept-example/legacy-program-tests-v3.ts
+   ├─ v3/app/             ← backend/kept-example/legacy-app
+   ├─ v3/aura/            ← backend/legacy
+   ├─ v3/program-tests.ts ← backend/kept-example/legacy-program-tests-v3.ts
    └─ docs/               ← backend/BACKEND_PART_1.md, backend/kept_backend.md, backend/README.md, backend/kept-example/README.md
 ```
 
@@ -35,11 +37,11 @@
 
 | Change | Why |
 |---|---|
-| **Added `packages/chain`** | The Oath account is decoded by hand with byte offsets in two places today (`backend/src/routes/v4.ts:362-376` and `backend/kept-example/app/src/chain/oaths.ts:20-27`), and the instruction discriminators are hashed by hand in the API (`v4.ts:326`, `v4.ts:379`). One package that owns the IDL, PDAs, decoder and instruction builders gives the mobile `TxService` and the app's on-chain reads one source. The backend can adopt it later if the backend developer wants to (`apps/api` is read-only for us). |
-| **Program crate keeps the name `kept_test`** (folder is `programs/kept`) | Renaming the crate changes the IDL file name, `metadata.name` and the generated `KeptTest` type. The program ID (`6iXX…MUh`) and the discriminators don't depend on the crate name, but there's no benefit to the churn, and CLAUDE.md says not to change the program. A rename can go to the backend developer as a P2 item. |
-| **Anchor workspace root is `programs/kept`, not `programs/`** | `Anchor.toml`, `Cargo.toml`, `Cargo.lock` and `tests/` move as one unit, so `anchor build` / `cargo test` keep working unchanged from that folder. |
-| **IDL lives in `packages/chain/idl/`** | Today it's copied into the app (`kept-example/app/scripts/sync-idl.js`). One copy, synced from `programs/kept/target/` by a script in `packages/chain`. |
-| **The harness app goes to `legacy/harness-app`**, not deleted | CLAUDE.md marks it reference-only. Its useful parts (MWA session + `signAndSend`, Hermes `Buffer` polyfill, PDA helpers) are **ported** into `packages/chain` and `apps/mobile`, not imported. Note that `chain/idl.ts` and `chain/errors.ts` there are stale V3 code (see BACKEND_GAPS P2-6). |
+| **Added `packages/chain`** | The Oath account is decoded by hand with byte offsets in two places today (`backend/src/routes/v4.ts:362-376` and `backend/kept-example/app/src/chain/oaths.ts:20-27`), and the instruction discriminators are hashed by hand in the API (`v4.ts:326`, `v4.ts:379`). One package that owns the IDL, PDAs, decoder and instruction builders gives the mobile `TxService` and the app's on-chain reads one source. The backend can adopt it later if the backend developer wants to (`backend` is read-only for us). |
+| **Program crate keeps the name `kept_test`** (folder is `onchain`) | Renaming the crate changes the IDL file name, `metadata.name` and the generated `KeptTest` type. The program ID (`6iXX…MUh`) and the discriminators don't depend on the crate name, but there's no benefit to the churn, and CLAUDE.md says not to change the program. A rename can go to the backend developer as a P2 item. |
+| **Anchor workspace root is `onchain`, not `programs/`** | `Anchor.toml`, `Cargo.toml`, `Cargo.lock` and `tests/` move as one unit, so `anchor build` / `cargo test` keep working unchanged from that folder. |
+| **IDL lives in `packages/chain/idl/`** | Today it's copied into the app (`kept-example/app/scripts/sync-idl.js`). One copy, synced from `onchain/target/` by a script in `packages/chain`. |
+| **The harness app goes to `legacy/harness-app`**, not deleted | CLAUDE.md marks it reference-only. Its useful parts (MWA session + `signAndSend`, Hermes `Buffer` polyfill, PDA helpers) are **ported** into `packages/chain` and `frontend`, not imported. Note that `chain/idl.ts` and `chain/errors.ts` there are stale V3 code (see BACKEND_GAPS P2-6). |
 | **V3 docs go to `legacy/docs/`** | `BACKEND_PART_1.md` calls itself the source of truth, but it describes V3 (Soul, XP, Aura, `buy_soul`), which the V4 code no longer contains. Keeping it at the top level would mislead the next reader. |
 | **`docs/BUILD_PLAN.md`** added | The phase plan you asked for. `docs/API.md` is created in Phase 0 from the existing routes. |
 | **No Turborepo** | Five TS packages and two apps. `pnpm -r` plus `tsc -b` project references cover build order and caching well enough. I'll add Turbo only if CI time becomes a problem. |
@@ -50,13 +52,13 @@ Dead V3 Rust files inside `programs/kept_test/src/` (`constants.rs`, `day.rs`, `
 
 ## 2. Package manager and workspace setup
 
-- **pnpm workspaces** (pnpm 12.6 is installed here). `pnpm-workspace.yaml` lists `apps/*`, `packages/*`, `programs/kept` (for its TS LiteSVM tests only). `legacy/` is excluded.
+- **pnpm workspaces** (pnpm 12.6 is installed here). `pnpm-workspace.yaml` lists `frontend`, `backend`, `onchain`, `packages/*` (for its TS LiteSVM tests only). `legacy/` is excluded.
 - **`nodeLinker: hoisted`** (in `pnpm-workspace.yaml`; pnpm 12 ignores `.npmrc` for this). React Native autolinking, Gradle and Metro are most reliable with a flat `node_modules`, and the Anchor TS tests expect it too. If Expo still has trouble, the fallback is npm workspaces (per CLAUDE.md); the layout stays the same.
 - **Build scripts:** Prisma, esbuild and the native modules need install scripts. They're allowlisted in `pnpm-workspace.yaml`, replacing the npm-11 `allowScripts` block in `backend/package.json`.
 - **Node:** `engines.node >= 20` (the backend's current constraint). Local Node is 26.7.
-- **Internal package format:** packages are TypeScript source. Each one has `exports` with a `react-native` condition pointing at `src/index.ts` (Metro compiles it directly) and a `default` condition pointing at `dist/` built by `tsc -b` (for any Node consumer; `apps/api` doesn't use these packages today and is the backend developer's code).
+- **Internal package format:** packages are TypeScript source. Each one has `exports` with a `react-native` condition pointing at `src/index.ts` (Metro compiles it directly) and a `default` condition pointing at `dist/` built by `tsc -b` (for any Node consumer; `backend` doesn't use these packages today and is the backend developer's code).
 - **Root scripts:** `pnpm typecheck`, `pnpm lint`, `pnpm test` (all packages), `pnpm api:dev`, `pnpm mobile:android`, `pnpm idl:sync`, `pnpm theme:gen`.
-- **Rust is outside pnpm.** `programs/kept` keeps its Cargo workspace. `cargo`, `anchor` and `solana` are **not installed on this machine**, so I can't build or run the program's tests here. See DECISIONS D-24.
+- **Rust is outside pnpm.** `onchain` keeps its Cargo workspace. `cargo`, `anchor` and `solana` are **not installed on this machine**, so I can't build or run the program's tests here. See DECISIONS D-24.
 - **Secrets:** a root `.gitignore` covers `.env*` (except `.env.example`), keypairs, `target/`, `android/`, `.DS_Store`, `node_modules/` and `dist/`. I checked: there are no `.env` or keypair files in the tree today.
 
 ---
@@ -76,11 +78,11 @@ Dead V3 Rust files inside `programs/kept_test/src/` (`constants.rs`, `day.rs`, `
    │ (bigint)   │ │ contract   │    └─────┬──────┘
    └─────┬──────┘ └─────┬──────┘          │
          │   test-vectors/*.json          │
-         │──────────────────────────────► programs/kept (Rust tests, later)
+         │──────────────────────────────► onchain (Rust tests, later)
          ▼              ▼                 ▼
    ┌──────────────────────────────────────────────┐
-   │ apps/mobile   uses engine + shared + chain   │──HTTP──► apps/api (read-only for us)
-   │                                              │◄─RPC───► Solana Devnet ◄── programs/kept (deployed)
+   │ frontend   uses engine + shared + chain   │──HTTP──► backend (read-only for us)
+   │                                              │◄─RPC───► Solana Devnet ◄── onchain (deployed)
    └──────────────────────────────────────────────┘
 ```
 
@@ -127,10 +129,10 @@ Versions checked on the npm registry on 2026-10-09. Expo `latest` is **SDK 57 (5
 **Not adding:** Skia, Lottie/Rive (none supplied), NativeWind, axios, i18n frameworks, date libraries (`Intl` is enough), react-native-shadow-2 (elevation + inset Views per DESIGN §6).
 
 ### Theme and copy
-- **`pnpm theme:gen`** reads `design/tokens.json` and writes `apps/mobile/src/theme/tokens.gen.ts` (typed, `as const`, checked in). A test fails if the generated file is out of date. Components only read `theme.*`.
-- **Copy:** `t(key, vars?)` is typed against `design/copy.json`, so an unknown key is a compile error. copy.json strings contain **sample values**, not placeholders (its own `$meta.note` says so). So `apps/mobile/src/copy/templates.json` maps the keys that need data to a templated form (e.g. `screens.D2.b1.text` → `"{timeLeft} left today · first miss −{cost} SKR"`). A unit test renders every template with the sample values and asserts the output equals copy.json **exactly**, so a template can never drift from the design copy. See DECISIONS D-17.
+- **`pnpm theme:gen`** reads `design/tokens.json` and writes `frontend/src/theme/tokens.gen.ts` (typed, `as const`, checked in). A test fails if the generated file is out of date. Components only read `theme.*`.
+- **Copy:** `t(key, vars?)` is typed against `design/copy.json`, so an unknown key is a compile error. copy.json strings contain **sample values**, not placeholders (its own `$meta.note` says so). So `frontend/src/copy/templates.json` maps the keys that need data to a templated form (e.g. `screens.D2.b1.text` → `"{timeLeft} left today · first miss −{cost} SKR"`). A unit test renders every template with the sample values and asserts the output equals copy.json **exactly**, so a template can never drift from the design copy. See DECISIONS D-17.
 
-### App layout (`apps/mobile/src`)
+### App layout (`frontend/src`)
 ```
 app/          navigation (RootStack, Tabs, linking, route ids ⇄ design ids)
 screens/      one file per design screen id, thin: compose components + call feature hooks

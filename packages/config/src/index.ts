@@ -1,7 +1,7 @@
 // Product constants shared by the app and the engine. Every number here comes from
 // design/rules.md or docs/DECISIONS.md; the comment says which.
 
-/** Proof objects, in on-chain `object_id` order (must match OBJECT_IDS in apps/api/src/routes/v4.ts:22). */
+/** Proof objects, in on-chain `object_id` order (must match OBJECT_IDS in backend/src/routes/v4.ts:22). */
 export const OBJECTS = [
   { id: "dumbbell", icon: "dumbbell", asset: "object-dumbbell", nameWord: "iron" },
   { id: "book", icon: "book-open-variant", asset: "object-book", nameWord: "page" },
@@ -35,7 +35,7 @@ export type GestureKey = (typeof GESTURES)[number]["key"];
 export const LENGTHS = [3, 7, 14] as const;
 export type OathLength = (typeof LENGTHS)[number];
 
-/** SKR has 6 decimals (apps/api/scripts/v4-setup.ts:31). */
+/** SKR has 6 decimals (backend/scripts/v4-setup.ts:31). */
 export const SKR_DECIMALS = 6;
 export const SKR_UNIT = 10n ** BigInt(SKR_DECIMALS);
 /** Stake per member in whole SKR (rules.md §1). */

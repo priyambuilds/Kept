@@ -11,9 +11,9 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 - **The Keeper:** a half-warden, half-bookie mascot that comments at key moments.
 
 ## ⚠️ Scope: FRONTEND ONLY
-**Your job is the mobile app (`apps/mobile`) and the frontend packages it uses.** The backend and program belong to the backend developer.
+**Your job is the mobile app (`frontend`) and the frontend packages it uses.** The backend and program belong to the backend developer.
 
-- **Do not write or change code in `apps/api` or `programs/kept`.** That includes no new routes, no migrations, no "small fixes" and no refactors. The only exceptions are a task where I explicitly say "merge phase" or "you may edit the backend", or a dependency bump needed to keep the workspace installing (ask first).
+- **Do not write or change code in `backend` or `onchain`.** That includes no new routes, no migrations, no "small fixes" and no refactors. The only exceptions are a task where I explicitly say "merge phase" or "you may edit the backend", or a dependency bump needed to keep the workspace installing (ask first).
 - **Read the backend freely** to understand the API, IDL, PDAs, auth and data shapes.
 - **If the app needs something the backend doesn't have** (a route, a field, a rule), build the app against `KeptApi`/`TxService` with the **mock** for that feature, and write exactly what's needed into `docs/BACKEND_GAPS.md`, with the request/response shape you coded against.
 - **Use the real backend only where it already works today** (sign-in, Genesis status, invites, create/join/start/cancel/claim on chain, nudge, push token, price, faucet).
@@ -24,12 +24,13 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 | Path | What it is | Status |
 |---|---|---|
 | `design/` | The final handoff from Claude Design: `README.md`, `DESIGN.md`, `tokens.json`, `components.md`, `screens.md` (116 screens, A0–W4), `flows.md`, `copy.json`, `motion.md`, `rules.md`, `assets/`, `reference/` (HTML prototype) | **Source of truth for UI and product rules.** Read-only. Rule changes live in `docs/DECISIONS.md` › Rules amendments. |
-| `apps/api` | The existing Express + Prisma + Postgres API (moved from `backend/`) | Backend developer's code. **Read-only for you.** |
-| `programs/kept` | The Anchor program (`kept_test`) | Backend developer's code. **Read-only for you.** Never deploy with the local keypair in `target/deploy`. |
-| `apps/mobile` | The new app (Phase 1+) | **Your work.** |
+| `backend/` | The existing Express + Prisma + Postgres API (originally `backend/` + `src/`, then `apps/api`) | Backend developer's code. **Read-only for you.** |
+| `onchain/` | The Anchor program (`kept_test`) | Backend developer's code. **Read-only for you.** Never deploy with the local keypair in `target/deploy`. |
+| `frontend/` | The new app (Phase 1+) | **Your work.** |
 | `packages/*` | config, shared (schemas, contract), engine, chain (IDL + account reading) | **Your work** (frontend-side, consumed by the app). |
 | `legacy/` | The old harness app, V3/Aura code and docs | Reference only. |
-| `docs/` | ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API | Keep them updated. |
+| `docs/` | ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API; `docs/notes/` for session reports and plans | Keep them updated. |
+| `infra/` | `docker-compose.yml` (local Postgres for `backend`) | Dev infrastructure. |
 
 ## Precedence rules
 1. **Product behavior and UI:** `design/rules.md` and `design/screens.md` win. If the backend or program does something different, build the frontend to the design and **record the difference in `docs/BACKEND_GAPS.md`**. Never silently change the design to match the backend.
@@ -43,19 +44,19 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 3. **Connect it to the backend** where the backend already supports a feature, using the mock everywhere else. The full merge happens later, only when I say so.
 4. **Keep `docs/BACKEND_GAPS.md` current.** It's the handoff for the backend developer: every place the backend or program must change to match the design.
 
-## Target structure (proposed; refine it and justify any changes)
+## Repo structure (current)
 ```
-/apps
-  /mobile            new Expo app (TypeScript strict), built from design/
-  /api               the Express + Prisma backend, moved from backend/src (+ prisma/, test/, scripts/)
-/programs
-  /kept              the Anchor program, moved from backend/kept-example/program
+/frontend            UI: the Expo app (TypeScript strict), built from design/ (package @kept/mobile)
+/backend             Node backend: Express + Prisma API (package kept-backend)
+/onchain             On-chain backend: Anchor workspace, Rust program in programs/kept_test
 /packages
-  /shared            zod schemas + API contract types, shared by mobile and api
+  /shared            zod schemas + API contract types, shared by frontend and backend
   /engine            pure TS: HP, cost per miss, daily distribution, Rematch recovery, kept rate, odds; plus test vectors (JSON) also used by the Rust tests
   /config            shared constants (objects, gestures, stakes, lengths) + tsconfig/eslint presets
+  /chain             program client: IDL, PDAs, account decoding
+/infra               docker-compose.yml (local Postgres)
 /design              unchanged
-/docs                ARCHITECTURE.md, BACKEND_GAPS.md, DECISIONS.md, API.md
+/docs                ARCHITECTURE.md, BACKEND_GAPS.md, DECISIONS.md, BUILD_PLAN.md, API.md; notes/ for session reports
 /legacy              old harness app, V3/Aura code (kept for reference, not built)
 ```
 - Use **pnpm workspaces** (or npm workspaces if pnpm causes problems with Expo or Anchor), and Turborepo only if it clearly helps.
@@ -92,7 +93,7 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 - **Required test:** 4 × 1,000 SKR over 3 days with the pattern in rules.md → 1,468.75 / 779.17 / 1,468.75 / 166.67, fee 116.67. Export the test vectors as JSON so the Rust program can be tested against the same numbers later.
 
 ## Backend in this repo
-- See **Scope** at the top: `apps/api` and `programs/kept` are read-only for you.
+- See **Scope** at the top: `backend` and `onchain` are read-only for you.
 - Every backend need goes into `docs/BACKEND_GAPS.md`. `docs/API.md` documents what exists today; mark proposed routes as **proposed**.
 
 ## Definition of done (per screen)

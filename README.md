@@ -2,15 +2,19 @@
 
 Android app for the Solana Seeker: swear daily Oaths, stake SKR, prove each day with two photos.
 
-| Path | What |
-|---|---|
-| `apps/api` | Express + Prisma backend (V4 Devnet prototype) |
-| `apps/mobile` | the new Expo app (from Phase 1) |
-| `programs/kept` | Anchor program `kept_test` (`6iXXBqsdiCnUTSVf8CW3Uuw8c7iYvZSj5haz64QMuMUh`) |
-| `packages/*` | shared config, engine, schemas, chain client (from Phase 1) |
-| `design/` | the design handoff (read-only source of truth) |
-| `docs/` | architecture, backend gaps, decisions, build plan, API |
-| `legacy/` | the old harness app, V3 code and docs (reference only, not built) |
+| Path | Layer | What |
+|---|---|---|
+| `frontend/` | UI | the Expo app (Android, Solana Seeker) |
+| `backend/` | Node backend | Express + Prisma backend (V4 Devnet prototype) |
+| `onchain/` | On-chain (Rust) | Anchor program `kept_test` (`6iXXBqsdiCnUTSVf8CW3Uuw8c7iYvZSj5haz64QMuMUh`) |
+| `packages/*` | shared TS | config, engine, schemas, chain client |
+| `infra/` | infra | `docker-compose.yml` (local Postgres) |
+| `design/` | design | the design handoff (read-only source of truth) |
+| `docs/` | docs | architecture, backend gaps, decisions, build plan, API; `docs/notes/` for session reports |
+| `legacy/` | reference | the old harness app, V3 code and docs (not built) |
+| `patches/` | tooling | pnpm dependency patches |
+
+Each top-level folder has a `README.md` describing its contents.
 
 ## Setup
 Requires Node ≥ 20, pnpm, Docker (local Postgres). For the program: Rust, Solana CLI (Agave), Anchor 1.2.0.
@@ -18,8 +22,8 @@ Requires Node ≥ 20, pnpm, Docker (local Postgres). For the program: Rust, Sola
 ```bash
 pnpm install
 pnpm db:up                       # Postgres 16 on localhost:5432 (user/pass/db: kept)
-cp apps/api/.env.example apps/api/.env   # then fill it in (see apps/api/.env.example)
-pnpm --filter @kept/api exec prisma migrate deploy
+cp backend/.env.example backend/.env   # then fill it in (see backend/.env.example)
+pnpm --filter kept-backend exec prisma migrate deploy
 pnpm api:dev                     # http://localhost:3000
 ```
 
@@ -36,8 +40,8 @@ pnpm mobile:android              # prebuilds android/, builds and installs app.k
 After the first install you only need Metro: `pnpm mobile:start`, then open **KEPT** on the phone (same Wi-Fi, or `adb reverse tcp:8081 tcp:8081` over USB). Shake the phone (or `adb shell input keyevent 82`) for the dev menu.
 
 ### Signing in against your local API (hybrid mode, the default)
-1. Start the backend (Setup above). In `apps/api/.env` put your phone wallet's address in `SGT_MOCK_ALLOWLIST` to get **A3 Seeker verified**; leave it out to see **A3·no**.
-2. `cp apps/mobile/.env.example apps/mobile/.env` and set `EXPO_PUBLIC_STAKE_MINT` (the `STAKE_MINT` printed by the API's `v4-setup` script) so the balance chip shows SKR.
+1. Start the backend (Setup above). In `backend/.env` put your phone wallet's address in `SGT_MOCK_ALLOWLIST` to get **A3 Seeker verified**; leave it out to see **A3·no**.
+2. `cp frontend/.env.example frontend/.env` and set `EXPO_PUBLIC_STAKE_MINT` (the `STAKE_MINT` printed by the API's `v4-setup` script) so the balance chip shows SKR.
 3. `adb reverse tcp:3000 tcp:3000` so `localhost:3000` on the phone reaches the API (and `adb reverse tcp:8081 tcp:8081` for Metro).
 4. Open KEPT → **Get started** → pick any wallet row → approve the connect, then the sign-in message in your wallet.
 

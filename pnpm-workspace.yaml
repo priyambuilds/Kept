@@ -1,7 +1,8 @@
 packages:
-  - apps/*
+  - frontend
+  - backend
+  - onchain
   - packages/*
-  - programs/kept
 
 # React Native autolinking, Gradle and Metro are most reliable with a flat node_modules.
 nodeLinker: hoisted
