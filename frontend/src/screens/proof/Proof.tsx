@@ -209,12 +209,12 @@ export function F2c() {
 
 // ── F3 Photo 1 done ──
 export function F3() {
-  const { back, replace, reset } = useGo();
+  const { back, replace, go } = useGo();
   const { id, view } = useProofScreen();
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(2)} pinned={<>
       <Button kind="p" icon="camera" label={t("screens.F3.pin.0")} onPress={() => replace("F4", { id, photo: 2 })} />
-      <Button kind="t" label={t("screens.F3.pin.1")} onPress={() => reset("B1")} />
+      <Button kind="t" label={t("screens.F3.pin.1")} onPress={() => go("B1")} />
     </>}>
       <SignStatus state="success" chip={t("screens.F3.b1.chip")} />
       <Title heading={t("screens.F3.b2.title")} sub={t("screens.F3.b2.sub", { task: t("additions.core.it") })} align="center" />
@@ -226,12 +226,12 @@ export function F3() {
 
 // ── F4a 3 fails · AI only ──
 export function F4a() {
-  const { back, reset } = useGo();
+  const { back, go } = useGo();
   const { view } = useProofScreen();
   const k = keeperLines("F4a")[0]!;
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(1)}
-      pinned={<Button kind="p" label={t("screens.F4a.pin.0")} onPress={() => reset("B1")} />}>
+      pinned={<Button kind="p" label={t("screens.F4a.pin.0")} onPress={() => go("B1")} />}>
       <ScreenKeeper id="F4a" lines={[k]} />
       <Title heading={t("screens.F4a.b2.title")} sub={view ? t("screens.F4a.b2.sub", { name: view.facts.name }) : ""} align="center" />
       <Breakdown rows={[
@@ -245,7 +245,7 @@ export function F4a() {
 
 // ── F4a·g 3 fails · group review ── the vote itself is G2 (screens/review).
 export function F4ag() {
-  const { back, replace, reset } = useGo();
+  const { back, replace, go } = useGo();
   const { id, view } = useProofScreen();
   const others = view ? view.members.filter((m) => !m.isMe).map(memberName) : [];
   const c = useProof((s) => s.challenges[key(id, 2)]);
@@ -253,7 +253,7 @@ export function F4ag() {
   return (
     <Screen bar={<NavBar onBack={back} close title={view?.facts.name ?? ""} />} bottomInset={pinned(2)} pinned={<>
       <Button kind="p" icon="account-group-outline" label={t("screens.F4a·g.pin.0")} onPress={() => replace("G2", { id })} />
-      <Button kind="t" label={t("screens.F4a·g.pin.1")} onPress={() => reset("B1")} />
+      <Button kind="t" label={t("screens.F4a·g.pin.1")} onPress={() => go("B1")} />
     </>}>
       <ProofCamera photo={2} state="fail" object={view ? objectIcon(view.facts.objectId) : "camera"} {...(gk ? { gesture: gk } : {})} label={t("screens.F4a·g.b0.label")} height={260} />
       <Title heading={t("screens.F4a·g.b1.title")} sub={t("screens.F4a·g.b1.sub", { names: listNames(others) })} fs={28} />
@@ -263,7 +263,7 @@ export function F4ag() {
 
 // ── F5 Day kept ──
 export function F5() {
-  const { back, reset } = useGo();
+  const { back, go } = useGo();
   const toast = useToast();
   const { view } = useProofScreen();
   const playFx = useUi((s) => s.playFx);
@@ -276,7 +276,7 @@ export function F5() {
   const time = new Date().toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit" });
   return (
     <Screen bar={<NavBar onBack={back} close />} bottomInset={pinned(1)}
-      pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => reset("B1")} /></>}>
+      pinned={<><Button kind="p" label={t("screens.F5.pin.0")} onPress={() => go("B1")} /></>}>
       <ScreenKeeper id="F5" lines={[k]} />
       <Title heading={t("screens.F5.b1.title", { day })} align="center" fs={40} />
       {view ? <DayStrip n={view.facts.numDays} done={day} today={day} labels={Array.from({ length: view.facts.numDays }, (_, i) => t("additions.core.dayShort", { n: i + 1 }))} /> : null}

@@ -69,14 +69,14 @@ export function J1p() {
 
 // ── J1·ok Claimed ──
 export function J1ok() {
-  const { reset } = useGo();
+  const { go } = useGo();
   const { amount = "" } = useParams<{ amount: string }>();
   const playFx = useUi((s) => s.playFx);
   const k = keeperLines("J1·ok")[0]!;
   useEffect(() => { playFx(undefined, "payout"); }, [playFx, amount]);
   return (
-    <Screen bar={<NavBar onBack={() => reset("B1")} close />} bottomInset={pinned(1)}
-      pinned={<><Button kind="p" label={t("screens.J1·ok.pin.0")} onPress={() => reset("B1")} /></>}>
+    <Screen bar={<NavBar onBack={() => go("B1")} close />} bottomInset={pinned(1)}
+      pinned={<><Button kind="p" label={t("screens.J1·ok.pin.0")} onPress={() => go("B1")} /></>}>
       <ScreenKeeper id="J1·ok" lines={[k]} />
       <Title heading={t("screens.J1·ok.b2.title")} sub={t("screens.J1·ok.b2.sub", { amount })} align="center" fs={40} />
       <BrandStamp text={t("screens.J1·ok.brand.stamp", { amount })} />

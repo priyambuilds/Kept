@@ -160,7 +160,7 @@ function OpenCreator({ v }: { v: OathView }) {
 }
 
 function OpenMember({ v }: { v: OathView }) {
-  const { back, reset } = useGo();
+  const { back, go } = useGo();
   const toast = useToast();
   const f = v.facts;
   const creator = v.members.find((m) => m.facts.wallet === f.creator);
@@ -168,7 +168,7 @@ function OpenMember({ v }: { v: OathView }) {
   const leave = async () => {
     await oathActions.leave(f);
     toast(t("toasts.2", { amount: skrWhole(f.stake) }));
-    reset("D0");
+    go("D0");
   };
   return (
     <Screen bar={<NavBar onBack={back} title={f.name} />} bottomInset={f.source === "mock" ? pinned(1) : 0}

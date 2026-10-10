@@ -8,7 +8,7 @@ import { queryClient } from "@/api/queries";
 import { SLICES } from "@/api/types";
 import { RootNavigator, routeInvite } from "@/app/RootNavigator";
 import { FxHost } from "@/app/hosts";
-import { navigateTo } from "@/app/nav";
+import { navigateTo, navigationRef } from "@/app/nav";
 import { ROUTES, presentation, routeName } from "@/app/routes";
 import { STILL_OFFLINE } from "@/screens/M2";
 import { useDev } from "@/state/dev";
@@ -37,6 +37,9 @@ function App() {
     </SafeAreaProvider>
   );
 }
+
+/** The root stack, by route name (D-86: what back goes to). */
+const rootStack = () => navigationRef.getRootState()!.routes.map((r) => r.name);
 
 describe("routes", () => {
   it("registers every design id with an ASCII name", () => {
@@ -186,6 +189,10 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("screens.C8.b0.title"))).toBeTruthy();
     // The moment's coins stay with it: leaving C7·ok clears the FX layer.
     expect(useUi.getState().fx).toBeNull();
+    // D-86: the wizard, the signature and the moment are gone; back from the invite is Today.
+    expect(rootStack()).toEqual(["Tabs", "C8"]);
+    await act(async () => { navigationRef.goBack(); });
+    expect(rootStack()).toEqual(["Tabs"]);
   }, 30000);
 
   it("shows a settled Oath's result once, then the claim screen", async () => {
@@ -196,6 +203,10 @@ describe("onboarding on mocks", () => {
     expect(useDeviceOaths.getState().shownResults).toHaveLength(1);
     await fireEvent.press(await screen.findByRole("button", { name: /Claim/ }));
     expect(await screen.findByText(t("screens.J1.b1.caption"))).toBeTruthy();
+    // D-86: claim → signed → "Done" is the one home, nothing stacked on or under it.
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.J1.pin.0") }));
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.J1·ok.pin.0") }, slow));
+    expect(rootStack()).toEqual(["Tabs"]);
   }, 30000);
 
   it("D2 shows the live Oath and nudges; photo 2 → check → F5 Day kept", async () => {
@@ -271,6 +282,8 @@ describe("Bounties, Rematch, review, profile and wallet on mocks", () => {
     await act(async () => { navigateTo("R1", { id: guitar.id }); });
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.R1.pin.0") }, slow));
     expect(await screen.findByText(t("screens.R3.b1.title", { n: 3, total: 4 }), {}, slow)).toBeTruthy();
+    // D-86: back from the lobby is home, not the offer or the signature.
+    expect(rootStack()).toEqual(["Tabs", "R3"]);
   }, 30000);
 
   it("group review: the inbox opens G1 and a vote goes back to D2", async () => {
@@ -292,6 +305,7 @@ describe("Bounties, Rematch, review, profile and wallet on mocks", () => {
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.H2.pin.0") }, slow));
     expect(await screen.findByText(/^You're in\./, {}, slow)).toBeTruthy();
     expect(mockOaths.forBounty(open.id, WALLET)).not.toBeNull();
+    expect(rootStack()).toEqual(["Tabs", "H3"]);
   }, 30000);
 
   it("opens every one of those screens that needs no id without a render error", async () => {
