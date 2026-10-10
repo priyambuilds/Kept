@@ -106,7 +106,7 @@ Versions checked on the npm registry on 2026-10-09. Expo `latest` is **SDK 57 (5
 | Client state | **Zustand 5**: stores `session`, `balances`, `drafts`, `ui` | Small, no providers, persists drafts easily. |
 | Validation | **Zod 4** on every API response (mock included) | Keeps mock fixtures honest and catches backend drift at the edge. |
 | Animation | **Reanimated 4** (+ `react-native-worklets`), **Gesture Handler** | motion.md is written for Reanimated 3; v4 keeps the same `withTiming/withSpring/withSequence` API and is what SDK 57 ships. |
-| Drawing | **react-native-svg**, **expo-linear-gradient** | Keeper rig, Check-K, HP segments, rings; gradients for tiles, buttons and cards. |
+| Drawing | **react-native-svg**, **expo-linear-gradient**, **@shopify/react-native-skia** (2.6.2, Expo SDK 57's) | SVG for static icons and illustrations (Check-K, HP segments, rings, ambient light); Skia for anything drawn fresh each frame: the Keeper (`KeeperSkia`, still parts recorded once as pictures) and the splash Check-K reveal. Gradients for tiles, buttons and cards. |
 | Haptics | **expo-haptics** | Mapped 1:1 to motion.md's haptic calls. |
 | Fonts | **@expo-google-fonts/geist**, **@expo-google-fonts/geist-mono** | Named in DESIGN.md §3. Imported one weight per path (`theme/fonts.ts`): the package index would ship all 18 weights and italics. |
 | Icons | **@expo/vector-icons** `createIconSet` over a cut of MaterialCommunityIcons | Icon names match the prototype's `mdi-*` exactly. `pnpm icons:gen` keeps only the names the sources use (`icons.gen.json` + `assets/fonts/kept-icons.ttf`, 25 KB instead of 1.3 MB); `IconName` is typed from it, so tsc rejects a missing icon. |
@@ -126,7 +126,9 @@ Versions checked on the npm registry on 2026-10-09. Expo `latest` is **SDK 57 (5
 
 **Release build** (`app.json` › expo-build-properties): arm64-v8a only, R8 code and resource shrinking, compressed native libraries (APK 131 MB → about 23 MB). `metro.config.js` resolves zod's locale index to English only.
 
-**Not adding:** Skia, Lottie/Rive (none supplied), NativeWind, axios, i18n frameworks, date libraries (`Intl` is enough), react-native-shadow-2 (elevation + inset Views per DESIGN §6).
+**Motion rule** (motion rework, D-84): views that move, scale, rotate or fade animate transform and opacity only, with Reanimated on the UI thread; anything drawn fresh each frame is Skia; nothing animates SVG props, layout, shadows or blur. Known exception: the tab bar's active tab widens by animating `flex` (docs/notes/MOTION_REWORK.md). The previous SVG Keeper (`KeeperSvg`) stays behind a flag (Dev menu, or `EXPO_PUBLIC_KEEPER=SVG`).
+
+**Not adding:** Lottie/Rive (none supplied), NativeWind, axios, i18n frameworks, date libraries (`Intl` is enough), react-native-shadow-2 (elevation + inset Views per DESIGN §6).
 
 ### Theme and copy
 - **`pnpm theme:gen`** reads `design/tokens.json` and writes `frontend/src/theme/tokens.gen.ts` (typed, `as const`, checked in). A test fails if the generated file is out of date. Components only read `theme.*`.
