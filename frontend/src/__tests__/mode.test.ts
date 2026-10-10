@@ -5,7 +5,10 @@ import { getWallet } from "@/chain";
 import { mwaWallet } from "@/chain/mwa";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { SLICES } from "@/api/types";
-import { exitDemo, setAppMode, startDemo, startLive } from "@/features/mode";
+import { exitDemo, setAppMode, skipToTomorrow, startDemo, startLive } from "@/features/mode";
+import { getApi } from "@/api";
+import { oathView } from "@/features/oaths/model";
+import { clock } from "@/lib/clock";
 import { useDeviceOaths } from "@/features/oaths/device";
 import { flags, useDev } from "@/state/dev";
 import { useMode } from "@/state/mode";
@@ -68,6 +71,29 @@ describe("app mode", () => {
 
     await startDemo();
     expect(useDeviceOaths.getState().names["mock-1"]).toBeUndefined();
+  });
+});
+
+describe("Skip to tomorrow (Demo, Q6)", () => {
+  const nowS = () => Math.floor(clock.now() / 1000);
+  afterEach(() => clock.reset());
+  it("ends the day and the mock settles it: an unproved day costs HP", async () => {
+    useDev.setState({ scenario: "judges" }); // the release Demo's account
+    await startDemo();
+    const iron = async () => {
+      const list = await getApi().oaths.list(MOCK_WALLET);
+      return list.map((f) => oathView(f, nowS(), MOCK_WALLET)).find((v) => !v.facts.isSolo && !v.facts.bountyId && v.life === "active")!;
+    };
+    const before = await iron();
+    await skipToTomorrow();
+    const after = await getApi().oaths.list(MOCK_WALLET).then((l) => oathView(l.find((f) => f.id === before.facts.id)!, nowS(), MOCK_WALLET));
+    expect(after.dayNumber).toBe(before.dayNumber + 1);
+    expect(after.hp).not.toBe(before.hp);
+  });
+  it("does nothing in Live", async () => {
+    await startLive();
+    await skipToTomorrow();
+    expect(clock.offsetMs()).toBe(0);
   });
 });
 

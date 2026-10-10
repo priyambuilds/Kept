@@ -177,6 +177,7 @@ unused object, gesture, coin and mark PNGs plus their lines in `sync-assets.mjs`
 with `packages/engine`. Proposal: in Demo, Profile › Settings gets one row, "Skip to tomorrow". It ends the
 day, the mock settles (HP drops or heals, a miss is redistributed), and Today shows the result. The copy goes
 in additions.json. About 1 hour of work. **Not built without your OK.**
+**Answered 2026-10-10: yes.** Built (D-88): the clock moves 24 h, not to midnight, because the demo's days end at seeded times.
 
 **Q7 (APK size).** Out of this task's scope: an arm64-only release and R8 shrinking would bring the APK from
 131 MB to about 40 MB. Want it as a follow-up?

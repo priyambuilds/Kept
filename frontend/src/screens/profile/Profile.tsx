@@ -22,7 +22,7 @@ import type { Profile } from "@kept/shared";
 import { getWallet } from "@/chain";
 import { env } from "@/config/env";
 import { resetStack, useGo, useParams } from "@/app/nav";
-import { exitDemo, restartDemo, setAppMode } from "@/features/mode";
+import { exitDemo, restartDemo, setAppMode, skipToTomorrow } from "@/features/mode";
 import { useIsDemo } from "@/state/mode";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
@@ -205,7 +205,9 @@ export function I4() {
   /** Demo: wipe it and start over on A1, or put the sample account back the way it began. */
   const leaveDemo = async () => { await exitDemo(); resetStack(["A1"]); };
   const againDemo = async () => { await restartDemo(); resetStack(["B1"]); toast(t("additions.mode.restarted")); };
+  const tomorrow = async () => { await skipToTomorrow(); resetStack(["B1"]); toast(t("additions.mode.skipped")); };
   const account = demo ? [
+    { title: t("additions.mode.skip"), sub: t("additions.mode.skipSub"), leading: { kind: "icon" as const, icon: "weather-night" as const }, chevron: true, onPress: () => { void tomorrow(); } },
     { title: t("additions.mode.restart"), sub: t("additions.mode.restartSub"), leading: { kind: "icon" as const, icon: "restart" as const }, chevron: true, onPress: () => { void againDemo(); } },
     { title: t("additions.mode.exit"), sub: t("additions.mode.exitSub"), leading: { kind: "icon" as const, icon: "logout" as const }, chevron: true, onPress: () => { void leaveDemo(); } },
   ] : [

@@ -157,7 +157,10 @@
   "restart": "Restart demo",
   "restartSub": "Puts the sample account back the way it began.",
   "restarted": "Demo restarted",
-  "noServer": "This build has no server address, so Live can't start. Try the demo instead."
+  "noServer": "This build has no server address, so Live can't start. Try the demo instead.",
+  "skip": "Skip to tomorrow",
+  "skipSub": "Ends today now. Misses cost HP and stake, kept days heal.",
+  "skipped": "It's tomorrow"
  },
  "deck": {
   "$source": "owner: Today's Oaths as a swipeable stack (DECISIONS D-85)",
