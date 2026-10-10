@@ -11,7 +11,7 @@ Android app for the Solana Seeker: swear daily Oaths, stake SKR, prove each day 
 | `infra/` | infra | `docker-compose.yml` (local Postgres) |
 | `design/` | design | the design handoff (read-only source of truth) |
 | `docs/` | docs | architecture, backend gaps, decisions, build plan, API; `docs/notes/` for session reports |
-| `legacy/` | reference | the old harness app, V3 code and docs (not built) |
+| `legacy/` | reference | V3 Aura backend code, program tests and docs (not built) |
 | `patches/` | tooling | pnpm dependency patches |
 
 Each top-level folder has a `README.md` describing its contents.

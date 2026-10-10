@@ -24,10 +24,8 @@
 ├─ design/                unchanged, read-only
 ├─ infra/                 local dev infrastructure (docker-compose.yml: Postgres 16 for backend)
 ├─ docs/                  ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API (added in Phase 0)
-│  └─ notes/              session reports and plans (fidelity audit/pass, shakedown, live/demo plan, handoff)
+│  └─ notes/              session reports and plans (fidelity audit/pass, shakedown, live/demo plan)
 └─ legacy/                kept for reference, not built, not in the workspace
-   ├─ harness-app/        ← backend/kept-example/app
-   ├─ v3/app/             ← backend/kept-example/legacy-app
    ├─ v3/aura/            ← backend/legacy
    ├─ v3/program-tests.ts ← backend/kept-example/legacy-program-tests-v3.ts
    └─ docs/               ← backend/BACKEND_PART_1.md, backend/kept_backend.md, backend/README.md, backend/kept-example/README.md
@@ -41,7 +39,7 @@
 | **Program crate keeps the name `kept_test`** (folder is `onchain`) | Renaming the crate changes the IDL file name, `metadata.name` and the generated `KeptTest` type. The program ID (`6iXX…MUh`) and the discriminators don't depend on the crate name, but there's no benefit to the churn, and CLAUDE.md says not to change the program. A rename can go to the backend developer as a P2 item. |
 | **Anchor workspace root is `onchain`, not `programs/`** | `Anchor.toml`, `Cargo.toml`, `Cargo.lock` and `tests/` move as one unit, so `anchor build` / `cargo test` keep working unchanged from that folder. |
 | **IDL lives in `packages/chain/idl/`** | Today it's copied into the app (`kept-example/app/scripts/sync-idl.js`). One copy, synced from `onchain/target/` by a script in `packages/chain`. |
-| **The harness app goes to `legacy/harness-app`**, not deleted | CLAUDE.md marks it reference-only. Its useful parts (MWA session + `signAndSend`, Hermes `Buffer` polyfill, PDA helpers) are **ported** into `packages/chain` and `frontend`, not imported. Note that `chain/idl.ts` and `chain/errors.ts` there are stale V3 code (see BACKEND_GAPS P2-6). |
+| **The harness app goes to `legacy/harness-app`**, not deleted (**removed 2026-10-10**, with `legacy/v3/app`, once the new app had replaced them; both are in git history) | CLAUDE.md marks it reference-only. Its useful parts (MWA session + `signAndSend`, Hermes `Buffer` polyfill, PDA helpers) are **ported** into `packages/chain` and `frontend`, not imported. Note that `chain/idl.ts` and `chain/errors.ts` there are stale V3 code (see BACKEND_GAPS P2-6). |
 | **V3 docs go to `legacy/docs/`** | `BACKEND_PART_1.md` calls itself the source of truth, but it describes V3 (Soul, XP, Aura, `buy_soul`), which the V4 code no longer contains. Keeping it at the top level would mislead the next reader. |
 | **`docs/BUILD_PLAN.md`** added | The phase plan you asked for. `docs/API.md` is created in Phase 0 from the existing routes. |
 | **No Turborepo** | Five TS packages and two apps. `pnpm -r` plus `tsc -b` project references cover build order and caching well enough. I'll add Turbo only if CI time becomes a problem. |
@@ -110,10 +108,10 @@ Versions checked on the npm registry on 2026-10-09. Expo `latest` is **SDK 57 (5
 | Animation | **Reanimated 4** (+ `react-native-worklets`), **Gesture Handler** | motion.md is written for Reanimated 3; v4 keeps the same `withTiming/withSpring/withSequence` API and is what SDK 57 ships. |
 | Drawing | **react-native-svg**, **expo-linear-gradient** | Keeper rig, Check-K, HP segments, rings; gradients for tiles, buttons and cards. |
 | Haptics | **expo-haptics** | Mapped 1:1 to motion.md's haptic calls. |
-| Fonts | **@expo-google-fonts/geist**, **@expo-google-fonts/geist-mono** | Named in DESIGN.md §3. |
-| Icons | **@expo/vector-icons** `MaterialCommunityIcons` | Icon names match the prototype's `mdi-*` exactly. |
+| Fonts | **@expo-google-fonts/geist**, **@expo-google-fonts/geist-mono** | Named in DESIGN.md §3. Imported one weight per path (`theme/fonts.ts`): the package index would ship all 18 weights and italics. |
+| Icons | **@expo/vector-icons** `createIconSet` over a cut of MaterialCommunityIcons | Icon names match the prototype's `mdi-*` exactly. `pnpm icons:gen` keeps only the names the sources use (`icons.gen.json` + `assets/fonts/kept-icons.ttf`, 25 KB instead of 1.3 MB); `IconName` is typed from it, so tsc rejects a missing icon. |
 | Camera | **expo-camera** (chosen over react-native-vision-camera) | We only need live preview + `takePictureAsync` + a QR scanner (E1); there's no gallery path by construction. The checking is server-side, so vision-camera's frame processors (and its Nitro modules dependency) buy nothing. |
-| QR | **react-native-qrcode-svg** | QRCard; already proven in the harness. |
+| QR | **qrcode** (encoder only) drawn as one SVG path | QRCard. react-native-qrcode-svg was dropped: its logo option bundled react-native-svg/css (css-tree, ~0.5 MB of JS). |
 | Wallet | **@solana-mobile/mobile-wallet-adapter-protocol-web3js 3.0** (peer `@solana/web3.js ^1.99`) | Latest MWA. The harness uses 2.3; if 3.0 regresses on the Seeker wallet, pin 2.3. Verified in Phase 2. |
 | Chain | **@solana/web3.js 1.99**, **@anchor-lang/core 1.2**, **@solana/spl-token 0.4** | Anchor's TS client still requires web3.js v1; same stack as the working harness. |
 | Polyfills | `react-native-get-random-values`, `buffer` + the Hermes `Uint8Array` fix from `harness/src/polyfills.ts` | That fix was a real bug (BACKEND_PART_1 §15). |
@@ -125,6 +123,8 @@ Versions checked on the npm registry on 2026-10-09. Expo `latest` is **SDK 57 (5
 | Unit / component tests | **jest-expo**, **@testing-library/react-native 14** | Standard for Expo. |
 | E2E | **Maestro** | Flows on a real device, YAML, no app changes. |
 | Lint | ESLint flat config + typescript-eslint, plus a custom rule banning color/number literals in `style` and raw strings in `<Text>` | Enforces the "tokens and copy keys only" rule mechanically. |
+
+**Release build** (`app.json` › expo-build-properties): arm64-v8a only, R8 code and resource shrinking, compressed native libraries (APK 131 MB → about 23 MB). `metro.config.js` resolves zod's locale index to English only.
 
 **Not adding:** Skia, Lottie/Rive (none supplied), NativeWind, axios, i18n frameworks, date libraries (`Intl` is enough), react-native-shadow-2 (elevation + inset Views per DESIGN §6).
 

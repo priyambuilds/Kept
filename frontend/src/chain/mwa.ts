@@ -1,4 +1,4 @@
-// Mobile Wallet Adapter session, ported from legacy/harness-app/src/chain/wallet.ts. The wallet's
+// Mobile Wallet Adapter session, ported from the old harness app's chain/wallet.ts. The wallet's
 // auth_token is remembered so the user connects once; later requests re-authorize silently and fall
 // back to a full authorize if the wallet rejects the token.
 import AsyncStorage from "@react-native-async-storage/async-storage";

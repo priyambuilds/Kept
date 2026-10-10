@@ -1,5 +1,5 @@
 // Must be the first import (index.ts): web3.js and the wallet adapter need crypto.getRandomValues and
-// Buffer, which Hermes doesn't provide. Same fixes as the harness (legacy/harness-app/src/polyfills.ts).
+// Buffer, which Hermes doesn't provide. Same fixes as the old harness app.
 import "react-native-get-random-values";
 import { Buffer } from "buffer";
 
