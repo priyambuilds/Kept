@@ -205,7 +205,8 @@ export function I4() {
   /** Demo: wipe it and start over on A1, or put the sample account back the way it began. */
   const leaveDemo = async () => { await exitDemo(); resetStack(["A1"]); };
   const againDemo = async () => { await restartDemo(); resetStack(["B1"]); toast(t("additions.mode.restarted")); };
-  const tomorrow = async () => { await skipToTomorrow(); resetStack(["B1"]); toast(t("additions.mode.skipped")); };
+  // Home first: the new day's recap (B5) opens over Today as the refetch lands.
+  const tomorrow = async () => { resetStack(["B1"]); await skipToTomorrow(); toast(t("additions.mode.skipped")); };
   const account = demo ? [
     { title: t("additions.mode.skip"), sub: t("additions.mode.skipSub"), leading: { kind: "icon" as const, icon: "weather-night" as const }, chevron: true, onPress: () => { void tomorrow(); } },
     { title: t("additions.mode.restart"), sub: t("additions.mode.restartSub"), leading: { kind: "icon" as const, icon: "restart" as const }, chevron: true, onPress: () => { void againDemo(); } },

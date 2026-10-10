@@ -24,6 +24,7 @@ import amend from "@/app/routes.amend.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setAppMode } from "@/features/mode";
 import { useMode } from "@/state/mode";
+import { clock } from "@/lib/clock";
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 24, left: 0, right: 0, bottom: 16 } };
 const slow = { timeout: 8000 };
@@ -284,6 +285,17 @@ describe("Bounties, Rematch, review, profile and wallet on mocks", () => {
     expect(await screen.findByText(t("screens.R3.b1.title", { n: 3, total: 4 }), {}, slow)).toBeTruthy();
     // D-86: back from the lobby is home, not the offer or the signature.
     expect(rootStack()).toEqual(["Tabs", "R3"]);
+  }, 30000);
+
+  it("Demo › Skip to tomorrow: home, with the new day's recap on top (D-88)", async () => {
+    await setAppMode("demo");
+    await signedIn("judges");
+    await act(async () => { navigateTo("I4"); });
+    await fireEvent.press(await screen.findByRole("button", { name: t("additions.mode.skip") }, slow));
+    expect(await screen.findByText(t("screens.B5.b4.btn.1"), {}, slow)).toBeTruthy();
+    expect(rootStack()).toEqual(["Tabs", "B5"]);
+    clock.reset();
+    await setAppMode(null);
   }, 30000);
 
   it("group review: the inbox opens G1 and a vote goes back to D2", async () => {
