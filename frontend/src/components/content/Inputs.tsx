@@ -3,7 +3,7 @@ import { TextInput, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { create as createQr } from "qrcode/lib/core/qrcode";
 import { t } from "@/copy";
-import { color, fontFamily, gradient, metrics, shadow, space } from "@/theme";
+import { cheapShadow, color, fontFamily, gradient, metrics, shadow, space } from "@/theme";
 import { Avatar } from "../avatar/Avatar";
 import { Icon, InitialTile, Pop, PressScale, Surface, Text, Tilt, CountText } from "../primitives";
 import type { IconName } from "../primitives";
@@ -206,7 +206,7 @@ export function QRCard({ code, link }: { code: string; link: string }) {
   const side = q.size - q.inner * 2;
   return (
     <View style={{ flexDirection: "row", gap: q.gap, alignItems: "center", padding: q.pad, borderRadius: q.radius, backgroundColor: color.surface[1] }}>
-      <View accessibilityLabel={link} style={{ width: q.size, height: q.size, padding: q.inner, borderRadius: q.codeRadius, backgroundColor: color.text.primary, transform: [{ rotate: `${q.tilt}deg` }], boxShadow: "0 10px 24px rgba(0,0,0,0.4)" }}>
+      <View accessibilityLabel={link} style={{ width: q.size, height: q.size, padding: q.inner, borderRadius: q.codeRadius, backgroundColor: color.text.primary, transform: [{ rotate: `${q.tilt}deg` }], boxShadow: cheapShadow("0 10px 24px rgba(0,0,0,0.4)") }}>
         <Svg width={side} height={side} viewBox={`0 0 ${qr.size} ${qr.size}`}>
           <Path d={qr.d} fill={color.text.onLime} />
         </Svg>

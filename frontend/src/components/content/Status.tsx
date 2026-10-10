@@ -3,7 +3,7 @@ import Svg, { Circle, Defs, Path } from "react-native-svg";
 import { useEffect } from "react";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
-import { color, duration, metrics, space, type as typeStyles } from "@/theme";
+import { cheapShadow, color, duration, metrics, space, type as typeStyles } from "@/theme";
 import { Icon, InitialTile, Loop, Pop, Text, CountText, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 import { Chip } from "./Basics";
@@ -98,7 +98,7 @@ export function KeptRateRing({ percent, line, isNew }: { percent: number | null;
 export function IdentityRow({ initial, bg, name, handle, chips = [] }: { initial: string; bg: string; name: string; handle: string; chips?: { text: string; icon?: IconName; tone?: ChipTone }[] }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: space[14] }}>
-      <View style={{ transform: [{ rotate: `${metrics.identity.tilt}deg` }], boxShadow: "0 10px 24px rgba(0,0,0,0.4)", borderRadius: metrics.identity.radius }}>
+      <View style={{ transform: [{ rotate: `${metrics.identity.tilt}deg` }], boxShadow: cheapShadow("0 10px 24px rgba(0,0,0,0.4)"), borderRadius: metrics.identity.radius }}>
         <InitialTile initial={initial} bg={bg} size={metrics.identity.tile} radius={metrics.identity.radius} textSize={28} />
       </View>
       <View style={{ flex: 1 }}>

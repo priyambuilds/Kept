@@ -4,7 +4,7 @@
 //   Knock (kKnock), Shake (proof fail), Loop (beat, breath, float, spin, pulse, ping, glow)
 // - CountText: the 900 ms ease-out-cubic count-up as a leaf Text, so only the number re-renders
 // - PressScale: pressed scale with a 48 dp hit area
-import { Children, Fragment, isValidElement, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Children, Fragment, createContext, isValidElement, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactElement, ReactNode } from "react";
 import { Pressable } from "react-native";
 import type { PressableProps, StyleProp, TextStyle, ViewStyle } from "react-native";
@@ -114,14 +114,15 @@ export function FadeIn({ children, delay = 0, ms = 300, rise = 10, style }: { ch
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
-/** Opacity 1 → 0 (an HP segment's fill emptying on unseen damage, motion.md §2: 200 ms). */
-export function FadeOut({ children, delay = 0, ms = 200, style }: { children: ReactNode; delay?: number; ms?: number; style?: StyleProp<ViewStyle> }) {
+/** Opacity 1 → 0 (an HP segment's fill emptying on unseen damage, motion.md §2: 200 ms). `hold` waits at 1. */
+export function FadeOut({ children, delay = 0, ms = 200, hold = false, style }: { children: ReactNode; delay?: number; ms?: number; hold?: boolean; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
-  const p = useSharedValue(reduce ? 0 : 1);
+  const p = useSharedValue(reduce && !hold ? 0 : 1);
   const onLayout = useAnimationLifecycle([p], () => {
-    if (reduce) return;
+    if (hold) { p.value = 1; return; }
+    if (reduce) { p.value = 0; return; }
     p.value = withDelay(delay, withTiming(0, { duration: ms, easing: Easing.out(Easing.ease) }));
-  }, [reduce, delay, ms]);
+  }, [reduce, delay, ms, hold]);
   const a = useAnimatedStyle(() => ({ opacity: p.value }));
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
@@ -205,30 +206,38 @@ export function Shake({ trigger, children, style }: { trigger: number; children:
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
-export type LoopKind = "beat" | "breath" | "float" | "spin" | "pulse" | "ping" | "glow";
 /**
- * Infinite ambient loops: beat (opacity 1 → .4), breath (−4 dp), float (−9 dp), spin (360°), pulse
- * (skeleton .5 ↔ 1), ping (scale 1 → 1.7, opacity .7 → 0), glow (scale out, fading).
+ * How long an ambient loop plays each time its screen comes into focus (D-84). Android redraws the whole
+ * window on every frame anything moves, so an endless decorative loop kept every screen redrawing at 60 fps
+ * while the user just read it. After this many ms (rounded to whole cycles) loops rest at their start pose;
+ * they play again on the next focus. Spinners and skeletons run as long as they're shown.
+ */
+export const LOOP_BUDGET_MS = 10_000;
+export const loopCycles = (periodMs: number) => Math.max(1, Math.round(LOOP_BUDGET_MS / periodMs));
+
+export type LoopKind = "beat" | "breath" | "float" | "spin" | "ping" | "glow";
+/**
+ * Ambient loops: beat (opacity 1 → .4), breath (−4 dp), float (−9 dp), spin (360°),
+ * ping (scale 1 → 1.7, opacity .7 → 0), glow (scale out, fading). All but spin stop after LOOP_BUDGET_MS.
  */
 export function Loop({ kind, period, delay = 0, children, style, paused }: { kind: LoopKind; period?: number; delay?: number; children?: ReactNode; style?: StyleProp<ViewStyle>; paused?: boolean }) {
   const reduce = useReducedMotion();
   const v = useSharedValue(0);
-  const ms = period ?? { beat: duration.beat, breath: duration.breath, float: duration.float, spin: duration.spin, pulse: metrics.skeletonPulseMs, ping: duration.ping, glow: duration.glow }[kind];
+  const ms = period ?? { beat: duration.beat, breath: duration.breath, float: duration.float, spin: duration.spin, ping: duration.ping, glow: duration.glow }[kind];
   const onLayout = useAnimationLifecycle([v], () => {
     if (reduce || paused) { cancelAnimation(v); return; }
     if (kind === "spin") {
       v.value = withDelay(delay, withRepeat(withTiming(1, { duration: ms, easing: Easing.linear }), -1, false));
     } else if (kind === "ping") {
-      v.value = withDelay(delay, withRepeat(withTiming(1, { duration: ms, easing: Easing.out(Easing.ease) }), -1, false));
+      v.value = withDelay(delay, withRepeat(withTiming(1, { duration: ms, easing: Easing.out(Easing.ease) }), loopCycles(ms), false));
     } else {
       const half = { duration: ms / 2, easing: inOut };
-      v.value = withDelay(delay, withRepeat(withSequence(withTiming(1, half), withTiming(0, half)), -1, false));
+      v.value = withDelay(delay, withRepeat(withSequence(withTiming(1, half), withTiming(0, half)), loopCycles(ms), false));
     }
   }, [reduce, paused, kind, ms, delay], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => {
     switch (kind) {
       case "beat": return { opacity: 1 - 0.6 * v.value };
-      case "pulse": return { opacity: 1 - 0.5 * v.value };
       case "breath": return { transform: [{ translateY: -4 * v.value }] };
       case "float": return { transform: [{ translateY: -9 * v.value }] };
       case "spin": return { transform: [{ rotate: `${360 * v.value}deg` }] };
@@ -237,6 +246,35 @@ export function Loop({ kind, period, delay = 0, children, style, paused }: { kin
     }
   });
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
+}
+
+/**
+ * The skeleton sweep (D-83): 0 → 1 every `metrics.skeleton.sweepMs`, linear, on the UI thread. A
+ * ShimmerProvider gives every Skeleton under it one clock, so a screen's blocks sweep together; a
+ * Skeleton outside one runs its own. Under Reduce Motion it never starts (the blocks stay still).
+ */
+const ShimmerCtx = createContext<SharedValue<number> | null>(null);
+
+function useSweep(run: boolean): SharedValue<number> {
+  const reduce = useReducedMotion();
+  const p = useSharedValue(0);
+  useAnimationLifecycle([p], () => {
+    if (!run || reduce) { cancelAnimation(p); return; }
+    p.value = 0;
+    p.value = withRepeat(withTiming(1, { duration: metrics.skeleton.sweepMs, easing: Easing.linear }), -1, false);
+  }, [run, reduce], { pauseOnBlur: true });
+  return p;
+}
+
+export function ShimmerProvider({ children }: { children: ReactNode }) {
+  return <ShimmerCtx.Provider value={useSweep(true)}>{children}</ShimmerCtx.Provider>;
+}
+
+/** The sweep clock for one Skeleton: the provider's, else its own. */
+export function useShimmer(): SharedValue<number> {
+  const shared = useContext(ShimmerCtx);
+  const own = useSweep(!shared);
+  return shared ?? own;
 }
 
 /** countUp: from → target over 900 ms, ease-out cubic `1 − (1 − t)³`. Returns the number to show. */

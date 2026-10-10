@@ -113,8 +113,22 @@ export function banner(i: 0 | 1 | 2 | 3 | 4) {
 
 // ── Shadows ──────────────────────────────────────────────────────────────────────────────────────
 // RN 0.76+ (New Architecture) renders CSS box-shadow strings, including `inset`, on Android.
+// D-84: Android draws a blurred outer shadow with a BlurMaskFilter on every frame that anything on screen
+// moves; on Today that more than doubled the frame time (16 → 38 ms, emulator). Black blurred drop shadows
+// barely show on the near-black background, so they're left out; insets, rings (no blur) and coloured
+// glows (the lime ones) stay.
 export type ShadowName = keyof typeof tokens.shadow;
-export const shadow = (name: ShadowName) => ({ boxShadow: tokens.shadow[name].css });
+const LAYERS = /,(?![^(]*\))/;
+const BLACK = /rgba\(\s*0\s*,\s*0\s*,\s*0\s*,|#000(?:000)?\b|\bblack\b/i;
+/** A box-shadow list without its black blurred outer layers (D-84). */
+export function cheapShadow(css: string): string {
+  return css.split(LAYERS).map((l) => l.trim()).filter((l) => {
+    if (!l || l.startsWith("inset") || !BLACK.test(l)) return !!l;
+    const lengths = l.replace(/rgba?\([^)]*\)|#[0-9a-f]+|\b[a-z]+\b/gi, " ").trim().split(/\s+/).map(parseFloat);
+    return !(lengths[2]! > 0);
+  }).join(", ");
+}
+export const shadow = (name: ShadowName) => ({ boxShadow: cheapShadow(tokens.shadow[name].css) });
 
 /** Splits a CSS box-shadow list into outer and inset layers (commas inside rgba() are kept). */
 export function splitShadow(css: string): { outer: string | undefined; inset: string | undefined } {

@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withTiming } from "react-native-reanimated";
 import { color, easing, metrics, z } from "@/theme";
-import { useAnimationLifecycle } from "../primitives";
+import { loopCycles, useAnimationLifecycle } from "../primitives";
 
 /** The coin splash and the floating value pills were removed at the owner's request (D-78); embers remain. */
 export type FxKind = "embers";
@@ -43,8 +43,8 @@ function Embers() {
 function Ember({ x, size, hot, ms, delay, height }: { x: number; size: number; hot: boolean; ms: number; delay: number; height: number }) {
   const p = useSharedValue(0);
   const onLayout = useAnimationLifecycle([p], () => {
-    p.value = withDelay(delay, withRepeat(withTiming(1, { duration: ms, easing: easing("rise") }), -1, false));
-  }, [ms, delay]);
+    p.value = withDelay(delay, withRepeat(withTiming(1, { duration: ms, easing: easing("rise") }), loopCycles(ms), false));
+  }, [ms, delay], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({ opacity: p.value < 0.15 ? p.value / 0.15 : 1 - p.value, transform: [{ translateY: -height * 0.7 * p.value }] }));
   const c = hot ? color.orange.base : color.text.tertiary;
   return <Animated.View onLayout={onLayout} style={[{ position: "absolute", left: x, top: height - 20, width: size, height: size, borderRadius: size / 2, backgroundColor: c }, hot ? { boxShadow: `0 0 8px ${c}` } : null, a]} />;

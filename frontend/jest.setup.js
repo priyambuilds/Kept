@@ -24,3 +24,6 @@ jest.mock("expo-camera", () => {
   const granted = { granted: true, status: "granted", canAskAgain: true, expires: "never" };
   return { CameraView, useCameraPermissions: () => [granted, async () => granted, async () => granted] };
 });
+
+// Screens mount their content at once: there are no native transitions to wait for (lib/screenReady).
+require("./src/lib/screenReady").setScreenDeferral(false);

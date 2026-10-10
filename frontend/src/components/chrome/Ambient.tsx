@@ -6,7 +6,7 @@ import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import Svg, { Circle, Defs, Ellipse, FeGaussianBlur, Filter, LinearGradient, Polygon, RadialGradient, Rect, Stop } from "react-native-svg";
 import { color, duration, metrics, svgStop as stop } from "@/theme";
-import { Icon, useAnimationLifecycle } from "../primitives";
+import { Icon, loopCycles, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 
 export type Tone = "lime" | "red" | "ember" | "grey" | "lock";
@@ -50,7 +50,7 @@ function Orb({ size, c, ms, delayMs, reverse, style }: { size: number; c: string
   const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
     const half = { duration: ms / 2, easing: Easing.inOut(Easing.ease) };
-    p.set(withDelay(delayMs, withRepeat(withSequence(withTiming(reverse ? 0 : 1, half), withTiming(reverse ? 1 : 0, half)), -1)));
+    p.set(withDelay(delayMs, withRepeat(withSequence(withTiming(reverse ? 0 : 1, half), withTiming(reverse ? 1 : 0, half)), loopCycles(ms))));
   }, [reduce, ms, delayMs, reverse], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({
     transform: [{ translateX: A.drift.dx * p.value }, { translateY: A.drift.dy * p.value }, { scale: 1 + (A.drift.scale - 1) * p.value }],
@@ -73,7 +73,7 @@ function Beam({ w }: { w: number }) {
   const onLayout = useAnimationLifecycle([o], () => {
     if (reduce) return;
     const half = { duration: duration.beam / 2 };
-    o.set(withRepeat(withSequence(withTiming(A.beam.opacityMin, half), withTiming(1, half)), -1));
+    o.set(withRepeat(withSequence(withTiming(A.beam.opacityMin, half), withTiming(1, half)), loopCycles(duration.beam)));
   }, [reduce], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({ opacity: o.value }));
   const b = A.beam;

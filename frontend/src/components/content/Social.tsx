@@ -1,6 +1,6 @@
 import { ScrollView, View } from "react-native";
 import { t } from "@/copy";
-import { banner, color, fontFamily, heroCard, linear, metrics, space } from "@/theme";
+import { banner, cheapShadow, color, fontFamily, heroCard, linear, metrics, space } from "@/theme";
 import type { HeroPaletteName, PaletteName } from "@/theme";
 import { tile as tileFor } from "@/theme";
 import { Avatar } from "../avatar/Avatar";
@@ -168,7 +168,7 @@ export function ProfileCard({ name, handle, avatar, bannerIndex = 0, bannerIcon 
       <Gradient g={banner(bannerIndex)} style={{ height: p.banner, overflow: "hidden" }}>
         <View style={{ position: "absolute", right: -10, top: -24, transform: [{ rotate: "-12deg" }] }}><Icon name={bannerIcon} size={p.bannerIcon} color={color.extra.decoWhite20} /></View>
       </Gradient>
-      <View style={{ position: "absolute", left: 16, top: p.avatarTop, width: p.avatar, height: p.avatar, borderRadius: p.avatarRadius, overflow: "hidden", boxShadow: `0 0 0 4px ${color.surface[1]}, 0 12px 24px rgba(0,0,0,0.4)`, transform: [{ rotate: "-3deg" }] }}>
+      <View style={{ position: "absolute", left: 16, top: p.avatarTop, width: p.avatar, height: p.avatar, borderRadius: p.avatarRadius, overflow: "hidden", boxShadow: cheapShadow(`0 0 0 4px ${color.surface[1]}, 0 12px 24px rgba(0,0,0,0.4)`), transform: [{ rotate: "-3deg" }] }}>
         <Avatar config={avatar} size={p.avatar} accessibilityLabel={name} />
       </View>
       {actions.length ? (
@@ -225,7 +225,7 @@ export function AvatarBuilder({ config, onChange, variant = "full", tab = 0, onT
     <View style={{ gap: space[14] }}>
       <View style={{ flexDirection: edit ? "row" : "column", alignItems: "center", gap: space[16] }}>
         <Pop ms={500}>
-          <View style={{ width: ps, height: ps, borderRadius: ps / 2, overflow: "hidden", transform: [{ rotate: "-2deg" }], boxShadow: "0 20px 44px rgba(0,0,0,0.5)" }}>
+          <View style={{ width: ps, height: ps, borderRadius: ps / 2, overflow: "hidden", transform: [{ rotate: "-2deg" }], boxShadow: cheapShadow("0 20px 44px rgba(0,0,0,0.5)") }}>
             <Avatar config={config} size={ps} />
           </View>
         </Pop>
