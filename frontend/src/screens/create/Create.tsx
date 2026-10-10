@@ -1,5 +1,5 @@
 // C · Create an Oath (screens.md C1–C8). The draft lives in state/drafts; C7 signs through the
-// TxService for the Oath's source (chain for group Oaths in hybrid, mock for solo with a stake, D-30).
+// TxService for the mode: the program in Live (solo with stake 0, D-30), the mock in Demo.
 import { useCallback, useEffect, useMemo } from "react";
 import { Share } from "react-native";
 import * as Clipboard from "expo-clipboard";

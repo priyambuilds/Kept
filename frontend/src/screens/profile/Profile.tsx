@@ -1,5 +1,5 @@
 // I · Profiles and settings (screens.md I1–I9). Profiles, stats, activity and creator pages are on
-// the mock (BACKEND_GAPS P1-8, P1-9, P1-16); the faucet is real in hybrid mode.
+// the mock in Demo; Live has reputation stats only (BACKEND_GAPS P1-8, P1-9, P1-16) and the real faucet.
 import { useState } from "react";
 import * as Clipboard from "expo-clipboard";
 import { keeperLines, t } from "@/copy";

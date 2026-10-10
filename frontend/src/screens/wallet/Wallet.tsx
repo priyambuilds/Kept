@@ -1,5 +1,5 @@
-// W · Wallet (screens.md W1–W4). Balances and the faucet are real in hybrid mode; the swap and its
-// quote are mock only on Devnet (DECISIONS D-21, BACKEND_GAPS P1-17).
+// W · Wallet (screens.md W1–W4). Balances and the faucet are real in Live; the swap and its quote are
+// Demo only (hidden in Live, DECISIONS D-21, BACKEND_GAPS P1-17).
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Share, View } from "react-native";
 import * as Clipboard from "expo-clipboard";

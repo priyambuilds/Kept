@@ -140,7 +140,7 @@ The checklist for the backend developer. Each line points to the full item below
 - **Now:** `require!((!is_solo && stake_amount > 0) || (is_solo && stake_amount == 0))` (`lib.rs:63`), and the zero-stake path skips escrow (`lib.rs:82-84`).
 - **Design:** solo Oaths stake 500 / 1,000 / 2,500 SKR and have an HP bar (−35 per miss) (rules.md §1–2, C4).
 - **Change:** allow solo stakes. Where a solo member's lost SKR goes is DECISIONS D-1.
-- **App until then:** solo create in `http` mode sends `stake=0` and shows a note on C6. In `mock`/`hybrid` mode, solo stakes are mocked.
+- **App until then:** solo create in Live sends `stake=0` and shows a note on C6. In Demo, solo stakes are mocked (D-30).
 
 ### P0-8. Genesis gating: too broad off-chain, missing on-chain · CONFIRMED (+ NEW sub-point)
 - **Now (too broad):** after `GET /api/me`, a middleware on every `/api/*` route returns 403 without a Genesis Token (`v4.ts:50-62`). That blocks non-Seekers from everything: faucet, price, invite preview, proof, even solo Oaths.
