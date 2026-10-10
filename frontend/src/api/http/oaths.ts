@@ -9,8 +9,10 @@ import { useDeviceOaths } from "@/features/oaths/device";
 import type { OathFacts } from "@/features/oaths/model";
 import { oathName } from "@/features/oaths/names";
 import { clock } from "@/lib/clock";
+import { useSession } from "@/state/session";
 import { ApiError, isApiError } from "../errors";
 import type { GestureLabel, OathsApi, ProofApi } from "../types";
+import { myLiveBounty } from "./bounties";
 import type { HttpClient } from "./client";
 
 async function goalOf(c: HttpClient, oath: string): Promise<string | null> {
@@ -60,9 +62,18 @@ export const httpOaths = (c: HttpClient): OathsApi => ({
     const found = await listOathsOf(wallet).catch((e: unknown) => { throw new ApiError("OFFLINE", String(e), 0, true); });
     const known = useDeviceOaths.getState().known.filter((id) => !found.some((o) => o.address === id));
     const extra = (await Promise.all(known.map((id) => readOath(id).catch(() => null)))).filter((o): o is ChainOath => !!o && o.members.some((m) => m.wallet === wallet));
-    return Promise.all([...found, ...extra].map(async (o) => toFacts(o, await goalOf(c, o.address))));
+    const [oaths, bounty] = await Promise.all([
+      Promise.all([...found, ...extra].map(async (o) => toFacts(o, await goalOf(c, o.address)))),
+      myLiveBounty(c, wallet),
+    ]);
+    return bounty ? [...oaths, bounty] : oaths;
   },
   get: async (id) => {
+    if (id.startsWith("bounty-")) {
+      const b = await myLiveBounty(c, useSession.getState().wallet ?? "");
+      if (!b || b.id !== id) throw new ApiError("NOT_FOUND", `Bounty entry ${id} not found`, 404);
+      return b;
+    }
     const o = await readOath(id).catch((e: unknown) => { throw new ApiError("OFFLINE", String(e), 0, true); });
     if (!o) throw new ApiError("NOT_FOUND", `Oath ${id} not found`, 404);
     return toFacts(o, await goalOf(c, id));
@@ -104,6 +115,8 @@ const GESTURE: Record<string, GestureLabel> = { Thumb_Up: "thumbs_up", Victory: 
 export function httpProof(c: HttpClient): ProofApi {
   return {
     challenge: async (oath, photo, dayIndex) => {
+      // Bounty proof (POST /bounty/:id/challenge) needs the same on-device check: Q1.
+      if (oath.bountyId) throw new ApiError("PROOF_UNAVAILABLE", "Bounty proof waits for the on-device check (LIVE_DEMO_PLAN Q1)", 409);
       const r = await c.post("/api/proof/challenge", { oath: oath.id, dayIndex }, ProofChallengeResponse);
       if (r.phase === "wait") throw new ApiError("PROOF_UNAVAILABLE", `The end photo opens at ${new Date(r.endAllowedAt * 1000).toISOString()}`, 409);
       return { photo, dayIndex, objectId: oath.objectId, gesture: GESTURE[r.gesture]!, expiresAt: r.expiresAt };

@@ -6,7 +6,8 @@ import { useDev, flags as currentFlags, mockScenario } from "@/state/dev";
 import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 import { createHttpClient } from "./http/client";
-import { httpAuth, httpBounties, httpInbox, httpInvites, httpNotify, httpProfile, httpRematch, httpReviews, httpWallet } from "./http/slices";
+import { httpBounties } from "./http/bounties";
+import { httpAuth, httpInbox, httpInvites, httpNotify, httpProfile, httpRematch, httpReviews, httpWallet } from "./http/slices";
 import { mockBountiesApi, mockRematchApi, mockReviewsApi } from "./mock/social";
 import { httpOaths, httpProof } from "./http/oaths";
 import { mockOathsApi, mockProofApi } from "./mock/oaths";
@@ -29,7 +30,7 @@ export function createApi(f: Record<Slice, SliceMode>, mock: KeptApi, getToken: 
   return {
     oaths: f.oaths === "http" ? httpOaths(http) : mock.oaths,
     proof: f.proof === "http" ? httpProof(http) : mock.proof,
-    bounties: f.bounties === "http" ? httpBounties() : mock.bounties,
+    bounties: f.bounties === "http" ? httpBounties(http) : mock.bounties,
     rematch: f.rematch === "http" ? httpRematch() : mock.rematch,
     reviews: f.reviews === "http" ? httpReviews() : mock.reviews,
     auth: f.auth === "http" ? httpAuth(http) : mock.auth,

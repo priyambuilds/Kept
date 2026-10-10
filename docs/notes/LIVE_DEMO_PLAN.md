@@ -161,6 +161,7 @@ cost-per-miss and daily distribution are not what the program pays. In Live, sho
 
 **Q3 (Bounties in Live).** The backend runs one admin-created Bounty at a time. Proposal: H1 lists only
 that one, no creator page (I3 unavailable), K (create / fund) hidden in Live. Its proof is blocked by Q1. OK?
+**Answered 2026-10-10: yes.** Done (`api/http/bounties.ts`): list, detail, join and my entry from `/bounty/current`; its proof ends on F2b until Q1.
 
 **Q4 (kept rate).** The backend's kept rate is plain kept / (kept + missed) over all days. The design's is
 recency-weighted and shows "New" under 10 days. In Live, show the backend's number as is (and "New" under

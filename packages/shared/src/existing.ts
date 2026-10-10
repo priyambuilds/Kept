@@ -93,3 +93,22 @@ export const InboxLiveResponse = z.object({
 export const InboxDoneResponse = z.object({ success: z.literal(true) });
 
 export { Amount };
+
+// GET /bounty/current, POST /bounty/:id/join (backend/src/routes/bounty.ts › bountyView). Amounts are base-unit strings.
+export const BountyView = z.object({
+  id: z.number().int(), title: z.string(), objectId: z.number().int(), numDays: z.number().int(), daySeconds: z.number().int(),
+  startTs: z.number().int(), endTs: z.number().int(), joinClosesAt: z.number().int(), joinOpen: z.boolean(), currentDay: z.number().int().nullable(),
+  status: z.enum(["UPCOMING", "ACTIVE", "PAYING", "PAID"]), poolAmount: z.string().regex(/^\d+$/), entrants: z.number().int(), stillIn: z.number().int(),
+  estimatedShare: z.string().regex(/^\d+$/), paidAt: IsoTime.nullable(),
+});
+export const BountyEntryView = z.object({
+  joined: z.literal(true), daysKept: z.number().int(), out: z.boolean(), outDay: z.number().int().nullable(),
+  payoutAmount: z.string().regex(/^\d+$/).nullable(), paidAt: IsoTime.nullable(),
+});
+export const BountyCurrentResponse = z.object({ bounty: BountyView.nullable(), me: BountyEntryView.nullable() });
+export type BountyCurrent = z.infer<typeof BountyCurrentResponse>;
+// GET /bounty/:id/recently-out
+export const RecentlyOutResponse = z.object({
+  bountyId: z.number().int(), total: z.number().int(),
+  entries: z.array(z.object({ wallet: z.string(), outDay: z.number().int().nullable(), outAt: IsoTime.nullable() })),
+});

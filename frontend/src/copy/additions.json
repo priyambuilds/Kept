@@ -133,7 +133,8 @@
   "noStatsYet": "Stats start after day 1.",
   "coverLater": "Cover images arrive with Bounty hosting on the server.",
   "noRequirements": "Verified Seeker only",
-  "liveUntilDay1": "It's in Discover now. Joins close when day 1 ends."
+  "liveUntilDay1": "It's in Discover now. Joins close when day 1 ends.",
+  "liveBrand": "KEPT"
  },
  "wallet": {
   "$source": "phase 4",

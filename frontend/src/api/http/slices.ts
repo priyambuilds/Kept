@@ -12,7 +12,7 @@ import { KEPT_RATE, SKR_UNIT } from "@kept/config";
 import { readBalances } from "@/chain/connection";
 import { programEnv } from "@/chain/program";
 import { ApiError, isApiError } from "../errors";
-import type { AuthApi, BountiesApi, InboxApi, InvitesApi, MyStats, NotifyApi, ProfileApi, RematchApi, ReviewsApi, WalletApi } from "../types";
+import type { AuthApi, InboxApi, InvitesApi, MyStats, NotifyApi, ProfileApi, RematchApi, ReviewsApi, WalletApi } from "../types";
 import type { HttpClient } from "./client";
 
 export const httpAuth = (c: HttpClient): AuthApi => ({
@@ -112,11 +112,8 @@ export const httpProfile = (c: HttpClient): ProfileApi => {
   };
 };
 /**
- * Bounties: the backend runs one admin-made Bounty at a time (GET /bounty/current) with no creators,
- * categories or user funding, and its proof needs the on-device check (LIVE_DEMO_PLAN Q1, Q3). Until
- * that's settled Live lists none (H1's empty state). Rematch has no route (P1-2). Group review exists
+ * Bounties: api/http/bounties.ts (Q3). Rematch has no route (P1-2). Group review exists
  * (GET /api/oaths/:oath/reviews) but only after failed on-device checks, so Live has none open.
  */
-export const httpBounties = (): BountiesApi => ({ list: async () => [], get: missing("Bounties"), join: missing("Bounties"), mine: async () => null, create: missing("Bounties") });
 export const httpRematch = (): RematchApi => ({ offer: missing("Rematch"), join: missing("Rematch") });
 export const httpReviews = (): ReviewsApi => ({ request: missing("Group review"), get: missing("Group review"), mine: async () => null, openFor: async () => [], vote: missing("Group review") });
