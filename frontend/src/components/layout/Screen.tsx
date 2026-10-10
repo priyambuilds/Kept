@@ -1,10 +1,11 @@
 // The common screen frame (screens.md › Common layout): safe area, the DEVNET row under the system
 // status bar, a NavBar (flows) or AppHeader (tabs) bar, a scroll column 20 from the edges with gap 14,
 // and pinned actions 34 from the bottom. Each screen hosts its own Keeper (ScreenKeeper): the note drops
-// under the bar and closes when the screen loses focus, so it can never leak onto another screen.
+// under the bar and closes on a tap anywhere else or when the screen loses focus, so it can never leak
+// onto another screen.
 import { Fragment, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboardHeight } from "@/lib/keyboard";
 import { env } from "@/config/env";
@@ -116,6 +117,10 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
       )}
       {pinned ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinnedBlocks}</PinnedActions> : null}
       {bare ? null : noteOnly.map((c, i) => <Fragment key={c.key ?? `k${i}`}>{c}</Fragment>)}
+      {keeper.note ? (
+        // Any tap outside the open note closes it (the tap is used for that, not passed on). TalkBack closes it from the note itself.
+        <Pressable onPress={keeper.value.close} importantForAccessibility="no" testID="keeper-backdrop" style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, zIndex: 44 }} />
+      ) : null}
       {keeper.note ? <View pointerEvents="box-none" style={{ position: "absolute", left: 0, right: 0, top: noteTop, zIndex: 45 }}>{keeper.note}</View> : null}
     </View>
     </keeper.Provider>

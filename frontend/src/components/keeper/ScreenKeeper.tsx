@@ -1,16 +1,15 @@
 // The Keeper on a screen (components.md › KeeperMark, KeeperNote, KeeperPlacement; the prototype's
 // renderVals › kp). A screen's Keeper line either stays in the content as a big KeeperPlacement (size
 // ≥ 120 in the design, and always on sheets) or moves behind the KeeperMark as a KeeperNote:
-// - tab screens never auto-open the note: an unread line makes the mark show its dot and knock (×3)
-//   until it's opened; with no line, the mark opens the tab's idle line;
-// - flow screens open the note once on entry and close it after 4.8 s; the nav bar then shows the mark;
+// - no screen opens the note by itself (D-81: it covered the screen on entry): an unread line makes the
+//   mark show its dot and knock (×3) until it's opened; on a tab with no line, the mark opens the idle line;
+// - on flow screens an opened note closes after 4.8 s; a tap anywhere else closes it (Screen's backdrop);
 // - the note always closes on blur (navigation, tab change, a sheet opening, back) and lives inside its
 //   screen, so it can never stay up on another screen.
 import { createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { NavigationContext } from "@react-navigation/native";
 import { create } from "zustand";
-import { useScreenFocused } from "@/lib/focus";
 import type { KeeperLine, KeeperMood } from "@/copy";
 import { metrics } from "@/theme";
 import { keeperAt, layoutOf } from "@/app/layout";
@@ -61,8 +60,6 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const autoOpened = useRef(false);
-  const focused = useScreenFocused();
   const key = lines && id ? lineKey(id, lines) : null;
   const seen = useSeen((s) => (key ? !!s.seen[key] : true));
   const markSeen = useSeen((s) => s.mark);
@@ -70,15 +67,6 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
   const disarm = useCallback(() => { if (timer.current) clearTimeout(timer.current); timer.current = null; }, []);
   const arm = useCallback(() => { disarm(); timer.current = setTimeout(() => setOpen(false), metrics.keeperNote.holdMs); }, [disarm]);
   const close = useCallback(() => { disarm(); setOpen(false); }, [disarm]);
-
-  // Flow screens: the note drops once on entry, then hides after 4.8 s.
-  useEffect(() => {
-    if (kind !== "flow" || !lines || !focused || autoOpened.current) return;
-    autoOpened.current = true;
-    if (key) markSeen(key);
-    setOpen(true);
-    arm();
-  }, [kind, lines, key, focused, arm, markSeen]);
 
   // Always closes when the screen loses focus (navigation, tab change, sheet, back).
   useEffect(() => {
@@ -102,7 +90,7 @@ export function useKeeperHost(id: string | undefined, kind: ScreenKind, idle: Ke
   const shown = lines ?? (kind === "tab" && idle ? [idle] : null);
   const isOpen = open && !!shown;
   const value: Registry = useMemo(() => ({
-    kind, lines, open: isOpen, fresh: kind === "tab" && !!lines && !seen && !open, toggle, close, register,
+    kind, lines, open: isOpen, fresh: !!lines && !seen && !open, toggle, close, register,
   }), [kind, lines, isOpen, open, seen, toggle, close, register]);
 
   const current = shown ? shown[index % shown.length]! : null;

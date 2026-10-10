@@ -97,6 +97,8 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
   const gs = Math.round(size * 1.55);
   const glow = color.keeperGlow[mood];
   const right = side === "r";
+  // The bubble's square (tail) corner points at the Keeper: a centred Keeper's bubble sits to his left.
+  const tailRight = side !== "l";
   const cycle = lines && lines.length > 1;
   const poseAnim: KeeperAnim = i ? (["point", "wave", "thumbs", "shrug"] as const)[i % 4]! : anim;
   const kp = metrics.keeperPlacement;
@@ -129,12 +131,12 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
           top: side === "c" ? Math.max(0, ky - 4) : Math.max(0, ky + Math.round(size * 0.1)),
           ...(side === "l" ? { left: size - 6 } : right ? { right: size - 6 } : { left: 0 }),
         }}>
-          <Bubble delay={kp.bubbleDelay} style={{ transformOrigin: right ? "100% 100%" : "0% 100%" }}>
+          <Bubble delay={kp.bubbleDelay} style={{ transformOrigin: tailRight ? "100% 100%" : "0% 100%" }}>
             <View style={{
               paddingHorizontal: kp.bubblePadX, paddingVertical: kp.bubblePadY,
               borderTopLeftRadius: kp.bubbleRadius, borderTopRightRadius: kp.bubbleRadius,
-              borderBottomRightRadius: right ? kp.bubbleTail : kp.bubbleRadius, borderBottomLeftRadius: right ? kp.bubbleRadius : kp.bubbleTail,
-              backgroundColor: color.text.primary, transform: [{ rotate: `${right ? 2 : -3}deg` }], ...shadow("float"),
+              borderBottomRightRadius: tailRight ? kp.bubbleTail : kp.bubbleRadius, borderBottomLeftRadius: tailRight ? kp.bubbleRadius : kp.bubbleTail,
+              backgroundColor: color.text.primary, transform: [{ rotate: `${tailRight ? 2 : -3}deg` }], ...shadow("float"),
             }}>
               <Text variant="keeperLine" color={color.text.onLime}>
                 {shown}
