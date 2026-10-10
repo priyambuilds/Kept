@@ -1,6 +1,6 @@
 // Chain layer contracts (docs/ARCHITECTURE.md §7). The wallet signs; TxService builds and sends the
 // program instructions. Both have a real (MWA) and a mock implementation.
-export type TxError = "rejected" | "failed" | "insufficientSol" | "insufficientSkr" | "offline";
+export type TxError = "rejected" | "failed" | "insufficientSol" | "insufficientSkr" | "offline" | "noWallet";
 
 export class TxFailure extends Error {
   constructor(public readonly kind: TxError, message: string) {

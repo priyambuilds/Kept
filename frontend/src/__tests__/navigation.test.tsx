@@ -25,6 +25,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setAppMode } from "@/features/mode";
 import { useMode } from "@/state/mode";
 import { clock } from "@/lib/clock";
+import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 24, left: 0, right: 0, bottom: 16 } };
 const slow = { timeout: 8000 };
@@ -152,6 +153,17 @@ describe("onboarding on mocks", () => {
     await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r1.t")));
     expect(await screen.findByText(t("screens.A2·e.b2.title"), {}, slow)).toBeTruthy();
     expect(useSession.getState().token).toBeNull();
+  }, 30000);
+
+  it("no wallet app: back on Connect wallet with a toast that says so", async () => {
+    useDev.setState({ mockWallet: false });
+    jest.mocked(transact).mockRejectedValueOnce(Object.assign(new Error("Found no installed wallet that supports the mobile wallet protocol."), { name: "SolanaMobileWalletAdapterError", code: "ERROR_WALLET_NOT_FOUND" }));
+    await render(<App />);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
+    await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r0.t")));
+    expect(await screen.findByText(t("additions.wallet.noWalletApp"), {}, slow)).toBeTruthy();
+    expect(await screen.findByText(t("screens.A2.b0.title"), {}, slow)).toBeTruthy();
   }, 30000);
 
   it("a non-Seeker lands on A3·no", async () => {

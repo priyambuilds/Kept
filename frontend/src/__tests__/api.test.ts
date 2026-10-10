@@ -155,6 +155,7 @@ describe("classifyTxError", () => {
     [new Error("Simulation failed: Attempt to debit an account but found no record of a prior credit."), "insufficientSol"],
     [new Error("Program log: Error: insufficient funds\ncustom program error: 0x1"), "insufficientSkr"],
     [new Error("custom program error: 0x1771"), "failed"],
+    [Object.assign(new Error("Found no installed wallet that supports the mobile wallet protocol."), { name: "SolanaMobileWalletAdapterError", code: "ERROR_WALLET_NOT_FOUND" }), "noWallet"],
   ])("%s → %s", (e, kind) => {
     expect(classifyTxError(e).kind).toBe(kind);
   });

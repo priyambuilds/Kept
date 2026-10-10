@@ -140,7 +140,8 @@
   "$source": "phase 4",
   "faucetUsed": "The faucet gives 5,000 SKR once per wallet.",
   "available": "SKR available",
-  "lockedOne": "{amount} SKR · 1 Oath"
+  "lockedOne": "{amount} SKR · 1 Oath",
+  "noWalletApp": "No wallet app found. Install Phantom or Solflare, or try the demo."
  },
  "profile": {
   "privateOaths": "{name} keeps their Oaths private"
