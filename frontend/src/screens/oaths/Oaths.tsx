@@ -402,7 +402,7 @@ export function D5() {
   const month = (r: HistoryRow) => new Date(r.endedAt * 1000).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
   const months = [...new Set(shown.map(month))];
   const totals = historyTotals(rows);
-  const net = (n: bigint) => (n === 0n ? t("screens.D5.b4.r1.r") : skrText(n, true));
+  const net = (n: bigint) => (n === 0n ? t("screens.D5.b4.r1.r") : n > 0n ? `+${skrWhole(n)}` : skrWhole(n));
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.D5.nav.title")} />}>
       <SearchBar placeholder={t("screens.D5.b0.placeholder", { n: rows.length })} onPress={() => toast(t("toasts.23"))} />

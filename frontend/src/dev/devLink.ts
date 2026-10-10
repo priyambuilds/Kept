@@ -69,7 +69,7 @@ function review(votes: [keyof typeof PEOPLE, boolean][]) {
 
 /** How to reach each design id (scenario, params). Ids not listed open on `activeGroup` with no params. */
 const SHOTS: Partial<Record<DesignId, Shot>> = {
-  "A2·e": { scenario: "walletRejected" }, "A3·no": { scenario: "notEligible" },
+  "A1·m": { under: ["A1"] }, "A2·e": { scenario: "walletRejected" }, "A3·no": { scenario: "notEligible" },
   // B2 needs nothing claimable (D-45), so take Hydra 14's claim first.
   B2: { scenario: "allDone", setup: () => { mockOaths.claim(oath("Hydra 14"), W); } }, B3: { scenario: "fresh" }, B4: { scenario: "deadlineClose" },
   C7: { params: fail("C7", "C6") }, "C7·ok": { params: ironOpen }, "C7·no": { params: fail("C7", "C6") }, "C7·fail": { params: fail("C7", "C6") }, C8: { params: ironOpen },
@@ -97,7 +97,7 @@ const SHOTS: Partial<Record<DesignId, Shot>> = {
 };
 
 const TODAY_STATES = new Set<string>(["B2", "B3", "B4"]);
-const ONBOARDING = new Set<string>(["A0", "A1", "A2", "A2·s", "A2·e", "A3", "A3·no", "A4"]);
+const ONBOARDING = new Set<string>(["A0", "A1", "A1·m", "A2", "A2·s", "A2·e", "A3", "A3·no", "A4"]);
 /** The prototype's Bounty draft (K1–K5). */
 const SAMPLE_BOUNTY = { name: "Dawn Pages", message: "Read before your phone. 14 mornings.", link: "dawnpages.xyz" };
 /** The prototype's "You" avatar (reference/kept-kit.js › P.Y). */
