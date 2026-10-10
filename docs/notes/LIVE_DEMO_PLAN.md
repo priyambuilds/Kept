@@ -269,9 +269,9 @@ of what was not verified end to end.
 | 1 Audit and plan | This file | — |
 | 2 App mode | `state/mode.ts`, scoped storage (`kept.demo.*` / `kept.live.*`), API / wallet / TxService by mode, Dev menu dev-only, DEMO badge, "approval is simulated" on signing screens, tests (`mode.test.ts`) | — |
 | 3 Onboarding | A1·m sheet (route amendment, D-80), Demo path A1 → A1·m → A4 → Tabs, invite links and "I have an invite" force Live, Restart / Exit demo, Live sign-out to A1, localhost guard, navigation tests | D-80 copy to confirm |
-| 4 Demo content | `judges` scenario (default; the only one in release Demo), calm first Today, `demoOffline.test.tsx` (no fetch / XHR / WebSocket) | Q6 fast-forward: proposed, not built |
-| 5 Live mode | No mock in `api/http` (import-graph test) or the Live API (test); real challenge; inbox; reputation stats and kept rates; profiles from the device + reputation; Rematch / create Bounty / swap / creator pages hidden; empty Bounty list and reviews; D5 from real Oaths; literals (version, faucet toast, D0, M1, B3) from data | Blocked on Q1 (proof check), Q2 (money and HP numbers), Q3 (Bounties) |
-| 6 Bloat | Placeholder gone (B2–B4 now open the Today tab), Dev menu and Gallery out of release bundles, dead exports, `proofTarget`, unused templates | Q5 deletions (Keeper PNGs, unused design PNGs, `legacy/`, SESSION_HANDOFF) |
+| 4 Demo content | `judges` scenario (default; the only one in release Demo), calm first Today, `demoOffline.test.tsx` (no fetch / XHR / WebSocket); Q6 "Skip to tomorrow" (D-88) | — |
+| 5 Live mode | No mock in `api/http` (import-graph test) or the Live API (test); real challenge; inbox; reputation stats and kept rates; profiles from the device + reputation; Rematch / create Bounty / swap / creator pages hidden; empty Bounty list and reviews; D5 from real Oaths; literals (version, faucet toast, D0, M1, B3) from data | Blocked on Q1 (proof check), Q2 (money and HP numbers). Q3 (Bounties) and Q4 (kept rate) done 2026-10-10 |
+| 6 Bloat | Placeholder gone (B2–B4 now open the Today tab), Dev menu and Gallery out of release bundles, dead exports, `proofTarget`, unused templates; Q5 deletions and Q7 APK size (done) | — |
 
 **Sizes** (release, Demo): APK 131,163,530 → 131,160,260 bytes; JS bundle 6,612,168 → 6,608,976 bytes (at `8ca2b28` vs `ced5a41`, with all the new mode code in). The APK is 98 MB native libraries for four ABIs; see Q7.
 
