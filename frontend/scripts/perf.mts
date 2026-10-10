@@ -134,6 +134,12 @@ async function main() {
     await sleep(3500);
   }
   console.log("cold start (ms)", cold, "sync-props failures", syncSince());
+  // The splash (A0): the Check-K draws in over the first ~1.1 s of a launch.
+  adb("shell", "am", "force-stop", PKG);
+  await sleep(1500);
+  adb("shell", "am", "start", "-n", `${PKG}/.MainActivity`);
+  await sleep(400);
+  const splash = await measure("splash", () => sleep(1600));
   // A1 at rest: the Keeper's idle (the ambient loops have run out by now, D-84).
   await sleep(8000);
   const a1Idle = await idle("A1 at rest");
@@ -168,13 +174,20 @@ async function main() {
       await sleep(1500);
     }
   });
+  // Embers: D3 (a broken Oath, Guitar Days in the Oaths tab) plays them on entry.
+  await tab(1);
+  await sleep(2500);
+  adb("shell", "input", "tap", "540", "1802");
+  await sleep(600);
+  const embers = await idle("embers (D3)", 5000);
+  adb("shell", "input", "keyevent", "KEYCODE_BACK");
   await sleep(1500);
   log.stop();
   const { syncFailures, anrs } = log.counts;
   console.log("sync-props failures", syncFailures, "ANRs", anrs);
   const refreshHz = Number(adb("shell", "dumpsys", "display").match(/renderFrameRate ([\d.]+)/)?.[1] ?? NaN);
   const device = adb("shell", "getprop", "ro.product.model").trim();
-  const res = { apk, device, refreshHz, date: new Date().toISOString(), coldStartMs: cold, a1Idle, todayIdle, tabs, scroll, push, syncFailures, anrs };
+  const res = { apk, device, refreshHz, date: new Date().toISOString(), coldStartMs: cold, splash, a1Idle, todayIdle, tabs, scroll, push, embers, syncFailures, anrs };
   mkdirSync(path.dirname(out), { recursive: true });
   writeFileSync(out, JSON.stringify(res, null, 1));
   console.log(`wrote ${out}`);
