@@ -169,6 +169,7 @@ recency-weighted and shows "New" under 10 days. In Live, show the backend's numb
 **Q5 (deletions).** Delete (a) the Keeper PNG fallbacks (~4.8 MB repo, also shrinks the APK), (b) the
 unused object, gesture, coin and mark PNGs plus their lines in `sync-assets.mjs`, (c) `legacy/`,
 (d) `docs/notes/SESSION_HANDOFF.md`?
+**Answered 2026-10-10: yes.** All four done; from `legacy/` only the old app code went (`harness-app/`, `v3/app/`), the backend reference stays.
 
 **Q6 (demo fast-forward).** Cheap: the mock already has a virtual clock with "end the day", and it settles
 with `packages/engine`. Proposal: in Demo, Profile › Settings gets one row, "Skip to tomorrow". It ends the
@@ -177,6 +178,7 @@ in additions.json. About 1 hour of work. **Not built without your OK.**
 
 **Q7 (APK size).** Out of this task's scope: an arm64-only release and R8 shrinking would bring the APK from
 131 MB to about 40 MB. Want it as a follow-up?
+**Done 2026-10-10:** arm64-v8a only, R8 code and resource shrinking, compressed native libraries (expo-build-properties), plus JS and asset cuts (one font file per weight, a 169-icon cut of MDI, qrcode instead of react-native-qrcode-svg, zod locales stubbed). **APK 131.2 MB → 22.5 MB; Hermes bundle 6.6 MB → 5.5 MB.** Release perf on the emulator against the pre-cleanup build (same emulator, same session): no measurable change (cold start 1.2–1.6 s for both; scroll jank about 11 % for both; tabs and push/back under 2.1 %). Expo tree shaking would cut another ~0.3 MB of JS but is still flagged unstable, so it's off.
 
 ---
 
