@@ -11,7 +11,7 @@ import { useSession } from "@/state/session";
 import { SKR_UNIT } from "@kept/config";
 import { readBalances } from "@/chain/connection";
 import { programEnv } from "@/chain/program";
-import { ApiError } from "../errors";
+import { ApiError, isApiError } from "../errors";
 import type { AuthApi, BountiesApi, InboxApi, InvitesApi, MyStats, NotifyApi, ProfileApi, RematchApi, ReviewsApi, WalletApi } from "../types";
 import type { HttpClient } from "./client";
 
@@ -56,7 +56,11 @@ const missing = (what: string) => () => Promise.reject(new ApiError("NOT_FOUND",
 /** GET /api/inbox, PUT /api/inbox/:id. Items of a type the app doesn't know are left out (BACKEND_GAPS P1-11). */
 export const httpInbox = (c: HttpClient): InboxApi => ({
   list: async () => {
-    const r = await c.get("/api/inbox", InboxLiveResponse);
+    // The backend's Genesis gate covers /api/inbox: a non-Seeker (solo only, D-18) just has no inbox.
+    const r = await c.get("/api/inbox", InboxLiveResponse).catch((e: unknown) => {
+      if (isApiError(e) && e.code === "NOT_ELIGIBLE") return { items: [], unread: 0 };
+      throw e;
+    });
     const items = r.items.flatMap((i) => {
       const type = InboxItem.shape.type.safeParse(i.type);
       if (!type.success) return [];
