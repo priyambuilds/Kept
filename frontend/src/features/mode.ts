@@ -27,7 +27,7 @@ function resetDemoWorld(): void {
  */
 function seedDemo(): void {
   mockOaths.ensureSeeded(mockScenario(), MOCK_WALLET);
-  const ids = mockOaths.list(MOCK_WALLET, { seeded: true }).map((o) => o.id);
+  const ids = mockOaths.list(MOCK_WALLET).map((o) => o.id);
   useDeviceOaths.setState({ shownResults: ids.flatMap((id) => RESULT_SCREENS.map((k) => `${id}:${k}`)), recapShownOn: new Date(clock.now()).toDateString() });
 }
 

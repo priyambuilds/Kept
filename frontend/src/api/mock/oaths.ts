@@ -21,7 +21,7 @@ export function mockOathsApi(ctx: MockContext): OathsApi {
   const wallet = () => ctx.wallet() ?? MOCK_WALLET;
   const seeded = () => mockOaths.ensureSeeded(ctx.scenario(), wallet());
   return {
-    list: async (w) => { await delay(ctx); seeded(); return mockOaths.list(w, { seeded: true }); },
+    list: async (w) => { await delay(ctx); seeded(); return mockOaths.list(w); },
     get: async (id) => {
       await delay(ctx); seeded();
       const o = mockOaths.get(id);

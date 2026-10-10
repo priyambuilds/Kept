@@ -220,9 +220,9 @@ function facts(o: MockOath): OathFacts {
 
 export const mockOaths = {
   ensureSeeded(scenario: Scenario, wallet: string) { if (seededFor !== `${scenario}:${wallet}`) seed(scenario, wallet); },
-  /** Oaths `wallet` is in. `seeded: false` lists only Oaths created on this device (hybrid mode). */
-  list(wallet: string, opts: { seeded: boolean }): OathFacts[] {
-    return [...oaths.values()].filter((o) => (opts.seeded || !o.seeded) && o.members.some((m) => m.wallet === wallet)).map(facts);
+  /** Oaths `wallet` is in. */
+  list(wallet: string): OathFacts[] {
+    return [...oaths.values()].filter((o) => o.members.some((m) => m.wallet === wallet)).map(facts);
   },
   get(id: string): OathFacts | null { const o = oaths.get(id); return o ? facts(o) : null; },
   byCode(code: string): OathFacts | null {

@@ -62,8 +62,8 @@ it("onboards in Demo and opens the core screens without touching the network", a
   // The judges' Today: Iron Week with photo 2 due and the claim banner.
   expect(await screen.findAllByText("Iron Week", {}, slow)).not.toHaveLength(0);
 
-  const iron = mockOaths.list(MOCK_WALLET, { seeded: true }).find((o) => o.name === "Iron Week" && o.status === "active")!;
-  const guitar = mockOaths.list(MOCK_WALLET, { seeded: true }).find((o) => o.name === "Guitar Days" && !o.rematchOf)!;
+  const iron = mockOaths.list(MOCK_WALLET).find((o) => o.name === "Iron Week" && o.status === "active")!;
+  const guitar = mockOaths.list(MOCK_WALLET).find((o) => o.name === "Guitar Days" && !o.rematchOf)!;
   const visits: [DesignId, Record<string, string>?][] = [["D0"], ["D2", { id: iron.id }], ["D3", { id: guitar.id }], ["R1", { id: guitar.id }], ["H1"], ["I1"], ["N1"], ["W1"]];
   for (const [id, params] of visits) {
     await act(async () => { navigateTo(id, params); });
@@ -75,7 +75,7 @@ it("onboards in Demo and opens the core screens without touching the network", a
 it("the judges' account has every core idea one tap from Today", () => {
   mockOaths.ensureSeeded("judges", MOCK_WALLET);
   const now = Math.floor(Date.now() / 1000);
-  const views = mockOaths.list(MOCK_WALLET, { seeded: true }).map((f) => oathView(f, now, MOCK_WALLET));
+  const views = mockOaths.list(MOCK_WALLET).map((f) => oathView(f, now, MOCK_WALLET));
   const iron = views.find((v) => v.facts.name === "Iron Week" && v.life === "active")!;
   // A group Oath mid-run: photo 1 done, photo 2 due, HP below 100 after Arjun's day-2 miss.
   expect(iron.facts.isSolo).toBe(false);
@@ -93,7 +93,7 @@ it("the judges' account has every core idea one tap from Today", () => {
 it("D5 history comes from the account's finished Oaths, not sample data", () => {
   mockOaths.ensureSeeded("judges", MOCK_WALLET);
   const now = Math.floor(Date.now() / 1000);
-  const rows = historyOf(mockOaths.list(MOCK_WALLET, { seeded: true }).map((f) => oathView(f, now, MOCK_WALLET)));
+  const rows = historyOf(mockOaths.list(MOCK_WALLET).map((f) => oathView(f, now, MOCK_WALLET)));
   expect(rows.map((r) => r.name).sort()).toEqual(["Guitar Days", "Hydra 14"]);
   const guitar = rows.find((r) => r.name === "Guitar Days")!;
   expect(guitar).toMatchObject({ kind: "broken", sub: t("screens.D5.b3.r2.s", { day: 6 }) });

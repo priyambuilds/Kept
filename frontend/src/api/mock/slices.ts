@@ -105,7 +105,7 @@ function ago(t: string): number {
  */
 function inboxRef(id: string, wallet: string): InboxItem["ref"] | null {
   const oath = (name: string, mine = true) => mockOaths.byName(name, mine ? wallet : null);
-  const active = (name: string) => mockOaths.list(wallet, { seeded: true }).find((o) => o.name === name && o.status === "active");
+  const active = (name: string) => mockOaths.list(wallet).find((o) => o.name === name && o.status === "active");
   switch (id) {
     case "inv1": { const o = oath("Dawn Run", false); return o && !o.members.some((m) => m.wallet === wallet) ? { oath: o.id, code: o.inviteCode ?? "" } : null; }
     // The vote request goes once I've voted (or it's decided), like the invite once I've joined.

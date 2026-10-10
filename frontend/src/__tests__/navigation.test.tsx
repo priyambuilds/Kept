@@ -282,7 +282,7 @@ describe("Bounties, Rematch, review, profile and wallet on mocks", () => {
     mockOaths.reset();
     queryClient.clear();
     mockOaths.ensureSeeded(scenario, WALLET);
-    const ids = mockOaths.list(WALLET, { seeded: true }).map((o) => o.id);
+    const ids = mockOaths.list(WALLET).map((o) => o.id);
     useDeviceOaths.setState({ shownResults: ids.flatMap((id) => MOMENT_IDS.map((m) => `${id}:${m}`)), recapShownOn: new Date().toDateString() });
     useSession.setState({ token: "mock.x", wallet: WALLET, genesis: true, onboarded: true, avatar: null, invite: null });
     await render(<App />);
