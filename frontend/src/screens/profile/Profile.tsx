@@ -326,12 +326,14 @@ export function I8() {
 export function I9() {
   const { back } = useGo();
   const stored = useSession((s) => s.avatar);
-  const [config, setConfig] = useState(stored ?? "31205140");
+  // A4 › Customize passes the look on screen (nothing is saved yet during onboarding).
+  const { avatar: given } = useParams<{ avatar: string }>();
+  const [config, setConfig] = useState(given ?? stored ?? "31205140");
   const [tab, setTab] = useState(0);
   const k = keeperLines("I9")[0]!;
   return (
     <Screen bar={<NavBar onBack={back} close title={t("screens.I9.nav.title")} />} bottomInset={pinnedOne}
-      pinned={<Button kind="p" icon="check" label={t("screens.I9.pin.0")} onPress={() => { void profileActions.save({ avatar: config }).then(back); }} />}>
+      pinned={<Button kind="p" icon="check" label={t("screens.I9.pin.0")} onPress={() => { void profileActions.save({ avatar: config }).catch(() => undefined).finally(back); }} />}>
       <ScreenKeeper id="I9" lines={[k]} />
       <AvatarBuilder config={config} onChange={setConfig} tab={tab} onTab={setTab} onShuffle={() => setConfig(String(Math.floor(Math.random() * 1e8)).padStart(8, "0"))} />
     </Screen>

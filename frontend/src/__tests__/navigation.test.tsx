@@ -101,6 +101,23 @@ describe("onboarding on mocks", () => {
     expect(screen.getAllByLabelText(t("additions.mode.badge")).length).toBeGreaterThan(0);
   }, 30000);
 
+  it("A4 › Customize: the look saved in the builder comes back to A4 and is the one kept", async () => {
+    await render(<App />);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.demo")));
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A4.pin.1") }, slow));
+    const before = useSession.getState().avatar;
+    // A few shuffles: one random draw could repeat the look.
+    for (let i = 0; i < 3; i++) await fireEvent.press(await screen.findByRole("button", { name: t("additions.avatarBuilder.shuffle") }, slow));
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.I9.pin.0") }));
+    const saved = useSession.getState().avatar;
+    expect(saved).not.toBeNull();
+    expect(saved).not.toBe(before);
+    expect(useSession.getState().onboarded).toBe(false);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A4.pin.0") }, slow));
+    expect(useSession.getState()).toMatchObject({ onboarded: true, avatar: saved });
+  }, 30000);
+
   it("I have an invite: straight to Live's wallet step", async () => {
     await render(<App />);
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.1") }, slow));

@@ -19,6 +19,8 @@ export interface SessionState {
   signIn(s: { token: string; wallet: string; genesis: boolean }): void;
   setGenesis(genesis: boolean): void;
   finishOnboarding(avatar: string): void;
+  /** A new look from the avatar builder (I9), during onboarding or after. */
+  setAvatar(avatar: string): void;
   setInvite(code: string | null): void;
   signOut(): void;
 }
@@ -30,6 +32,7 @@ export const useSession = create<SessionState>()(persist((set) => ({
   signIn: ({ token, wallet, genesis }) => set({ token, wallet, genesis }),
   setGenesis: (genesis) => set({ genesis }),
   finishOnboarding: (avatar) => set({ onboarded: true, avatar }),
+  setAvatar: (avatar) => set({ avatar }),
   setInvite: (invite) => set({ invite }),
   signOut: () => set({ token: null, wallet: null, genesis: false }),
 }), scopedPersist<SessionState>("kept.session", EMPTY)));

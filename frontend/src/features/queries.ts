@@ -111,8 +111,10 @@ export function useCreator(name: string | undefined) { const api = useApi(); ret
 
 export const profileActions = {
   async save(patch: Parameters<ReturnType<typeof getApi>["profile"]["save"]>[0]) {
+    // The device keeps the look first (profiles have no backend yet, BACKEND_GAPS P1-9). Only the look:
+    // saving from the builder mid-onboarding (A4 › Customize) must not end onboarding.
+    if (patch.avatar) useSession.getState().setAvatar(patch.avatar);
     await getApi().profile.save(patch);
-    if (patch.avatar) useSession.getState().finishOnboarding(patch.avatar);
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
   },
 };
