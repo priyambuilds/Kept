@@ -16,9 +16,20 @@ import { useSettings } from "@/state/settings";
 import { create as createQr } from "qrcode/lib/core/qrcode";
 import { SignStatus } from "@/components/content/Status";
 import { Gallery } from "@/dev/Gallery";
-import { Text } from "@/components/primitives";
+import { PressScale, Text } from "@/components/primitives";
 
 const insets = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 0, left: 0, right: 0, bottom: 0 } };
+
+describe("PressScale touch area", () => {
+  it("a pressable sized by its content still reaches 48 dp (hit slop from its own layout)", async () => {
+    await render(<PressScale onPress={() => undefined} accessibilityLabel="See all"><Text>See all</Text></PressScale>);
+    const b = screen.getByRole("button", { name: "See all" });
+    await act(async () => { fireEvent(b, "layout", { nativeEvent: { layout: { x: 0, y: 0, width: 42, height: 16 } } }); });
+    expect(b.props.hitSlop).toEqual({ top: 16, bottom: 16, left: 3, right: 3 });
+    await act(async () => { fireEvent(b, "layout", { nativeEvent: { layout: { x: 0, y: 0, width: 300, height: 54 } } }); });
+    expect(b.props.hitSlop).toBeUndefined();
+  });
+});
 
 describe("Button", () => {
   it("fires onPress and exposes its label", async () => {
