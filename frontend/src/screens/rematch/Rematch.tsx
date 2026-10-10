@@ -19,7 +19,7 @@ import { useGo, useParams } from "@/app/nav";
 import { useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { dayList, listNames, memberColor, memberInitial, memberName, objectName, skrWhole } from "@/features/oaths/present";
-import { rematchActions, useRematch } from "@/features/phase4";
+import { rematchActions, useRematch } from "@/features/queries";
 import { useNow } from "@/features/time";
 import { useSession } from "@/state/session";
 import { useUi } from "@/state/ui";

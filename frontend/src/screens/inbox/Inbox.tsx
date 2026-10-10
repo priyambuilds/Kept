@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { InboxItem } from "@kept/shared";
 import { keeperLines, t } from "@/copy";
 import type { CopyKey, KeeperMood } from "@/copy";
-import { usePeople } from "@/features/phase4";
+import { usePeople } from "@/features/queries";
 import { NavBar, useToast } from "@/components/chrome";
 import { Note, Skeleton, Title } from "@/components/content/Basics";
 import { RowList } from "@/components/content/Rows";

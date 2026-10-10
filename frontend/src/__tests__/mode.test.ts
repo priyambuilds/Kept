@@ -1,6 +1,5 @@
 // App mode (state/mode.ts, features/mode.ts): Demo and Live keep separate saved data, leaving Demo
-// wipes it, and a chosen mode alone decides the API and the wallet (Demo: mock, Live: http + MWA), in
-// development builds too: the Dev menu's overrides only apply before a mode is chosen.
+// wipes it, and release builds use the mode alone (Dev menu overrides are development-only).
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getWallet } from "@/chain";
 import { mwaWallet } from "@/chain/mwa";
@@ -10,6 +9,11 @@ import { exitDemo, setAppMode, skipToTomorrow, startDemo, startLive } from "@/fe
 import { getApi } from "@/api";
 import { oathView } from "@/features/oaths/model";
 import { clock } from "@/lib/clock";
+import { onNotice } from "@/lib/notice";
+import { createHttpClient } from "@/api/http/client";
+import "@/features/auth";
+import { t } from "@/copy";
+import { NonceResponse } from "@kept/shared";
 import { useDeviceOaths } from "@/features/oaths/device";
 import { DEFAULT_SCENARIO } from "@/api/mock/scenarios";
 import { flags, mockWalletOn, useDev } from "@/state/dev";
@@ -76,6 +80,58 @@ describe("app mode", () => {
   });
 });
 
+describe("the sign-in token is kept in the secure store", () => {
+  const secure = (require("expo-secure-store") as { __store: Map<string, string> }).__store;
+  const plain = async () => (await AsyncStorage.multiGet(await AsyncStorage.getAllKeys())).map(([, v]) => v ?? "").join("\n");
+
+  it("never in AsyncStorage, and read back after a restart", async () => {
+    await startLive();
+    useSession.getState().signIn({ token: "live-token", wallet: LIVE_WALLET, genesis: true });
+    await settle();
+    expect(await plain()).not.toContain("live-token");
+    expect(secure.get("kept.live.session.secret")).toContain("live-token");
+    // What a restart reads back: the token joined in from the secure store.
+    const saved = await useSession.persist.getOptions().storage!.getItem("kept.session");
+    expect(saved?.state.token).toBe("live-token");
+  });
+
+  it("moves a token an older build saved in AsyncStorage", async () => {
+    await setAppMode("live");
+    secure.clear();
+    await AsyncStorage.setItem("kept.live.session", JSON.stringify({ state: { token: "old-token", wallet: LIVE_WALLET, onboarded: true }, version: 0 }));
+    await useSession.persist.rehydrate();
+    expect(useSession.getState().token).toBe("old-token");
+    expect(await AsyncStorage.getItem("kept.live.session")).not.toContain("old-token");
+    expect(secure.get("kept.live.session.secret")).toContain("old-token");
+  });
+
+  it("leaving Demo removes its secret too", async () => {
+    await startDemo();
+    await settle();
+    expect(secure.has("kept.demo.session.secret")).toBe(true);
+    await exitDemo();
+    expect(secure.has("kept.demo.session.secret")).toBe(false);
+  });
+});
+
+describe("a token rejected mid-session (Live)", () => {
+  const unauthorized = (() => Promise.resolve(new Response(JSON.stringify({ error: "Invalid or expired token" }), { status: 401 }))) as unknown as typeof fetch;
+  it("signs out and says so, once; sign-in's own 401 doesn't", async () => {
+    await startLive();
+    useSession.getState().signIn({ token: "stale", wallet: LIVE_WALLET, genesis: true });
+    const seen: string[] = [];
+    const off = onNotice((x) => seen.push(x));
+    const c = createHttpClient(() => useSession.getState().token, "http://api", unauthorized);
+    await expect(c.post("/api/auth/verify", {}, NonceResponse)).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    expect(useSession.getState().token).toBe("stale");
+    await expect(c.get("/api/inbox", NonceResponse)).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(c.get("/api/inbox", NonceResponse)).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    expect(useSession.getState()).toMatchObject({ token: null, wallet: null });
+    expect(seen).toEqual([t("additions.session.expired")]);
+    off();
+  });
+});
+
 describe("Skip to tomorrow (Demo, Q6)", () => {
   const nowS = () => Math.floor(clock.now() / 1000);
   afterEach(() => clock.reset());
@@ -90,7 +146,9 @@ describe("Skip to tomorrow (Demo, Q6)", () => {
     await skipToTomorrow();
     const after = await getApi().oaths.list(MOCK_WALLET).then((l) => oathView(l.find((f) => f.id === before.facts.id)!, nowS(), MOCK_WALLET));
     expect(after.dayNumber).toBe(before.dayNumber + 1);
-    expect(after.hp).not.toBe(before.hp);
+    // Day 3: Riya kept (her proof counts though it was seeded as a flag); the user (photo 1 only), Arjun
+    // and Dev (his group review undecided) missed: 90 − 3·20 + 10.
+    expect(after.hp).toBe(40);
   });
   it("does nothing in Live", async () => {
     await startLive();

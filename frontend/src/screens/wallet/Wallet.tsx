@@ -1,5 +1,5 @@
-// W · Wallet (screens.md W1–W4). Balances and the faucet are real in hybrid mode; the swap and its
-// quote are mock only on Devnet (DECISIONS D-21, BACKEND_GAPS P1-17).
+// W · Wallet (screens.md W1–W4). Balances and the faucet are real in Live; the swap and its quote are
+// Demo only (hidden in Live, DECISIONS D-21, BACKEND_GAPS P1-17).
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Share, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
@@ -27,7 +27,7 @@ import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
 import { objectIcon, skrWhole, weekday } from "@/features/oaths/present";
-import { useActivity, walletActions } from "@/features/phase4";
+import { useActivity, walletActions } from "@/features/queries";
 import { useSession } from "@/state/session";
 import { useUi } from "@/state/ui";
 import { SigningScreen } from "../shared/Signing";

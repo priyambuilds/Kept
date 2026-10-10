@@ -28,7 +28,7 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 | `onchain/` | The Anchor program (`kept_test`) | Backend developer's code. **Read-only for you.** Never deploy with the local keypair in `target/deploy`. |
 | `frontend/` | The new app (Phase 1+) | **Your work.** |
 | `packages/*` | config, shared (schemas, contract), engine, chain (IDL + account reading) | **Your work** (frontend-side, consumed by the app). |
-| `legacy/` | The old harness app, V3/Aura code and docs | Reference only. |
+| `legacy/` | V3 Aura backend code, V3 program tests and V3 docs (the old app code was removed 2026-10-10) | Reference only. |
 | `docs/` | ARCHITECTURE, BACKEND_GAPS, DECISIONS, BUILD_PLAN, API; `docs/notes/` for session reports and plans | Keep them updated. |
 | `infra/` | `docker-compose.yml` (local Postgres for `backend`) | Dev infrastructure. |
 
@@ -40,7 +40,7 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 
 ## Your goals
 1. ~~Restructure the repo~~ (done in Phase 0).
-2. **Build the new mobile app** from `design/`, from scratch. The legacy harness app is reference only, for wallet, chain and IDL helpers.
+2. **Build the new mobile app** from `design/`, from scratch. (The old harness app's wallet, chain and IDL helpers now live in `frontend/src/chain` and `packages/chain`.)
 3. **Connect it to the backend** where the backend already supports a feature, using the mock everywhere else. The full merge happens later, only when I say so.
 4. **Keep `docs/BACKEND_GAPS.md` current.** It's the handoff for the backend developer: every place the backend or program must change to match the design.
 
@@ -57,7 +57,7 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 /infra               docker-compose.yml (local Postgres)
 /design              unchanged
 /docs                ARCHITECTURE.md, BACKEND_GAPS.md, DECISIONS.md, BUILD_PLAN.md, API.md; notes/ for session reports
-/legacy              old harness app, V3/Aura code (kept for reference, not built)
+/legacy              V3/Aura backend code and docs (kept for reference, not built)
 ```
 - Use **pnpm workspaces** (or npm workspaces if pnpm causes problems with Expo or Anchor), and Turborepo only if it clearly helps.
 - Use `git mv`, not delete-and-recreate, so history is kept. The repo has no commits yet, so **make an initial commit of the current state before restructuring.**
@@ -67,7 +67,7 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 - **Expo** (latest stable SDK), React Native, TypeScript strict, Android only. Use a **development build** (Expo Go can't run the wallet adapter or the camera).
 - **Navigation:** follow `design/flows.md`. expo-router or React Navigation are both fine; pick one and say why. It must support deep links (`kept://join/<code>`) and transient signing screens that replace themselves in the stack.
 - **Data:** TanStack Query for server state, Zustand for client state (`session`, `balances`, `drafts`, `ui`), Zod for every API response.
-- **Look and motion:** react-native-svg, Reanimated, Gesture Handler, expo-haptics, expo-linear-gradient, Geist and Geist Mono fonts, MaterialCommunityIcons. The Keeper is a parametric `react-native-svg` component (PNGs as a fallback), per `design/assets.md`.
+- **Look and motion:** react-native-svg, Reanimated, Gesture Handler, expo-haptics, expo-linear-gradient, Geist and Geist Mono fonts, MaterialCommunityIcons. The Keeper is a parametric `react-native-svg` component, per `design/assets.md` (no PNG fallback ships, D-33).
 - **Device:** a camera library for live capture only, no gallery (evaluate expo-camera vs react-native-vision-camera); the Solana Mobile Wallet Adapter; expo-notifications.
 - **Tests:** Jest + React Native Testing Library; Maestro for end-to-end flows.
 - Check current docs before adding any dependency, and keep the list short.

@@ -140,7 +140,8 @@
     "$source": "phase 4",
     "faucetUsed": "The faucet gives 5,000 SKR once per wallet.",
     "available": "SKR available",
-    "lockedOne": "{amount} SKR · 1 Oath"
+    "lockedOne": "{amount} SKR · 1 Oath",
+    "noWalletApp": "No wallet app found. Install Phantom or Solflare, or try the demo."
   },
   "profile": {
     "privateOaths": "{name} keeps their Oaths private"
@@ -176,6 +177,15 @@
     "sub": "That's on us. Nothing you staked or proved is lost. Try again to go back to the app.",
     "retry": "Try again",
     "rejected": "That didn't work. Try again."
+  },
+  "session": {
+    "$source": "owner: Live resilience, a token rejected mid-session (DECISIONS D-89)",
+    "expired": "Signed out. Connect your wallet to sign in again."
+  },
+  "loadFailed": {
+    "$source": "owner: Live resilience, M2 when a screen's data failed to load for a reason other than the network (DECISIONS D-89)",
+    "title": "Couldn't load this.",
+    "sub": "KEPT's server didn't answer, or this is gone. Nothing you staked moved."
   },
   "camera": {
     "$source": "Added 2026-10-10 (frontend fix): the shutter failed or timed out; Live never substitutes a photo, so it asks for a retake.",

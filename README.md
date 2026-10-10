@@ -11,10 +11,39 @@ Android app for the Solana Seeker: swear daily Oaths, stake SKR, prove each day 
 | `infra/` | infra | `docker-compose.yml` (local Postgres) |
 | `design/` | design | the design handoff (read-only source of truth) |
 | `docs/` | docs | architecture, backend gaps, decisions, build plan, API; `docs/notes/` for session reports |
-| `legacy/` | reference | the old harness app, V3 code and docs (not built) |
+| `legacy/` | reference | V3 Aura backend code, program tests and docs (not built) |
 | `patches/` | tooling | pnpm dependency patches |
 
 Each top-level folder has a `README.md` describing its contents.
+
+## For judges
+
+**Install.** Copy the APK to an Android phone (or the Solana Seeker) and open it; allow "Install unknown
+apps" for your file manager when Android asks. From a computer with the Android SDK:
+`adb install kept-release.apk`. On first launch tap **Get started**, then pick a mode.
+
+**Try the demo** (recommended): a sample account on a simulated backend, wallet and program. It needs no
+wallet, no SKR and no network (it works in airplane mode); nothing is sent anywhere, and signing screens
+say "Demo: the approval is simulated." `docs/DEMO_SCRIPT.md` is a two-minute walkthrough of the core loop,
+including **Skip to tomorrow** (Profile › Settings), which settles a day so you can see misses cost HP and
+stake. Restart demo / Exit demo are in the same place.
+
+**Use my wallet** (Live) is the real app on Solana **Devnet**, with any Mobile Wallet Adapter wallet
+(Seeker Wallet, Phantom, Solflare). What is real:
+
+| Real on Devnet | How |
+|---|---|
+| Sign-in | Sign-In With Solana message signed in your wallet, checked by the backend; Seeker Genesis Token check |
+| Create, join, start, cancel, settle, claim an Oath | Transactions to the Anchor program `kept_test` (`6iXXBqsdiCnUTSVf8CW3Uuw8c7iYvZSj5haz64QMuMUh`); stakes are escrowed on chain |
+| Balances, test SKR | Read from RPC; the faucet sends test SKR once per wallet |
+| Invites, nudges, inbox, kept rate | The backend (kept rate is the backend's plain kept / (kept + missed), "New" under 10 days) |
+| Bounties | The backend's one current Bounty: list, detail and join |
+
+Not real yet in Live (shown as unavailable or hidden, never faked): the photo check (needs a
+backend decision, so proofs end on "Check unavailable"); Rematch, creating a Bounty, swap and creator
+pages (no backend yet). HP and cost-per-miss on Oath screens are the design's numbers computed in the app;
+what the program pays follows its own rules today (see `docs/BACKEND_GAPS.md`). A Live build needs
+`EXPO_PUBLIC_API_URL` set to the backend; without it only Demo starts.
 
 ## Setup
 Requires Node ≥ 20, pnpm, Docker (local Postgres). For the program: Rust, Solana CLI (Agave), Anchor 1.2.0.

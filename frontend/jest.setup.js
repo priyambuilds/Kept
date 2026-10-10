@@ -13,6 +13,16 @@ jest.mock("react-native-reanimated", () => {
 // Native modules the Phase 2 shell touches.
 jest.mock("@react-native-async-storage/async-storage", () => require("@react-native-async-storage/async-storage/jest/async-storage-mock"));
 jest.mock("@solana-mobile/mobile-wallet-adapter-protocol-web3js", () => ({ transact: jest.fn(() => Promise.reject(new Error("MWA is not available in tests"))) }));
+// expo-secure-store: an in-memory Keystore (tests read it back through `__store`).
+jest.mock("expo-secure-store", () => {
+  const store = new Map();
+  return {
+    __store: store,
+    getItemAsync: jest.fn(async (k) => (store.has(k) ? store.get(k) : null)),
+    setItemAsync: jest.fn(async (k, v) => { store.set(k, v); }),
+    deleteItemAsync: jest.fn(async (k) => { store.delete(k); }),
+  };
+});
 // expo-camera: a preview that "takes" a fixed picture, and permission already granted.
 jest.mock("expo-camera", () => {
   const React = require("react");

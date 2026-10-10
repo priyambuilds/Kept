@@ -42,6 +42,10 @@ describe("theme", () => {
     const json = JSON.parse(readFileSync(join(root, "..", "design", "tokens.json"), "utf8"));
     expect(readFileSync(join(root, "src", "theme", "tokens.gen.ts"), "utf8")).toBe(renderTokens(json));
   });
+  it("icons.gen.json has every icon the sources name (pnpm icons:gen also cuts the font)", () => {
+    const { usedIcons } = require("../../scripts/gen-icons.js");
+    expect(JSON.parse(readFileSync(join(root, "src", "components", "primitives", "icons.gen.json"), "utf8"))).toEqual(usedIcons());
+  });
   it("maps type tokens to loaded fonts", () => {
     expect(typeStyles.title).toMatchObject({ fontFamily: "Geist_600SemiBold", fontSize: 30, lineHeight: 33, letterSpacing: -1.1 });
     expect(typeStyles.monoLabel).toMatchObject({ fontFamily: "GeistMono_600SemiBold", textTransform: "uppercase", color: "#6A6A6A" });

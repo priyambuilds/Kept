@@ -1,7 +1,7 @@
 // Saving a look from the avatar builder (I9) keeps the look, and doesn't finish onboarding: A4 › Customize saves
 // mid-onboarding, and only "Looks like me" ends it.
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { profileActions } from "@/features/phase4";
+import { profileActions } from "@/features/queries";
 import { setAppMode, startDemo } from "@/features/mode";
 import { useSession } from "@/state/session";
 

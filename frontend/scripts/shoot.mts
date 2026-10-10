@@ -1,5 +1,7 @@
 // Screenshots every design screen from the running dev build (Phase 4.5).
-//   node scripts/shoot.mts [--ids A0,B1,C7·no] [--settle 2200] [--out ../artifacts/screens]
+//   node scripts/shoot.mts [--ids A0,B1,C7·no] [--settle 2200] [--out ../artifacts/screens] [--dump]
+// --dump also saves each screen's accessibility tree (<id>.xml, uiautomator) for scripts/a11y.mts; turn the
+// device's animations off first (Settings › Accessibility › Remove animations) or the dump can hang.
 // Needs an emulator or phone on adb with the dev build installed and Metro running. For each id it
 // opens kept://dev/open/<route>?…, waits for the screen to settle, saves <id>.png and records the
 // logcat errors (JS console.error, red boxes, native crashes) in report.json next to them.
@@ -56,6 +58,12 @@ async function main() {
     await sleep(settle);
     const png = execFileSync(ADB, ["exec-out", "screencap", "-p"], { maxBuffer: 64 << 20 });
     writeFileSync(path.join(out, `${id}.png`), png);
+    if (process.argv.includes("--dump")) {
+      spawnSync(ADB, ["shell", "rm", "-f", "/sdcard/kept-a11y.xml"]); // a failed dump must not leave the last screen's
+      spawnSync(ADB, ["shell", "uiautomator", "dump", "/sdcard/kept-a11y.xml"], { timeout: 20000 });
+      const xml = spawnSync(ADB, ["exec-out", "cat", "/sdcard/kept-a11y.xml"], { encoding: "utf8", maxBuffer: 64 << 20 }).stdout;
+      writeFileSync(path.join(out, `${id}.xml`), xml);
+    }
     const errors = errorsSince();
     const crashed = !pidOf();
     report[id] = { errors, crashed };

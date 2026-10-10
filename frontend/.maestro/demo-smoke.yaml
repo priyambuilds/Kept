@@ -1,0 +1,35 @@
+# Demo smoke test: onboarding → Today → proof → result. Runs offline on the mock (D-80).
+#   maestro test frontend/.maestro/demo-smoke.yaml
+# Needs a release or debug build of app.kept.mobile on the device; any camera image passes in Demo.
+appId: app.kept.mobile
+name: Demo smoke (onboarding → Today → proof → result)
+---
+- launchApp:
+    clearState: true
+    permissions:
+      camera: allow
+# A1 → A1·m → A4 → Today (judges account)
+- tapOn: "Get started"
+- tapOn: "Try the demo"
+- tapOn: "Looks like me"
+- extendedWaitUntil:
+    visible: "Today"
+    timeout: 15000
+- assertVisible: "Iron Week"
+# Iron Week: photo 1 is in, take photo 2
+- tapOn: "Take photo 2"
+- extendedWaitUntil:
+    visible:
+      text: "Take photo"
+    timeout: 10000
+- tapOn:
+    text: "Take photo"
+# F4·chk → F5 "Day 3 kept."
+- extendedWaitUntil:
+    visible: "Day \\d+ kept\\."
+    timeout: 15000
+- tapOn: "Done"
+- extendedWaitUntil:
+    visible: "Today"
+    timeout: 10000
+- assertVisible: "kept"

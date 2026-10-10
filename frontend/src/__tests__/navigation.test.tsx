@@ -7,7 +7,7 @@ import { ToastHost } from "@/components/chrome";
 import { queryClient } from "@/api/queries";
 import { SLICES } from "@/api/types";
 import { RootNavigator, routeInvite } from "@/app/RootNavigator";
-import { FxHost } from "@/app/hosts";
+import { FxHost, LoadFailHost } from "@/app/hosts";
 import { navigateTo, navigationRef } from "@/app/nav";
 import { ROUTES, presentation, routeName } from "@/app/routes";
 import { STILL_OFFLINE } from "@/screens/M2";
@@ -24,9 +24,11 @@ import amend from "@/app/routes.amend.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setAppMode } from "@/features/mode";
 import { useMode } from "@/state/mode";
-import { mwaWallet } from "@/chain/mwa";
-import { fakeBackend, fakeWallet, resetWallet, installFakeBackend, installFakeWallet } from "@/testing/fakeLive";
+import { clock } from "@/lib/clock";
+import { transact } from "@solana-mobile/mobile-wallet-adapter-protocol-web3js";
 import { AppState } from "react-native";
+import { mwaWallet } from "@/chain/mwa";
+import { fakeBackend, fakeWallet, installFakeBackend, installFakeWallet, resetWallet } from "@/testing/fakeLive";
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 24, left: 0, right: 0, bottom: 16 } };
 const slow = { timeout: 8000 };
@@ -35,7 +37,7 @@ function App() {
   return (
     <SafeAreaProvider initialMetrics={metrics}>
       <QueryClientProvider client={queryClient}>
-        <ToastHost><RootNavigator /><FxHost /></ToastHost>
+        <ToastHost><RootNavigator /><FxHost /><LoadFailHost /></ToastHost>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
@@ -132,6 +134,17 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("screens.A2.b0.title"), {}, slow)).toBeTruthy();
     expect(useMode.getState().mode).toBe("live");
     expect(useSession.getState().invite).toBe("");
+  }, 30000);
+
+  it("no wallet app: back on Connect wallet with a toast that says so", async () => {
+    useDev.setState({ mockWallet: false });
+    jest.mocked(transact).mockRejectedValueOnce(Object.assign(new Error("Found no installed wallet that supports the mobile wallet protocol."), { name: "SolanaMobileWalletAdapterError", code: "ERROR_WALLET_NOT_FOUND" }));
+    await render(<App />);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
+    await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r0.t")));
+    expect(await screen.findByText(t("additions.wallet.noWalletApp"), {}, slow)).toBeTruthy();
+    expect(await screen.findByText(t("screens.A2.b0.title"), {}, slow)).toBeTruthy();
   }, 30000);
 
   it("a signed-in, onboarded user skips straight to the tabs", async () => {
@@ -293,7 +306,7 @@ describe("onboarding on Live", () => {
   }, 30000);
 });
 
-describe("Phase 4 on mocks", () => {
+describe("Bounties, Rematch, review, profile and wallet on mocks", () => {
   const WALLET = "7xKpQe9mZ3LbVd2RtYc8NfH4uJs6WgA1oPqE5rTk3F9q";
   const MOMENT_IDS = ["L1", "L2", "L3", "L4", "L4·m", "L4·b", "L5", "L6", "H4", "H5", "R4", "R4·lost"];
   beforeAll(() => queryClient.setDefaultOptions({ queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity } }));
@@ -304,7 +317,7 @@ describe("Phase 4 on mocks", () => {
     mockOaths.reset();
     queryClient.clear();
     mockOaths.ensureSeeded(scenario, WALLET);
-    const ids = mockOaths.list(WALLET, { seeded: true }).map((o) => o.id);
+    const ids = mockOaths.list(WALLET).map((o) => o.id);
     useDeviceOaths.setState({ shownResults: ids.flatMap((id) => MOMENT_IDS.map((m) => `${id}:${m}`)), recapShownOn: new Date().toDateString() });
     useSession.setState({ token: "mock.x", wallet: WALLET, genesis: true, onboarded: true, avatar: null, invite: null });
     await render(<App />);
@@ -319,6 +332,24 @@ describe("Phase 4 on mocks", () => {
     expect(await screen.findByText(t("screens.R3.b1.title", { n: 3, total: 4 }), {}, slow)).toBeTruthy();
     // D-86: back from the lobby is home, not the offer or the signature.
     expect(rootStack()).toEqual(["Tabs", "R3"]);
+  }, 30000);
+
+  it("Demo › Skip to tomorrow: home, with the new day's recap on top (D-88)", async () => {
+    await setAppMode("demo");
+    await signedIn("judges");
+    await act(async () => { navigateTo("I4"); });
+    await fireEvent.press(await screen.findByRole("button", { name: t("additions.mode.skip") }, slow));
+    expect(await screen.findByText(t("screens.B5.b4.btn.1"), {}, slow)).toBeTruthy();
+    expect(rootStack()).toEqual(["Tabs", "B5"]);
+    clock.reset();
+    await setAppMode(null);
+  }, 30000);
+
+  it("a screen whose data can't load ends on M2 (server copy), not a skeleton (D-89)", async () => {
+    await signedIn("activeGroup");
+    await act(async () => { navigateTo("D2", { id: "no-such-oath" }); });
+    expect(await screen.findByText(t("additions.loadFailed.title"), {}, slow)).toBeTruthy();
+    expect(await screen.findByRole("button", { name: t("screens.M2.pin.0") })).toBeTruthy();
   }, 30000);
 
   it("group review: the inbox opens G1 and a vote goes back to D2", async () => {
@@ -343,7 +374,7 @@ describe("Phase 4 on mocks", () => {
     expect(rootStack()).toEqual(["Tabs", "H3"]);
   }, 30000);
 
-  it("opens every Phase 4 screen that needs no id without a render error", async () => {
+  it("opens every one of those screens that needs no id without a render error", async () => {
     await signedIn("activeGroup");
     const errors = jest.spyOn(console, "error");
     for (const id of ["H1·j", "H1·c", "H7", "K1", "K2", "K3", "K4", "K5", "I2·me", "I4", "I5", "I7", "I8", "I9", "W1", "W4", "N1", "M1"] as const) {
@@ -354,7 +385,7 @@ describe("Phase 4 on mocks", () => {
     errors.mockRestore();
   }, 60000);
 
-  it("opens the Phase 4 screens that take an id without a render error", async () => {
+  it("opens those screens that take an id without a render error", async () => {
     await signedIn("activeGroup");
     const errors = jest.spyOn(console, "error");
     const hydrate = mockBounties.byName("Hydrate Week")!;

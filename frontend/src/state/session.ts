@@ -2,10 +2,10 @@
 // each have their own (state/storage.ts).
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { registerScoped, scopedPersist } from "./storage";
+import { registerScoped, secretPersist } from "./storage";
 
 export interface SessionState {
-  /** Backend bearer token (7 days) or a mock token. */
+  /** Backend bearer token (7 days) or a mock token. Saved in the secure store, never AsyncStorage. */
   token: string | null;
   wallet: string | null;
   /** Seeker Genesis verified (GET /api/me). */
@@ -35,5 +35,5 @@ export const useSession = create<SessionState>()(persist((set) => ({
   setAvatar: (avatar) => set({ avatar }),
   setInvite: (invite) => set({ invite }),
   signOut: () => set({ token: null, wallet: null, genesis: false }),
-}), scopedPersist<SessionState>("kept.session", EMPTY)));
+}), secretPersist<SessionState>("kept.session", EMPTY, ["token"])));
 registerScoped(useSession);

@@ -33,7 +33,7 @@ import { setStorageScope } from "@/state/storage";
 const W = MOCK_WALLET;
 /** The user's seeded Oath with this name; a running or finished one before an Open one ("Iron Week" is both). */
 const oath = (name: string) => {
-  const all = mockOaths.list(W, { seeded: true }).filter((o) => o.name === name && !o.bountyId && !o.rematchOf);
+  const all = mockOaths.list(W).filter((o) => o.name === name && !o.bountyId && !o.rematchOf);
   return (all.find((o) => o.status !== "open") ?? all[0])?.id ?? "";
 };
 const bounty = (name: string) => mockBounties.byName(name)?.id ?? "";
@@ -140,7 +140,7 @@ function openDevLink(url: string): boolean {
   mockOaths.ensureSeeded(scenario, W);
   shot.setup?.();
   // Results and the recap are moments shown once: mark them seen so they don't open over the target.
-  const ids = mockOaths.list(W, { seeded: true }).map((o) => o.id);
+  const ids = mockOaths.list(W).map((o) => o.id);
   useDeviceOaths.setState({ shownResults: ids.flatMap((o) => RESULT_SCREENS.map((k) => `${o}:${k}`)), recapShownOn: new Date(clock.now()).toDateString(), photo1: {}, fails: {}, seenHp: {} });
 
   const route = (d: DesignId, p?: Params) => { const [name, params] = target(d, p); return { name, params }; };

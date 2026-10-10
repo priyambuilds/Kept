@@ -2,6 +2,8 @@
 // watcher. (The Keeper's note lives in each Screen.) ToastHost wraps the app in App.tsx.
 import { useEffect, useRef } from "react";
 import { onlineManager } from "@tanstack/react-query";
+import { queryClient } from "@/api/queries";
+import { isApiError } from "@/api/errors";
 import { FxLayer } from "@/components/chrome";
 import { haptic } from "@/lib/haptics";
 import { useUi } from "@/state/ui";
@@ -42,6 +44,30 @@ export function OfflineHost() {
     if (shown.current || (current && designIdOf(current) === "M2")) return;
     shown.current = true;
     navigateTo("M2");
+  }), []);
+  return null;
+}
+
+/** Failures a screen can be stuck on with nothing to show; OFFLINE goes through OfflineHost instead. */
+const STUCK = new Set(["SERVER", "RATE_LIMITED", "NOT_FOUND"]);
+
+/**
+ * A screen whose data never loaded (server error, rate limit, gone) would sit on its skeleton forever.
+ * When such a load fails for good (after its retries) while a screen is showing it, open M2 with the
+ * "load" copy and its Retry (D-89). Once per screen, so a polling query doesn't reopen it.
+ */
+export function LoadFailHost() {
+  const openedFor = useRef(new Set<string>());
+  useEffect(() => queryClient.getQueryCache().subscribe((ev) => {
+    if (ev.type !== "updated" || ev.action.type !== "error") return;
+    const q = ev.query;
+    if (q.state.data !== undefined || q.getObserversCount() === 0) return;
+    const e = ev.action.error;
+    if (!isApiError(e) || !STUCK.has(e.code)) return;
+    const current = navigationRef.isReady() ? navigationRef.getCurrentRoute() : undefined;
+    if (!current || designIdOf(current.name) === "M2" || openedFor.current.has(current.key)) return;
+    openedFor.current.add(current.key);
+    navigateTo("M2", { cause: "load" });
   }), []);
   return null;
 }

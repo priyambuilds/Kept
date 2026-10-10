@@ -1,5 +1,6 @@
 // Turns whatever the wallet, RPC or program threw into a TxError, which picks the screen:
-// rejected → C7·no / A2·e, failed → C7·fail, insufficientSol → M3, insufficientSkr → M4, offline → M2.
+// rejected → C7·no / A2·e, failed → C7·fail, insufficientSol → M3, insufficientSkr → M4, offline → M2,
+// noWallet (no MWA wallet app installed) → back to A2 with a toast on sign-in, C7·fail elsewhere.
 import { TxFailure } from "./types";
 import type { TxError } from "./types";
 
@@ -15,6 +16,7 @@ export function classifyTxError(e: unknown): TxFailure {
   const kind = ((): TxError => {
     if (err?.name === "SolanaMobileWalletAdapterProtocolError" && DECLINED_PROTOCOL_CODES.has(err.code as number)) return "rejected";
     if (err?.name === "SolanaMobileWalletAdapterError" && DECLINED_CLIENT_CODES.has(err.code as string)) return "rejected";
+    if (err?.code === "ERROR_WALLET_NOT_FOUND" || /no installed wallet|wallet not found/i.test(message)) return "noWallet";
     if (/network request failed|failed to fetch|ENOTFOUND|ECONNREFUSED/i.test(message)) return "offline";
     // System program: account can't pay the fee / rent.
     if (/insufficient lamports|Attempt to debit an account but found no record of a prior credit/i.test(message)) return "insufficientSol";

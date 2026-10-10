@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastHost } from "@/components/chrome";
-import { FxHost, OfflineHost } from "@/app/hosts";
+import { FxHost, LoadFailHost, OfflineHost } from "@/app/hosts";
 import { CrashBoundary } from "@/app/CrashBoundary";
 import { RootNavigator } from "@/app/RootNavigator";
 import { queryClient } from "@/api/queries";
@@ -28,6 +28,7 @@ export default function App() {
               <RootNavigator />
               <FxHost />
               <OfflineHost />
+              <LoadFailHost />
               {DevMenu ? <DevMenu /> : null}
             </CrashBoundary>
           </ToastHost>

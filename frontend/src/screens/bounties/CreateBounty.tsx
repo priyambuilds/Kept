@@ -18,7 +18,7 @@ import { color, metrics, tokens } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
 import { bountyFunding } from "@kept/engine";
 import { objectIcon, objectName, skrWhole } from "@/features/oaths/present";
-import { bountyActions, useBounty } from "@/features/phase4";
+import { bountyActions, useBounty } from "@/features/queries";
 import { SigningScreen } from "../shared/Signing";
 
 const STEPS = 5;

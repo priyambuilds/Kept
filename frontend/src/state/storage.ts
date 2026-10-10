@@ -2,6 +2,7 @@
 // Demo and Live keep separate data (session, settings, drafts, device Oath facts): every store made with
 // `scopedPersist` lives under `kept.<scope>.<name>`, where the scope is the app mode (state/mode.ts).
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import { createJSONStorage } from "zustand/middleware";
 import type { PersistOptions } from "zustand/middleware";
 
@@ -51,8 +52,62 @@ export function scopedPersist<S>(name: string, initial: Partial<S>): PersistOpti
 export function registerScoped(store: Rehydratable): void { scopedStores.push(store); }
 export async function rehydrateScoped(): Promise<void> { await Promise.all(scopedStores.map((s) => s.persist.rehydrate())); }
 
-/** Removes everything saved under a scope (leaving Demo wipes it). */
+/** Removes everything saved under a scope (leaving Demo wipes it), secrets included. */
 export async function clearScope(s: StorageScope): Promise<void> {
   const keys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(`kept.${s}.`));
   if (keys.length) await AsyncStorage.multiRemove(keys);
+  await Promise.all([...secretNames].map((n) => SecureStore.deleteItemAsync(secretKey(n, s)).catch(() => undefined)));
+}
+
+// ── Secrets ── Fields named in `secretPersist` (the sign-in token) never reach AsyncStorage, which is a
+// plain file any backup or rooted phone can read: they live in expo-secure-store (Android Keystore) under
+// `kept.<scope>.<name>.<field>`, and the rest of the store persists as usual. A token an older build
+// left in AsyncStorage moves to the secure store the first time it's read.
+const secretNames = new Set<string>();
+const secretKey = (name: string, s: StorageScope = scope) => `${scopedKey(name, s)}.secret`;
+
+interface Saved { state?: Record<string, unknown>; version?: number }
+
+function secretStorage(fields: readonly string[]) {
+  const split = (raw: string) => {
+    const saved = JSON.parse(raw) as Saved;
+    const secrets: Record<string, unknown> = {};
+    for (const f of fields) if (saved.state && f in saved.state) { secrets[f] = saved.state[f]; delete saved.state[f]; }
+    return { rest: JSON.stringify(saved), secrets: JSON.stringify(secrets) };
+  };
+  return {
+    getItem: async (name: string): Promise<string | null> => {
+      await keyFor(name);
+      const raw = await scopedAsync.getItem(name);
+      if (raw === null) return null;
+      const saved = JSON.parse(raw) as Saved;
+      if (fields.some((f) => saved.state?.[f] != null)) {
+        // An older build's plain copy: move it, then rewrite without it.
+        const { rest, secrets } = split(raw);
+        await SecureStore.setItemAsync(secretKey(name), secrets);
+        await scopedAsync.setItem(name, rest);
+        return raw;
+      }
+      const stored = await SecureStore.getItemAsync(secretKey(name)).catch(() => null);
+      if (stored && saved.state) Object.assign(saved.state, JSON.parse(stored) as Record<string, unknown>);
+      return JSON.stringify(saved);
+    },
+    setItem: async (name: string, value: string): Promise<void> => {
+      await keyFor(name);
+      const { rest, secrets } = split(value);
+      await SecureStore.setItemAsync(secretKey(name), secrets);
+      await scopedAsync.setItem(name, rest);
+    },
+    removeItem: async (name: string): Promise<void> => {
+      await keyFor(name);
+      await SecureStore.deleteItemAsync(secretKey(name)).catch(() => undefined);
+      await scopedAsync.removeItem(name);
+    },
+  };
+}
+
+/** `scopedPersist`, with `secret` fields kept in the secure store instead of AsyncStorage. */
+export function secretPersist<S>(name: string, initial: Partial<S>, secret: readonly (keyof S & string)[]): PersistOptions<S, S> {
+  secretNames.add(name);
+  return { ...scopedPersist<S>(name, initial), storage: createJSONStorage(() => secretStorage(secret)) as PersistOptions<S, S>["storage"] };
 }

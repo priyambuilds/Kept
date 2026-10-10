@@ -145,6 +145,7 @@ export function A2s() {
     const e = r.error;
     if (isTxFailure(e) && e.kind === "rejected") return { to: "A2·e" };
     if ((isTxFailure(e) && e.kind === "offline") || (isApiError(e) && e.code === "OFFLINE")) return { to: "M2" };
+    if (isTxFailure(e) && e.kind === "noWallet") { toast(t("additions.wallet.noWalletApp")); return { to: "A2" }; }
     // Anything else (backend refused, wallet error): say what happened and let them try again.
     toast(e instanceof Error ? e.message : String(e));
     return { to: "A2" };

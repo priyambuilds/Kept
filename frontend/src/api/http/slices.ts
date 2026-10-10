@@ -11,7 +11,7 @@ import { useSession } from "@/state/session";
 import { KEPT_RATE, SKR_UNIT } from "@kept/config";
 import { readBalances } from "@/chain/connection";
 import { programEnv } from "@/chain/program";
-import { ApiError, isApiError } from "../errors";
+import { ApiError, fromRpcError, isApiError } from "../errors";
 import type { AuthApi, InboxApi, InvitesApi, MyStats, NotifyApi, ProfileApi, RematchApi, ReviewsApi, WalletApi } from "../types";
 import type { HttpClient } from "./client";
 
@@ -28,7 +28,7 @@ export const httpWallet = (c: HttpClient): WalletApi => ({
       const mint = await programEnv().then((e) => e.stakeMint.toBase58()).catch(() => undefined);
       return await readBalances(wallet, mint);
     } catch (e) {
-      throw new ApiError("OFFLINE", e instanceof Error ? e.message : String(e), 0, true);
+      throw fromRpcError(e);
     }
   },
   price: () => c.get("/api/price", PriceResponse),

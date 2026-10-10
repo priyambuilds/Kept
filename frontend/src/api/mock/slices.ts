@@ -11,6 +11,7 @@ import { sampleData, t } from "@/copy";
 import type { CopyKey } from "@/copy";
 import { mockBounties } from "@/features/bounties/mockStore";
 import { PEOPLE, mockOaths } from "@/features/oaths/mockStore";
+import { mockReviews } from "@/features/reviews/mockStore";
 import { ApiError } from "../errors";
 import type { ActivityItem, ActivityType, AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
 import { devWait } from "@/state/dev";
@@ -61,7 +62,7 @@ export function mockWallet(ctx: MockContext): WalletApi {
       const s = ctx.scenario();
       return respond(ctx, BalancesResponse, {
         // W1 in the design: 4,280 SKR available.
-        skr: (BigInt(skr(s === "noSkr" ? 620 : 4280)) + addedSkr).toString(),
+        skr: (BigInt(skr(s === "noSkr" ? 620 : 4280)) + addedSkr + mockOaths.walletDelta(ctx.wallet() ?? "")).toString(),
         sol: s === "noSol" ? "0" : (840_000_000n - spentLamports).toString(),
       });
     },
@@ -104,10 +105,17 @@ function ago(t: string): number {
  */
 function inboxRef(id: string, wallet: string): InboxItem["ref"] | null {
   const oath = (name: string, mine = true) => mockOaths.byName(name, mine ? wallet : null);
-  const active = (name: string) => mockOaths.list(wallet, { seeded: true }).find((o) => o.name === name && o.status === "active");
+  const active = (name: string) => mockOaths.list(wallet).find((o) => o.name === name && o.status === "active");
   switch (id) {
     case "inv1": { const o = oath("Dawn Run", false); return o && !o.members.some((m) => m.wallet === wallet) ? { oath: o.id, code: o.inviteCode ?? "" } : null; }
-    case "rev1": case "ng1": { const o = active("Iron Week"); return o ? { oath: o.id } : null; }
+    // The vote request goes once I've voted (or it's decided), like the invite once I've joined.
+    case "rev1": {
+      const o = active("Iron Week");
+      if (!o?.day1StartsAt || !o.members.some((m) => m.wallet !== wallet && m.proofToday === "review")) return null;
+      mockReviews.seedFor(o.id, o.objectId, o.members.map((m) => m.wallet), Math.floor((clock.now() / 1000 - o.day1StartsAt) / o.daySeconds));
+      return mockReviews.openFor(o.id, wallet).length ? { oath: o.id } : null;
+    }
+    case "ng1": { const o = active("Iron Week"); return o ? { oath: o.id } : null; }
     case "clm1": { const o = oath("Hydra 14"); return o && !o.members.find((m) => m.wallet === wallet)?.claimed ? { oath: o.id } : null; }
     case "rm1": { const o = oath("Guitar Days"); return o ? { oath: o.id } : null; }
     case "rc1": return {};

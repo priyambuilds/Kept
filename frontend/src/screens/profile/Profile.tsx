@@ -1,5 +1,5 @@
 // I · Profiles and settings (screens.md I1–I9). Profiles, stats, activity and creator pages are on
-// the mock (BACKEND_GAPS P1-8, P1-9, P1-16); the faucet is real in hybrid mode.
+// the mock in Demo; Live has reputation stats only (BACKEND_GAPS P1-8, P1-9, P1-16) and the real faucet.
 import { useState } from "react";
 import * as Clipboard from "expo-clipboard";
 import { keeperLines, t } from "@/copy";
@@ -28,7 +28,7 @@ import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
 import { objectIcon, skrWhole } from "@/features/oaths/present";
-import { profileActions, useActivity, useBounties, useCreator, useMyProfile, usePerson, useStats, walletActions } from "@/features/phase4";
+import { profileActions, useActivity, useBounties, useCreator, useMyProfile, usePerson, useStats, walletActions } from "@/features/queries";
 import { useSession } from "@/state/session";
 import { useSettings } from "@/state/settings";
 import type { Audience } from "@/state/settings";
@@ -205,7 +205,8 @@ export function I4() {
   /** Demo: wipe it and start over on A1, or put the sample account back the way it began. */
   const leaveDemo = async () => { await exitDemo(); resetStack(["A1"]); };
   const againDemo = async () => { await restartDemo(); resetStack(["B1"]); toast(t("additions.mode.restarted")); };
-  const tomorrow = async () => { await skipToTomorrow(); resetStack(["B1"]); toast(t("additions.mode.skipped")); };
+  // Home first: the new day's recap (B5) opens over Today as the refetch lands.
+  const tomorrow = async () => { resetStack(["B1"]); await skipToTomorrow(); toast(t("additions.mode.skipped")); };
   const account = demo ? [
     { title: t("additions.mode.skip"), sub: t("additions.mode.skipSub"), leading: { kind: "icon" as const, icon: "weather-night" as const }, chevron: true, onPress: () => { void tomorrow(); } },
     { title: t("additions.mode.restart"), sub: t("additions.mode.restartSub"), leading: { kind: "icon" as const, icon: "restart" as const }, chevron: true, onPress: () => { void againDemo(); } },

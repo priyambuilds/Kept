@@ -201,6 +201,8 @@ function roll(o: MockOath) {
   for (const m of o.members) {
     if (day < 0) continue;
     if (m.proofDay !== day) {
+      // The day that ended keeps what was proved in it (a seeded "kept today" has no day bit yet).
+      if (m.proofDay >= 0 && m.proofToday === "kept") m.daysKept |= 1 << m.proofDay;
       // A new day: reliable people keep straight away, everyone else starts from nothing.
       m.proofDay = day;
       m.proofToday = m.reliable ? "kept" : "none";
@@ -218,9 +220,9 @@ function facts(o: MockOath): OathFacts {
 
 export const mockOaths = {
   ensureSeeded(scenario: Scenario, wallet: string) { if (seededFor !== `${scenario}:${wallet}`) seed(scenario, wallet); },
-  /** Oaths `wallet` is in. `seeded: false` lists only Oaths created on this device (hybrid mode). */
-  list(wallet: string, opts: { seeded: boolean }): OathFacts[] {
-    return [...oaths.values()].filter((o) => (opts.seeded || !o.seeded) && o.members.some((m) => m.wallet === wallet)).map(facts);
+  /** Oaths `wallet` is in. */
+  list(wallet: string): OathFacts[] {
+    return [...oaths.values()].filter((o) => o.members.some((m) => m.wallet === wallet)).map(facts);
   },
   get(id: string): OathFacts | null { const o = oaths.get(id); return o ? facts(o) : null; },
   byCode(code: string): OathFacts | null {
@@ -240,13 +242,21 @@ export const mockOaths = {
     return facts(o);
   },
 
+  /** What this session's stakes, refunds and claims did to a wallet's SKR (the mock wallet adds it to its balance). */
+  walletDelta(wallet: string): bigint { return deltas.get(wallet) ?? 0n; },
+
   create(d: { wallet: string; goal: string; objectId: number; numDays: number; stake: bigint; isSolo: boolean; reviewMode: ReviewMode }): OathFacts {
     const o = add({ name: oathName(d.objectId, d.numDays), goal: d.goal, objectId: d.objectId, numDays: d.numDays, stake: d.stake, isSolo: d.isSolo, reviewMode: d.reviewMode,
       status: "open", creator: d.wallet, day1StartsAt: null, members: [me(d.wallet)], seeded: false });
+    move(d.wallet, -d.stake);
     return facts(o);
   },
-  join(id: string, wallet: string) { const o = need(id); if (!o.members.some((m) => m.wallet === wallet)) o.members.push(me(wallet)); },
-  leave(id: string, wallet: string) { const o = need(id); o.members = o.members.filter((m) => m.wallet !== wallet); },
+  join(id: string, wallet: string) { const o = need(id); if (!o.members.some((m) => m.wallet === wallet)) { o.members.push(me(wallet)); move(wallet, -o.stake); } },
+  leave(id: string, wallet: string) {
+    const o = need(id);
+    if (o.members.some((m) => m.wallet === wallet)) move(wallet, o.stake);
+    o.members = o.members.filter((m) => m.wallet !== wallet);
+  },
   /** Start: day 1 begins at the first midnight after Start (D-6). */
   start(id: string) { const o = need(id); o.status = "active"; o.day1StartsAt = nextMidnight(now(), tz()); },
   cancel(id: string) { const o = need(id); o.status = "cancelled"; o.members.forEach((m) => { m.payout = o.stake; }); },
@@ -254,6 +264,7 @@ export const mockOaths = {
     const m = need(id).members.find((x) => x.wallet === wallet);
     if (!m || m.claimed || m.payout === null) throw new Error("nothing to claim");
     m.claimed = true;
+    move(wallet, m.payout);
     return m.payout;
   },
   /** Proof progress for the user today. */
@@ -276,7 +287,7 @@ export const mockOaths = {
   joinRematch(sourceId: string, wallet: string): OathFacts {
     let r = [...oaths.values()].find((o) => o.rematchOf === sourceId);
     if (!r) r = rematchOf(need(sourceId), [], false);
-    if (!r.members.some((m) => m.wallet === wallet)) r.members.push(me(wallet));
+    if (!r.members.some((m) => m.wallet === wallet)) { r.members.push(me(wallet)); move(wallet, -r.stake); }
     return facts(r);
   },
   /** Join a Bounty: my participation becomes a mock Oath on the Bounty's days. */
@@ -293,8 +304,11 @@ export const mockOaths = {
   /** Group review settled a day (P1-1): approved counts as kept, rejected as missed. */
   decideReview(id: string, wallet: string, approved: boolean) { mockOaths.prove(id, wallet, approved ? "kept" : "none"); },
   /** Tests only. */
-  reset() { oaths.clear(); seededFor = null; counter = 0; mockBounties.reset(); },
+  reset() { oaths.clear(); deltas.clear(); seededFor = null; counter = 0; mockBounties.reset(); },
 };
+
+const deltas = new Map<string, bigint>();
+function move(wallet: string, by: bigint) { deltas.set(wallet, (deltas.get(wallet) ?? 0n) + by); }
 
 function need(id: string): MockOath {
   const o = oaths.get(id);

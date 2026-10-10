@@ -17,7 +17,7 @@ import { useGo, useParams } from "@/app/nav";
 import { useOath } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { gestureKey, gestureText, listNames, memberColor, memberInitial, memberName, objectIcon, objectName, skrWhole } from "@/features/oaths/present";
-import { reviewActions, useOpenReviews, useReview } from "@/features/phase4";
+import { reviewActions, useOpenReviews, useReview } from "@/features/queries";
 import type { ReviewFacts } from "@/features/reviews/model";
 import { useNow } from "@/features/time";
 import { challengeFor } from "../proof/Proof";

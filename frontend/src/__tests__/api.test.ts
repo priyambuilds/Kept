@@ -1,11 +1,13 @@
 import { SKR_UNIT } from "@kept/config";
 import { createApi, createMockApi } from "@/api";
 import type { Slice, SliceMode } from "@/api";
-import { ApiError, toApiError } from "@/api/errors";
+import { ApiError, fromRpcError, toApiError } from "@/api/errors";
+import { timedFetch } from "@/chain/connection";
 import { createHttpClient } from "@/api/http/client";
 import { liveKeptRate } from "@/api/http/slices";
 import { httpBounties } from "@/api/http/bounties";
 import { MOCK_WALLET } from "@/api/mock/slices";
+import { mockOaths } from "@/features/oaths/mockStore";
 import type { Scenario } from "@/api/mock/scenarios";
 import { clock } from "@/lib/clock";
 import { SLICES } from "@/api/types";
@@ -44,6 +46,13 @@ describe("http client", () => {
     const init = (fetchImpl.mock.calls[0] as unknown as [string, RequestInit])[1];
     expect((init.headers as Record<string, string>).authorization).toBe("Bearer tok");
   });
+  it("gives up on a request that doesn't answer (timeout → OFFLINE, retryable)", async () => {
+    const hang = ((_u: string, init: RequestInit) => new Promise((_r, reject) => {
+      init.signal!.addEventListener("abort", () => reject(new Error("Aborted")));
+    })) as unknown as typeof fetch;
+    const c = createHttpClient(() => null, "http://api", hang, 30);
+    await expect(c.get("/api/me", NonceResponse)).rejects.toMatchObject({ code: "OFFLINE", retryable: true, message: expect.stringContaining("No answer") });
+  });
   it("turns a network failure into OFFLINE and a bad body into SERVER", async () => {
     const down = createHttpClient(() => null, "http://api", (() => Promise.reject(new TypeError("Network request failed"))) as unknown as typeof fetch);
     await expect(down.get("/api/me", NonceResponse)).rejects.toMatchObject({ code: "OFFLINE" });
@@ -80,12 +89,32 @@ describe("mock api", () => {
     await api.inbox.markDone(["inv1"]);
     expect((await api.inbox.list()).unread).toBe(first.unread - 1);
   });
+  it("the vote request leaves the inbox once I've voted", async () => {
+    const api = mockApi("judges");
+    const rev = (await api.inbox.list()).items.find((i) => i.id === "rev1");
+    expect(rev?.ref.oath).toBeTruthy();
+    const [open] = await api.reviews.openFor(rev!.ref.oath!, MOCK_WALLET);
+    await api.reviews.vote(open!.id, MOCK_WALLET, false);
+    expect((await api.inbox.list()).items.some((i) => i.id === "rev1")).toBe(false);
+  });
   it("scenarios drive eligibility, balances and offline", async () => {
     expect((await mockApi("notEligible").auth.me()).genesis).toBe(false);
     expect((await mockApi().auth.me()).genesis).toBe(true);
     expect((await mockApi("noSkr").wallet.balances(MOCK_WALLET)).skr).toBe(620n * SKR_UNIT);
     await expect(mockApi("offline").inbox.list()).rejects.toBeInstanceOf(ApiError);
     expect((await mockApi("fresh").inbox.list()).items).toHaveLength(0);
+  });
+  it("the balance follows what this session staked and claimed", async () => {
+    const api = mockApi("judges");
+    await api.inbox.list(); // seeds the account
+    const before = (await api.wallet.balances(MOCK_WALLET)).skr;
+    const hydra = (await api.oaths.list(MOCK_WALLET)).find((o) => o.name === "Hydra 14")!;
+    const won = mockOaths.claim(hydra.id, MOCK_WALLET);
+    const dawn = mockOaths.byCode("DAWN-R7Q2")!;
+    mockOaths.join(dawn.id, MOCK_WALLET);
+    expect((await api.wallet.balances(MOCK_WALLET)).skr).toBe(before + won - dawn.stake);
+    mockOaths.leave(dawn.id, MOCK_WALLET);
+    expect((await api.wallet.balances(MOCK_WALLET)).skr).toBe(before + won);
   });
   it("faucet pays once", async () => {
     const api = mockApi();
@@ -118,6 +147,23 @@ describe("sign-in", () => {
   });
 });
 
+describe("RPC failures (public Devnet)", () => {
+  it.each([
+    ["429 Too Many Requests: {\"jsonrpc\":\"2.0\",\"error\":{\"code\": 429}}", "RATE_LIMITED"],
+    ["failed to get info about account x: TypeError: Network request failed", "OFFLINE"],
+    ["RPC timed out after 20 s", "OFFLINE"],
+    ["failed to get program accounts: Internal error", "SERVER"],
+  ])("%s → %s, retryable", (message, code) => {
+    expect(fromRpcError(new Error(message))).toMatchObject({ code, retryable: true });
+  });
+  it("a hung RPC request is dropped after the timeout", async () => {
+    const hang = ((_u: string, init: RequestInit) => new Promise((_r, reject) => {
+      init.signal!.addEventListener("abort", () => reject(new Error("Aborted")));
+    })) as unknown as typeof fetch;
+    await expect(timedFetch(30, hang)("http://rpc", {})).rejects.toThrow(/timed out/);
+  });
+});
+
 describe("classifyTxError", () => {
   const protocol = (code: number) => Object.assign(new Error("x"), { name: "SolanaMobileWalletAdapterProtocolError", code });
   it.each([
@@ -127,6 +173,7 @@ describe("classifyTxError", () => {
     [new Error("Simulation failed: Attempt to debit an account but found no record of a prior credit."), "insufficientSol"],
     [new Error("Program log: Error: insufficient funds\ncustom program error: 0x1"), "insufficientSkr"],
     [new Error("custom program error: 0x1771"), "failed"],
+    [Object.assign(new Error("Found no installed wallet that supports the mobile wallet protocol."), { name: "SolanaMobileWalletAdapterError", code: "ERROR_WALLET_NOT_FOUND" }), "noWallet"],
   ])("%s → %s", (e, kind) => {
     expect(classifyTxError(e).kind).toBe(kind);
   });

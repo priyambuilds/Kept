@@ -1,10 +1,29 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { env } from "@/config/env";
 
+/** An RPC request that hasn't answered by then is dropped (web3.js has no timeout of its own). */
+export const RPC_TIMEOUT_MS = 20_000;
+
+/** fetch with a timeout, for the Connection: a hung RPC ends on M2 instead of a skeleton that never goes. */
+export function timedFetch(timeoutMs = RPC_TIMEOUT_MS, f: typeof fetch = fetch): typeof fetch {
+  return (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), timeoutMs);
+    init?.signal?.addEventListener("abort", () => abort.abort());
+    try {
+      return await f(input, { ...init, signal: abort.signal });
+    } catch (e) {
+      throw abort.signal.aborted ? new Error(`RPC timed out after ${timeoutMs / 1000} s`) : e;
+    } finally {
+      clearTimeout(timer);
+    }
+  }) as typeof fetch;
+}
+
 let conn: Connection | null = null;
 /** One shared RPC connection (created lazily so tests that never touch the chain don't open one). */
 export function connection(): Connection {
-  conn ??= new Connection(env.rpcUrl, "confirmed");
+  conn ??= new Connection(env.rpcUrl, { commitment: "confirmed", fetch: timedFetch() });
   return conn;
 }
 

@@ -27,10 +27,10 @@ Read with: docs/ARCHITECTURE.md §6 (API modes), docs/BACKEND_GAPS.md, docs/API.
 | X3 | `api/http/oaths.ts › httpProof.submit` (photo 2) | Sends `POST /api/proof` with a **made-up detection** at 0.99 confidence (the old dev-force path, `LegacyProofResponse`). The current backend rejects it (it now needs a `verificationId` from `POST /proof/verify`), so live proof is broken today. |
 | X4 | `api/http/oaths.ts` imports `../mock/clock` | The virtual clock (equals real time unless the Dev menu moved it). `features/time.ts`, `features/*/mockStore.ts` and `dev/*` use it too. |
 | X5 | `features/oaths/hooks.ts` | `createSource()`: in hybrid a **solo Oath is created on the mock** (D-30); `oathActions.leave` only works on mock Oaths. |
-| X6 | `features/phase4.ts` | `bountyActions.create` and `rematchActions.join` always call `getTx("mock")` (fund / rematch have no program support). |
+| X6 | `features/queries.ts` (was `phase4.ts`) | `bountyActions.create` and `rematchActions.join` always call `getTx("mock")` (fund / rematch have no program support). |
 | X7 | `chain/mock.ts` imports `api/mock/slices › MOCK_WALLET` and `features/oaths/mockStore` | Fine for Demo; must not be reachable from Live. |
 | X8 | `api/types.ts` imports **types** from `features/bounties/mockStore` (`BountyFacts`) and `features/reviews/mockStore` (`ReviewFacts`) | The API contract lives in mock files. |
-| X9 | Screens importing from mock stores | `Today.tsx` (`BountyFacts` type), `Bounties.tsx` (`CATEGORIES`, `BountyFacts`, `Category`), `CreateBounty.tsx` (`bountyFunding`, the fee maths), `Review.tsx` (`ReviewFacts` type), `features/phase4.ts` (`ReviewFacts`). |
+| X9 | Screens importing from mock stores | `Today.tsx` (`BountyFacts` type), `Bounties.tsx` (`CATEGORIES`, `BountyFacts`, `Category`), `CreateBounty.tsx` (`bountyFunding`, the fee maths), `Review.tsx` (`ReviewFacts` type), `features/queries.ts` (was `phase4.ts`) (`ReviewFacts`). |
 | X10 | `screens/oaths/Oaths.tsx › D5` | History rows come straight from `copy.json › sampleData.history`, with a literal icon map by sample name (`"Hydra 14": "trophy-outline"`, …). **Shows sample history in every mode.** |
 | X11 | `state/dev.ts › BACKEND_HAS` + `defaultFlags` | Decides http vs mock at build time; `hybrid` is the release default. |
 | X12 | `api/http/slices.ts › httpWallet.swap/quote` | Throws "no backend route" (swap is a mock on Devnet, D-21); W3 only works on the mock. |
@@ -171,6 +171,7 @@ recency-weighted and shows "New" under 10 days. In Live, show the backend's numb
 **Q5 (deletions).** Delete (a) the Keeper PNG fallbacks (~4.8 MB repo, also shrinks the APK), (b) the
 unused object, gesture, coin and mark PNGs plus their lines in `sync-assets.mjs`, (c) `legacy/`,
 (d) `docs/notes/SESSION_HANDOFF.md`?
+**Answered 2026-10-10: yes.** All four done; from `legacy/` only the old app code went (`harness-app/`, `v3/app/`), the backend reference stays.
 
 **Q6 (demo fast-forward).** Cheap: the mock already has a virtual clock with "end the day", and it settles
 with `packages/engine`. Proposal: in Demo, Profile › Settings gets one row, "Skip to tomorrow". It ends the
@@ -180,6 +181,7 @@ in additions.json. About 1 hour of work. **Not built without your OK.**
 
 **Q7 (APK size).** Out of this task's scope: an arm64-only release and R8 shrinking would bring the APK from
 131 MB to about 40 MB. Want it as a follow-up?
+**Done 2026-10-10:** arm64-v8a only, R8 code and resource shrinking, compressed native libraries (expo-build-properties), plus JS and asset cuts (one font file per weight, a 169-icon cut of MDI, qrcode instead of react-native-qrcode-svg, zod locales stubbed). **APK 131.2 MB → 22.5 MB; Hermes bundle 6.6 MB → 5.5 MB.** Release perf on the emulator against the pre-cleanup build (same emulator, same session): no measurable change (cold start 1.2–1.6 s for both; scroll jank about 11 % for both; tabs and push/back under 2.1 %). Expo tree shaking would cut another ~0.3 MB of JS but is still flagged unstable, so it's off.
 
 ---
 
@@ -267,9 +269,9 @@ of what was not verified end to end.
 | 1 Audit and plan | This file | — |
 | 2 App mode | `state/mode.ts`, scoped storage (`kept.demo.*` / `kept.live.*`), API / wallet / TxService by mode, Dev menu dev-only, DEMO badge, "approval is simulated" on signing screens, tests (`mode.test.ts`) | — |
 | 3 Onboarding | A1·m sheet (route amendment, D-80), Demo path A1 → A1·m → A4 → Tabs, invite links and "I have an invite" force Live, Restart / Exit demo, Live sign-out to A1, localhost guard, navigation tests | D-80 copy to confirm |
-| 4 Demo content | `judges` scenario (default; the only one in release Demo), calm first Today, `demoOffline.test.tsx` (no fetch / XHR / WebSocket) | Q6 fast-forward: proposed, not built |
-| 5 Live mode | No mock in `api/http` (import-graph test) or the Live API (test); real challenge; inbox; reputation stats and kept rates; profiles from the device + reputation; Rematch / create Bounty / swap / creator pages hidden; empty Bounty list and reviews; D5 from real Oaths; literals (version, faucet toast, D0, M1, B3) from data | Blocked on Q1 (proof check), Q2 (money and HP numbers), Q3 (Bounties) |
-| 6 Bloat | Placeholder gone (B2–B4 now open the Today tab), Dev menu and Gallery out of release bundles, dead exports, `proofTarget`, unused templates | Q5 deletions (Keeper PNGs, unused design PNGs, `legacy/`, SESSION_HANDOFF) |
+| 4 Demo content | `judges` scenario (default; the only one in release Demo), calm first Today, `demoOffline.test.tsx` (no fetch / XHR / WebSocket); Q6 "Skip to tomorrow" (D-88) | — |
+| 5 Live mode | No mock in `api/http` (import-graph test) or the Live API (test); real challenge; inbox; reputation stats and kept rates; profiles from the device + reputation; Rematch / create Bounty / swap / creator pages hidden; empty Bounty list and reviews; D5 from real Oaths; literals (version, faucet toast, D0, M1, B3) from data | Blocked on Q1 (proof check), Q2 (money and HP numbers). Q3 (Bounties) and Q4 (kept rate) done 2026-10-10 |
+| 6 Bloat | Placeholder gone (B2–B4 now open the Today tab), Dev menu and Gallery out of release bundles, dead exports, `proofTarget`, unused templates; Q5 deletions and Q7 APK size (done) | — |
 
 **Sizes** (release, Demo): APK 131,163,530 → 131,160,260 bytes; JS bundle 6,612,168 → 6,608,976 bytes (at `8ca2b28` vs `ced5a41`, with all the new mode code in). The APK is 98 MB native libraries for four ABIs; see Q7.
 

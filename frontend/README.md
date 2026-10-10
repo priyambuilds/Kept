@@ -14,3 +14,41 @@ Run it with `pnpm mobile:android` (first install) or `pnpm mobile:start`. See th
 - To try Live on an emulator you need a wallet app that speaks MWA (Phantom, or the MWA `fakewallet`); to use no wallet, use Demo.
 - `EXPO_PUBLIC_*` values are inlined when Metro bundles the JS. A development build needs **no native rebuild** after changing one: restart Metro with `--clear` (`pnpm mobile:start -- --clear`). A release APK embeds them, so it must be rebuilt.
 - Two Metro servers on port 8081 (this one and another project's) make `adb reverse` pick one at random. Give this one its own port: `pnpm mobile:start -- --port 8082`, then `adb reverse tcp:8082 tcp:8082` and open `exp+kept://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8082`.
+
+## Release signing
+
+Release builds are signed with your own upload key when `frontend/keystore.properties` exists, and with
+the debug key otherwise (`plugins/withReleaseSigning.js` writes this into the generated `android/` on every
+prebuild). The key and the properties file are git-ignored; never commit either.
+
+One-time setup (JDK 17's `keytool`; keep the passwords in a password manager):
+
+```bash
+keytool -genkeypair -v -keystore ~/keys/kept-release.keystore -alias kept -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Then create `frontend/keystore.properties`:
+
+```properties
+storeFile=/Users/<you>/keys/kept-release.keystore
+storePassword=<store password>
+keyAlias=kept
+keyPassword=<key password>
+```
+
+Build and check the signer:
+
+```bash
+npx expo prebuild -p android && cd android && ./gradlew assembleRelease
+```
+
+```bash
+$ANDROID_HOME/build-tools/<version>/apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk
+```
+
+Back up the keystore: an app signed with a lost key can't be updated on phones that have it. A phone with
+a debug-signed build must uninstall it before installing one signed with your key.
+
+**A Live release** also needs the server: `EXPO_PUBLIC_API_URL=https://<your backend>` (plus
+`EXPO_PUBLIC_STAKE_MINT`) in `frontend/.env` before building. Without it, Live shows "This build has no
+server address" and only Demo works.

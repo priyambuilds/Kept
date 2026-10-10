@@ -119,17 +119,17 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
       ) : null}
       {bar ? <View style={{ paddingHorizontal: m.padX, marginTop: m.barGap }}>{bar}</View> : null}
       <View style={{ flex: 1 }}>
-        <View style={{ flex: 1 }} collapsable={false}>
-          {!ready ? null : bare ? <View style={{ flex: 1 }}>{children}</View> : (
-            // With pinned actions the column ends 14 above them, like the prototype, so content is clipped
-            // there instead of scrolling behind (and showing between) the buttons.
-            <ScrollView scrollEnabled={scroll} style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ ...column, flexGrow: scroll ? undefined : 1, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap }}>
-              {top}
-              {entered}
-            </ScrollView>
-          )}
-        </View>
+        {!ready ? null : bare ? <View style={{ flex: 1 }}>{children}</View> : scroll ? (
+          // With pinned actions the column ends 14 above them, like the prototype, so content is clipped
+          // there instead of scrolling behind (and showing between) the buttons.
+          <ScrollView style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ ...column, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap }}>
+            {top}
+            {entered}
+          </ScrollView>
+        ) : (
+          <View style={{ flex: 1, ...column }}>{top}{blocks.map((c, i) => <Fragment key={c.key ?? `b${i}`}>{c}</Fragment>)}</View>
+        )}
         {/* The skeleton until the content mounts, then fading out over it as the blocks enter (no blank frame). */}
         {veil && !bare ? (
           <FadeOut hold={!ready} ms={metrics.skeleton.fadeMs} style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, pointerEvents: "none" }}>

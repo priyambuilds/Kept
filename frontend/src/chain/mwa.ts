@@ -1,7 +1,9 @@
-// Mobile Wallet Adapter session, ported from legacy/harness-app/src/chain/wallet.ts. The wallet's
+// Mobile Wallet Adapter session, ported from the old harness app's chain/wallet.ts. The wallet's
 // auth_token is remembered so the user connects once; later requests re-authorize silently and fall
-// back to a full authorize if the wallet rejects the token.
+// back to a full authorize if the wallet rejects the token. It's a credential, so it's kept in
+// expo-secure-store (Android Keystore); an older build's AsyncStorage copy is moved on first read.
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import { AppState } from "react-native";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import type { TransactionInstruction } from "@solana/web3.js";
@@ -24,7 +26,12 @@ let saved: Saved | null | undefined;
 async function load(): Promise<Saved | null> {
   if (saved !== undefined) return saved;
   try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEY);
+    let raw = await SecureStore.getItemAsync(STORAGE_KEY);
+    const legacy = await AsyncStorage.getItem(STORAGE_KEY);
+    if (legacy !== null) {
+      if (raw === null) { raw = legacy; await SecureStore.setItemAsync(STORAGE_KEY, legacy); }
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    }
     saved = raw ? (JSON.parse(raw) as Saved) : null;
   } catch {
     saved = null;
@@ -34,8 +41,8 @@ async function load(): Promise<Saved | null> {
 async function save(next: Saved | null): Promise<void> {
   saved = next;
   try {
-    if (next) await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    else await AsyncStorage.removeItem(STORAGE_KEY);
+    if (next) await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(next));
+    else await SecureStore.deleteItemAsync(STORAGE_KEY);
   } catch {
     // Best effort: the in-memory session still works for this run.
   }

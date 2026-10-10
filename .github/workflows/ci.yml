@@ -1,0 +1,37 @@
+# Typecheck, lint and tests on every push and pull request: the app (frontend) and the packages it uses.
+# backend/ and onchain/ belong to the backend developer and have their own checks.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.6.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck (packages)
+        run: pnpm --filter "./packages/*" -r --if-present typecheck
+      - name: Tests (packages)
+        run: pnpm --filter "./packages/*" -r --if-present test
+      - name: Typecheck (app)
+        run: pnpm --filter @kept/mobile typecheck
+      - name: Lint (app)
+        run: pnpm --filter @kept/mobile exec eslint . --max-warnings 0
+      - name: Tests (app)
+        run: pnpm --filter @kept/mobile exec jest --ci

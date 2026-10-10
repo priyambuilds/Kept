@@ -35,6 +35,8 @@ describe("history (D-86)", () => {
   it("making something new lands on home, not on the stale place it started from", () => {
     // A Rematch from a broken Oath: back from the lobby is home, not the broken Oath.
     expect(walk(["Tabs", "D3"], "R1", "R2", "!R3")).toEqual(["Tabs", "R3"]);
+    // Starting it: the lobby goes too, like the open-Oath page.
+    expect(walk(["Tabs", "D3"], "R1", "R2", "!R3", "D1·go", "!D2")).toEqual(["Tabs", "D2"]);
     // Create after an invalid invite code: the error and the code entry are gone.
     expect(walk(["Tabs", "E1", "E3·code"], "C1", "C4", "C6", "C7", "!C7·ok")).toEqual(["Tabs", "C7·ok"]);
     // Joining by invite from the inbox.

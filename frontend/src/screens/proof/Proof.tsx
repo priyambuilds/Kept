@@ -3,7 +3,6 @@
 // Oaths and photo 2 goes to POST /api/proof (DECISIONS D-23, BACKEND_GAPS P0-2).
 import { useEffect, useRef, useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useIsFocused } from "@react-navigation/native";
 import { create } from "zustand";
 import { keeperLines, t } from "@/copy";
 import { Button } from "@/components/actions";
@@ -115,7 +114,7 @@ export async function capture(cam: CameraView | null, timeoutMs: number): Promis
 
 // ── F1 / F4 Shoot ──
 function Shoot({ photo }: { photo: 1 | 2 }) {
-  const { back, replace } = useGo();
+  const { back, go, replace } = useGo();
   const toast = useToast();
   const { id, view } = useProofScreen();
   // Only a mock Oath (Demo) takes a stand-in photo: its proof goes to the mock, which never reads the image.
@@ -126,20 +125,10 @@ function Shoot({ photo }: { photo: 1 | 2 }) {
   const [facing, setFacing] = useState<"back" | "front">("back");
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(nowSeconds);
-  const isFocused = useIsFocused();
-  // The preview mounts a beat after the screen is focused, and is gone when it isn't: a native camera view
-  // added while the screen is still settling or covered crashed Fabric ("addViewAt: child already has a parent").
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    if (!isFocused) return;
-    const timer = setTimeout(() => setMounted(true), 150);
-    return () => { clearTimeout(timer); setMounted(false); };
-  }, [isFocused]);
   useEffect(() => { const i = setInterval(() => setNow(nowSeconds()), 1000); return () => clearInterval(i); }, []);
   useEffect(() => { if (perm && !perm.granted) replace("F1·perm", { id, photo }); }, [perm, replace, id, photo]);
   useEffect(() => { if (c && c.expiresAt <= now) replace("F2c", { id, photo }); }, [c, now, replace, id, photo]);
   const left = c ? Math.max(0, c.expiresAt - now) : 0;
-  const cameraOn = !!perm?.granted && isFocused && mounted;
   const shoot = async () => {
     if (busy) return;
     setBusy(true);
@@ -148,7 +137,7 @@ function Shoot({ photo }: { photo: 1 | 2 }) {
       const image = photoToUse(await capture(cam.current, mock ? DEMO_CAPTURE_TIMEOUT_MS : CAPTURE_TIMEOUT_MS), mock);
       if (!image) { toast(t("additions.camera.failed")); return; }
       useProof.getState().set({ image });
-      replace(photo === 2 ? "F4·chk" : "F2", { id, photo });
+      go(photo === 2 ? "F4·chk" : "F2", { id, photo });
     } finally {
       setBusy(false);
     }
@@ -156,18 +145,13 @@ function Shoot({ photo }: { photo: 1 | 2 }) {
   return (
     <Screen bar={<NavBar onBack={back} close title={navTitle(view, photo)} />} scroll={false}>
       <ProofCamera photo={photo} state="idle" object={view ? objectIcon(view.facts.objectId) : "camera"} label={challengeLabel(c)} {...(c && gestureKey(c.gesture) ? { gesture: gestureKey(c.gesture)! } : {})}>
-        {cameraOn ? (
-          <CameraView ref={cam} style={{ flex: 1 }} facing={facing} />
-        ) : undefined}
+        {perm?.granted ? <CameraView ref={cam} style={{ flex: 1 }} facing={facing} /> : undefined}
       </ProofCamera>
-      <ChipRow>
-        {photo === 2 ? (
-          <Chip text={t("screens.F4.b1.chip.0")} icon="hand-back-right-outline" tone="grey" />
-        ) : (
-          <Chip text={t("screens.F1.b1.chip.0", { time: hms(left) })} icon="clock-outline" tone="grey" />
-        )}
+      <ChipRow justify="center">
+        <Chip text={t("screens.F1.b1.chip.0", { time: `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}` })} tone={left < 60 ? "red" : "grey"} icon="timer-outline" />
+        {photo === 2 ? <Chip text={t("screens.F4.b1.chip.0")} icon="hand-back-right" /> : null}
       </ChipRow>
-      <Shutter onShutter={() => { void shoot(); }} onFlip={() => setFacing((f) => (f === "back" ? "front" : "back"))} disabled={busy || !c || (!mock && !cameraOn)} />
+      <Shutter onShutter={() => { void shoot(); }} onFlip={() => setFacing((f) => (f === "back" ? "front" : "back"))} disabled={!c || busy || !perm?.granted} />
     </Screen>
   );
 }
@@ -291,7 +275,7 @@ export function F4a() {
   );
 }
 
-// ── F4a·g 3 fails · group review ── the vote itself (G2) is Phase 4.
+// ── F4a·g 3 fails · group review ── the vote itself is G2 (screens/review).
 export function F4ag() {
   const { back, replace, go } = useGo();
   const { id, view } = useProofScreen();

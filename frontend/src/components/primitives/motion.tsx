@@ -7,7 +7,7 @@
 import { Children, Fragment, createContext, isValidElement, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactElement, ReactNode } from "react";
 import { Pressable } from "react-native";
-import type { PressableProps, StyleProp, TextStyle, ViewStyle } from "react-native";
+import type { LayoutChangeEvent, PressableProps, StyleProp, TextStyle, ViewStyle } from "react-native";
 import Animated, {
   Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming,
 } from "react-native-reanimated";
@@ -340,14 +340,25 @@ export interface PressScaleProps extends Omit<PressableProps, "style" | "childre
 /** Pressable that scales down while pressed and never has a hit area under 48 dp. */
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function PressScale({ children, style, scale = metrics.button.pressScale, hit, disabled, ...rest }: PressScaleProps) {
+export function PressScale({ children, style, scale = metrics.button.pressScale, hit, disabled, onLayout, ...rest }: PressScaleProps) {
   const reduce = useReducedMotion();
   const s = useSharedValue(1);
   // Presses only start after mount; a press-out that's still running when the screen goes is cancelled.
   useLayoutEffect(() => () => cancelAnimation(s), [s]);
   const a = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
   const min = metrics.minTouch;
-  const slop = hit ? { top: Math.max(0, (min - hit.h) / 2), bottom: Math.max(0, (min - hit.h) / 2), left: Math.max(0, (min - hit.w) / 2), right: Math.max(0, (min - hit.w) / 2) } : undefined;
+  // Without `hit`, the pressable measures itself: anything sized by its content (a chip, a text link, a
+  // short row) still gets a 48 dp touch area, invisibly (hitSlop).
+  const [measured, setMeasured] = useState<{ w: number; h: number } | null>(null);
+  const size = hit ?? measured;
+  const pad = (n: number) => Math.max(0, Math.ceil((min - n) / 2));
+  const slop = size && (size.w < min || size.h < min) ? { top: pad(size.h), bottom: pad(size.h), left: pad(size.w), right: pad(size.w) } : undefined;
+  const measure = (e: LayoutChangeEvent) => {
+    onLayout?.(e);
+    if (hit) return;
+    const { width, height } = e.nativeEvent.layout;
+    setMeasured((m) => (m && Math.abs(m.w - width) < 1 && Math.abs(m.h - height) < 1 ? m : { w: width, h: height }));
+  };
   // The style goes on the pressable itself: on an inner view, layout styles like `flex: 1` would size
   // the child while the Pressable (the row item) shrank to its content.
   return (
@@ -358,6 +369,7 @@ export function PressScale({ children, style, scale = metrics.button.pressScale,
       {...(slop ? { hitSlop: slop } : {})}
       onPressIn={() => { if (!reduce) s.set(withTiming(scale, { duration: metrics.press.inMs })); }}
       onPressOut={() => { s.set(withTiming(1, { duration: metrics.press.outMs })); }}
+      onLayout={measure}
       {...rest}
       style={[style, a]}
     >
