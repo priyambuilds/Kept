@@ -74,6 +74,40 @@ describe("app mode", () => {
   });
 });
 
+describe("the sign-in token is kept in the secure store", () => {
+  const secure = (require("expo-secure-store") as { __store: Map<string, string> }).__store;
+  const plain = async () => (await AsyncStorage.multiGet(await AsyncStorage.getAllKeys())).map(([, v]) => v ?? "").join("\n");
+
+  it("never in AsyncStorage, and read back after a restart", async () => {
+    await startLive();
+    useSession.getState().signIn({ token: "live-token", wallet: LIVE_WALLET, genesis: true });
+    await settle();
+    expect(await plain()).not.toContain("live-token");
+    expect(secure.get("kept.live.session.secret")).toContain("live-token");
+    // What a restart reads back: the token joined in from the secure store.
+    const saved = await useSession.persist.getOptions().storage!.getItem("kept.session");
+    expect(saved?.state.token).toBe("live-token");
+  });
+
+  it("moves a token an older build saved in AsyncStorage", async () => {
+    await setAppMode("live");
+    secure.clear();
+    await AsyncStorage.setItem("kept.live.session", JSON.stringify({ state: { token: "old-token", wallet: LIVE_WALLET, onboarded: true }, version: 0 }));
+    await useSession.persist.rehydrate();
+    expect(useSession.getState().token).toBe("old-token");
+    expect(await AsyncStorage.getItem("kept.live.session")).not.toContain("old-token");
+    expect(secure.get("kept.live.session.secret")).toContain("old-token");
+  });
+
+  it("leaving Demo removes its secret too", async () => {
+    await startDemo();
+    await settle();
+    expect(secure.has("kept.demo.session.secret")).toBe(true);
+    await exitDemo();
+    expect(secure.has("kept.demo.session.secret")).toBe(false);
+  });
+});
+
 describe("Skip to tomorrow (Demo, Q6)", () => {
   const nowS = () => Math.floor(clock.now() / 1000);
   afterEach(() => clock.reset());

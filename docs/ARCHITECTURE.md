@@ -115,7 +115,7 @@ Versions checked on the npm registry on 2026-10-09. Expo `latest` is **SDK 57 (5
 | Wallet | **@solana-mobile/mobile-wallet-adapter-protocol-web3js 3.0** (peer `@solana/web3.js ^1.99`) | Latest MWA. The harness uses 2.3; if 3.0 regresses on the Seeker wallet, pin 2.3. Verified in Phase 2. |
 | Chain | **@solana/web3.js 1.99**, **@anchor-lang/core 1.2**, **@solana/spl-token 0.4** | Anchor's TS client still requires web3.js v1; same stack as the working harness. |
 | Polyfills | `react-native-get-random-values`, `buffer` + the Hermes `Uint8Array` fix from `harness/src/polyfills.ts` | That fix was a real bug (BACKEND_PART_1 §15). |
-| Secure storage | **expo-secure-store** for the API session token and the MWA `auth_token` | The harness keeps both in AsyncStorage. They're credentials, so they move to the Android keystore. |
+| Secure storage | **expo-secure-store** for the API session token (`secretPersist` in `state/storage.ts`: the session's `token` field goes to the Keystore under `kept.<mode>.session.secret`, the rest stays in AsyncStorage; an old plain token is moved on first read) and the MWA `auth_token` (`kept.mwa`) | The harness kept both in AsyncStorage. They're credentials, so they live in the Android keystore. |
 | Plain storage | **@react-native-async-storage/async-storage** | Drafts, "results shown once" flags, dev scenario choice. |
 | Network status | **@react-native-community/netinfo** → TanStack `onlineManager` | Drives the global M2 state. |
 | Notifications | **expo-notifications** (FCM) | The backend already sends FCM v1. |
