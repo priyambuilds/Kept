@@ -68,7 +68,7 @@ export function keeperFace(mood: KeeperMood, prop: KeeperPropName, bust: boolean
 }
 
 /** SVG matrix(a b c d e f) for translate(x y) rotate(r) scale(sx sy). */
-export function trs(x: number, y: number, r: number, sx: number, sy: number): number[] {
+function trs(x: number, y: number, r: number, sx: number, sy: number): number[] {
   "worklet";
   const a = (r * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
   return [c * sx, s * sx, -s * sy, c * sy, x, y];

@@ -55,7 +55,7 @@ const group = (name: string, objectId: number, numDays: number, stakeSkr: number
   add({ name, goal: null, objectId, numDays, stake: skr(stakeSkr), isSolo: false, reviewMode: "ai_group", status: "active", day1StartsAt: null, creator: PEOPLE.riya.wallet, members, seeded: true, ...extra });
 
 /** Seeds the store for a scenario (docs/ARCHITECTURE.md §6). Keeps Oaths the user created. */
-export function seed(scenario: Scenario, wallet: string) {
+function seed(scenario: Scenario, wallet: string) {
   for (const [id, o] of oaths) if (o.seeded) oaths.delete(id);
   seededFor = `${scenario}:${wallet}`;
   seedBounties();

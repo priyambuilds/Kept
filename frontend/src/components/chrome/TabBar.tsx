@@ -8,7 +8,7 @@ import { Gradient, Icon, PressScale, Text, useAnimationLifecycle, FadeIn } from 
 import type { IconName } from "../primitives";
 
 export type TabKey = "today" | "oaths" | "bounties" | "profile";
-export const TABS: readonly { key: TabKey; icon: IconName }[] = [
+const TABS: readonly { key: TabKey; icon: IconName }[] = [
   { key: "today", icon: "white-balance-sunny" },
   { key: "oaths", icon: "cards-outline" },
   { key: "bounties", icon: "trophy-outline" },
@@ -56,7 +56,7 @@ function TabItem({ icon, label, on, onPress }: { icon: IconName; label: string; 
 }
 
 /** 64 round lime, ambient glow ring 0→9 dp at .14 every 2.6 s; pressed .95. Tap → `+` sheet. */
-export function PlusButton({ onPress }: { onPress: () => void }) {
+function PlusButton({ onPress }: { onPress: () => void }) {
   const m = metrics.tabBar;
   const reduce = useReducedMotion();
   const g = useSharedValue(0);

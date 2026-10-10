@@ -11,7 +11,6 @@ export { keeperRig } from "./keeperRig";
 export const color = { ...tokens.color, extra: supplement.color };
 export const space = tokens.space;
 export const radius = tokens.radius;
-export const size = tokens.size;
 export const z = tokens.z;
 export const duration = tokens.motion.duration;
 export const stagger = tokens.motion.stagger;
@@ -60,9 +59,6 @@ function toTextStyle(t: TypeToken): TextStyle {
 export const type = Object.fromEntries(
   Object.entries(tokens.type).map(([k, v]) => [k, toTextStyle(v as TypeToken)]),
 ) as Record<TypeName, TextStyle>;
-
-/** Numbers that change use tabular figures (DESIGN.md §3). */
-export const tabular: TextStyle = { fontVariant: ["tabular-nums"] };
 
 // ── Gradients ────────────────────────────────────────────────────────────────────────────────────
 export interface GradientProps {

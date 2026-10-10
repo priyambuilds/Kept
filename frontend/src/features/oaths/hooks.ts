@@ -17,7 +17,7 @@ import type { OathFacts, OathSource, OathView } from "./model";
 import { oathName } from "./names";
 import { mockOaths } from "./mockStore";
 
-export const oathKeys = {
+const oathKeys = {
   all: ["oaths"] as const,
   list: (wallet: string | null) => ["oaths", "list", wallet] as const,
   one: (id: string) => ["oaths", "one", id] as const,
@@ -63,7 +63,7 @@ export const refreshOaths = () => queryClient.invalidateQueries({ queryKey: oath
  * Where a new Oath is created: the mock in Demo, the program in Live (a development build's Dev menu can
  * point the oaths slice at either). On chain a solo Oath has no stake (D-30, BACKEND_GAPS P0-7).
  */
-export function createSource(): OathSource {
+function createSource(): OathSource {
   return flags().oaths === "mock" ? "mock" : "chain";
 }
 

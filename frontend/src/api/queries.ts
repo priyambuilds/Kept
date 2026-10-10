@@ -17,7 +17,7 @@ export const queryClient = new QueryClient({
 });
 
 /** Mark TanStack Query offline when a call fails for lack of network, so it pauses and resumes. */
-export function noteOffline(e: unknown): void {
+function noteOffline(e: unknown): void {
   if (isApiError(e) && e.code === "OFFLINE") onlineManager.setOnline(false);
 }
 

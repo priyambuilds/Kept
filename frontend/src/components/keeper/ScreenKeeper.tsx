@@ -132,7 +132,7 @@ export interface ScreenKeeperProps extends Omit<KeeperPlacementProps, "mood" | "
 }
 
 /** Whether the design shows this screen's Keeper in the content (size ≥ 120, or a sheet). */
-export function keeperIsInline(id: string, kind: ScreenKind | undefined): boolean {
+function keeperIsInline(id: string, kind: ScreenKind | undefined): boolean {
   if (kind === "sheet") return true;
   const k = layoutOf(id)?.keeper;
   return !!k && k.size >= metrics.keeperPlacement.inlineMin;

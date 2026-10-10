@@ -45,7 +45,7 @@ const closes = (b: BountyFacts, now: number) => t("screens.H1.b4.i0.s", { brand:
 const categoryLabel = (c: Category | null) => t(`common.categories.${c ? CATEGORIES.indexOf(c) + 1 : 0}` as CopyKey);
 
 /** Eligibility per H2 / H2·no: a verified Seeker, and the minimum kept rate if the Bounty sets one. */
-export function useEligibility(b: BountyFacts | undefined) {
+function useEligibility(b: BountyFacts | undefined) {
   const genesis = useSession((s) => s.genesis);
   const stats = useStats();
   const rate = stats.data?.keptRate ?? null;

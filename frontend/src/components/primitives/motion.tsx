@@ -19,7 +19,7 @@ import { useScreenFocused } from "@/lib/focus";
 import { Text } from "./Text";
 import type { TextProps } from "./Text";
 
-export { useReducedMotion };
+;
 
 const inOut = Easing.inOut(Easing.ease);
 
@@ -227,7 +227,7 @@ export function Loop({ kind, period, delay = 0, children, style, paused }: { kin
 /** How long a number counts up (motion.md › count-up). */
 export const COUNT_UP_MS = 900;
 
-export function useCountUp(target: number, ms = COUNT_UP_MS, from = 0, delay = 0): number {
+function useCountUp(target: number, ms = COUNT_UP_MS, from = 0, delay = 0): number {
   const reduce = useReducedMotion();
   const [n, setN] = useState(from);
   useEffect(() => {
@@ -256,7 +256,7 @@ export function Tilt({ deg, children, style, ms = duration.optionTilt, ease = "s
 }
 
 /** Counts up the number inside a display string, keeping prefix/suffix ("+186", "1,186", "−1,000"). */
-export function useCountUpText(text: string, from?: string): string {
+function useCountUpText(text: string, from?: string): string {
   const m = text.match(/^([^\d]*)([\d,]+)(.*)$/);
   const target = m ? parseInt(m[2]!.replace(/,/g, ""), 10) : 0;
   const start = from ? parseInt(from.replace(/[^\d]/g, "") || "0", 10) : 0;

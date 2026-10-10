@@ -9,7 +9,7 @@ import { COUNT_UP_MS, enterDelay } from "../primitives/motion";
 import { useScreenFocused } from "@/lib/focus";
 
 /** Pinned actions enter 200 ms in, 65 ms apart (motion.md › Screen-level choreography). */
-export const PINNED_ENTER = 200;
+const PINNED_ENTER = 200;
 export const pinnedDelay = (i: number) => PINNED_ENTER + 65 * i;
 
 /** When a moment with `blocks` content blocks and `pinned` pinned actions has settled, in ms from entry. */

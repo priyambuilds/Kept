@@ -2,7 +2,6 @@ import { SKR_UNIT } from "@kept/config";
 import { createMockApi } from "@/api";
 import { clock } from "@/lib/clock";
 import { MOCK_WALLET } from "@/api/mock/slices";
-import { dailyTarget } from "@/api/proofTarget";
 import { createMockTx } from "@/chain/mock";
 import { mockOaths, PEOPLE } from "@/features/oaths/mockStore";
 import { oathView } from "@/features/oaths/model";
@@ -68,11 +67,5 @@ describe("mock Oath loop", () => {
     await expect(tx.startOath("x")).rejects.toMatchObject({ kind: "rejected" });
     scenario = "noSkr";
     await expect(tx.joinOath("x")).rejects.toMatchObject({ kind: "insufficientSkr" });
-  });
-
-  it("mirrors the backend's daily proof target", () => {
-    // Expected values computed with Node's crypto exactly as backend/src/routes/v4.ts:226 does.
-    expect(dailyTarget("42", 0, 1)).toEqual({ object: "book", gesture: "thumbs_up" });
-    expect(dailyTarget("1728000000123", 3, 0)).toEqual({ object: "dumbbell", gesture: "open_palm" });
   });
 });

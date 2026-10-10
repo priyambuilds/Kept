@@ -98,7 +98,3 @@ export function ButtonRow({ children, direction = "row" }: { children: ReactNode
   );
 }
 
-/** Bottom content inset for a screen with n pinned buttons (DESIGN.md §4). */
-export function pinnedInset(heights: number[]): number {
-  return metrics.pinned.bottom + heights.reduce((a, b) => a + b, 0) + metrics.pinned.gap * Math.max(0, heights.length - 1) + 14;
-}

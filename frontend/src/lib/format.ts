@@ -28,8 +28,6 @@ export function formatSkr(units: bigint, opts: { dp?: 0 | 2 | "auto"; sign?: boo
   return prefix + body;
 }
 
-/** Whole SKR (number) → base units. */
-export const skr = (whole: number): bigint => BigInt(Math.round(whole * 100)) * (SKR_UNIT / 100n);
 
 /** "≈ $10" from base units and the price API's usdPerSkr. */
 export function formatUsd(units: bigint, usdPerSkr: number): string {

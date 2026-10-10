@@ -47,7 +47,7 @@ function Leading({ l }: { l: RowLeading }) {
   );
 }
 
-export function Row(p: RowProps) {
+function Row(p: RowProps) {
   const body = (
     <View style={{ flexDirection: "row", alignItems: "center", gap: metrics.row.gap, minHeight: p.minHeight ?? metrics.row.minH, paddingVertical: metrics.row.padY, paddingLeft: metrics.row.padL, paddingRight: metrics.row.padR, borderRadius: metrics.row.radius, backgroundColor: p.bg ?? color.surface[1], boxShadow: `inset 0 0 0 1px ${color.line.hairline}` }}>
       {p.leading ? <Leading l={p.leading} /> : null}

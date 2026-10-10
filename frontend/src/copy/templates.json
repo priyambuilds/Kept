@@ -135,13 +135,6 @@
    "hp": "90"
   }
  },
- "screens.B2.b3.r1.s": {
-  "template": "Solo · Day {day}/{length}",
-  "sample": {
-   "day": "9",
-   "length": "14"
-  }
- },
  "screens.B4.b0.text": {
   "template": "{left} left · resets in {time}",
   "sample": {
@@ -269,12 +262,6 @@
   "template": "Everyone stakes {amount} SKR. It starts when you press Start.",
   "sample": {
    "amount": "1,000"
-  }
- },
- "screens.C8.b1.link": {
-  "template": "kept.app/o/{code}",
-  "sample": {
-   "code": "IRON-7K2Q"
   }
  },
  "screens.C8.b3.text": {
@@ -711,13 +698,6 @@
    "gesture": "victory sign"
   }
  },
- "screens.F4.b0.label": {
-  "template": "{object} + {gesture}",
-  "sample": {
-   "object": "Dumbbell",
-   "gesture": "open palm"
-  }
- },
  "screens.F1.b1.chip.0": {
   "template": "Challenge expires {time}",
   "sample": {
@@ -912,12 +892,6 @@
   "template": "You missed {days}.",
   "sample": {
    "days": "days 4 and 6"
-  }
- },
- "screens.L2.b2.caption": {
-  "template": "SKR · up {amount}",
-  "sample": {
-   "amount": "29"
   }
  },
  "screens.L2.b3.row1.l": {
@@ -1983,12 +1957,6 @@
   }
  },
  "screens.H3.b3.r0.r": {
-  "template": "{time} ago",
-  "sample": {
-   "time": "2h"
-  }
- },
- "screens.H3.b3.r1.r": {
   "template": "{time} ago",
   "sample": {
    "time": "2h"

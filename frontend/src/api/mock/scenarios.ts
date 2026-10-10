@@ -13,5 +13,3 @@ export const SCENARIOS = [
 export type Scenario = (typeof SCENARIOS)[number];
 export const DEFAULT_SCENARIO: Scenario = "judges";
 
-/** Scenarios whose effect is on the wallet / TxService rather than the API. */
-export const WALLET_SCENARIOS: readonly Scenario[] = ["walletRejected", "txFailed", "noSol", "noSkr"];

@@ -34,7 +34,7 @@ export function DemoBadge() {
 }
 
 // ── RoundButton ── 36 (bell), 40 (back) or 34 (extra) round surface.2 + hairline; pressed .94.
-export function RoundButton({ icon, size, iconSize, label, onPress }: { icon: IconName; size: number; iconSize: number; label: string; onPress?: () => void }) {
+function RoundButton({ icon, size, iconSize, label, onPress }: { icon: IconName; size: number; iconSize: number; label: string; onPress?: () => void }) {
   return (
     <PressScale onPress={onPress} accessibilityLabel={label} scale={metrics.shutter.pressScale} hit={{ w: size, h: size }}>
       <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color.surface[2], boxShadow: `inset 0 0 0 1px ${color.line.hairline2}`, alignItems: "center", justifyContent: "center" }}>

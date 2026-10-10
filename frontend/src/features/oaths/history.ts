@@ -7,7 +7,7 @@ import { skrWhole } from "./present";
 export type HistoryKind = "kept" | "broken" | "rematch";
 export interface HistoryRow { id: string; name: string; sub: string; net: bigint; kind: HistoryKind; rematch: boolean; endedAt: number; objectId: number }
 
-export const endedAt = (v: OathView) => (v.facts.day1StartsAt ?? v.facts.createdAt) + v.facts.numDays * v.facts.daySeconds;
+const endedAt = (v: OathView) => (v.facts.day1StartsAt ?? v.facts.createdAt) + v.facts.numDays * v.facts.daySeconds;
 const dayDate = (unix: number) => new Date(unix * 1000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }).replace(",", "");
 const days = (n: number) => t(n === 1 ? "additions.core.oneDay" : "additions.core.nDays", { n });
 

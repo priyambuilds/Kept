@@ -18,7 +18,7 @@ const ready = new Promise<void>((r) => { markReady = r; });
 export function setStorageScope(s: StorageScope): void { scope = s; isReady = true; markReady(); }
 export const storageScope = (): StorageScope => scope;
 /** `kept.session` → `kept.demo.session`. */
-export const scopedKey = (name: string, s: StorageScope = scope): string => name.replace(/^kept\./, `kept.${s}.`);
+const scopedKey = (name: string, s: StorageScope = scope): string => name.replace(/^kept\./, `kept.${s}.`);
 
 /** The key under the scope current when the call was made (a write just before a mode switch stays in its mode). */
 async function keyFor(name: string): Promise<string> {

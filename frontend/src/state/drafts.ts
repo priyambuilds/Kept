@@ -14,7 +14,7 @@ export interface OathDraft {
   reviewMode: ReviewMode;
 }
 
-export const EMPTY_DRAFT: OathDraft = { goal: "", objectId: 0, numDays: 7, isSolo: false, stakeSkr: 1000, reviewMode: "ai_group" };
+const EMPTY_DRAFT: OathDraft = { goal: "", objectId: 0, numDays: 7, isSolo: false, stakeSkr: 1000, reviewMode: "ai_group" };
 
 interface DraftState { draft: OathDraft; set(p: Partial<OathDraft>): void; reset(): void }
 

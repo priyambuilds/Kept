@@ -25,7 +25,7 @@ async function goalOf(c: HttpClient, oath: string): Promise<string | null> {
   }
 }
 
-export function toFacts(o: ChainOath, goal: string | null): OathFacts {
+function toFacts(o: ChainOath, goal: string | null): OathFacts {
   const d = useDeviceOaths.getState();
   const started = o.status !== "open";
   const day = started ? Math.floor((Math.floor(clock.now() / 1000) - o.startTs) / o.daySeconds) : -1;

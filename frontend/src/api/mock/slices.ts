@@ -49,7 +49,7 @@ export function mockAuth(ctx: MockContext): AuthApi {
   };
 }
 /** Devnet swap rate the W3 design shows (1 SOL ≈ 9,900 SKR); mock only (D-21). */
-export const MOCK_SKR_PER_SOL = 9900n;
+const MOCK_SKR_PER_SOL = 9900n;
 
 export function mockWallet(ctx: MockContext): WalletApi {
   let faucetUsed = false;

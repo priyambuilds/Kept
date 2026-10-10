@@ -1,9 +1,9 @@
 // Avatar art data from design/reference/Avatar.dc.html (also AVC in reference/kept-kit.js).
 // These are character colours, not UI colours, so they live here rather than in the theme.
 
-export const SKIN = ["#F6C9A8", "#C98E62", "#7A4A2E", "#F08A3C", "#7BC96F", "#A9B4C6", "#EFE8D8", "#9D86F9"] as const;
-export const OUTFIT = ["#7C3AED", "#C5F25C", "#38BDF8", "#F472B6", "#FB923C", "#F2F0EA", "#2A2A33"] as const;
-export const BACKGROUND = ["#C5F25C", "#A78BFA", "#38BDF8", "#F9A8D4", "#FDE68A", "#5EEAD4", "#2E2E36", "#FB923C"] as const;
+const SKIN = ["#F6C9A8", "#C98E62", "#7A4A2E", "#F08A3C", "#7BC96F", "#A9B4C6", "#EFE8D8", "#9D86F9"] as const;
+const OUTFIT = ["#7C3AED", "#C5F25C", "#38BDF8", "#F472B6", "#FB923C", "#F2F0EA", "#2A2A33"] as const;
+const BACKGROUND = ["#C5F25C", "#A78BFA", "#38BDF8", "#F9A8D4", "#FDE68A", "#5EEAD4", "#2E2E36", "#FB923C"] as const;
 
 /** Builder tabs: which digit each edits, how many options, and the colour digit/palette (AVT in the prototype). */
 export const AVATAR_TABS = [
@@ -23,7 +23,7 @@ const SPECIES: readonly (readonly [number, number, number, readonly [number, num
 ];
 
 /** Mixes a hex colour toward black (or white when `toWhite`) by t. */
-export function mix(hex: string, t: number, toWhite = false): string {
+function mix(hex: string, t: number, toWhite = false): string {
   const n = parseInt(hex.replace("#", ""), 16);
   const c = [n >> 16, (n >> 8) & 255, n & 255];
   const d = toWhite ? 255 : 0;

@@ -99,7 +99,7 @@ export function J1f() {
 
 // ── Results ──
 /** Which L screen an Oath's outcome shows, if any. */
-export function resultScreen(v: OathView): DesignId | null {
+function resultScreen(v: OathView): DesignId | null {
   if (v.me < 0) return null;
   const missedMe = v.members[v.me]!.missed.length > 0;
   // A Bounty: out the day after a miss (H4), or survived at the end (H5). Solo HP doesn't apply.

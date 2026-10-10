@@ -105,7 +105,7 @@ const SAMPLE_AVATAR = "13050010";
 const SAMPLE_DRAFT = { goal: "lift for 20 minutes", objectId: 0, numDays: 7 as const, isSolo: false, stakeSkr: 1000, reviewMode: "ai_group" as const };
 
 /** Handles `kept://dev/open/…`. Returns false for any other URL. */
-export function openDevLink(url: string): boolean {
+function openDevLink(url: string): boolean {
   const m = url.match(/^kept:\/\/dev\/open\/([^?#]+)(?:\?([^#]*))?/);
   if (!m) return false;
   const raw = decodeURIComponent(m[1]!);

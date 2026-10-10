@@ -76,7 +76,7 @@ export function BottomSheet({ visible, onClose, children, bottomInset = 0, onHid
 const TOAST_FADE = 200;
 
 // ── Toast ── white pill, ink disc with a lime check-bold; auto-hides after toastHold.
-export function Toast({ text, onHide, holdMs = duration.toastHold }: { text: string; onHide: () => void; holdMs?: number }) {
+function Toast({ text, onHide, holdMs = duration.toastHold }: { text: string; onHide: () => void; holdMs?: number }) {
   const reduce = useReducedMotion();
   const fade = useSharedValue(1);
   // Hold, then fade out over 200 ms before unmounting.

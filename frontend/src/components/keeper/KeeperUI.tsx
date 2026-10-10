@@ -13,7 +13,7 @@ import { Keeper } from "./Keeper";
 import type { KeeperAnim, KeeperProp } from "./Keeper";
 
 /** A soft radial glow (closest-side to transparent), used for mood glows and ambient orbs. */
-export function RadialGlow({ size, colour, id }: { size: number; colour: string; id: string }) {
+function RadialGlow({ size, colour, id }: { size: number; colour: string; id: string }) {
   return (
     <Svg width={size} height={size} pointerEvents="none">
       <Defs>

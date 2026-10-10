@@ -14,6 +14,4 @@ export const useMode = create<{ mode: AppMode | null }>()(persist(() => ({ mode:
   onRehydrateStorage: () => (s) => setStorageScope(s?.mode ?? "none"),
 }));
 
-export const appMode = (): AppMode | null => useMode.getState().mode;
-export const isDemo = (): boolean => appMode() === "demo";
 export const useIsDemo = (): boolean => useMode((s) => s.mode === "demo");

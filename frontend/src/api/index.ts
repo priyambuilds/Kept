@@ -15,7 +15,7 @@ import type { MockContext } from "./mock/slices";
 import type { KeptApi, Slice, SliceMode } from "./types";
 
 export * from "./types";
-export { ApiError, isApiError } from "./errors";
+export { isApiError } from "./errors";
 
 const MOCK_LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 450;
 
