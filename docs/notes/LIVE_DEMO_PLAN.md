@@ -275,6 +275,8 @@ of what was not verified end to end.
 - Demo on a release build with airplane mode on (emulator): A1 → A1·m → A4 → Today (judges account, DEMO badge), Oaths tab.
 - Live sign-in against a locally running backend (Postgres in Docker, `backend` started unchanged): the app's own `signIn` and Live slices, with a test keypair signing like a wallet: nonce → verify → `/api/me`, reputation stats, profile, Bounty list. That run found that a non-Seeker gets 403 on `/api/inbox` (now an empty inbox).
 
+**Perf** (release, emulator only, `perf.mts` now onboards through Demo): 0 sync-props failures, 0 ANRs. Jank was much higher than last session (tab switches 7.3 %, push/back 20.7 %, scroll 0.8 %), but last session's own APK and script, run on the same emulator right after, gave 16.8 % / 22.6 % / 0.4 %: the emulator (up 17 h, Docker had been running) is slower today, not the app. Re-measure on a fresh emulator or a phone.
+
 **Not verified end to end**
 - Live with a real wallet (MWA) on a phone: the emulator has no wallet app.
 - Live create / join / start / claim on Devnet after this session's changes (the chain code didn't change).
