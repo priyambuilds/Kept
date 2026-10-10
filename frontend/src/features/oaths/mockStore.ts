@@ -201,6 +201,8 @@ function roll(o: MockOath) {
   for (const m of o.members) {
     if (day < 0) continue;
     if (m.proofDay !== day) {
+      // The day that ended keeps what was proved in it (a seeded "kept today" has no day bit yet).
+      if (m.proofDay >= 0 && m.proofToday === "kept") m.daysKept |= 1 << m.proofDay;
       // A new day: reliable people keep straight away, everyone else starts from nothing.
       m.proofDay = day;
       m.proofToday = m.reliable ? "kept" : "none";

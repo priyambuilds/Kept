@@ -88,7 +88,9 @@ describe("Skip to tomorrow (Demo, Q6)", () => {
     await skipToTomorrow();
     const after = await getApi().oaths.list(MOCK_WALLET).then((l) => oathView(l.find((f) => f.id === before.facts.id)!, nowS(), MOCK_WALLET));
     expect(after.dayNumber).toBe(before.dayNumber + 1);
-    expect(after.hp).not.toBe(before.hp);
+    // Day 3: Riya kept (her proof counts though it was seeded as a flag); the user (photo 1 only), Arjun
+    // and Dev (his group review undecided) missed: 90 − 3·20 + 10.
+    expect(after.hp).toBe(40);
   });
   it("does nothing in Live", async () => {
     await startLive();
