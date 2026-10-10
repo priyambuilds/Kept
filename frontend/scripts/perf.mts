@@ -54,13 +54,32 @@ function dump(): Node[] {
  * Tap by text; release builds run ambient loops, so uiautomator often never goes idle and finds nothing.
  * `at` is the position on the 1080×2400 emulator (px); when given it's tapped directly.
  */
+/** KEPT is the app in front. Taps and Back go through `input`, so a missed tap never lands on the launcher. */
+const appOnTop = () => /(topResumedActivity|mResumedActivity)[^\n]*app\.kept\.mobile/.test(adb("shell", "dumpsys", "activity", "activities"));
+class NotInFront extends Error {}
+function input(...a: string[]) {
+  if (!appOnTop()) throw new NotInFront("KEPT is not in front: stopping instead of tapping another app");
+  adb("shell", "input", ...a);
+}
+
+/** Where a control is on screen, by its text or label (top-anchored controls move with the status bar height). */
+async function locate(q: string, timeoutMs = 15000): Promise<[number, number]> {
+  const end = Date.now() + timeoutMs;
+  for (;;) {
+    const n = dump().find((d) => d.text === q || d.desc === q || d.desc.startsWith(`${q},`));
+    if (n) return [Math.round(n.x), Math.round(n.y)];
+    if (Date.now() > end) throw new NotInFront(`not found on screen: ${q}`);
+    await sleep(500);
+  }
+}
+
 async function tap(q: string, at?: [number, number], timeoutMs = 15000) {
   const end = Date.now() + timeoutMs;
   for (;;) {
     // uiautomator dumps can block for many seconds in release (never idle): with a known spot, skip them.
-    if (at) { adb("shell", "input", "tap", String(at[0]), String(at[1])); return; }
+    if (at) { input("tap", String(at[0]), String(at[1])); return; }
     const n = dump().find((d) => d.text === q || d.desc === q || d.desc.startsWith(`${q},`) || d.text.split("&#10;").includes(q));
-    if (n) { adb("shell", "input", "tap", String(Math.round(n.x)), String(Math.round(n.y))); return; }
+    if (n) { input("tap", String(Math.round(n.x)), String(Math.round(n.y))); return; }
     if (Date.now() > end) throw new Error(`not found: ${q}`);
     await sleep(500);
   }
@@ -137,8 +156,7 @@ async function main() {
   // The splash (A0): the Check-K draws in over the first ~1.1 s of a launch.
   adb("shell", "am", "force-stop", PKG);
   await sleep(1500);
-  adb("shell", "am", "start", "-n", `${PKG}/.MainActivity`);
-  await sleep(400);
+  adb("shell", "am", "start", "-W", "-n", `${PKG}/.MainActivity`); // returns at the first frame (A0)
   const splash = await measure("splash", () => sleep(1600));
   // A1 at rest: the Keeper's idle (the ambient loops have run out by now, D-84).
   await sleep(8000);
@@ -161,26 +179,29 @@ async function main() {
   await tab(2);
   await sleep(2500);
   const scroll = await measure("Bounties scroll", async () => {
-    for (let i = 0; i < 4; i++) { adb("shell", "input", "swipe", String(W / 2), String(H * 0.8), String(W / 2), String(H * 0.3), "250"); await sleep(700); }
-    for (let i = 0; i < 4; i++) { adb("shell", "input", "swipe", String(W / 2), String(H * 0.3), String(W / 2), String(H * 0.8), "250"); await sleep(700); }
+    for (let i = 0; i < 4; i++) { input("swipe", String(W / 2), String(H * 0.8), String(W / 2), String(H * 0.3), "250"); await sleep(700); }
+    for (let i = 0; i < 4; i++) { input("swipe", String(W / 2), String(H * 0.3), String(W / 2), String(H * 0.8), "250"); await sleep(700); }
   });
   await tab(0);
   await sleep(2000);
+  // The bell, found by its label: Inbox always opens over Today, so the Back after it can't leave the app.
+  const bell = await locate("Inbox");
   const push = await measure("push / back ×4", async () => {
     for (let i = 0; i < 4; i++) {
-      adb("shell", "input", "tap", String(W * 0.5), String(H * 0.35)); // the main card / first block on Today
+      input("tap", String(bell[0]), String(bell[1]));
       await sleep(1500);
-      adb("shell", "input", "keyevent", "KEYCODE_BACK");
+      input("keyevent", "KEYCODE_BACK");
       await sleep(1500);
     }
   });
   // Embers: D3 (a broken Oath, Guitar Days in the Oaths tab) plays them on entry.
   await tab(1);
   await sleep(2500);
-  adb("shell", "input", "tap", "540", "1802");
+  const guitar = await locate("Guitar Days");
+  input("tap", String(guitar[0]), String(guitar[1]));
   await sleep(600);
   const embers = await idle("embers (D3)", 5000);
-  adb("shell", "input", "keyevent", "KEYCODE_BACK");
+  input("keyevent", "KEYCODE_BACK");
   await sleep(1500);
   log.stop();
   const { syncFailures, anrs } = log.counts;
@@ -197,4 +218,4 @@ async function main() {
   }
 }
 
-void main();
+main().catch((e: unknown) => { console.error(`FAIL: ${e instanceof Error ? e.message : String(e)}`); process.exit(1); });
