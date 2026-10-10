@@ -35,12 +35,12 @@ export interface KeeperChip { text: string; icon: IconName; x: number; y: number
 const PROTO_TONE: Record<string, ChipTone> = { l: "lime", lime: "lime", r: "red", red: "red", vio: "vio", o: "ora", ora: "ora", grey: "grey", g: "g", d: "dark", w: "white" };
 export const chipTone = (code: string | undefined): ChipTone => PROTO_TONE[code ?? "g"] ?? "g";
 
-function Orb({ o, i }: { o: KeeperOrb; i: number }) {
+function Orb({ o, i, sx }: { o: KeeperOrb; i: number; sx: number }) {
   const p = tile((o.palette in color.tilePalette ? o.palette : "white") as PaletteName);
   const [a, b] = p.gradient.colors;
   const r = o.coin ? o.size / 2 : Math.round(o.size * 0.28);
   return (
-    <View pointerEvents="none" style={{ position: "absolute", left: o.x, top: o.y }}>
+    <View pointerEvents="none" style={{ position: "absolute", left: Math.round(o.x * sx), top: o.y }}>
       <Loop kind="float" period={(5 + (i % 3)) * 1000} delay={i * 600}>
         <View style={{
           width: o.size, height: o.size, borderRadius: r, overflow: "hidden", alignItems: "center", justifyContent: "center", transform: [{ rotate: `${o.rotate}deg` }],
@@ -81,7 +81,9 @@ export interface KeeperPlacementProps {
 
 export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle", size = metrics.keeperPlacement.defaultSize, side = "l", height, chips = [], orbs = [] }: KeeperPlacementProps) {
   const [i, setI] = useState(0);
-  const W = metrics.contentWidth;
+  // The design's spots are in its 350 dp column; narrower phones (360 dp wide → 320) scale x to fit.
+  const [W, setW] = useState<number>(metrics.contentWidth);
+  const sx = W / metrics.contentWidth;
   const kh = Math.round(size * 1.14);
   const h = height ?? kh + 12;
   const ky = h - kh - 2;
@@ -94,11 +96,11 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
   const poseAnim: KeeperAnim = i ? (["point", "wave", "thumbs", "shrug"] as const)[i % 4]! : anim;
   const kp = metrics.keeperPlacement;
   return (
-    <View style={{ height: h, position: "relative" }}>
+    <View style={{ height: h, position: "relative" }} onLayout={(e) => { const w = Math.round(e.nativeEvent.layout.width); if (w && w !== W) setW(w); }}>
       <View pointerEvents="none" style={{ position: "absolute", left: Math.round(kx + size / 2 - gs / 2), top: Math.round(ky + size * 0.55 - gs / 2) }}>
         <RadialGlow size={gs} colour={glow} id={`kglow-${mood}`} />
       </View>
-      {orbs.map((o, k) => <Orb key={k} o={o} i={k} />)}
+      {orbs.map((o, k) => <Orb key={k} o={o} i={k} sx={sx} />)}
       <View pointerEvents="none" style={{ position: "absolute", left: Math.round(kx + size * 0.15), top: h - kp.shadowH, width: Math.round(size * 0.7), height: kp.shadowH, borderRadius: size, backgroundColor: color.extra.keeperShadow, filter: [{ blur: 9 }] }} />
       <Pressable
         onPress={cycle ? () => setI((n) => n + 1) : undefined}
@@ -110,7 +112,7 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
         <Keeper mood={mood} prop={prop} anim={poseAnim} size={size} />
       </Pressable>
       {chips.map((c, k) => (
-        <View key={`${c.text}${k}`} pointerEvents="none" style={{ position: "absolute", left: c.x, top: c.y, zIndex: 4 }}>
+        <View key={`${c.text}${k}`} pointerEvents="none" style={{ position: "absolute", left: Math.round(c.x * sx), top: c.y, zIndex: 4 }}>
           <Loop kind="float" period={metrics.keeperPlacement.chipFloatMs} delay={k * 700}>
             <Chip text={c.text} icon={c.icon} {...(c.tone ? { tone: c.tone } : {})} tilt={c.tilt ?? 0} />
           </Loop>

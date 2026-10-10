@@ -23,6 +23,7 @@ import { listNames, memberColor, memberInitial, memberName, objectIcon, skrWhole
 import { TabScreen } from "../tabs/TabScreen";
 import { useResultMoments } from "../results/Results";
 import { useBounties, useStats } from "@/features/phase4";
+import { coverColors } from "../bounties/Bounties";
 
 const myToday = (v: OathView) => (v.me >= 0 ? v.members[v.me]! : null);
 const keptToday = (v: OathView) => myToday(v)?.pendingToday === false;
@@ -176,6 +177,8 @@ function AllDone({ items }: { items: OathView[] }) {
 // ── B3 ──
 function Empty() {
   const { go } = useGo();
+  const bounties = useBounties().data ?? [];
+  const featured = bounties.find((b) => b.featured && !b.createdBy) ?? bounties.find((b) => !b.createdBy);
   const k = keeperLines("B3")[0]!;
   return (
     <TabScreen tab="today" layout="B3">
@@ -183,8 +186,8 @@ function Empty() {
       <Title heading={t("screens.B3.b2.title")} sub={t("screens.B3.b2.sub")} />
       <ButtonRow><Button kind="p" icon="plus" label={t("screens.B3.b3.btn.0")} onPress={() => go("C1")} /></ButtonRow>
       <BodyText mono text={t("screens.B3.b4.text")} />
-      {/* Bounties arrive in Phase 4; the featured card is the design's sample until then. */}
-      <BountyCover brand={t("screens.B3.b5.brand")} logo="D" verified colors={[color.sky.base, color.violet.base]} icon="bottle-soda-outline" message={t("screens.B3.b5.msg")} onPress={() => go("H2")} />
+      {/* A featured Bounty to join, when there is one (none in Live yet: BACKEND_GAPS P1-10). */}
+      {featured ? <BountyCover brand={featured.brand.name} logo={featured.brand.logo} verified={featured.brand.verified} colors={coverColors(featured)} icon={objectIcon(featured.objectId)} message={featured.message} onPress={() => go("H2", { id: featured.id })} /> : null}
     </TabScreen>
   );
 }

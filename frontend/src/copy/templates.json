@@ -2059,5 +2059,25 @@
   "sample": {
    "amount": "5,000"
   }
+ },
+ "screens.D0.b6.r0.s": {
+  "template": "{n} Oaths · {kept} kept · {broken} broken",
+  "sample": {
+   "n": "50",
+   "kept": "41",
+   "broken": "9"
+  }
+ },
+ "screens.M1.b0.title": {
+  "template": "{time}",
+  "sample": {
+   "time": "9:41"
+  }
+ },
+ "screens.M1.b0.sub": {
+  "template": "{date}",
+  "sample": {
+   "date": "Wednesday 8 October"
+  }
  }
 }

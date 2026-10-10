@@ -49,6 +49,8 @@ export function OathsTab() {
   const { views, isLoading } = useOathList();
   const { go } = useGo();
   const k = keeperLines("D0");
+  const { n, kept, broken } = historyTotals(historyOf(views));
+  const history = { n, kept, broken };
   useResultMoments(views);
   if (isLoading) return <TabScreen tab="oaths"><Skeleton height={140} /><Skeleton height={140} /><Skeleton height={60} /></TabScreen>;
   const oaths = views.filter((v) => !v.facts.bountyId); // Bounties live on the Bounties tab
@@ -92,7 +94,7 @@ export function OathsTab() {
           chevron: true, onPress: () => open1(v),
         };
       })} /> : null}
-      <RowList rows={[{ title: t("screens.D0.b6.r0.t"), sub: t("screens.D0.b6.r0.s"), leading: { kind: "icon", icon: "history" }, chevron: true, onPress: () => go("D5") }]} />
+      <RowList rows={[{ title: t("screens.D0.b6.r0.t"), sub: t("screens.D0.b6.r0.s", history), leading: { kind: "icon", icon: "history" }, chevron: true, onPress: () => go("D5") }]} />
     </TabScreen>
   );
 }

@@ -133,13 +133,16 @@ export function N1() {
 // ── M1 Notifications ── what the system tray shows; real pushes use expo-notifications (P1-12).
 export function M1() {
   const { back } = useGo();
+  // The tray's clock: now (the virtual clock in a development build).
+  const d = new Date(useNow(30_000) * 1000);
   const rows = Array.from({ length: 11 }, (_, i) => ({
     title: t(`screens.M1.b1.r${i}.t` as CopyKey), value: t(`screens.M1.b1.r${i}.r` as CopyKey),
     leading: { kind: "mark" as const },
   }));
   return (
     <Screen bar={<NavBar onBack={back} close />}>
-      <Title heading={t("screens.M1.b0.title")} sub={t("screens.M1.b0.sub")} align="center" fs={56} />
+      <Title heading={t("screens.M1.b0.title", { time: `${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}` })}
+        sub={t("screens.M1.b0.sub", { date: d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }).replace(",", "") })} align="center" fs={56} />
       <RowList rows={rows} />
     </Screen>
   );
