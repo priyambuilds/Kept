@@ -1,4 +1,5 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+// The single icon set: the package index would bundle every set's font and glyph map.
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { ComponentProps } from "react";
 import { color as colors } from "@/theme";
 
