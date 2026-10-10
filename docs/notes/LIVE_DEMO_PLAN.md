@@ -165,6 +165,7 @@ that one, no creator page (I3 unavailable), K (create / fund) hidden in Live. It
 **Q4 (kept rate).** The backend's kept rate is plain kept / (kept + missed) over all days. The design's is
 recency-weighted and shows "New" under 10 days. In Live, show the backend's number as is (and "New" under
 10 days), or hide it until the backend matches?
+**Answered 2026-10-10: show the backend's number, "New" under 10 days.** Done (`liveKeptRate` in `api/http/slices.ts`): my stats and profiles. Other members' rates on Oath screens still show "New" in Live: the Oath route doesn't carry them and fetching each member's reputation is not built.
 
 **Q5 (deletions).** Delete (a) the Keeper PNG fallbacks (~4.8 MB repo, also shrinks the APK), (b) the
 unused object, gesture, coin and mark PNGs plus their lines in `sync-assets.mjs`, (c) `legacy/`,

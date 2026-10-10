@@ -3,6 +3,7 @@ import { createApi, createMockApi } from "@/api";
 import type { Slice, SliceMode } from "@/api";
 import { ApiError, toApiError } from "@/api/errors";
 import { createHttpClient } from "@/api/http/client";
+import { liveKeptRate } from "@/api/http/slices";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import type { Scenario } from "@/api/mock/scenarios";
 import { clock } from "@/lib/clock";
@@ -165,5 +166,17 @@ describe("Live has no mock (D-80)", () => {
     for (const f of fs.readdirSync(path.join(src, "api/http"))) walk(path.join(src, "api/http", f), []);
     expect(seen.size).toBeGreaterThan(10); // the walk really follows imports
     expect(reached).toEqual([]);
+  });
+});
+
+describe("Live kept rate (LIVE_DEMO_PLAN Q4)", () => {
+  const rep = (percentage: number | null, sampleSize: number) => ({
+    wallet: MOCK_WALLET, keptRate: { percentage, keptDays: 0, missedDays: 0, sampleSize },
+    oathsKept: 0, oathsBroken: 0, streak: { current: 0, best: 0 }, bounties: { joined: 0, completed: 0, out: 0 },
+  });
+  it("is the backend's number as is, and New under 10 days", () => {
+    expect(liveKeptRate(rep(null, 0))).toBeNull();
+    expect(liveKeptRate(rep(100, 9))).toBeNull();
+    expect(liveKeptRate(rep(87.5, 10))).toBe(0.875);
   });
 });

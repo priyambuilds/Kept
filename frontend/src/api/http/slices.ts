@@ -8,7 +8,7 @@ import type { Reputation } from "@kept/shared";
 import { avatarFor } from "@/components/avatar/palette";
 import { shortWallet } from "@/features/oaths/names";
 import { useSession } from "@/state/session";
-import { SKR_UNIT } from "@kept/config";
+import { KEPT_RATE, SKR_UNIT } from "@kept/config";
 import { readBalances } from "@/chain/connection";
 import { programEnv } from "@/chain/program";
 import { ApiError, isApiError } from "../errors";
@@ -71,9 +71,16 @@ export const httpInbox = (c: HttpClient): InboxApi => ({
   markDone: async (ids) => { await Promise.all(ids.map((id) => c.put(`/api/inbox/${encodeURIComponent(id)}`, {}, InboxDoneResponse))); },
 });
 
+/**
+ * The backend's kept rate as it is (plain kept / (kept + missed), not the design's weighted one), shown as
+ * "New" under 10 days like the design (owner, LIVE_DEMO_PLAN Q4).
+ */
+export const liveKeptRate = (r: Reputation): number | null =>
+  r.keptRate.percentage === null || r.keptRate.sampleSize < KEPT_RATE.newUnderDays ? null : r.keptRate.percentage / 100;
+
 const toStats = (r: Reputation): MyStats => ({
   streak: r.streak.current, bestStreak: r.streak.best,
-  keptRate: r.keptRate.percentage === null ? null : r.keptRate.percentage / 100, rateDays: r.keptRate.sampleSize,
+  keptRate: liveKeptRate(r), rateDays: r.keptRate.sampleSize,
   oaths: { kept: r.oathsKept, broken: r.oathsBroken },
   bounties: { survived: r.bounties.completed, out: r.bounties.out },
 });
@@ -90,7 +97,7 @@ export const httpProfile = (c: HttpClient): ProfileApi => {
     const s = useSession.getState();
     return Profile.parse({
       wallet, name: mine ? "" : shortWallet(wallet), handle: shortWallet(wallet), avatar: (mine ? s.avatar : null) ?? avatarFor(wallet), banner: 0, bio: "", socials: [],
-      verifiedSeeker: mine ? s.genesis : true, keptRate: { rate: r.keptRate.percentage === null ? null : r.keptRate.percentage / 100, days: r.keptRate.sampleSize }, visibility: "members",
+      verifiedSeeker: mine ? s.genesis : true, keptRate: { rate: liveKeptRate(r), days: r.keptRate.sampleSize }, visibility: "members",
     });
   };
   const me = () => useSession.getState().wallet ?? "";
