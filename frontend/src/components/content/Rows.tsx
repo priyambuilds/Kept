@@ -1,3 +1,4 @@
+import type { ListItem } from "../layout/list";
 import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
@@ -77,6 +78,21 @@ export function RowList({ rows, label }: { rows: RowProps[]; label?: string }) {
       {rows.map((r, i) => <Row key={`${r.title}-${i}`} {...r} />)}
     </View>
   );
+}
+
+/**
+ * RowList's look as ScreenList rows (layout/Screen): the label, then each row, spaced as RowList spaces them.
+ * `gapBefore`: the space above the section (the screen column's gap between sections; 0 for the first).
+ */
+export function rowListItems(key: string, rows: RowProps[], opts: { label?: string; gapBefore?: number } = {}): ListItem[] {
+  const items: ListItem[] = [];
+  const first = opts.gapBefore ?? 0;
+  if (opts.label) {
+    const label = opts.label;
+    items.push({ key: `${key}:label`, gapBefore: first, render: () => <Text variant="monoLabel" style={{ marginVertical: space[2] }}>{label}</Text> });
+  }
+  rows.forEach((r, i) => items.push({ key: `${key}:${r.title}-${i}`, gapBefore: i === 0 && !opts.label ? first : metrics.row.listGap, render: () => <Row {...r} /> }));
+  return items;
 }
 
 /** Toggle: 46×28, knob 22 at x 3 / 21, 150 ms. */
