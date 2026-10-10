@@ -1,5 +1,5 @@
 // The shell of a tab screen: AppHeader (Keeper mark → the screen's note or the tab's idle line, balance chip → W1, bell → N1, optional
-// settings) over a scroll column that leaves room for the tab bar. Phase 3 fills B1/D0, Phase 4 H1/I1.
+// settings) over a scroll column that leaves room for the tab bar. B1, D0, H1 and I1 use it.
 import type { ReactNode } from "react";
 import { keeperIdle, t } from "@/copy";
 import { AppHeader } from "@/components/chrome";

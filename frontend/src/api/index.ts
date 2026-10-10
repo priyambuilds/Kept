@@ -7,7 +7,7 @@ import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 import { createHttpClient } from "./http/client";
 import { httpAuth, httpBounties, httpInbox, httpInvites, httpNotify, httpProfile, httpRematch, httpReviews, httpWallet } from "./http/slices";
-import { mockBountiesApi, mockRematchApi, mockReviewsApi } from "./mock/phase4";
+import { mockBountiesApi, mockRematchApi, mockReviewsApi } from "./mock/social";
 import { httpOaths, httpProof } from "./http/oaths";
 import { mockOathsApi, mockProofApi } from "./mock/oaths";
 import { mockAuth, mockInbox, mockInvites, mockNotify, mockProfile, mockWallet } from "./mock/slices";

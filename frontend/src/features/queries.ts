@@ -1,4 +1,4 @@
-// Queries and actions for Bounties, Rematch, group review, profiles and the wallet (Phase 4).
+// Queries and actions for everything but Oaths: Bounties, Rematch, group review, profiles and the wallet.
 // All of these run on the mock until the backend adds them (BACKEND_GAPS P1-1, P1-2, P1-9, P1-10).
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { getApi, useApi } from "@/api";

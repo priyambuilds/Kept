@@ -243,7 +243,7 @@ export function F4a() {
   );
 }
 
-// ── F4a·g 3 fails · group review ── the vote itself (G2) is Phase 4.
+// ── F4a·g 3 fails · group review ── the vote itself is G2 (screens/review).
 export function F4ag() {
   const { back, replace, reset } = useGo();
   const { id, view } = useProofScreen();

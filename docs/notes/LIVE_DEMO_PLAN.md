@@ -27,10 +27,10 @@ Read with: docs/ARCHITECTURE.md §6 (API modes), docs/BACKEND_GAPS.md, docs/API.
 | X3 | `api/http/oaths.ts › httpProof.submit` (photo 2) | Sends `POST /api/proof` with a **made-up detection** at 0.99 confidence (the old dev-force path, `LegacyProofResponse`). The current backend rejects it (it now needs a `verificationId` from `POST /proof/verify`), so live proof is broken today. |
 | X4 | `api/http/oaths.ts` imports `../mock/clock` | The virtual clock (equals real time unless the Dev menu moved it). `features/time.ts`, `features/*/mockStore.ts` and `dev/*` use it too. |
 | X5 | `features/oaths/hooks.ts` | `createSource()`: in hybrid a **solo Oath is created on the mock** (D-30); `oathActions.leave` only works on mock Oaths. |
-| X6 | `features/phase4.ts` | `bountyActions.create` and `rematchActions.join` always call `getTx("mock")` (fund / rematch have no program support). |
+| X6 | `features/queries.ts` (was `phase4.ts`) | `bountyActions.create` and `rematchActions.join` always call `getTx("mock")` (fund / rematch have no program support). |
 | X7 | `chain/mock.ts` imports `api/mock/slices › MOCK_WALLET` and `features/oaths/mockStore` | Fine for Demo; must not be reachable from Live. |
 | X8 | `api/types.ts` imports **types** from `features/bounties/mockStore` (`BountyFacts`) and `features/reviews/mockStore` (`ReviewFacts`) | The API contract lives in mock files. |
-| X9 | Screens importing from mock stores | `Today.tsx` (`BountyFacts` type), `Bounties.tsx` (`CATEGORIES`, `BountyFacts`, `Category`), `CreateBounty.tsx` (`bountyFunding`, the fee maths), `Review.tsx` (`ReviewFacts` type), `features/phase4.ts` (`ReviewFacts`). |
+| X9 | Screens importing from mock stores | `Today.tsx` (`BountyFacts` type), `Bounties.tsx` (`CATEGORIES`, `BountyFacts`, `Category`), `CreateBounty.tsx` (`bountyFunding`, the fee maths), `Review.tsx` (`ReviewFacts` type), `features/queries.ts` (was `phase4.ts`) (`ReviewFacts`). |
 | X10 | `screens/oaths/Oaths.tsx › D5` | History rows come straight from `copy.json › sampleData.history`, with a literal icon map by sample name (`"Hydra 14": "trophy-outline"`, …). **Shows sample history in every mode.** |
 | X11 | `state/dev.ts › BACKEND_HAS` + `defaultFlags` | Decides http vs mock at build time; `hybrid` is the release default. |
 | X12 | `api/http/slices.ts › httpWallet.swap/quote` | Throws "no backend route" (swap is a mock on Devnet, D-21); W3 only works on the mock. |

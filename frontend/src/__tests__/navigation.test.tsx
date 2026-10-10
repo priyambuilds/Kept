@@ -231,7 +231,7 @@ describe("onboarding on mocks", () => {
   }, 30000);
 });
 
-describe("Phase 4 on mocks", () => {
+describe("Bounties, Rematch, review, profile and wallet on mocks", () => {
   const WALLET = "7xKpQe9mZ3LbVd2RtYc8NfH4uJs6WgA1oPqE5rTk3F9q";
   const MOMENT_IDS = ["L1", "L2", "L3", "L4", "L4·m", "L4·b", "L5", "L6", "H4", "H5", "R4", "R4·lost"];
   beforeAll(() => queryClient.setDefaultOptions({ queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity } }));
@@ -277,7 +277,7 @@ describe("Phase 4 on mocks", () => {
     expect(mockOaths.forBounty(open.id, WALLET)).not.toBeNull();
   }, 30000);
 
-  it("opens every Phase 4 screen that needs no id without a render error", async () => {
+  it("opens every one of those screens that needs no id without a render error", async () => {
     await signedIn("activeGroup");
     const errors = jest.spyOn(console, "error");
     for (const id of ["H1·j", "H1·c", "H7", "K1", "K2", "K3", "K4", "K5", "I2·me", "I4", "I5", "I7", "I8", "I9", "W1", "W4", "N1", "M1"] as const) {
@@ -288,7 +288,7 @@ describe("Phase 4 on mocks", () => {
     errors.mockRestore();
   }, 60000);
 
-  it("opens the Phase 4 screens that take an id without a render error", async () => {
+  it("opens those screens that take an id without a render error", async () => {
     await signedIn("activeGroup");
     const errors = jest.spyOn(console, "error");
     const hydrate = mockBounties.byName("Hydrate Week")!;

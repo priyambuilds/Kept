@@ -22,7 +22,7 @@ import { useDeviceOaths } from "@/features/oaths/device";
 import { listNames, memberColor, memberInitial, memberName, objectIcon, skrWhole, weekday } from "@/features/oaths/present";
 import { TabScreen } from "../tabs/TabScreen";
 import { useResultMoments } from "../results/Results";
-import { useBounties, useStats } from "@/features/phase4";
+import { useBounties, useStats } from "@/features/queries";
 import { coverColors } from "../bounties/Bounties";
 
 const myToday = (v: OathView) => (v.me >= 0 ? v.members[v.me]! : null);

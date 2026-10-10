@@ -28,7 +28,7 @@ import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
 import { objectIcon, skrWhole } from "@/features/oaths/present";
-import { profileActions, useActivity, useBounties, useCreator, useMyProfile, usePerson, useStats, walletActions } from "@/features/phase4";
+import { profileActions, useActivity, useBounties, useCreator, useMyProfile, usePerson, useStats, walletActions } from "@/features/queries";
 import { useSession } from "@/state/session";
 import { useSettings } from "@/state/settings";
 import type { Audience } from "@/state/settings";

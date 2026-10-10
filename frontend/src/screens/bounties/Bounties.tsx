@@ -28,7 +28,7 @@ import type { BountyFacts, Category } from "@/features/bounties/model";
 import { useOath, useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { objectIcon, objectName, skrWhole, startsTitle } from "@/features/oaths/present";
-import { bountyActions, useBounties, useBounty, useMyBounty, useStats } from "@/features/phase4";
+import { bountyActions, useBounties, useBounty, useMyBounty, useStats } from "@/features/queries";
 import { useNow } from "@/features/time";
 import { useSession } from "@/state/session";
 import { useSettings } from "@/state/settings";
