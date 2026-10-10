@@ -4,12 +4,15 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastHost } from "@/components/chrome";
-import { DevMenu } from "@/dev/DevMenu";
 import { FxHost, OfflineHost } from "@/app/hosts";
 import { RootNavigator } from "@/app/RootNavigator";
 import { queryClient } from "@/api/queries";
 import { color } from "@/theme";
 import { useAppFonts } from "@/theme/fonts";
+
+/** Development builds only: Metro drops the require from release bundles (__DEV__ is false there). */
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- a static import would ship it in release
+const DevMenu = __DEV__ ? (require("@/dev/DevMenu") as typeof import("@/dev/DevMenu")).DevMenu : null;
 
 export default function App() {
   const [loaded] = useAppFonts();
@@ -23,7 +26,7 @@ export default function App() {
             <RootNavigator />
             <FxHost />
             <OfflineHost />
-            {__DEV__ ? <DevMenu /> : null}
+            {DevMenu ? <DevMenu /> : null}
           </ToastHost>
         </QueryClientProvider>
       </SafeAreaProvider>

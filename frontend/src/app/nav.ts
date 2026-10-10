@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CommonActions, StackActions, createNavigationContainerRef, useNavigation, useRoute } from "@react-navigation/native";
 import type { NavigationAction, NavigationProp, ParamListBase } from "@react-navigation/native";
 import { useSession } from "@/state/session";
-import { presentation, routeName } from "./routes";
+import { TAB_STATES, presentation, routeName } from "./routes";
 import type { DesignId } from "./routes";
 
 export type Params = Record<string, string | number | boolean | undefined>;
@@ -12,7 +12,7 @@ export const navigationRef = createNavigationContainerRef<ParamListBase>();
 
 /** Route + params for a design id (tabs are nested in "Tabs"). */
 export function target(id: DesignId, params?: Params): [string, object | undefined] {
-  return presentation(id) === "tab" ? ["Tabs", { screen: routeName(id), params }] : [routeName(id), params];
+  return presentation(id) === "tab" ? ["Tabs", { screen: routeName(TAB_STATES[id] ?? id), params }] : [routeName(id), params];
 }
 
 export function useGo() {

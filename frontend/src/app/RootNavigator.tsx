@@ -1,5 +1,6 @@
 // The navigation tree from design/flows.md › Navigation model (docs/ARCHITECTURE.md §5).
-// Every design id is registered: built screens use their component, the rest render Placeholder.
+// Every design id is registered: the tabs inside "Tabs" (Today's states are B1), everything else on the
+// root stack. BUILT must name a component for each (a missing one is a type error).
 import type { ComponentType } from "react";
 import { NavigationContainer, DarkTheme, StackActions } from "@react-navigation/native";
 import type { LinkingOptions, ParamListBase } from "@react-navigation/native";
@@ -11,9 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TabBar } from "@/components/chrome";
 import type { TabKey } from "@/components/chrome";
 import { color } from "@/theme";
-import { Gallery } from "@/dev/Gallery";
 import { M2 } from "@/screens/M2";
-import { Placeholder } from "@/screens/Placeholder";
 import { PlusSheet } from "@/screens/sheets/PlusSheet";
 import { A0, A1, A1m, A2, A2e, A2s, A3, A3no, A4 } from "@/screens/onboarding/Onboarding";
 import { RecapSheet, TodayTab } from "@/screens/today/Today";
@@ -38,10 +37,13 @@ import { ROUTES, presentation, routeName } from "./routes";
 import type { DesignId } from "./routes";
 
 const Stack = createNativeStackNavigator();
+/** The dev Gallery: development builds only (Metro drops the require from release bundles). */
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- a static import would ship it in release
+const Gallery = __DEV__ ? (require("@/dev/Gallery") as typeof import("@/dev/Gallery")).Gallery : null;
 const Tab = createBottomTabNavigator();
 
-/** Screens built so far; every other id renders Placeholder. */
-const BUILT: Partial<Record<DesignId, ComponentType>> = {
+type StackId = Exclude<DesignId, "B1" | "D0" | "H1" | "I1" | "B2" | "B3" | "B4">;
+const BUILT: Record<StackId, ComponentType> = {
   A0, A1, "A1·m": A1m, A2, "A2·s": A2s, "A2·e": A2e, A3, "A3·no": A3no, A4, M2, "+": PlusSheet,
   B5: RecapSheet,
   C1, C2, C3, C4, C5, C6, C7, "C7·ok": C7ok, "C7·no": C7no, "C7·fail": C7fail, C8,
@@ -58,6 +60,9 @@ const BUILT: Partial<Record<DesignId, ComponentType>> = {
   I2, "I2·me": I2me, "I2·p": I2p, I3, I4, I5, I7, I8, I9,
   W1, W2, W3, "W3·s": W3s, "W3·ok": W3ok, W4,
 };
+/** Stack ids are exactly BUILT's keys (the tabs and Today's states live in Tabs). */
+const componentOf = (id: DesignId): ComponentType => BUILT[id as StackId] as ComponentType;
+
 const TAB_SCREENS: { id: DesignId; key: TabKey; component: ComponentType }[] = [
   { id: "B1", key: "today", component: TodayTab },
   { id: "D0", key: "oaths", component: OathsTab },
@@ -151,17 +156,17 @@ export function RootNavigator({ onReady }: { onReady?: () => void }) {
       <Stack.Navigator initialRouteName={routeName("A0")} screenOptions={{ headerShown: false, animation: "slide_from_right", contentStyle: { backgroundColor: color.bg.app } }}>
         <Stack.Screen name="Tabs" component={Tabs} options={{ animation: "fade" }} />
         {flowIds.map((r) => (
-          <Stack.Screen key={r.id} name={routeName(r.id)} component={BUILT[r.id] ?? Placeholder}
+          <Stack.Screen key={r.id} name={routeName(r.id)} component={componentOf(r.id)}
             options={r.id === "A0" ? { animation: "fade" } : presentation(r.id) === "modal" ? { animation: "slide_from_bottom" } : {}} />
         ))}
         <Stack.Group screenOptions={{ animation: "fade", gestureEnabled: false }}>
-          {momentIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={BUILT[r.id] ?? Placeholder} />)}
+          {momentIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={componentOf(r.id)} />)}
         </Stack.Group>
         {/* Sheets draw their own scrim and slide (BottomSheet), over the screen below. */}
         <Stack.Group screenOptions={{ presentation: "transparentModal", animation: "none", contentStyle: { backgroundColor: "transparent" } }}>
-          {sheetIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={BUILT[r.id] ?? Placeholder} />)}
+          {sheetIds.map((r) => <Stack.Screen key={r.id} name={routeName(r.id)} component={componentOf(r.id)} />)}
         </Stack.Group>
-        {__DEV__ ? <Stack.Screen name="Gallery" component={Gallery} /> : null}
+        {Gallery ? <Stack.Screen name="Gallery" component={Gallery} /> : null}
       </Stack.Navigator>
     </NavigationContainer>
   );

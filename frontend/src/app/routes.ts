@@ -17,6 +17,8 @@ export const designIdOf = (name: string): DesignId | undefined => byName.get(nam
 export type Presentation = "tab" | "onboarding" | "sheet" | "moment" | "signing" | "modal" | "flow";
 
 const TABS = ["B1", "D0", "H1", "I1"];
+/** Today's other states are B1 itself (screens.md › B): going to one opens the Today tab. */
+export const TAB_STATES: Partial<Record<string, string>> = { B2: "B1", B3: "B1", B4: "B1" };
 const ONBOARDING = ["A0", "A1", "A2", "A2·s", "A2·e", "A3", "A3·no", "A4"];
 /** A1·m is the app's mode picker (D-80, not in the design). */
 const SHEETS = ["+", "B5", "D1·x", "M3", "M4", "W2", "A1·m"];
@@ -28,7 +30,7 @@ const SIGNING = ["A2·s", "C7", "D1·go", "D1·xs", "E2·s", "R2", "J1·p", "K5�
 const MODALS = ["M2", "M1"];
 
 export function presentation(id: string): Presentation {
-  if (TABS.includes(id)) return "tab";
+  if (TABS.includes(id) || TAB_STATES[id]) return "tab";
   if (SIGNING.includes(id)) return "signing";
   if (ONBOARDING.includes(id)) return "onboarding";
   if (SHEETS.includes(id)) return "sheet";
