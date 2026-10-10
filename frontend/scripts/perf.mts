@@ -158,8 +158,12 @@ async function main() {
   await sleep(1500);
   adb("shell", "am", "start", "-W", "-n", `${PKG}/.MainActivity`); // returns at the first frame (A0)
   const splash = await measure("splash", () => sleep(1600));
+  // A1 while its ambient loops play (beam, orbs, floating chips: the first ~10 s, D-84), then at rest:
+  // the difference is what the loops cost.
+  await sleep(1400);
+  const a1Entering = await idle("A1 entering", 5000);
   // A1 at rest: the Keeper's idle (the ambient loops have run out by now, D-84).
-  await sleep(8000);
+  await sleep(5000);
   const a1Idle = await idle("A1 at rest");
   // Onboard in Demo: A1 → A1·m (Try the demo) → A4 → Today.
   await tap("Get started", [540, 2046]);
@@ -167,9 +171,11 @@ async function main() {
   await tap("Try the demo");
   await sleep(2500);
   await tap("Looks like me", [540, 2081]);
-  await sleep(4000);
+  await sleep(1500);
   console.log("onboarding       sync-props failures", syncSince());
-  await sleep(8000);
+  // Today while its loops play (orbs, the + glow, card breath: the first ~10 s after focus), then at rest.
+  const todayEntering = await idle("Today entering", 5000);
+  await sleep(4000);
   const todayIdle = await idle("Today at rest");
   let active = 0;
   const tab = async (i: number) => { await tap(TAB_NAMES[i]!, tabAt(i, active)); active = i; };
@@ -208,7 +214,7 @@ async function main() {
   console.log("sync-props failures", syncFailures, "ANRs", anrs);
   const refreshHz = Number(adb("shell", "dumpsys", "display").match(/renderFrameRate ([\d.]+)/)?.[1] ?? NaN);
   const device = adb("shell", "getprop", "ro.product.model").trim();
-  const res = { apk, device, refreshHz, date: new Date().toISOString(), coldStartMs: cold, splash, a1Idle, todayIdle, tabs, scroll, push, embers, syncFailures, anrs };
+  const res = { apk, device, refreshHz, date: new Date().toISOString(), coldStartMs: cold, splash, a1Entering, a1Idle, todayEntering, todayIdle, tabs, scroll, push, embers, syncFailures, anrs };
   mkdirSync(path.dirname(out), { recursive: true });
   writeFileSync(out, JSON.stringify(res, null, 1));
   console.log(`wrote ${out}`);
