@@ -13,7 +13,6 @@
     ],
     "android": {
       "package": "app.kept.mobile",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "plugins": [
@@ -32,6 +31,20 @@
           "cameraPermission": "KEPT uses the camera for your two daily proof photos and to scan invite QR codes.",
           "recordAudioAndroid": false,
           "barcodeScannerEnabled": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "buildArchs": [
+              "arm64-v8a"
+            ],
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "useLegacyPackaging": true,
+            "extraProguardRules": "# Mobile Wallet Adapter: kept whole, its wallet round trip can only be tested on a phone.\n-keep class com.solana.** { *; }\n-keep class com.solanamobile.** { *; }"
+          }
         }
       ]
     ]
