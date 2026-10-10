@@ -16,9 +16,9 @@ KEPT is an Android app for the Solana Seeker. People swear **Oaths** (daily habi
 - **Do not write or change code in `backend` or `onchain`.** That includes no new routes, no migrations, no "small fixes" and no refactors. The only exceptions are a task where I explicitly say "merge phase" or "you may edit the backend", or a dependency bump needed to keep the workspace installing (ask first).
 - **Read the backend freely** to understand the API, IDL, PDAs, auth and data shapes.
 - **If the app needs something the backend doesn't have** (a route, a field, a rule), build the app against `KeptApi`/`TxService` with the **mock** for that feature, and write exactly what's needed into `docs/BACKEND_GAPS.md`, with the request/response shape you coded against.
-- **Use the real backend only where it already works today** (sign-in, Genesis status, invites, create/join/start/cancel/claim on chain, nudge, push token, price, faucet).
+- **Two app modes (D-80, merge phase started 2026-10-10):** **Live** uses the real backend, wallet and program for every slice, with no mock fallback: where the backend lacks a feature, hide its entry point or show the design's empty/unavailable state, and record it in `docs/BACKEND_GAPS.md`. **Demo** is the mock backend, wallet and TxService, with no network. Never import mock code from `frontend/src/api/http` (a test checks the import graph).
 - **Don't put computed views in the API.** Compute Oath views (HP, grid, balances) in the app with `packages/engine`, from data the backend already returns, or from the mock.
-- **Merge phase (later, only when I say so):** switch features from mock to http one by one as the backend developer closes the gaps, and fix contract mismatches on the app side.
+- **Merge phase (in progress):** as the backend developer closes gaps, wire each Live slice to http and fix contract mismatches on the app side. Stop and ask when a mismatch touches money or HP logic (open questions: `docs/notes/LIVE_DEMO_PLAN.md` §4).
 
 ## What's in this folder today
 | Path | What it is | Status |

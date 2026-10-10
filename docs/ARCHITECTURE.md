@@ -164,29 +164,24 @@ Shape:
 
 ---
 
-## 6. API layer: mock or http, per feature
+## 6. API layer: Demo or Live (app mode)
 
 ```ts
 interface KeptApi {
-  auth: AuthApi;        // nonce, verify, me
-  today: TodayApi;      // today items, recap
-  oaths: OathsApi;      // list, view (grid/HP/balances), details, watch, nudge
-  invites: InvitesApi;  // create, resolve
-  proof: ProofApi;      // challenge, submit (two-photo)
-  reviews: ReviewsApi;  // request, list, vote
-  rematch: RematchApi;
-  bounties: BountiesApi;
-  profiles: ProfilesApi;
-  inbox: InboxApi;
-  wallet: WalletApi;    // balances, faucet, swap quote, price
+  auth; oaths; invites; proof; reviews; rematch; bounties; profile; inbox; notify; wallet;
 }
 ```
 
-- **Two implementations per slice:** `http/` (fetch + bearer token, the backend's error mapped to a typed `ApiError`) and `mock/` (in-memory store seeded from `copy.json › sampleData` fixtures, with simulated latency).
-- **Both validate** with the zod schemas in `packages/shared` before data reaches a hook.
-- **Per-feature flags** (`api/flags.ts`): `Record<Slice, 'http' | 'mock'>`. Defaults come from `EXPO_PUBLIC_API_MODE` (`mock` | `hybrid` | `http`). `hybrid` is the default for real-device testing: http where the backend supports the feature, mock elsewhere (the table in BUILD_PLAN). `createApi(flags)` composes the slices. In dev builds, a **Dev menu** (long-press the DEVNET badge) can override any slice and persists the choice.
-- **Mock scenarios** (dev menu): `fresh` (B3), `activeGroup` (B1/D2), `deadlineClose` (B4), `allDone` (B2), `lowHp` (D2·low), `broken` (D3/L3/R1), `settledKept` / `settledMissed` (L1/L2/J1), `rematchActive`, `bountyJoined`, `bountyOut`, `notEligible` (A3·no), `offline` (M2), `walletRejected` (C7·no), `txFailed` (C7·fail), `noSol` (M3), `noSkr` (M4). The mock keeps a **virtual clock** with "end day" / "advance to deadline" controls, and computes HP, balances and settlement with `packages/engine`, so mock and real numbers use the same rules.
-- **Hybrid rule for money:** where a screen mixes chain truth with engine estimates (for example a real Oath whose program still settles all-or-nothing), the claim screen (J1) shows the **on-chain payout**, and live balances are labelled as estimates. See DECISIONS D-14.
+- **Two implementations per slice:** `api/http/` (fetch + bearer token, the backend's errors mapped to a typed `ApiError`) and `api/mock/` (in-memory stores seeded per scenario, simulated latency). **Both validate** with the zod schemas in `packages/shared`.
+- **App mode** (`state/mode.ts`, D-80): picked once at first launch on the A1·m sheet and persisted.
+  - **Demo:** the mock for every slice, the mock wallet and the mock `TxService`. No network at all (`__tests__/demoOffline.test.tsx` fails on any fetch, XHR or WebSocket). Release builds always use the `judges` scenario.
+  - **Live:** http for every slice, MWA and the program. Nothing in `api/http` imports the mock (a test walks the import graph), and the Live API composes no mock slice. Features the backend lacks are hidden (`features/availability.ts`: Rematch, create Bounty, swap, creator pages) or show their empty state (Bounty lists, open reviews, activity). Proof fetches the real challenge but ends on F2b until the on-device check exists (LIVE_DEMO_PLAN Q1).
+  - **Not chosen:** like Live (A1 makes no calls).
+  - A release build whose `EXPO_PUBLIC_API_URL` is still localhost refuses Live (`liveConfigured`).
+- **Separate saved data per mode** (`state/storage.ts`): session, settings, drafts and device Oath facts persist under `kept.demo.*` / `kept.live.*` (`scopedPersist`); a switch reloads them all and clears the query cache. Exit demo / a join link out of Demo wipes `kept.demo.*`.
+- **Development builds only:** the **Dev menu** (long-press DEVNET) overrides any slice (`mock` / `http`), picks a mock scenario, swaps in the mock wallet in Live, moves the virtual clock (`lib/clock.ts`), and opens the Gallery. Release builds ignore all of it and don't bundle the Dev menu, Gallery or dev links.
+- **Mock scenarios:** `judges` (the Demo account, D-80), `fresh` (B3), `activeGroup` (B1/D2), `deadlineClose` (B4), `allDone` (B2), `lowHp` (D2·low), `broken` (D3/L3/R1), `settledKept` / `settledMissed` (L1/L2/J1), `rematchActive`, `bountyJoined`, `bountyOut`, `notEligible` (A3·no), `offline` (M2), `walletRejected` (C7·no), `txFailed` (C7·fail), `noSol` (M3), `noSkr` (M4), `proofFail`, `proofUnavailable`, and the finished solo / Rematch ones. The mock computes HP, balances and settlement with `packages/engine` on the virtual clock, with days seeded relative to now.
+- **Money in Live:** a settled chain Oath shows the **on-chain payout** (J1, D4); other numbers are the engine's estimates (D-14). How Live should show money and HP against the program's rules is open (LIVE_DEMO_PLAN Q2).
 
 ## 7. Chain layer: `TxService`
 

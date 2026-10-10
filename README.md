@@ -39,28 +39,41 @@ pnpm mobile:android              # prebuilds android/, builds and installs app.k
 ```
 After the first install you only need Metro: `pnpm mobile:start`, then open **KEPT** on the phone (same Wi-Fi, or `adb reverse tcp:8081 tcp:8081` over USB). Shake the phone (or `adb shell input keyevent 82`) for the dev menu.
 
-### Signing in against your local API (hybrid mode, the default)
+### Demo and Live
+On first launch, **Get started** asks how to start (D-80):
+- **Try the demo:** a sample account on the built-in mock. No wallet, no network, works in airplane mode. A violet **DEMO** badge sits next to DEVNET, and signing screens say the approval is simulated. Profile → Settings → **Restart demo** puts the account back the way it began; **Exit demo** wipes it and goes back to the start.
+- **Use my wallet:** Live. Real wallet (MWA), real backend, real program. No mock data. Features the backend doesn't have yet (Rematch, creating Bounties, swap, creator pages) are hidden; see `docs/BACKEND_GAPS.md`. Signing out returns to the start, where the mode can be picked again.
+
+"I have an invite" and `kept://join/<code>` links always use Live.
+
+### A release APK
+```bash
+cd frontend/android && ./gradlew assembleRelease     # → app/build/outputs/apk/release/app-release.apk
+```
+- **Demo** works in any release APK.
+- **Live** needs the API's address baked in at build time: set `EXPO_PUBLIC_API_URL` (and `EXPO_PUBLIC_STAKE_MINT`) in `frontend/.env` before building. A release build still pointing at `localhost` refuses Live with a message.
+
+### Live against your local API (development build)
 1. Start the backend (Setup above). In `backend/.env` put your phone wallet's address in `SGT_MOCK_ALLOWLIST` to get **A3 Seeker verified**; leave it out to see **A3·no**.
 2. `cp frontend/.env.example frontend/.env` and set `EXPO_PUBLIC_STAKE_MINT` (the `STAKE_MINT` printed by the API's `v4-setup` script) so the balance chip shows SKR.
 3. `adb reverse tcp:3000 tcp:3000` so `localhost:3000` on the phone reaches the API (and `adb reverse tcp:8081 tcp:8081` for Metro).
-4. Open KEPT → **Get started** → pick any wallet row → approve the connect, then the sign-in message in your wallet.
+4. Open KEPT → **Get started** → **Use my wallet** → pick a wallet row → approve the connect, then the sign-in message in your wallet.
 
-**Dev menu:** long-press the orange **DEVNET** badge. Switch every slice between `http` and `mock`, pick a scenario (`notEligible`, `walletRejected`, `offline`, `noSkr`, …), use a mock wallet (no wallet app needed; pair it with mock auth), move the virtual clock, jump to any of the 116 screens, open the component **Gallery**, or sign out.
+Proof photos in Live end on "Check unavailable" until the app has the on-device checker the backend now expects (`docs/notes/LIVE_DEMO_PLAN.md` Q1).
+
+**Dev menu (development builds only):** long-press the orange **DEVNET** badge. Override any slice to `http` or `mock`, pick a mock scenario (`judges`, `notEligible`, `walletRejected`, `offline`, `noSkr`, …), use the mock wallet in Live, move the virtual clock, jump to any of the 116 screens, open the component **Gallery**, or sign out.
 
 Deep link test: `adb shell am start -a android.intent.action.VIEW -d "kept://join/IRON-7K2Q"`.
 
 ### Testing the core loop
-- **On the mock (one phone, fastest):** Dev menu → API mode `mock` + Mock wallet on. Pick a scenario (`activeGroup`, `deadlineClose`, `allDone`, `lowHp`, `broken`, `settledKept`, `settledMissed`, `proofFail`, `proofUnavailable`, `walletRejected`, `txFailed`, `noSol`, `noSkr`, `offline`). Use **End day** / **To deadline** to move time: a started mock Oath begins at the next midnight, other members prove on their own, and the Oath settles after its last day.
-- **On Devnet (two phones or two wallets, `hybrid` mode):** both wallets need devnet SOL and SKR (`POST /api/faucet` gives 5,000 SKR once). Phone 1: + → Start an Oath → Group → Sign & stake → Invite (QR). Phone 2: + → Join with code → scan → Join & stake. Phone 1: Start. Both: take photo 1 and photo 2 (photo 2 is checked by the API). For a quick settle, run the API against a program built with `debug-tools` and set `EXPO_PUBLIC_DAY_SECONDS=120` on both phones; after the last day, open the Oath and tap **Settle now** (or wait for the scheduler), then claim.
-- Solo Oaths in `hybrid` stay on the mock so they can carry a stake (D-30).
+- **In Demo (fastest):** Today has Iron Week with photo 2 due, Hydra 14 to claim, and a joined Bounty; Oaths → Guitar Days is broken with a Rematch offer. In a development build, Dev menu → **End day** / **To deadline** moves time: other members prove on their own and Oaths settle after their last day.
+- **On Devnet (Live, two phones or two wallets):** both wallets need devnet SOL and SKR (`POST /api/faucet` gives 5,000 SKR once). Phone 1: + → Start an Oath → Group → Sign & stake → Invite (QR). Phone 2: + → Join with code → scan → Join & stake. Phone 1: Start. On chain a solo Oath has no stake (D-30).
 
-### Testing Rematch, review, Bounties, profiles, inbox and wallet (Phase 4)
-These run on the mock in every mode until the backend adds them (`docs/BACKEND_GAPS.md`), so no API is needed. Dev menu → Mock wallet on, then pick a scenario:
-- **Rematch:** `broken` → the result screen (or Oaths → Guitar Days) → **Rematch · win back 500** (R1) → Join → R3 lobby → Start. `rematchActive` shows a Rematch on day 3 (R·act); **End day** through its last day for R4 / L6.
-- **Group review:** `activeGroup` → bell → **Review photo** (G1) → Approve or Reject. To ask for one yourself: an "AI + group review" Oath → photo 2 → `proofFail` three times → **Ask your group to review** (G2), and the other members vote after about 20 seconds.
-- **Bounties:** Bounties tab → any Bounty → **Join free** → H3. `bountyOut` shows H4 (out), `bountyJoined` shows a finished one (H5 → claim). Bounties tab → **Created** → **Create a Bounty** (K1–K5) → Fund → K5·ok → H6 stats.
-- **Profiles:** Profile tab (I1) → Edit (I8), avatar (I9), Settings (I4), visibility (I7), activity (I5); tap a member on D2 for I2.
-- **Inbox:** the bell (N1). Every item opens its screen; Accept / Decline / Mark all read clear it.
-- **Wallet:** the balance chip (W1) → Add SKR (W2) → Swap (W3, mock) or the real faucet in `hybrid`; Receive (W4) shows your real address as a QR. `noSol` shows M3 on a swap.
+### Testing Rematch, review, Bounties, profiles, inbox and wallet
+In Demo (or a development build with the mock scenario of your choice):
+- **Rematch:** Oaths → Guitar Days → **Rematch · win back 500** (R1) → Join → R3 lobby. Scenario `rematchActive` shows R·act; **End day** through its last day for R4 / L6.
+- **Group review:** bell → **Review photo** (G1) → Approve or Reject. To ask for one: an "AI + group review" Oath → photo 2 → scenario `proofFail` three times → **Ask your group to review** (G2).
+- **Bounties:** Bounties tab → any Bounty → **Join free** → H3; `bountyOut` → H4, `bountyJoined` → H5. **Created** → **Create a Bounty** (K1–K5).
+- **Profiles, inbox, wallet:** Profile tab (I1, I4, I5, I7, I8, I9), the bell (N1), the balance chip (W1 → W2 → W3 swap / faucet, W4 receive).
 
 See `docs/ARCHITECTURE.md` and `docs/BUILD_PLAN.md`.

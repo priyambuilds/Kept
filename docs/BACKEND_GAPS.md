@@ -1,8 +1,8 @@
 # KEPT: Backend gaps (design vs. current backend)
 
-> Historical design audit: several routes described below as missing are now implemented in `backend`.
-> Use [API.md](API.md) and the backend source for the current route inventory. The remaining design
-> differences have not been revalidated in this document after the backend sync.
+> **Merge phase, 2026-10-10:** the section right below re-checks every gap against the current backend
+> (`backend/src` at `3b5c21d`) and says what the app's **Live** mode does about each. The detailed items
+> further down are the original audit; where they disagree with the merge-phase table, the table wins.
 
 **For:** the backend / Solana program developer.
 **Source of truth:** `design/rules.md` and `design/screens.md`. Where the backend differs, the backend should change unless we agree otherwise (decisions in `docs/DECISIONS.md`).
@@ -18,6 +18,27 @@
 > **About the "newer backend" question from the first draft.** I searched all of `backend/`: there is no Gemini or other server-side vision code, no two-photo sessions, no group review, no Bounties and no profile routes. The API is 390 lines (`v4.ts`) plus auth (51) and a 18-line rules file. The program is V4 Oaths only (`lib.rs`, 400 lines). **If a newer backend exists outside this repo, push it in before work starts on these items.**
 
 ---
+
+## Merge phase check (2026-10-10): the backend today and what Live does
+
+Live (D-80) uses only `frontend/src/api/http/*`. Where the backend lacks something, Live hides the entry point or shows the design's empty / unavailable state. Shapes the app parses are zod schemas in `packages/shared/src/existing.ts` (current routes) and `proposed.ts` (still wanted).
+
+| Gap | Backend now | Live today | Still needed |
+|---|---|---|---|
+| P0-1 / P0-2 proof | Two photos with sessions: `POST /api/proof/challenge` → `/proof/verify` (the **phone** submits a model verdict + image hash) → `/api/proof/start` → wait `minMinutes` → `/api/proof`. The server no longer looks at photos. | Fetches the real challenge (`ProofChallengeResponse`); the photo then ends on **F2b** "Check unavailable": the app has no on-device model and won't send a made-up verdict. | **Decision** (LIVE_DEMO_PLAN Q1): ship the on-device check in the app (MediaPipe + 2.6 GB Gemma, no design screens), or a server-side check. Also: the design has no screen for the `minMinutes` wait. |
+| P0-3 gestures | `Thumb_Up` / `Victory` / `Open_Palm`, never the same twice in a row | Mapped 1:1 to the design's three | — (done) |
+| P0-4, P0-5, P0-6 days, HP, settlement | Program: 24 h windows from Start; **rules v1** (all-or-nothing, 10 % of missed stakes) on Devnet. **Rules v2** is coded (fee on top of the stake, one 50 % slash, a buyable freeze, settle a day late) but not switched on (Config is 139 bytes). Neither has HP or 1.5^k costs. `GET /api/oaths/:oath/details` now returns `economics` (estimated payouts, missed days, on-track). | Engine numbers labelled as estimates, the chain's payout once settled (D-14). | **Decision** (Q2): which numbers Live shows. If v2 is switched on, C6 / E2 must show and check stake + fee. |
+| P0-7 solo stake | Still `InvalidStake` for a solo stake > 0 | Live solo Oaths are on chain with no stake (D-30) | As before |
+| P0-8 Genesis gate | `requireGenesis` covers **all of `/api`**, incl. `/api/inbox`, `/api/price` and invite previews | A non-Seeker's inbox is empty (403 mapped); price shows no ≈ $ | Move inbox, price and invite preview outside the gate (P1-13, P1-15) |
+| P0-10 my Oaths | No index route | RPC member index (4 × `getProgramAccounts`) | `GET /api/me/oaths` |
+| P1-1 group review | `GET /api/oaths/:oath/reviews`, `POST /api/reviews/:id`; a review starts from `POST /api/proof {review:true, photo}` after 3 failed verifies | No reviews open (they need failed on-device checks, Q1) | After Q1: votes per wallet (the route gives counts + `myVote`; G3 shows who voted) |
+| P1-2 Rematch | None | Hidden (D3, L3, L4·b, N1 open the broken Oath instead) | As before |
+| P1-8 / P1-16 kept rate, streak | `GET /reputation/:wallet`: `keptRate.percentage` (plain kept / total, one decimal), `streak`, `oathsKept/Broken`, `bounties` | Stats, kept rates and B2 chips from it (`ReputationResponse`) | The design's rate is recency-weighted with "New" under 10 days (Q4) |
+| P1-9 profiles | `GET /identity/:wallet` only (no name, avatar, bio, socials) | My avatar from A4 on the device; others a stable avatar from the wallet and the short address; I5 activity empty | Profile routes as `Profile` in `proposed.ts` |
+| P1-10 Bounties | One admin-made Bounty at a time (`/bounty/current`, join, its own proof, payouts by the job); no list, creators, categories, user funding | Empty list; create (K), creator pages (I3) hidden | **Decision** (Q3); a list route with the `Bounty` shape in `proposed.ts` |
+| P1-11 inbox | `GET /api/inbox`, `PUT /api/inbox/:id`; **nothing writes inbox rows**; `type` is free text | Parsed with `InboxLiveResponse`; unknown types dropped; N1 empty state | Write rows for invites, reviews, nudges, results; constrain `type` to `InboxItem.type` |
+| P1-12 swap | None (D-21) | W3 hidden in Live | As before |
+| P1-14 error codes | Still `{error}` text only | Mapped by status + message | As before |
 
 ## Short version: what to add, remove and fix
 
@@ -52,7 +73,7 @@ The checklist for the backend developer. Each line points to the full item below
 - [ ] Swap quote + swap on Devnet, or confirm it stays a mock (P1-12).
 - [ ] The review photo for voters (P1-1) and Bounty cover upload (P1-10): both need short-lived storage.
 
-**Phase 4 status in the app:** every screen in groups R, G, H, K, I, N, W and M is built and runs end to end on the mock. Each item below has an "App today (Phase 4)" line with the TypeScript shape the app calls (`frontend/src/api/types.ts`). When a route lands, the app switches that slice from `mock` to `http` (`BACKEND_HAS` in the same file).
+**Phase 4 status in the app:** every screen in groups R, G, H, K, I, N, W and M is built and runs end to end on the mock. Each item below has an "App today (Phase 4)" line with the TypeScript shape the app calls (`frontend/src/api/types.ts`). When a route lands, the app wires that Live slice to http (Live never falls back to the mock, D-80).
 
 **Remove**
 - [ ] `GET /api/photos/:oath/:day` and `/api/photos/file/:id`: members must not see each other's photos (P0-11).
