@@ -4,6 +4,12 @@ import { Buffer } from "buffer";
 import type { KeptApi } from "@/api";
 import { isApiError } from "@/api";
 import type { WalletSession } from "@/chain";
+import { setUnauthorizedHandler } from "@/api/http/client";
+import { queryClient } from "@/api/queries";
+import { resetStack } from "@/app/nav";
+import { t } from "@/copy";
+import { notify } from "@/lib/notice";
+import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 
 export type SignInResult = { wallet: string; genesis: boolean };
@@ -39,3 +45,16 @@ export async function restoreSession(api: KeptApi): Promise<boolean> {
     return true;
   }
 }
+
+/**
+ * The backend rejected the stored token mid-session (expired after 7 days, or revoked): sign out, say
+ * so, and go to Connect wallet (A2) with A1 under it. Live only; Demo's token never expires.
+ */
+export function expireSession(): void {
+  if (useMode.getState().mode !== "live" || !useSession.getState().token) return;
+  useSession.getState().signOut();
+  queryClient.clear();
+  notify(t("additions.session.expired"));
+  resetStack(["A1", "A2"]);
+}
+setUnauthorizedHandler(expireSession);

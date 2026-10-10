@@ -13,6 +13,7 @@ import { Ambient } from "@/components/chrome/Ambient";
 import { Title } from "@/components/content/Basics";
 import { Keeper } from "@/components/keeper/Keeper";
 import { onFatal, onRejection, toError } from "@/lib/crash";
+import { onNotice } from "@/lib/notice";
 import { color, metrics, space } from "@/theme";
 
 const REJECTION_TOAST_GAP_MS = 8000;
@@ -70,5 +71,7 @@ function RejectionToast() {
     last.current = now;
     toast(t("additions.recover.rejected"));
   }), [toast]);
+  // Toasts from outside React (lib/notice): session expiry.
+  useEffect(() => onNotice(toast), [toast]);
   return null;
 }

@@ -5,6 +5,10 @@ import { ApiError, toApiError } from "../errors";
 
 export type TokenSource = () => string | null;
 
+/** Called when the backend rejects the stored token mid-session (features/auth › expireSession). */
+let onUnauthorized: (() => void) | null = null;
+export function setUnauthorizedHandler(f: (() => void) | null): void { onUnauthorized = f; }
+
 /** A request that hasn't answered by then is given up on, like no network: M2 offers the retry. */
 export const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -41,6 +45,8 @@ export function createHttpClient(getToken: TokenSource, baseUrl = env.apiUrl, fe
     }
     let data: unknown = null;
     try { data = raw ? JSON.parse(raw) : null; } catch { data = raw; }
+    // 401 with a token we sent: it expired or was revoked (not sign-in's own routes, where 401 is a bad signature).
+    if (res.status === 401 && token && !path.startsWith("/api/auth/")) onUnauthorized?.();
     if (!res.ok) throw toApiError(`${method} ${path.split("?")[0]}`, res.status, data);
     return data;
   }

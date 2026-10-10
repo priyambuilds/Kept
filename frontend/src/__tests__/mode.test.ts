@@ -9,6 +9,11 @@ import { exitDemo, setAppMode, skipToTomorrow, startDemo, startLive } from "@/fe
 import { getApi } from "@/api";
 import { oathView } from "@/features/oaths/model";
 import { clock } from "@/lib/clock";
+import { onNotice } from "@/lib/notice";
+import { createHttpClient } from "@/api/http/client";
+import "@/features/auth";
+import { t } from "@/copy";
+import { NonceResponse } from "@kept/shared";
 import { useDeviceOaths } from "@/features/oaths/device";
 import { flags, useDev } from "@/state/dev";
 import { useMode } from "@/state/mode";
@@ -105,6 +110,24 @@ describe("the sign-in token is kept in the secure store", () => {
     expect(secure.has("kept.demo.session.secret")).toBe(true);
     await exitDemo();
     expect(secure.has("kept.demo.session.secret")).toBe(false);
+  });
+});
+
+describe("a token rejected mid-session (Live)", () => {
+  const unauthorized = (() => Promise.resolve(new Response(JSON.stringify({ error: "Invalid or expired token" }), { status: 401 }))) as unknown as typeof fetch;
+  it("signs out and says so, once; sign-in's own 401 doesn't", async () => {
+    await startLive();
+    useSession.getState().signIn({ token: "stale", wallet: LIVE_WALLET, genesis: true });
+    const seen: string[] = [];
+    const off = onNotice((x) => seen.push(x));
+    const c = createHttpClient(() => useSession.getState().token, "http://api", unauthorized);
+    await expect(c.post("/api/auth/verify", {}, NonceResponse)).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    expect(useSession.getState().token).toBe("stale");
+    await expect(c.get("/api/inbox", NonceResponse)).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(c.get("/api/inbox", NonceResponse)).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    expect(useSession.getState()).toMatchObject({ token: null, wallet: null });
+    expect(seen).toEqual([t("additions.session.expired")]);
+    off();
   });
 });
 
