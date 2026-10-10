@@ -224,4 +224,14 @@ async function main() {
   }
 }
 
-main().catch((e: unknown) => { console.error(`FAIL: ${e instanceof Error ? e.message : String(e)}`); process.exit(1); });
+main().catch((e: unknown) => {
+  console.error(`FAIL: ${e instanceof Error ? e.message : String(e)}`);
+  // What was on screen when it stopped, for the report.
+  try {
+    const shot = out.replace(/\.json$/, "-fail.png");
+    writeFileSync(shot, execFileSync(ADB, ["exec-out", "screencap", "-p"], { maxBuffer: 64 << 20 }));
+    console.error(`  screen: ${shot}`);
+    console.error(`  front: ${adb("shell", "dumpsys", "activity", "activities").match(/topResumedActivity=[^\n]*/)?.[0] ?? "?"}`);
+  } catch { /* the report is best effort */ }
+  process.exit(1);
+});
