@@ -20,4 +20,8 @@ export const env = {
   },
 } as const;
 
+/** Live needs a reachable API: a release build still on localhost (the default) can't start it. */
+export const liveConfigured = (url: string = env.apiUrl, dev: boolean = __DEV__): boolean =>
+  dev || !/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\]|10\.0\.2\.2)(:|\/|$)/.test(url);
+
 export const walletChain = `solana:${env.cluster}` as const;

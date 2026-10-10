@@ -15,7 +15,7 @@ import { Gallery } from "@/dev/Gallery";
 import { M2 } from "@/screens/M2";
 import { Placeholder } from "@/screens/Placeholder";
 import { PlusSheet } from "@/screens/sheets/PlusSheet";
-import { A0, A1, A2, A2e, A2s, A3, A3no, A4 } from "@/screens/onboarding/Onboarding";
+import { A0, A1, A1m, A2, A2e, A2s, A3, A3no, A4 } from "@/screens/onboarding/Onboarding";
 import { RecapSheet, TodayTab } from "@/screens/today/Today";
 import { C1, C2, C3, C4, C5, C6, C7, C7ok, C8 } from "@/screens/create/Create";
 import { C7fail, C7no, M3, M4 } from "@/screens/shared/Signing";
@@ -31,7 +31,9 @@ import { I2, I2me, I2p, I3, I4, I5, I7, I8, I9, ProfileTab } from "@/screens/pro
 import { M1, N1 } from "@/screens/inbox/Inbox";
 import { W1, W2, W3, W3ok, W3s, W4 } from "@/screens/wallet/Wallet";
 import { useSession } from "@/state/session";
-import { navigationRef } from "./nav";
+import { useMode } from "@/state/mode";
+import { startLiveWithInvite } from "@/features/mode";
+import { navigationRef, resetStack } from "./nav";
 import { ROUTES, presentation, routeName } from "./routes";
 import type { DesignId } from "./routes";
 
@@ -40,7 +42,7 @@ const Tab = createBottomTabNavigator();
 
 /** Screens built so far; every other id renders Placeholder. */
 const BUILT: Partial<Record<DesignId, ComponentType>> = {
-  A0, A1, A2, "A2·s": A2s, "A2·e": A2e, A3, "A3·no": A3no, A4, M2, "+": PlusSheet,
+  A0, A1, "A1·m": A1m, A2, "A2·s": A2s, "A2·e": A2e, A3, "A3·no": A3no, A4, M2, "+": PlusSheet,
   B5: RecapSheet,
   C1, C2, C3, C4, C5, C6, C7, "C7·ok": C7ok, "C7·no": C7no, "C7·fail": C7fail, C8,
   D1, "D1·m": D1m, "D1·x": D1x, "D1·xs": D1xs, "D1·go": D1go, D2, "D2·low": D2, D3: D2, D4, D5,
@@ -89,16 +91,25 @@ const sheetIds = ROUTES.filter((r) => presentation(r.id) === "sheet");
 const momentIds = ROUTES.filter((r) => presentation(r.id) === "moment");
 
 /**
- * `kept://join/<code>`: signed-in and onboarded users land on E1 with the code. Otherwise the code is
- * kept (session.invite) and onboarding's cont: rule opens E1 at the end (docs/ARCHITECTURE.md §5).
+ * `kept://join/<code>` is always Live (D-80). Signed in on Live and onboarded: E1 with the code. Otherwise
+ * the app switches to Live (leaving Demo wipes it), keeps the code (session.invite), and goes straight to
+ * connecting a wallet; onboarding's cont: rule opens E1 at the end (docs/ARCHITECTURE.md §5).
  */
 export function routeInvite(url: string | null): string | null {
   if (!url) return url;
   const code = url.match(/^kept:\/\/join\/([^/?#]+)/)?.[1];
   if (!code) return url;
   const s = useSession.getState();
-  if (s.token && s.onboarded) return url;
-  s.setInvite(decodeURIComponent(code));
+  if (useMode.getState().mode === "live" && s.token && s.onboarded) return url;
+  void startLiveWithInvite(decodeURIComponent(code)).then(() => {
+    // On a cold start A0 is still up and routes by itself once the session has loaded.
+    const current = navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined;
+    if (!current || current === routeName("A0")) return;
+    const live = useSession.getState();
+    if (live.token && live.onboarded) resetStack(["B1", "E1"], { code: decodeURIComponent(code) });
+    else if (live.token) resetStack(["A4"]);
+    else resetStack(["A1", "A2"]);
+  });
   return null;
 }
 

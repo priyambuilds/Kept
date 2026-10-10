@@ -12,6 +12,7 @@ import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 import { useSettings } from "@/state/settings";
 import { storageScope } from "@/state/storage";
+import { liveConfigured } from "@/config/env";
 
 const LIVE_WALLET = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM";
 const settle = () => new Promise((r) => setTimeout(r, 0));
@@ -90,5 +91,13 @@ describe("slices by mode", () => {
     } finally {
       g.__DEV__ = dev;
     }
+  });
+});
+
+describe("Live in a release build", () => {
+  it("refuses an API on localhost (no server on the phone)", () => {
+    for (const url of ["http://localhost:3000", "http://127.0.0.1:3000", "http://10.0.2.2:3000", "http://localhost"]) expect(liveConfigured(url, false)).toBe(false);
+    expect(liveConfigured("https://api.kept.app", false)).toBe(true);
+    expect(liveConfigured("http://localhost:3000", true)).toBe(true);
   });
 });

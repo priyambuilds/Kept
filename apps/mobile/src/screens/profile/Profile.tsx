@@ -2,7 +2,6 @@
 // the mock (BACKEND_GAPS P1-8, P1-9, P1-16); the faucet is real in hybrid mode.
 import { useState } from "react";
 import * as Clipboard from "expo-clipboard";
-import { CommonActions } from "@react-navigation/native";
 import { keeperLines, t } from "@/copy";
 import type { CopyKey } from "@/copy";
 import { Button } from "@/components/actions";
@@ -22,7 +21,9 @@ import { isApiError } from "@/api";
 import type { Profile } from "@kept/shared";
 import { getWallet } from "@/chain";
 import { env } from "@/config/env";
-import { navigationRef, useGo, useParams } from "@/app/nav";
+import { resetStack, useGo, useParams } from "@/app/nav";
+import { exitDemo, restartDemo, setAppMode } from "@/features/mode";
+import { useIsDemo } from "@/state/mode";
 import { useOathList } from "@/features/oaths/hooks";
 import type { OathView } from "@/features/oaths/model";
 import { shortWallet } from "@/features/oaths/names";
@@ -191,12 +192,23 @@ export function I4() {
     try { await walletActions.faucet(); toast(t("toasts.17")); }
     catch (e) { toast(isApiError(e) && e.code === "FAUCET_USED" ? t("additions.wallet.faucetUsed") : e instanceof Error ? e.message : String(e)); }
   };
-  /** Use another wallet: forget the session and connect again (A2). */
+  const demo = useIsDemo();
+  /** Live: sign out and forget the wallet; A1 asks for the mode again (D-80). */
   const switchWallet = async () => {
     await getWallet().forget();
     useSession.getState().signOut();
-    if (navigationRef.isReady()) navigationRef.dispatch(CommonActions.reset({ index: 1, routes: [{ name: "A1" }, { name: "A2" }] }));
+    await setAppMode(null);
+    resetStack(["A1"]);
   };
+  /** Demo: wipe it and start over on A1, or put the sample account back the way it began. */
+  const leaveDemo = async () => { await exitDemo(); resetStack(["A1"]); };
+  const againDemo = async () => { await restartDemo(); resetStack(["B1"]); toast(t("additions.mode.restarted")); };
+  const account = demo ? [
+    { title: t("additions.mode.restart"), sub: t("additions.mode.restartSub"), leading: { kind: "icon" as const, icon: "restart" as const }, chevron: true, onPress: () => { void againDemo(); } },
+    { title: t("additions.mode.exit"), sub: t("additions.mode.exitSub"), leading: { kind: "icon" as const, icon: "logout" as const }, chevron: true, onPress: () => { void leaveDemo(); } },
+  ] : [
+    { title: t("screens.I4.b2.r0.t"), sub: t("screens.I4.b2.r0.s", { address: wallet ? shortWallet(wallet) : "" }), leading: { kind: "icon" as const, icon: "swap-horizontal" as const }, chevron: true, onPress: () => { void switchWallet(); } },
+  ];
   const finished = (stats.data?.oaths.kept ?? 0) + (stats.data?.oaths.broken ?? 0);
   return (
     <Screen bar={<NavBar onBack={back} title={t("screens.I4.nav.title")} />}>
@@ -213,7 +225,7 @@ export function I4() {
         title: t(`screens.I4.b1.r${i}.t` as CopyKey), sub: t(`screens.I4.b1.r${i}.s` as CopyKey), leading: { kind: "icon" as const, icon: NOTIFY_ICON[i]!, fg: color.text.primary }, toggle: { on: notify[key], onChange: (on: boolean) => setNotify(key, on) },
       }))} />
       <RowList label={t("screens.I4.b2.label")} rows={[
-        { title: t("screens.I4.b2.r0.t"), sub: t("screens.I4.b2.r0.s", { address: wallet ? shortWallet(wallet) : "" }), leading: { kind: "icon", icon: "swap-horizontal" }, chevron: true, onPress: () => { void switchWallet(); } },
+        ...account,
         { title: t("screens.I4.b2.r1.t"), sub: env.cluster === "devnet" ? t("screens.I4.b2.r1.s") : env.cluster, value: t("screens.I4.b2.r1.r"), valueColor: color.orange.base, leading: { kind: "icon", icon: "web" } },
         ...(env.cluster === "devnet" ? [{ title: t("screens.I4.b2.r2.t"), sub: t("screens.I4.b2.r2.s"), value: t("screens.I4.b2.r2.r"), valueColor: color.lime.base, leading: { kind: "icon" as const, icon: "water" as const }, onPress: () => { void faucet(); } }] : []),
       ]} />

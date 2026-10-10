@@ -54,6 +54,13 @@ export function navigateTo(id: DesignId, params?: Params) {
   navigationRef.navigate(n, p);
 }
 
+/** Replace the whole stack from outside React (deep links, mode changes). The last id is shown. */
+export function resetStack(ids: DesignId[], params?: Params) {
+  if (!navigationRef.isReady() || !ids.length) return;
+  const routes = ids.map((id, i) => { const [name, p] = target(id, i === ids.length - 1 ? params : undefined); return { name, params: p }; });
+  navigationRef.dispatch(CommonActions.reset({ index: routes.length - 1, routes }));
+}
+
 /** Route params as strings/numbers (every screen reads them through this). */
 export function useParams<P extends Params>(): Partial<P> {
   return (useRoute().params ?? {}) as Partial<P>;

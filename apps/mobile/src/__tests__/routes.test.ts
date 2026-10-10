@@ -1,9 +1,11 @@
-// The route table in design/flows.md, checked edge by edge against the app's route registry
-// (routes.gen.json, which the navigator and the dev links are built from).
+// The route table in design/flows.md plus the app's amendments (routes.amend.json, D-80), checked edge by
+// edge against the app's route registry (routes.gen.json, which the navigator and the dev links are
+// built from).
 import { readFileSync } from "fs";
 import path from "path";
 import { ROUTES, presentation, routeName } from "@/app/routes";
 import { target } from "@/app/nav";
+import amend from "@/app/routes.amend.json";
 
 interface Row { id: string; goesTo: string[]; enteredFrom: string[]; events: boolean }
 
@@ -20,6 +22,10 @@ function readTable(): Row[] {
     const fromList = list(from!).map((x) => x.split(" ")[0]!);
     rows.push({ id: id!, goesTo: list(goes!), enteredFrom: fromList.filter((x) => ids.has(x)), events: fromList.some((x) => !ids.has(x)) });
   }
+  // App-only screens and edges (D-80).
+  const edges = amend.edges as Record<string, string[]>;
+  for (const r of rows) r.goesTo.push(...(edges[r.id] ?? []));
+  for (const a of amend.screens) rows.push({ id: a.id, goesTo: a.to, enteredFrom: Object.keys(edges).filter((k) => edges[k]!.includes(a.id)), events: false });
   return rows;
 }
 
@@ -27,7 +33,7 @@ const table = readTable();
 const byId = new Map(table.map((r) => [r.id, r]));
 
 describe("flows.md route table", () => {
-  it("lists every design id once", () => {
+  it("lists every design id (and app-only id) once", () => {
     expect(table.map((r) => r.id).sort()).toEqual([...ids].sort());
   });
 
@@ -50,6 +56,12 @@ describe("flows.md route table", () => {
       for (const to of byId.get(queue.shift()!)?.goesTo ?? []) if (!seen.has(to)) { seen.add(to); queue.push(to); }
     }
     expect([...ids].filter((id) => !seen.has(id))).toEqual([]);
+  });
+
+  it("A1·m (D-80) is a sheet over A1: Demo goes to A4, Live to A2", () => {
+    expect(presentation("A1·m")).toBe("sheet");
+    expect(byId.get("A1")!.goesTo).toEqual(expect.arrayContaining(["A2", "A1·m"]));
+    expect([...byId.get("A1·m")!.goesTo].sort()).toEqual(["A2", "A4"]);
   });
 
   it("signing screens are transient: none lists itself or another signing screen as a way back", () => {

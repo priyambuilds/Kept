@@ -41,6 +41,17 @@ export async function startLive(): Promise<void> {
   await setAppMode("live");
 }
 
+/**
+ * "I have an invite" and `kept://join/<code>`: always Live. Leaving Demo this way wipes it, like Exit demo.
+ * The code is kept in the Live session for onboarding's cont: rule (or E1 when already signed in).
+ */
+export async function startLiveWithInvite(code: string): Promise<void> {
+  const fromDemo = useMode.getState().mode === "demo";
+  await setAppMode("live");
+  if (fromDemo) { await clearScope("demo"); resetDemoWorld(); }
+  useSession.getState().setInvite(code);
+}
+
 /** Profile › Restart demo: the sample account as it was at the start, still signed in. */
 export async function restartDemo(): Promise<void> {
   const avatar = useSession.getState().avatar;

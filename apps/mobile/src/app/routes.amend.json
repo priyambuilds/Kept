@@ -1,0 +1,9 @@
+{
+ "$doc": "Routes the app has that design/flows.md doesn't (docs/DECISIONS.md D-80). scripts/gen-routes.mjs and __tests__/routes.test.ts apply them on top of flows.md › Route table.",
+ "screens": [
+  { "id": "A1·m", "name": "Pick a mode", "after": "A1", "to": ["A2", "A4"] }
+ ],
+ "edges": {
+  "A1": ["A1·m"]
+ }
+}

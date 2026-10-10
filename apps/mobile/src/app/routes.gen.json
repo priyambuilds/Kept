@@ -10,7 +10,16 @@
   "id": "A1",
   "name": "Welcome",
   "to": [
-   "A2"
+   "A2",
+   "A1·m"
+  ]
+ },
+ {
+  "id": "A1·m",
+  "name": "Pick a mode",
+  "to": [
+   "A2",
+   "A4"
   ]
  },
  {

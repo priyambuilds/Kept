@@ -1,8 +1,8 @@
 // Release-build performance numbers (fidelity pass): cold start, and frame stats for tab switches,
 // a list scroll and a push/pop transition.
 //   node scripts/perf.mts <app-release.apk> [--out artifacts/perf/<name>.json]
-// Build the APK with mock data so it reaches the tabs without a wallet app:
-//   EXPO_PUBLIC_API_MODE=mock ./gradlew assembleRelease   (in apps/mobile/android)
+// Any release APK: the run picks Demo on A1 (D-80), so it reaches the tabs without a wallet app or network:
+//   ./gradlew assembleRelease   (in apps/mobile/android)
 // Uses `am start -W` (TotalTime) and `dumpsys gfxinfo` (janky frames, frame-time percentiles).
 // Also watches logcat for the whole run (audit P-6): Reanimated's "synchronouslyUpdateUIProps failed"
 // lines (an animated-props update for a view that isn't mounted, logged with a stack trace on the UI
@@ -122,12 +122,10 @@ async function main() {
     await sleep(3500);
   }
   console.log("cold start (ms)", cold, "sync-props failures", syncSince());
-  // Onboard on the mock wallet: A1 → A2 → A2·s → A3 → A4 → Today.
+  // Onboard in Demo: A1 → A1·m (Try the demo) → A4 → Today.
   await tap("Get started", [540, 2046]);
   await sleep(2500);
-  await tap("Seeker Wallet", [540, 775]);
-  await sleep(6000);
-  await tap("Continue", [540, 2205]);
+  await tap("Try the demo");
   await sleep(2500);
   await tap("Looks like me", [540, 2081]);
   await sleep(4000);

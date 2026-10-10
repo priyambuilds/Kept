@@ -20,6 +20,10 @@ import { mockBounties } from "@/features/bounties/mockStore";
 import type { Scenario } from "@/api/mock/scenarios";
 import { useDraft } from "@/state/drafts";
 import { storeChallenge } from "@/screens/proof/Proof";
+import amend from "@/app/routes.amend.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setAppMode } from "@/features/mode";
+import { useMode } from "@/state/mode";
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 24, left: 0, right: 0, bottom: 16 } };
 const slow = { timeout: 8000 };
@@ -36,7 +40,7 @@ function App() {
 
 describe("routes", () => {
   it("registers every design id with an ASCII name", () => {
-    expect(ROUTES).toHaveLength(Object.keys(copy.screens).length);
+    expect(ROUTES).toHaveLength(Object.keys(copy.screens).length + amend.screens.length);
     expect(routeName("C7·no")).toBe("C7_no");
     expect(routeName("+")).toBe("Plus");
     expect(presentation("A2·s")).toBe("signing");
@@ -50,12 +54,22 @@ describe("routes", () => {
 });
 
 describe("kept://join/<code>", () => {
-  it("signed out: keeps the code for after onboarding and swallows the link", () => {
+  beforeEach(async () => { await setAppMode(null); await AsyncStorage.clear(); });
+  it("signed out: switches to Live, keeps the code for after onboarding and swallows the link", async () => {
     useSession.setState({ token: null, onboarded: false, invite: null });
     expect(routeInvite("kept://join/IRON-7K2Q")).toBeNull();
-    expect(useSession.getState().invite).toBe("IRON-7K2Q");
+    await waitFor(() => expect(useSession.getState().invite).toBe("IRON-7K2Q"));
+    expect(useMode.getState().mode).toBe("live");
   });
-  it("signed in: lets the link through to E1", () => {
+  it("in Demo: leaves Demo for Live (D-80)", async () => {
+    await setAppMode("demo");
+    useSession.setState({ token: "mock.x", onboarded: true, invite: null });
+    expect(routeInvite("kept://join/IRON-7K2Q")).toBeNull();
+    await waitFor(() => expect(useMode.getState().mode).toBe("live"));
+    expect(useSession.getState()).toMatchObject({ token: null, invite: "IRON-7K2Q" });
+  });
+  it("signed in on Live: lets the link through to E1", async () => {
+    await setAppMode("live");
     useSession.setState({ token: "t", onboarded: true, invite: null });
     expect(routeInvite("kept://join/IRON-7K2Q")).toBe("kept://join/IRON-7K2Q");
     expect(useSession.getState().invite).toBeNull();
@@ -66,7 +80,9 @@ describe("kept://join/<code>", () => {
 describe("onboarding on mocks", () => {
   // With gcTime Infinity React Query schedules no garbage-collection timers, so Jest can exit.
   beforeAll(() => queryClient.setDefaultOptions({ queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity } }));
-  beforeEach(() => {
+  beforeEach(async () => {
+    await setAppMode(null);
+    await AsyncStorage.clear();
     useDev.setState({ overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])), mockWallet: true, scenario: "fresh" });
     useDeviceOaths.setState({ shownResults: [], recapShownOn: null });
     mockOaths.reset();
@@ -74,9 +90,29 @@ describe("onboarding on mocks", () => {
     queryClient.clear();
   });
 
-  it("splash → welcome → wallet → signed in → verified → look → tabs → + sheet", async () => {
+  it("Demo: welcome → mode sheet → look → tabs, no wallet, DEMO badge (D-80)", async () => {
     await render(<App />);
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.demo")));
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A4.pin.0") }, slow));
+    expect(useMode.getState().mode).toBe("demo");
+    expect(useSession.getState()).toMatchObject({ onboarded: true, genesis: true });
+    expect(await screen.findByRole("header", { name: t("screens.B1.header.title") }, slow)).toBeTruthy();
+    expect(screen.getAllByLabelText(t("additions.mode.badge")).length).toBeGreaterThan(0);
+  }, 30000);
+
+  it("I have an invite: straight to Live's wallet step", async () => {
+    await render(<App />);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.1") }, slow));
+    expect(await screen.findByText(t("screens.A2.b0.title"), {}, slow)).toBeTruthy();
+    expect(useMode.getState().mode).toBe("live");
+    expect(useSession.getState().invite).toBe("");
+  }, 30000);
+
+  it("Live: splash → welcome → mode sheet → wallet → signed in → verified → look → tabs → + sheet", async () => {
+    await render(<App />);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
     await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r0.t")));
     expect(await screen.findByText(t("screens.A2·s.b2.title"))).toBeTruthy();
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.A3.pin.0") }, slow));
@@ -91,6 +127,7 @@ describe("onboarding on mocks", () => {
     useDev.setState({ scenario: "walletRejected" });
     await render(<App />);
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
     await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r1.t")));
     expect(await screen.findByText(t("screens.A2·e.b2.title"), {}, slow)).toBeTruthy();
     expect(useSession.getState().token).toBeNull();
@@ -100,6 +137,7 @@ describe("onboarding on mocks", () => {
     useDev.setState({ scenario: "notEligible" });
     await render(<App />);
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
     await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r0.t")));
     expect(await screen.findByText(t("screens.A3·no.b2.title"), {}, slow)).toBeTruthy();
   }, 30000);

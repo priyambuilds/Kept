@@ -1,5 +1,5 @@
-// A · Onboarding (screens.md A0–A4). Sign-in is real: MWA + /api/auth/* + /api/me, unless the Dev
-// menu picks the mock wallet / mock auth.
+// A · Onboarding (screens.md A0–A4, plus the A1·m mode sheet, D-80). Live signs in for real: MWA +
+// /api/auth/* + /api/me. Demo skips A2–A3: the sample account is signed in on the mock, then A4.
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import type { RouteProp } from "@react-navigation/native";
@@ -8,7 +8,7 @@ import { keeperLines, t } from "@/copy";
 import type { CopyKey } from "@/copy";
 import { Button } from "@/components/actions";
 import { BrandSplash } from "@/components/brand/Brand";
-import { NavBar, useToast } from "@/components/chrome";
+import { BottomSheet, NavBar, useToast } from "@/components/chrome";
 import { Breakdown, Chip, ChipRow, Note, Title } from "@/components/content/Basics";
 import { RowList } from "@/components/content/Rows";
 import { AvatarBuilder } from "@/components/content/Social";
@@ -21,12 +21,16 @@ import { getApi, isApiError } from "@/api";
 import { getWallet, isTxFailure } from "@/chain";
 import { restoreSession, signIn } from "@/features/auth";
 import type { SignInResult } from "@/features/auth";
-import { useContinue, useGo } from "@/app/nav";
+import { resetStack, useContinue, useGo, useSheetRoute } from "@/app/nav";
 import { useSigningFlow } from "@/app/useSigningFlow";
 import type { SignOutcome } from "@/app/useSigningFlow";
 import { useSession } from "@/state/session";
 import { useDevHold } from "@/state/dev";
 import { keeperAt } from "@/app/layout";
+import { liveConfigured } from "@/config/env";
+import { startDemo, startLive, startLiveWithInvite } from "@/features/mode";
+import { useMode } from "@/state/mode";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /** Splash shows at least this long so the brand sequence can play (motion.md › splash). */
 const SPLASH_MIN_MS = 1200;
@@ -41,11 +45,13 @@ export function A0() {
       else useSession.persist.onFinishHydration(() => resolve());
     });
     void Promise.all([hydrated, new Promise((r) => setTimeout(r, SPLASH_MIN_MS))]).then(async () => {
-      const { token, onboarded } = useSession.getState();
+      const { token, onboarded, invite } = useSession.getState();
       const signedIn = token ? await restoreSession(getApi()) : false;
       if (cancelled || useDevHold.getState().hold) return; // the dev deep link can hold the splash
       if (signedIn && onboarded) reset("B1");
       else if (signedIn) reset("A4");
+      // A join link chose Live: straight to connecting a wallet, with A1 under it.
+      else if (invite !== null && useMode.getState().mode === "live") resetStack(["A1", "A2"]);
       else reset("A1");
     });
     return () => { cancelled = true; };
@@ -63,20 +69,46 @@ const CHIP_TILT = { ok: [0, -3, 2], no: [-2, 2, -1] } as const;
 // ── A1 Welcome ──
 export function A1() {
   const { go } = useGo();
-  const setInvite = useSession((s) => s.setInvite);
   const k = keeperLines("A1")[0]!;
+  // Get started picks the mode (A1·m), unless a join link already chose Live.
+  const start = () => (useMode.getState().mode === "live" && useSession.getState().invite !== null ? go("A2") : go("A1·m"));
+  // "I have an invite" is always Live (D-80); E1 opens after onboarding with an empty code.
+  const invite = () => { void startLiveWithInvite(useSession.getState().invite ?? "").then(() => go("A2")); };
   return (
     <Screen
       bottomInset={metrics.button.height * 2 + metrics.pinned.gap + metrics.pinned.bottom}
       pinned={<>
-        <Button kind="p" label={t("screens.A1.pin.0")} onPress={() => go("A2")} />
-        <Button kind="t" label={t("screens.A1.pin.1")} onPress={() => { setInvite(useSession.getState().invite ?? ""); go("A2"); }} />
+        <Button kind="p" label={t("screens.A1.pin.0")} onPress={start} />
+        <Button kind="t" label={t("screens.A1.pin.1")} onPress={invite} />
       </>}
     >
       {/* Chip spots, icons and tones are the design's (layout.gen.json); the texts are copy. */}
       <ScreenKeeper id="A1" lines={[k]} chips={keeperAt("A1", [t("screens.A1.b1.chip.0"), t("screens.A1.b1.chip.1")]).chips ?? []} />
       <Title heading={t("screens.A1.b2.title")} sub={t("screens.A1.b2.sub")} fs={32} />
     </Screen>
+  );
+}
+
+// ── A1·m Pick a mode (D-80) ── a sheet over A1: the demo (A4 next, no wallet) or my wallet (A2).
+export function A1m() {
+  const { replace, back } = useGo();
+  const insets = useSafeAreaInsets();
+  const sheet = useSheetRoute();
+  const toast = useToast();
+  const demo = () => { void startDemo().then(() => replace("A4")); };
+  // A release build still pointing at localhost can't run Live (no server on the phone).
+  const live = () => { if (!liveConfigured()) { toast(t("additions.mode.noServer")); return; } void startLive().then(() => replace("A2")); };
+  return (
+    <View style={{ flex: 1 }}>
+      <BottomSheet {...sheet} bottomInset={insets.bottom}>
+        <Title heading={t("additions.mode.title")} pt={0} fs={26} />
+        <RowList rows={[
+          { title: t("additions.mode.demo"), chevron: true, leading: { kind: "icon", icon: "play-circle-outline", bg: color.lime.base, fg: color.text.onLime }, onPress: demo },
+          { title: t("additions.mode.live"), chevron: true, leading: { kind: "icon", icon: "wallet-outline" }, onPress: live },
+        ]} />
+        <Button kind="s" label={t("screens.+.b3.btn.0")} onPress={back} />
+      </BottomSheet>
+    </View>
   );
 }
 

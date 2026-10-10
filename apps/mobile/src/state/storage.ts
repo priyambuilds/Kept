@@ -10,19 +10,26 @@ export const persistStorage = createJSONStorage(() => AsyncStorage);
 
 export type StorageScope = "demo" | "live" | "none";
 let scope: StorageScope = "none";
+let isReady = false;
 let markReady: () => void = () => {};
 /** Scoped reads and writes wait until the mode has loaded, so nothing lands under the wrong scope. */
 const ready = new Promise<void>((r) => { markReady = r; });
 
-export function setStorageScope(s: StorageScope): void { scope = s; markReady(); }
+export function setStorageScope(s: StorageScope): void { scope = s; isReady = true; markReady(); }
 export const storageScope = (): StorageScope => scope;
 /** `kept.session` → `kept.demo.session`. */
 export const scopedKey = (name: string, s: StorageScope = scope): string => name.replace(/^kept\./, `kept.${s}.`);
 
+/** The key under the scope current when the call was made (a write just before a mode switch stays in its mode). */
+async function keyFor(name: string): Promise<string> {
+  if (isReady) return scopedKey(name);
+  await ready;
+  return scopedKey(name);
+}
 const scopedAsync = {
-  getItem: async (name: string) => { await ready; return AsyncStorage.getItem(scopedKey(name)); },
-  setItem: async (name: string, value: string) => { await ready; await AsyncStorage.setItem(scopedKey(name), value); },
-  removeItem: async (name: string) => { await ready; await AsyncStorage.removeItem(scopedKey(name)); },
+  getItem: async (name: string) => AsyncStorage.getItem(await keyFor(name)),
+  setItem: async (name: string, value: string) => { await AsyncStorage.setItem(await keyFor(name), value); },
+  removeItem: async (name: string) => { await AsyncStorage.removeItem(await keyFor(name)); },
 };
 const scopedStorage = createJSONStorage(() => scopedAsync);
 

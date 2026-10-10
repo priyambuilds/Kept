@@ -150,7 +150,9 @@
   "live": "Use my wallet",
   "simulated": "Demo: the approval is simulated.",
   "exit": "Exit demo",
+  "exitSub": "Wipes the sample account and goes back to the start.",
   "restart": "Restart demo",
+  "restartSub": "Puts the sample account back the way it began.",
   "restarted": "Demo restarted",
   "noServer": "This build has no server address, so Live can't start. Try the demo instead."
  }
