@@ -7,7 +7,7 @@ import { queryClient } from "@/api/queries";
 import { getTx } from "@/chain";
 import { useDev } from "@/state/dev";
 import { useSession } from "@/state/session";
-import type { ReviewFacts } from "./reviews/mockStore";
+import type { ReviewFacts } from "./reviews/model";
 import { refreshOaths } from "./oaths/hooks";
 import type { OathFacts } from "./oaths/model";
 

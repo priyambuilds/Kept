@@ -3,46 +3,14 @@
 // the virtual clock. A joined Bounty is a mock Oath with `bountyId` (features/oaths/mockStore.ts),
 // so daily proof, the grid and claiming reuse the Oath flow.
 import { SKR_UNIT } from "@kept/config";
-import { bountyFunding, bountySplit } from "@kept/engine";
-import { clock } from "@/api/mock/clock";
+import { bountySplit } from "@kept/engine";
+import { clock } from "@/lib/clock";
+import type { BountyFacts, Category } from "./model";
 
 const H = 3600;
 const DAY = 86_400;
 const now = () => Math.floor(clock.now() / 1000);
 const skr = (n: number) => BigInt(n) * SKR_UNIT;
-
-export type Category = "Fitness" | "Reading" | "Hydration" | "Music" | "Mind" | "Outdoors";
-export const CATEGORIES: Category[] = ["Fitness", "Reading", "Hydration", "Music", "Mind", "Outdoors"];
-
-export interface BountyFacts {
-  id: string;
-  name: string;
-  brand: { name: string; verified: boolean; logo: string; palette: number };
-  /** Cover message (H1 cards, B3) and the longer detail message (H2). */
-  message: string;
-  detail: string;
-  link: string | null;
-  objectId: number;
-  numDays: number;
-  /** Pool after the KEPT fee: what survivors split. */
-  pool: bigint;
-  joinClosesAt: number;
-  /** Day 1 begins (the first midnight after joins close). */
-  startsAt: number;
-  entrants: number;
-  /** Still in (or survived, once ended). */
-  remaining: number;
-  category: Category;
-  minKeptRate: number | null;
-  tokenHeld: { symbol: string; amount: number } | null;
-  /** The creator's wallet when it's the user's own Bounty. */
-  createdBy: string | null;
-  featured: boolean;
-  recentlyOut: { name: string; day: number; at: number }[];
-  /** H6: still in at the end of each day so far. */
-  stillInByDay: number[];
-  finishersOptIn: string[];
-}
 
 const bounties = new Map<string, BountyFacts>();
 let seeded = false;
@@ -156,6 +124,3 @@ export const mockBounties = {
     return b;
   },
 };
-
-/** Pool, the KEPT fee on top of it, and what the creator pays (rules.md §6). */
-export { bountyFunding };

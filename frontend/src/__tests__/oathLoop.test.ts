@@ -1,6 +1,6 @@
 import { SKR_UNIT } from "@kept/config";
 import { createMockApi } from "@/api";
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { dailyTarget } from "@/api/proofTarget";
 import { createMockTx } from "@/chain/mock";

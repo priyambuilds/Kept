@@ -16,7 +16,7 @@ import { SignStatus } from "@/components/content/Status";
 import { Screen } from "@/components/layout/Screen";
 import { color, metrics, tokens } from "@/theme";
 import { useGo, useParams } from "@/app/nav";
-import { bountyFunding } from "@/features/bounties/mockStore";
+import { bountyFunding } from "@kept/engine";
 import { objectIcon, objectName, skrWhole } from "@/features/oaths/present";
 import { bountyActions, useBounty } from "@/features/phase4";
 import { SigningScreen } from "../shared/Signing";

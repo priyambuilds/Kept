@@ -9,7 +9,7 @@ import { CommonActions } from "@react-navigation/native";
 import { resetMockApi } from "@/api";
 import { queryClient } from "@/api/queries";
 import { SLICES } from "@/api/types";
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
 import { SCENARIOS } from "@/api/mock/scenarios";
 import type { Scenario } from "@/api/mock/scenarios";
 import { MOCK_WALLET } from "@/api/mock/slices";

@@ -14,7 +14,7 @@ import { PEOPLE, mockOaths } from "@/features/oaths/mockStore";
 import { ApiError } from "../errors";
 import type { ActivityItem, ActivityType, AuthApi, InboxApi, InvitesApi, NotifyApi, ProfileApi, WalletApi } from "../types";
 import { devWait } from "@/state/dev";
-import { clock } from "./clock";
+import { clock } from "@/lib/clock";
 import type { Scenario } from "./scenarios";
 
 export interface MockContext {

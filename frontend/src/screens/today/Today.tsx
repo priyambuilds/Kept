@@ -10,7 +10,7 @@ import { Banner, BodyText, Skeleton, Title, Chip, ChipRow } from "@/components/c
 import { OathCard } from "@/components/content/Oath";
 import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
-import type { BountyFacts as Bounty } from "@/features/bounties/mockStore";
+import type { BountyFacts as Bounty } from "@/features/bounties/model";
 import { BountyCover } from "@/components/content/Social";
 import { ScreenKeeper } from "@/components/keeper/ScreenKeeper";
 import { clock as hms, shortDuration } from "@/lib/format";

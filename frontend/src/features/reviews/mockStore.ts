@@ -1,31 +1,14 @@
 // Mock group review (no backend yet: BACKEND_GAPS P1-1). After 3 failed photo-2 checks an
 // "AI + group review" Oath can send photo 2 to the other members; majority approves, a tie rejects
 // (screens.md C5). The other members vote on their own as the virtual clock moves.
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
+import type { ReviewFacts, ReviewStatus } from "./model";
 import { mockOaths, PEOPLE } from "../oaths/mockStore";
 
 const now = () => Math.floor(clock.now() / 1000);
 const TTL = 48 * 3600;
 /** Simulated voters take this long (virtual seconds) to vote. */
 const VOTE_DELAY = 20;
-
-export type ReviewStatus = "pending" | "approved" | "rejected" | "expired";
-export interface ReviewFacts {
-  id: string;
-  oathId: string;
-  /** Who asked for the review. */
-  by: string;
-  dayIndex: number;
-  objectId: number;
-  gesture: "thumbs_up" | "victory" | "open_palm";
-  /** wallet → approve? */
-  votes: Record<string, boolean>;
-  /** Everyone except the requester. */
-  voters: string[];
-  createdAt: number;
-  expiresAt: number;
-  status: ReviewStatus;
-}
 
 const reviews = new Map<string, ReviewFacts>();
 let counter = 0;

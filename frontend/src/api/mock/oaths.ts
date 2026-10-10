@@ -4,7 +4,7 @@ import { useDeviceOaths } from "@/features/oaths/device";
 import { devWait } from "@/state/dev";
 import { ApiError } from "../errors";
 import type { GestureLabel, OathsApi, ProofApi } from "../types";
-import { clock } from "./clock";
+import { clock } from "@/lib/clock";
 import type { MockContext } from "./slices";
 import { MOCK_WALLET } from "./slices";
 

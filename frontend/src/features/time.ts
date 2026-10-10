@@ -1,7 +1,7 @@
 // "Now" for screens: the virtual clock in mock mode (it equals real time unless the Dev menu moved it),
 // re-rendering every `everyMs` so countdowns tick.
 import { useEffect, useState } from "react";
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
 import { useDevHold } from "@/state/dev";
 import { useScreenFocused } from "@/lib/focus";
 

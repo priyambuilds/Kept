@@ -3,7 +3,7 @@ import { mockBounties } from "@/features/bounties/mockStore";
 import { mockOaths } from "@/features/oaths/mockStore";
 import { mockReviews } from "@/features/reviews/mockStore";
 import { ApiError } from "../errors";
-import { clock } from "./clock";
+import { clock } from "@/lib/clock";
 import type { BountiesApi, RematchApi, ReviewsApi } from "../types";
 import type { MockContext } from "./slices";
 import { MOCK_WALLET } from "./slices";

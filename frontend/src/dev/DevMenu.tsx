@@ -10,7 +10,7 @@ import { RowList } from "@/components/content/Rows";
 import { PressScale, Text } from "@/components/primitives";
 import { color, metrics, space } from "@/theme";
 import { SLICES } from "@/api/types";
-import { clock } from "@/api/mock/clock";
+import { clock } from "@/lib/clock";
 import { SCENARIOS } from "@/api/mock/scenarios";
 import { getWallet } from "@/chain";
 import { useNow } from "@/features/time";
