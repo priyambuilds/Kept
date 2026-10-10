@@ -83,12 +83,13 @@ export function RowList({ rows, label }: { rows: RowProps[]; label?: string }) {
 export function Toggle({ on, onChange, label }: { on: boolean; onChange: (on: boolean) => void; label: string }) {
   const reduce = useReducedMotion();
   const k = useSharedValue(on ? 1 : 0);
-  const onLayout = useAnimationLifecycle([k], () => { k.value = reduce ? (on ? 1 : 0) : withTiming(on ? 1 : 0, { duration: duration.toggle }); }, [on, reduce]);
-  const knob = useAnimatedStyle(() => ({ left: metrics.toggle.inset + (metrics.toggle.on - metrics.toggle.inset) * k.value }));
+  const onLayout = useAnimationLifecycle([k], () => { k.set(reduce ? (on ? 1 : 0) : withTiming(on ? 1 : 0, { duration: duration.toggle })); }, [on, reduce]);
+  // The knob slides with a transform (motion rework: no layout animation); it sits at x 3, moves to x 21.
+  const knob = useAnimatedStyle(() => ({ transform: [{ translateX: (metrics.toggle.on - metrics.toggle.inset) * k.value }] }));
   return (
     <Pressable accessibilityRole="switch" accessibilityState={{ checked: on }} accessibilityLabel={label} onPress={() => onChange(!on)} hitSlop={10}>
       <View style={{ width: metrics.toggle.w, height: metrics.toggle.h, borderRadius: metrics.toggle.radius, backgroundColor: on ? color.lime.base : color.line.toggleOff }}>
-        <Animated.View onLayout={onLayout} style={[{ position: "absolute", top: metrics.toggle.inset, width: metrics.toggle.knob, height: metrics.toggle.knob, borderRadius: metrics.toggle.knob / 2, backgroundColor: on ? color.text.onLime : color.extra.toggleKnobOff }, knob]} />
+        <Animated.View onLayout={onLayout} style={[{ position: "absolute", top: metrics.toggle.inset, left: metrics.toggle.inset, width: metrics.toggle.knob, height: metrics.toggle.knob, borderRadius: metrics.toggle.knob / 2, backgroundColor: on ? color.text.onLime : color.extra.toggleKnobOff }, knob]} />
       </View>
     </Pressable>
   );
