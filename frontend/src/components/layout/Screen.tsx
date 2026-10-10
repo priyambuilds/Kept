@@ -99,7 +99,9 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   const blocks = all.filter((c) => !isNoteOnlyKeeper(c, kind));
   // A Keeper that moved into the mark still mounts (it registers its line) but takes no slot or gap.
   const noteOnly = all.filter((c) => isNoteOnlyKeeper(c, kind));
-  const entered = blocks.map((c, i) => <Enter key={c.key ?? `b${i}`} index={i} replay={replay}>{c}</Enter>);
+  // A block can be a component that returns several elements (Bounties' Discover, D1's header): the
+  // wrapper spaces them like the column does.
+  const entered = blocks.map((c, i) => <Enter key={c.key ?? `b${i}`} index={i} replay={replay} style={{ gap: m.gap }}>{c}</Enter>);
   const pinnedAll = pinned ? flattenBlocks(pinned) : [];
   const pinnedBlocks = pinned ? pinnedAll.map((c, i) => <Enter key={c.key ?? `p${i}`} delay={pinnedDelay(i)} replay={replay}>{c}</Enter>) : null;
   useBackBlockedFor(momentSettleMs(blocks.length, pinnedAll.length), ready && !!routeId && presentation(routeId) === "moment");
