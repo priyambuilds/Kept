@@ -13,6 +13,21 @@ jest.mock("react-native-reanimated", () => {
 // Native modules the Phase 2 shell touches.
 jest.mock("@react-native-async-storage/async-storage", () => require("@react-native-async-storage/async-storage/jest/async-storage-mock"));
 jest.mock("@solana-mobile/mobile-wallet-adapter-protocol-web3js", () => ({ transact: jest.fn(() => Promise.reject(new Error("MWA is not available in tests"))) }));
+// Skia: the canvas is a plain View and drawing nodes render nothing (no test reads Keeper pixels; the
+// device comparison in docs/notes/MOTION_REWORK.md does).
+jest.mock("@shopify/react-native-skia", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  const Noop = () => null;
+  const api = {
+    __esModule: true,
+    Canvas: (p) => React.createElement(View, { style: p.style, testID: p.testID }),
+    useFont: () => null,
+    rect: (x, y, width, height) => ({ x, y, width, height }),
+    vec: (x, y) => ({ x, y }),
+  };
+  return new Proxy(api, { get: (t, k) => (k in t ? t[k] : Noop) });
+});
 // expo-secure-store: an in-memory Keystore (tests read it back through `__store`).
 jest.mock("expo-secure-store", () => {
   const store = new Map();
