@@ -68,6 +68,8 @@ export const supplement = {
     grabber: "rgba(255,255,255,0.25)",
     /** Skeleton block (screens.md › States › loading). */
     skeleton: "#1C1C1C",
+    /** The skeleton sweep band (D-83): transparent → white .06 → transparent. */
+    skeletonShine: ["rgba(255,255,255,0)", "rgba(255,255,255,0.06)", "rgba(255,255,255,0)"],
     /** Card sheen end / transparent. */
     transparent: "transparent",
   },

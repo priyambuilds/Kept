@@ -77,6 +77,20 @@ export async function restartDemo(): Promise<void> {
   seedDemo();
 }
 
+const DAY_MS = 86_400_000;
+
+/**
+ * Profile › Skip to tomorrow (Demo only, owner Q6): the virtual clock moves forward 24 h, so every Oath
+ * crosses exactly one day boundary (the demo's days don't end at midnight), the mock settles that day
+ * with the engine (a miss costs HP and stake and is paid to the keepers; a kept day heals), and every
+ * query refetches so Today shows the new day (and its B5 recap).
+ */
+export async function skipToTomorrow(): Promise<void> {
+  if (useMode.getState().mode !== "demo") return;
+  clock.set(clock.now() + DAY_MS);
+  await queryClient.invalidateQueries();
+}
+
 /** Profile › Exit demo: everything from Demo is wiped and the mode is picked again on A1. */
 export async function exitDemo(): Promise<void> {
   await setAppMode(null);

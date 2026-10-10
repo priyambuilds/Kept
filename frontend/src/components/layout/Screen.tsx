@@ -1,12 +1,14 @@
 // The common screen frame (screens.md › Common layout): safe area, the DEVNET row under the system
 // status bar, a NavBar (flows) or AppHeader (tabs) bar, a scroll column 20 from the edges with gap 14,
 // and pinned actions 34 from the bottom. Each screen hosts its own Keeper (ScreenKeeper): the note drops
-// under the bar and closes when the screen loses focus, so it can never leak onto another screen.
+// under the bar and closes on a tap anywhere else or when the screen loses focus, so it can never leak
+// onto another screen.
 import { Fragment, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboardHeight } from "@/lib/keyboard";
+import { useScreenReady } from "@/lib/screenReady";
 import { env } from "@/config/env";
 import { color, metrics, space } from "@/theme";
 import { useUi } from "@/state/ui";
@@ -16,13 +18,14 @@ import { layoutOf } from "@/app/layout";
 import { designIdOf, presentation } from "@/app/routes";
 import type { KeeperLine } from "@/copy";
 import { isNoteOnlyKeeper, useKeeperHost } from "../keeper/ScreenKeeper";
-import { Enter, flattenBlocks } from "../primitives";
+import { Enter, FadeOut, flattenBlocks } from "../primitives";
 import { Ambient } from "../chrome/Ambient";
 import { Spacer } from "../content/Basics";
 import { DemoBadge, DevnetBadge } from "../chrome/Header";
 import { useIsDemo } from "@/state/mode";
 import { PinnedActions } from "../actions";
 import { momentSettleMs, pinnedDelay, useBackBlockedFor } from "./moment";
+import { ScreenSkeleton } from "./ScreenSkeleton";
 
 export interface ScreenProps {
   /** NavBar or AppHeader element; omitted for Plain layouts (A0, A1). */
@@ -78,6 +81,15 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   const badges = devnet || demo;
   const kind = routeId && presentation(routeId) === "tab" ? "tab" : "flow";
   const keeper = useKeeperHost(routeId, kind, keeperIdle ?? null);
+  // The bar and light paint at once; the content mounts when the push has landed (D-83, lib/screenReady).
+  const ready = useScreenReady();
+  // The skeleton stays drawn while it fades out over the arriving content.
+  const [veil, setVeil] = useState(!ready);
+  useEffect(() => {
+    if (!ready || !veil) return;
+    const id = setTimeout(() => setVeil(false), metrics.skeleton.fadeMs + 100);
+    return () => clearTimeout(id);
+  }, [ready, veil]);
   // The note drops from just under the bar (components.md › KeeperNote: top 106 header / 104 nav, bar at 56).
   const k = metrics.keeperNote;
   // motion.md › Screen-level choreography: block i enters at 40 + 65·i ms (a Keeper that moved into the
@@ -87,10 +99,13 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
   const blocks = all.filter((c) => !isNoteOnlyKeeper(c, kind));
   // A Keeper that moved into the mark still mounts (it registers its line) but takes no slot or gap.
   const noteOnly = all.filter((c) => isNoteOnlyKeeper(c, kind));
-  const entered = blocks.map((c, i) => <Enter key={c.key ?? `b${i}`} index={i} replay={replay}>{c}</Enter>);
+  // A block can be a component that returns several elements (Bounties' Discover, D1's header): the
+  // wrapper spaces them like the column does.
+  const entered = blocks.map((c, i) => <Enter key={c.key ?? `b${i}`} index={i} replay={replay} style={{ gap: m.gap }}>{c}</Enter>);
   const pinnedAll = pinned ? flattenBlocks(pinned) : [];
   const pinnedBlocks = pinned ? pinnedAll.map((c, i) => <Enter key={c.key ?? `p${i}`} delay={pinnedDelay(i)} replay={replay}>{c}</Enter>) : null;
-  useBackBlockedFor(momentSettleMs(blocks.length, pinnedAll.length), !!routeId && presentation(routeId) === "moment");
+  useBackBlockedFor(momentSettleMs(blocks.length, pinnedAll.length), ready && !!routeId && presentation(routeId) === "moment");
+  const column = { paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, gap: m.gap };
   const noteTop = insets.top + (badges ? metrics.statusBar.badgeRow : 0) + m.barGap + (kind === "tab" ? k.topHeader : k.topNav) - metrics.header.top;
   return (
     <keeper.Provider value={keeper.value}>
@@ -103,19 +118,31 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
         </View>
       ) : null}
       {bar ? <View style={{ paddingHorizontal: m.padX, marginTop: m.barGap }}>{bar}</View> : null}
-      {bare ? <View style={{ flex: 1 }}>{children}</View> : scroll ? (
-        // With pinned actions the column ends 14 above them, like the prototype, so content is clipped
-        // there instead of scrolling behind (and showing between) the buttons.
-        <ScrollView style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap, gap: m.gap }}>
-          {top}
-          {entered}
-        </ScrollView>
-      ) : (
-        <View style={{ flex: 1, paddingHorizontal: m.padX, paddingTop: bar ? m.contentTop : m.plainTop, gap: m.gap }}>{top}{blocks.map((c, i) => <Fragment key={c.key ?? `b${i}`}>{c}</Fragment>)}</View>
-      )}
-      {pinned ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinnedBlocks}</PinnedActions> : null}
-      {bare ? null : noteOnly.map((c, i) => <Fragment key={c.key ?? `k${i}`}>{c}</Fragment>)}
+      <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }} collapsable={false}>
+          {!ready ? null : bare ? <View style={{ flex: 1 }}>{children}</View> : (
+            // With pinned actions the column ends 14 above them, like the prototype, so content is clipped
+            // there instead of scrolling behind (and showing between) the buttons.
+            <ScrollView scrollEnabled={scroll} style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ ...column, flexGrow: scroll ? undefined : 1, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap }}>
+              {top}
+              {entered}
+            </ScrollView>
+          )}
+        </View>
+        {/* The skeleton until the content mounts, then fading out over it as the blocks enter (no blank frame). */}
+        {veil && !bare ? (
+          <FadeOut hold={!ready} ms={metrics.skeleton.fadeMs} style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, pointerEvents: "none" }}>
+            <View style={column}><ScreenSkeleton /></View>
+          </FadeOut>
+        ) : null}
+      </View>
+      {pinned && ready ? <PinnedActions bottomInset={kb ? kb - metrics.pinned.bottom + m.gap : insets.bottom}>{pinnedBlocks}</PinnedActions> : null}
+      {bare || !ready ? null : noteOnly.map((c, i) => <Fragment key={c.key ?? `k${i}`}>{c}</Fragment>)}
+      {keeper.note ? (
+        // Any tap outside the open note closes it (the tap is used for that, not passed on). TalkBack closes it from the note itself.
+        <Pressable onPress={keeper.value.close} importantForAccessibility="no" testID="keeper-backdrop" style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, zIndex: 44 }} />
+      ) : null}
       {keeper.note ? <View pointerEvents="box-none" style={{ position: "absolute", left: 0, right: 0, top: noteTop, zIndex: 45 }}>{keeper.note}</View> : null}
     </View>
     </keeper.Provider>

@@ -1,5 +1,6 @@
-// Dev menu (long-press the DEVNET badge, development builds only): API mode per slice, mock
-// scenario, mock wallet, virtual clock, jump to any screen, the Gallery, and sign-out.
+// Dev menu (long-press the DEVNET badge, development builds only): API mode per slice and mock wallet
+// (only before an app mode is chosen; Live is always http + MWA), mock scenario, virtual clock, jump to
+// any screen, the Gallery, and sign-out.
 // Developer-facing, so its labels are literals (lint-exempt like the Gallery).
 import { View } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
@@ -70,14 +71,22 @@ export function DevMenu() {
       <Text variant="headerTitle">Dev menu</Text>
       <Text variant="caption" color={color.text.tertiary}>{`API ${env.apiUrl} · app mode ${mode ?? "not chosen"} · ${session.wallet ?? "signed out"}`}</Text>
 
-      <Label text="API MODE (ALL SLICES)" />
-      <Segmented items={MODES} value={-1} onChange={(i) => { dev.setAll(MODES[i]!); refresh(); }} />
-      <RowList rows={SLICES.map((s) => ({
-        title: s, value: f[s], valueColor: f[s] === "http" ? color.lime.base : color.text.secondary,
-        sub: dev.overrides[s] ? "override" : "app mode default",
-        onPress: () => { dev.setSlice(s, f[s] === "http" ? "mock" : "http"); refresh(); },
-      }))} />
-      <RowList rows={[{ title: "Mock wallet", sub: "Use instead of MWA (no wallet app needed). Pair with mock auth.", toggle: { on: dev.mockWallet, onChange: dev.setMockWallet } }]} />
+      <Label text="API MODE" />
+      {mode === null ? <>
+        <Segmented items={MODES} value={-1} onChange={(i) => { dev.setAll(MODES[i]!); refresh(); }} />
+        <RowList rows={SLICES.map((s) => ({
+          title: s, value: f[s], valueColor: f[s] === "http" ? color.lime.base : color.text.secondary,
+          sub: dev.overrides[s] ? "override" : "default",
+          onPress: () => { dev.setSlice(s, f[s] === "http" ? "mock" : "http"); refresh(); },
+        }))} />
+        <RowList rows={[{ title: "Mock wallet", sub: "Instead of MWA until a mode is chosen. Not saved.", toggle: { on: dev.mockWallet, onChange: dev.setMockWallet } }]} />
+      </> : (
+        <Text variant="caption" color={color.text.tertiary}>
+          {mode === "live"
+            ? `Live: ${env.apiUrl} + the wallet app (MWA) for every slice. Nothing here can swap in a mock; use Demo for that.`
+            : "Demo: the mock backend, wallet and chain for every slice, offline. Overrides apply only before a mode is chosen."}
+        </Text>
+      )}
 
       <Label text="SCENARIO" />
       <ChipRow>{SCENARIOS.map((s) => <Pill key={s} text={s} on={dev.scenario === s} onPress={() => { dev.setScenario(s); refresh(); }} />)}</ChipRow>

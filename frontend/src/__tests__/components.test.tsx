@@ -10,6 +10,10 @@ import { haptic } from "@/lib/haptics";
 import { Banner, Segmented } from "@/components/content/Basics";
 import { DayMemberGrid, HPPanel, OathCard, gridToday } from "@/components/content/Oath";
 import { Toggle } from "@/components/content/Rows";
+import { QRCard } from "@/components/content/Inputs";
+import { CardDeck } from "@/components/content/Deck";
+import { useSettings } from "@/state/settings";
+import { create as createQr } from "qrcode/lib/core/qrcode";
 import { SignStatus } from "@/components/content/Status";
 import { Gallery } from "@/dev/Gallery";
 import { Text } from "@/components/primitives";
@@ -86,6 +90,38 @@ describe("chrome", () => {
 });
 
 describe("content", () => {
+  it("CardDeck: a stack with a pager that steps both ways; the hint goes once it's used (D-85)", async () => {
+    useSettings.setState({ deckHintSeen: false });
+    const cards = ["Iron Week", "Hydrate Week", "Read 20 pages"].map((name) => ({ key: name, node: <Text>{name}</Text> }));
+    await render(<CardDeck cards={cards} />);
+    expect(screen.getByText(t("additions.deck.position", { k: 1, n: 3 }))).toBeTruthy();
+    expect(screen.getByText(t("additions.deck.hint"))).toBeTruthy();
+    // The top three are drawn (the ones behind are hidden from screen readers).
+    expect(screen.getByText("Hydrate Week", { includeHiddenElements: true })).toBeTruthy();
+    await fireEvent.press(screen.getByLabelText(t("additions.deck.next")));
+    expect(screen.getByText(t("additions.deck.position", { k: 2, n: 3 }))).toBeTruthy();
+    expect(useSettings.getState().deckHintSeen).toBe(true);
+    expect(screen.queryByText(t("additions.deck.hint"))).toBeNull();
+    await fireEvent.press(screen.getByLabelText(t("additions.deck.previous")));
+    await fireEvent.press(screen.getByLabelText(t("additions.deck.previous")));
+    expect(screen.getByText(t("additions.deck.position", { k: 3, n: 3 }))).toBeTruthy();
+  });
+  it("CardDeck: one card is just the card", async () => {
+    await render(<CardDeck cards={[{ key: "a", node: <Text>Solo</Text> }]} />);
+    expect(screen.getByText("Solo")).toBeTruthy();
+    expect(screen.queryByLabelText(t("additions.deck.next"))).toBeNull();
+  });
+  it("QRCard draws exactly the encoder's modules", async () => {
+    const link = "kept://join/H4R9-K2";
+    await render(<QRCard code="H4R9-K2" link={link} />);
+    type Node = { props?: { d?: unknown }; children?: (Node | string)[] | null };
+    const find = (n: Node | string | null): string | undefined => (n && typeof n === "object" ? (typeof n.props?.d === "string" ? n.props.d : (n.children ?? []).map(find).find(Boolean)) : undefined);
+    const d = find(screen.toJSON() as Node)!;
+    const { size, data } = createQr(link, { errorCorrectionLevel: "M" }).modules;
+    const drawn = new Uint8Array(size * size);
+    for (const [, x, y, w] of d.matchAll(/M(\d+) (\d+)h(\d+)v1h-\d+z/g)) for (let i = 0; i < +w!; i++) drawn[+y! * size + +x! + i] = 1;
+    expect([...drawn]).toEqual([...data].map((v) => (v ? 1 : 0)));
+  });
   it("OathCard shows its tags and button", async () => {
     const onBtn = jest.fn();
     await render(<OathCard icon="dumbbell" name="Iron Week" meta="Day 3/7" tags={[{ text: "1,043 SKR" }]} hp={90} button={{ label: "Take photo 2", onPress: onBtn }} />);

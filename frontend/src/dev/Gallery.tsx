@@ -20,6 +20,7 @@ import { Banner, BodyText, Breakdown, Chip, ChipRow, Note, OddsChip, SearchBar, 
 import { ProofCamera, Shutter } from "@/components/content/Camera";
 import type { CameraState } from "@/components/content/Camera";
 import { MoneyMoment, OptionGrid, QRCard, SeatSlots, SentenceInput } from "@/components/content/Inputs";
+import { CardDeck } from "@/components/content/Deck";
 import { DayMemberGrid, HPBar, HPPanel, OathCard } from "@/components/content/Oath";
 import type { GridMember } from "@/components/content/Oath";
 import { RowList, Toggle } from "@/components/content/Rows";
@@ -153,11 +154,18 @@ export function Gallery() {
           </ChipRow>
         </Section>
 
+        <Section title="CardDeck (D-85)">
+          <CardDeck cards={[
+            { key: "a", node: <OathCard icon="dumbbell" name={k("screens.B1.b3.name")} meta={k("screens.B1.b3.meta")} hp={90} button={{ label: k("screens.B1.b3.btn"), kind: "p", icon: "camera" }} onPress={noop} /> },
+            { key: "b", node: <OathCard icon="bottle-soda-outline" name={k("screens.B1.b4.name")} meta={k("screens.B1.b4.meta")} variant="sm" /> },
+            { key: "c", node: <OathCard icon="book-open-variant" name={k("screens.B1.b5.r0.t")} meta={k("screens.B1.b5.r0.s")} variant="sm" /> },
+          ]} />
+        </Section>
         <Section title="OathCard">
           <OathCard icon="dumbbell" name={k("screens.B1.b3.name")} meta={k("screens.B1.b3.meta")} line={k("screens.B1.b3.line")} hp={90}
             tags={[{ text: k("screens.B1.b3.tag.0"), icon: "sack", tone: "lime" }, { text: k("screens.B1.b3.tag.1"), icon: "timer-sand" }]}
             float={{ text: k("screens.B1.b3.float"), initial: "R", bg: color.member.riya }} button={{ label: k("screens.B1.b3.btn"), kind: "p", icon: "camera" }} onPress={noop} />
-          <OathCard icon="bottle-soda-outline" name={k("screens.B1.b4.name")} meta={k("screens.B1.b4.meta")} variant="lime" stack
+          <OathCard icon="bottle-soda-outline" name={k("screens.B1.b4.name")} meta={k("screens.B1.b4.meta")} variant="lime"
             tags={[{ text: k("screens.B1.b4.tag.0"), icon: "account-group" }]} button={{ label: k("screens.B1.b4.btn"), kind: "l" }} />
           <OathCard icon="dumbbell" name={k("screens.B1.b3.name")} meta={k("screens.B1.b3.meta")} hp={20} warn={k("screens.D2.b1.text")} tilt={-1} />
           <OathCard icon="book-open-variant" name={k("screens.B1.b5.r0.t")} meta={k("screens.B1.b5.r0.s")} variant="sm" />

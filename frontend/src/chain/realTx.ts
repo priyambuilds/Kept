@@ -28,7 +28,10 @@ export const realTx: TxService = {
       // The program requires a solo stake of 0 today (BACKEND_GAPS P0-7, DECISIONS D-30).
       stake: i.isSolo ? 0n : i.stake, isSolo: i.isSolo,
     });
-    return { signature: await signAndSend(creator, [ix]), oath: oath.toBase58() };
+    // A solo Oath has no one to wait for, so it starts in the same transaction: one wallet approval, not two
+    // (the program accepts start_oath right after create_oath for a solo Oath; BACKEND_GAPS P1-18).
+    const ixs = i.isSolo ? [ix, startOathIx(e, { oath, creator })] : [ix];
+    return { signature: await signAndSend(creator, ixs), oath: oath.toBase58(), started: i.isSolo };
   },
   async joinOath(oath) {
     const e = await programEnv();

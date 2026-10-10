@@ -1,6 +1,6 @@
-// KeeperNote behaviour (components.md › KeeperNote): tab screens never auto-open it and their mark
-// toggles it; flow screens drop it once on entry and close it after 4.8 s; it always closes when the
-// screen loses focus and never shows on another screen.
+// KeeperNote behaviour (components.md › KeeperNote, D-81): no screen opens it by itself, the mark toggles
+// it, a tap anywhere else closes it, flow screens close it after 4.8 s; it always closes when the screen
+// loses focus and never shows on another screen.
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { NavigationContainer, createNavigationContainerRef } from "@react-navigation/native";
 import type { ParamListBase } from "@react-navigation/native";
@@ -74,14 +74,23 @@ describe("KeeperNote", () => {
     expect(visible(idle.line)).toBe(true);
   });
 
-  it("flow screen: drops once on entry, closes after 4.8 s, then lives behind the nav mark", async () => {
+  it("flow screen: never auto-opens; the mark opens it and it closes after 4.8 s", async () => {
     await render(<App initial="C1" />);
-    await act(async () => { jest.advanceTimersByTime(10); });
-    expect(visible(flowLine.line)).toBe(true);
-    await act(async () => { jest.advanceTimersByTime(metrics.keeperNote.holdMs + 10); });
+    await act(async () => { jest.advanceTimersByTime(1000); });
     expect(visible(flowLine.line)).toBe(false);
     await fireEvent.press(mark()[0]!);
     expect(visible(flowLine.line)).toBe(true);
+    await act(async () => { jest.advanceTimersByTime(metrics.keeperNote.holdMs + 10); });
+    expect(visible(flowLine.line)).toBe(false);
+  });
+
+  it("a tap anywhere outside the note closes it", async () => {
+    await render(<App initial="B1" />);
+    await fireEvent.press(mark()[0]!);
+    expect(visible(tabLine.line)).toBe(true);
+    await fireEvent.press(screen.getByTestId("keeper-backdrop"));
+    expect(visible(tabLine.line)).toBe(false);
+    expect(screen.queryByTestId("keeper-backdrop")).toBeNull();
   });
 
   it("closes on navigation and never shows on the next screen or after coming back", async () => {
@@ -97,11 +106,10 @@ describe("KeeperNote", () => {
 
   it("a flow screen's note closes when another screen is pushed over it", async () => {
     await render(<App initial="C1" />);
-    await act(async () => { jest.advanceTimersByTime(10); });
+    await fireEvent.press(mark()[0]!);
     expect(visible(flowLine.line)).toBe(true);
     await act(async () => { nav.navigate("D0"); jest.advanceTimersByTime(10); });
     expect(visible(flowLine.line)).toBe(false);
-    // Back on C1 it doesn't drop again (once per entry).
     await act(async () => { nav.goBack(); jest.advanceTimersByTime(10); });
     expect(visible(flowLine.line)).toBe(false);
   });

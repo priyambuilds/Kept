@@ -26,7 +26,8 @@ export interface FundBountyInput { bountyId: string; pool: bigint }
 export interface JoinRematchInput { oath: string }
 
 export interface TxService {
-  createOath(i: CreateOathInput): Promise<TxResult<{ oath: string }>>;
+  /** `started`: the same transaction also started the Oath (a solo one on chain), so no `startOath` is needed. */
+  createOath(i: CreateOathInput): Promise<TxResult<{ oath: string; started: boolean }>>;
   joinOath(oath: string): Promise<TxResult>;
   startOath(oath: string): Promise<TxResult>;
   cancelOath(oath: string): Promise<TxResult>;

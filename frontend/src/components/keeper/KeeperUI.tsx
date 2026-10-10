@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Pressable, View, useWindowDimensions } from "react-native";
-import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
+import Svg, { Defs, Ellipse, RadialGradient, Rect, Stop } from "react-native-svg";
 import type { KeeperMood } from "@/copy";
 import { t } from "@/copy";
-import { color, metrics, shadow, space, svgStop, tile } from "@/theme";
+import { cheapShadow, color, metrics, shadow, space, svgStop, tile } from "@/theme";
 import type { PaletteName } from "@/theme";
 import { Bubble, CheckK, Icon, Knock, Loop, NoteDrop, PressScale, Text } from "../primitives";
 import { Chip } from "../content/Basics";
@@ -28,6 +28,26 @@ function RadialGlow({ size, colour, id }: { size: number; colour: string; id: st
   );
 }
 
+/**
+ * The Keeper's floor shadow: an ellipse blurred by 9 dp, drawn as a radial gradient (D-84) — a `blur`
+ * filter is a GPU blur pass on every frame anything on screen moves.
+ */
+function FloorShadow({ left, top, width, height }: { left: number; top: number; width: number; height: number }) {
+  const b = metrics.keeperPlacement.shadowBlur;
+  const w = width + b * 2, h = height + b * 2;
+  return (
+    <Svg pointerEvents="none" width={w} height={h} style={{ position: "absolute", left: left - b, top: top - b }}>
+      <Defs>
+        <RadialGradient id="kfloor" cx="50%" cy="50%" rx="50%" ry="50%">
+          <Stop offset="0.35" {...svgStop(color.extra.keeperShadow)} />
+          <Stop offset="1" {...svgStop(color.extra.keeperShadow, 0)} />
+        </RadialGradient>
+      </Defs>
+      <Ellipse cx={w / 2} cy={h / 2} rx={w / 2} ry={h / 2} fill="url(#kfloor)" />
+    </Svg>
+  );
+}
+
 /** A floating 3D tile or coin around a big Keeper (renderer › kpx orbs). */
 export interface KeeperOrb { icon: string; x: number; y: number; size: number; palette: string; rotate: number; coin: boolean }
 /** A chip floating around a big Keeper: position from the design, text from the screen. */
@@ -45,8 +65,8 @@ function Orb({ o, i, sx }: { o: KeeperOrb; i: number; sx: number }) {
       <Loop kind="float" period={(5 + (i % 3)) * 1000} delay={i * 600}>
         <View style={{
           width: o.size, height: o.size, borderRadius: r, overflow: "hidden", alignItems: "center", justifyContent: "center", transform: [{ rotate: `${o.rotate}deg` }],
-          boxShadow: o.coin ? `inset 0 2px 0 ${color.extra.tileHi60}, inset 0 0 0 3px ${color.extra.tileHi18}, 0 5px 0 ${color.extra.coinDrop}, 0 16px 26px ${color.extra.orbShadow}`
-            : `inset 0 2px 0 ${color.extra.tileHi60}, inset 0 -4px 0 ${color.extra.tileShade18}, 0 14px 28px ${color.extra.orbShadow}`,
+          boxShadow: cheapShadow(o.coin ? `inset 0 2px 0 ${color.extra.tileHi60}, inset 0 0 0 3px ${color.extra.tileHi18}, 0 5px 0 ${color.extra.coinDrop}, 0 16px 26px ${color.extra.orbShadow}`
+            : `inset 0 2px 0 ${color.extra.tileHi60}, inset 0 -4px 0 ${color.extra.tileShade18}, 0 14px 28px ${color.extra.orbShadow}`),
         }}>
           <Svg width={o.size} height={o.size} style={{ position: "absolute" }}>
             <Defs>
@@ -97,6 +117,8 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
   const gs = Math.round(size * 1.55);
   const glow = color.keeperGlow[mood];
   const right = side === "r";
+  // The bubble's square (tail) corner points at the Keeper: a centred Keeper's bubble sits to his left.
+  const tailRight = side !== "l";
   const cycle = lines && lines.length > 1;
   const poseAnim: KeeperAnim = i ? (["point", "wave", "thumbs", "shrug"] as const)[i % 4]! : anim;
   const kp = metrics.keeperPlacement;
@@ -106,7 +128,7 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
         <RadialGlow size={gs} colour={glow} id={`kglow-${mood}`} />
       </View>
       {orbs.map((o, k) => <Orb key={k} o={{ ...o, y: Math.round(o.y * sy), size: Math.round(o.size * sy) }} i={k} sx={sx} />)}
-      <View pointerEvents="none" style={{ position: "absolute", left: Math.round(kx + size * 0.15), top: h - kp.shadowH, width: Math.round(size * 0.7), height: kp.shadowH, borderRadius: size, backgroundColor: color.extra.keeperShadow, filter: [{ blur: 9 }] }} />
+      <FloorShadow left={Math.round(kx + size * 0.15)} top={h - kp.shadowH} width={Math.round(size * 0.7)} height={kp.shadowH} />
       <Pressable
         onPress={cycle ? () => setI((n) => n + 1) : undefined}
         disabled={!cycle}
@@ -129,12 +151,12 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
           top: side === "c" ? Math.max(0, ky - 4) : Math.max(0, ky + Math.round(size * 0.1)),
           ...(side === "l" ? { left: size - 6 } : right ? { right: size - 6 } : { left: 0 }),
         }}>
-          <Bubble delay={kp.bubbleDelay} style={{ transformOrigin: right ? "100% 100%" : "0% 100%" }}>
+          <Bubble delay={kp.bubbleDelay} style={{ transformOrigin: tailRight ? "100% 100%" : "0% 100%" }}>
             <View style={{
               paddingHorizontal: kp.bubblePadX, paddingVertical: kp.bubblePadY,
               borderTopLeftRadius: kp.bubbleRadius, borderTopRightRadius: kp.bubbleRadius,
-              borderBottomRightRadius: right ? kp.bubbleTail : kp.bubbleRadius, borderBottomLeftRadius: right ? kp.bubbleRadius : kp.bubbleTail,
-              backgroundColor: color.text.primary, transform: [{ rotate: `${right ? 2 : -3}deg` }], ...shadow("float"),
+              borderBottomRightRadius: tailRight ? kp.bubbleTail : kp.bubbleRadius, borderBottomLeftRadius: tailRight ? kp.bubbleRadius : kp.bubbleTail,
+              backgroundColor: color.text.primary, transform: [{ rotate: `${tailRight ? 2 : -3}deg` }], ...shadow("float"),
             }}>
               <Text variant="keeperLine" color={color.text.onLime}>
                 {shown}

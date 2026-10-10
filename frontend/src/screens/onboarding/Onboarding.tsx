@@ -210,6 +210,10 @@ export function A4() {
   const stored = useSession((s) => s.avatar);
   const finish = useSession((s) => s.finishOnboarding);
   const [avatar, setAvatar] = useState(() => stored ?? randomAvatar());
+  // Customize (I9) saves the look to the session; show it when coming back (state follows the store
+  // during render, React's pattern for adjusting state to a changed input).
+  const [seen, setSeen] = useState(stored);
+  if (stored !== seen) { setSeen(stored); if (stored) setAvatar(stored); }
   const k = keeperLines("A4")[0]!;
   const done = () => {
     finish(avatar);
@@ -223,7 +227,7 @@ export function A4() {
       bottomInset={metrics.button.height * 2 + metrics.pinned.gap + metrics.pinned.bottom}
       pinned={<>
         <Button kind="p" label={t("screens.A4.pin.0")} onPress={done} />
-        <Button kind="t" label={t("screens.A4.pin.1")} onPress={() => go("I9")} />
+        <Button kind="t" label={t("screens.A4.pin.1")} onPress={() => go("I9", { avatar })} />
       </>}
     >
       <Title heading={t("screens.A4.b0.title")} sub={t("screens.A4.b0.sub")} />

@@ -111,8 +111,8 @@ export function useCreator(name: string | undefined) { const api = useApi(); ret
 
 export const profileActions = {
   async save(patch: Parameters<ReturnType<typeof getApi>["profile"]["save"]>[0]) {
+    if (patch.avatar) useSession.getState().setAvatar(patch.avatar);
     await getApi().profile.save(patch);
-    if (patch.avatar) useSession.getState().finishOnboarding(patch.avatar);
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
   },
 };

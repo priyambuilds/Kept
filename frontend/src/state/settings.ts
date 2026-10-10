@@ -16,9 +16,11 @@ export interface SettingsState {
   following: string[];
   /** I1's "Make it yours" banner was opened once (the prototype's `pt1`): it stays hidden after. */
   profileTipSeen: boolean;
+  /** Today's card stack was swiped once: its "swipe" hint and nudge stop (D-85). */
+  deckHintSeen: boolean;
   setNotify(k: keyof SettingsState["notify"], on: boolean): void;
   setVisibility(k: keyof SettingsState["visibility"], a: Audience): void;
-  set(p: Partial<Pick<SettingsState, "findByName" | "anyoneInvite" | "socials" | "profileTipSeen">>): void;
+  set(p: Partial<Pick<SettingsState, "findByName" | "anyoneInvite" | "socials" | "profileTipSeen" | "deckHintSeen">>): void;
   follow(name: string): void;
 }
 
@@ -32,6 +34,7 @@ const DEFAULTS: SettingsData = {
   socials: { x: true, telegram: false, discord: false, farcaster: false },
   following: [],
   profileTipSeen: false,
+  deckHintSeen: false,
 };
 
 export const useSettings = create<SettingsState>()(persist((set) => ({

@@ -2,16 +2,16 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, { Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { duration, gradient } from "@/theme";
-import { Gradient, useAnimationLifecycle } from "../primitives";
+import { Gradient, loopCycles, useAnimationLifecycle } from "../primitives";
 
-/** The shine sweep (motion.md `shine`): a 40 % white strip, −120 % → 320 % by 55 % of the cycle, then rest. */
+/** The shine sweep (motion.md `shine`): a 40 % white strip, −120 % → 320 % by 55 % of the cycle, then rest (for LOOP_BUDGET_MS after focus). */
 export function Shine({ period = duration.shine, delay = 1000, widthPct = 0.4 }: { period?: number; delay?: number; widthPct?: number }) {
   const reduce = useReducedMotion();
   const [w, setW] = useState(0);
   const p = useSharedValue(0);
   const onLayout = useAnimationLifecycle([p], () => {
     if (reduce || !w) { cancelAnimation(p); return; }
-    p.value = withDelay(delay, withRepeat(withSequence(withTiming(1, { duration: period * 0.55, easing: Easing.inOut(Easing.ease) }), withTiming(1, { duration: period * 0.45 }), withTiming(0, { duration: 0 })), -1));
+    p.value = withDelay(delay, withRepeat(withSequence(withTiming(1, { duration: period * 0.55, easing: Easing.inOut(Easing.ease) }), withTiming(1, { duration: period * 0.45 }), withTiming(0, { duration: 0 })), loopCycles(period)));
   }, [reduce, w, period, delay], { pauseOnBlur: true });
   const strip = w * widthPct;
   const a = useAnimatedStyle(() => ({ transform: [{ translateX: -1.2 * strip + p.value * 4.4 * strip }] }));

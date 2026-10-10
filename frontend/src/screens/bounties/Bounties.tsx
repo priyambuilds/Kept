@@ -154,7 +154,7 @@ function Created() {
 
 // ── H2 / H2·no Bounty detail ──
 export function H2() {
-  const { back, go } = useGo();
+  const { back, go, replace } = useGo();
   const creatorPages = useFeature("creatorPages");
   const toast = useToast();
   const { id } = useParams<{ id: string }>();
@@ -168,7 +168,8 @@ export function H2() {
   const open = isOpen(b, now);
   const join = async () => {
     setBusy(true);
-    try { await bountyActions.join(b.id); go("H3", { id: b.id }); } catch (e) { toast(e instanceof Error ? e.message : String(e)); } finally { setBusy(false); }
+    // Joined: H3 takes H2's place, so back doesn't return to a "Join" button (D-86).
+    try { await bountyActions.join(b.id); replace("H3", { id: b.id }); } catch (e) { toast(e instanceof Error ? e.message : String(e)); } finally { setBusy(false); }
   };
   const rateChip = b.minKeptRate ? t("screens.H2.b3.chip.1", { min: Math.round(b.minKeptRate * 100), you: el.rate === null ? t("common.keptRateNew") : `${Math.round(el.rate * 100)}%` }) : null;
   return (
@@ -244,7 +245,7 @@ export function H3() {
 
 // ── H4 Eliminated ──
 export function H4() {
-  const { go, reset } = useGo();
+  const { go } = useGo();
   const { b, v } = useJoined();
   const stats = useStats();
   if (!b || !v) return null;
@@ -252,8 +253,8 @@ export function H4() {
   const day = (v.members[v.me]!.missed[0] ?? 0) + 1;
   const s = stats.data;
   return (
-    <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={pinned(1)}
-      pinned={<Button kind="p" label={t("screens.H4.pin.0")} onPress={() => reset("H1")} />}>
+    <Screen bar={<NavBar onBack={() => go("H1")} close title={b.name} />} bottomInset={pinned(1)}
+      pinned={<Button kind="p" label={t("screens.H4.pin.0")} onPress={() => go("H1")} />}>
       <ScreenKeeper id="H4" lines={[k]} />
       <Title heading={t("screens.H4.b2.title", { day })} align="center" />
       <RowList rows={[
@@ -273,7 +274,7 @@ function weekBars(values: number[]) {
 
 // ── H5 Bounty ended ──
 export function H5() {
-  const { go, reset } = useGo();
+  const { go } = useGo();
   const toast = useToast();
   const follow = useSettings((s) => s.follow);
   const { b, v } = useJoined();
@@ -286,7 +287,7 @@ export function H5() {
   const seats: Seat[] = [{ kind: "member", name: t("screens.D2.b6.r0.t"), initial: "Y", color: color.member.you, ...(avatar ? { avatar } : {}), status: `+${skrWhole(payout)}` }];
   if (b.remaining > 1) seats.push({ kind: "overflow", count: b.remaining - 1 });
   return (
-    <Screen bar={<NavBar onBack={() => reset("H1")} close title={b.name} />} bottomInset={v.claimable > 0n ? pinned(1) : 0}
+    <Screen bar={<NavBar onBack={() => go("H1")} close title={b.name} />} bottomInset={v.claimable > 0n ? pinned(1) : 0}
       pinned={<>
         {v.claimable > 0n ? <Button kind="l" icon="hand-coin-outline" label={t("screens.H5.pin.0", { amount: skrWhole(v.claimable) })} onPress={() => go("J1", { id: v.facts.id })} /> : null}
       </>}>

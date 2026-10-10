@@ -6,7 +6,7 @@ import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, w
 import { GESTURES } from "@kept/config";
 import type { GestureKey } from "@kept/config";
 import { t } from "@/copy";
-import { color, duration, metrics, space } from "@/theme";
+import { cheapShadow, color, duration, metrics, space } from "@/theme";
 import { Icon, Loop, PressScale, Shake, Text, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 import { haptic } from "@/lib/haptics";
@@ -55,8 +55,8 @@ export function ProofCamera({ photo, object, gesture, state, label, height: desi
     <View style={{ position: "absolute", width: c.corner, height: c.corner, borderColor: s.corner, ...pos, ...widths, ...radii }} />
   );
   return (
-    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height, borderRadius: c.radius, overflow: "hidden", backgroundColor: color.extra.camGradient[1] }} accessibilityLabel={label}>
-      <Svg width={w} height={height} style={{ position: "absolute" }}>
+    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height, borderRadius: c.radius, backgroundColor: color.extra.camGradient[1] }} accessibilityLabel={label}>
+      <Svg width={w} height={height} style={{ position: "absolute", borderRadius: c.radius }}>
         <Defs>
           <RadialGradient id="cam" cx="50%" cy="45%" rx="75%" ry="75%">
             <Stop offset="0" stopColor={color.extra.camGradient[0]} />
@@ -65,21 +65,21 @@ export function ProofCamera({ photo, object, gesture, state, label, height: desi
         </Defs>
         <Rect width={w} height={height} fill="url(#cam)" />
       </Svg>
-      {children ? <View style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}>{children}</View> : (
-        <View style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, alignItems: "center", justifyContent: "center" }}>
-          <View>
+      <View collapsable={false} style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, borderRadius: c.radius, overflow: "hidden" }}>
+        {children ? children : (
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             <View style={blur ? { filter: blur } : undefined}><Icon name={object} size={objSize} color={state === "off" ? color.line.toggleOff : color.extra.camObject} /></View>
             {g ? (
               // Proof fail: the gesture badge shakes (0 → −6 → 6 → −3 → 0, 300 ms).
               <Shake trigger={state === "fail" ? 1 : 0} style={{ position: "absolute", right: c.gestureRight, bottom: c.gestureBottom }}>
-              <View style={{ width: c.gesture, height: c.gesture, borderRadius: c.gesture / 2, backgroundColor: color.text.primary, alignItems: "center", justifyContent: "center", transform: [{ rotate: `${c.gestureTilt}deg` }], boxShadow: "0 8px 20px rgba(0,0,0,0.5)", ...(blur ? { filter: blur } : {}) }}>
+              <View style={{ width: c.gesture, height: c.gesture, borderRadius: c.gesture / 2, backgroundColor: color.text.primary, alignItems: "center", justifyContent: "center", transform: [{ rotate: `${c.gestureTilt}deg` }], boxShadow: cheapShadow("0 8px 20px rgba(0,0,0,0.5)"), ...(blur ? { filter: blur } : {}) }}>
                 <Icon name={g.icon as IconName} size={c.gestureIcon} color={color.text.onLime} />
               </View>
               </Shake>
             ) : null}
           </View>
-        </View>
-      )}
+        )}
+      </View>
       {photo ? (
         <View style={{ position: "absolute", left: c.photoPillInset, top: c.photoPillInset, height: c.photoPillH, paddingHorizontal: c.photoPillPad, borderRadius: c.photoPillH / 2, backgroundColor: color.extra.camPhotoPill, flexDirection: "row", alignItems: "center", gap: space[6] }}>
           <Icon name="camera-outline" size={15} />

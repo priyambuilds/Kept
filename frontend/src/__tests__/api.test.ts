@@ -3,6 +3,8 @@ import { createApi, createMockApi } from "@/api";
 import type { Slice, SliceMode } from "@/api";
 import { ApiError, toApiError } from "@/api/errors";
 import { createHttpClient } from "@/api/http/client";
+import { liveKeptRate } from "@/api/http/slices";
+import { httpBounties } from "@/api/http/bounties";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import type { Scenario } from "@/api/mock/scenarios";
 import { clock } from "@/lib/clock";
@@ -165,5 +167,48 @@ describe("Live has no mock (D-80)", () => {
     for (const f of fs.readdirSync(path.join(src, "api/http"))) walk(path.join(src, "api/http", f), []);
     expect(seen.size).toBeGreaterThan(10); // the walk really follows imports
     expect(reached).toEqual([]);
+  });
+});
+
+describe("Live kept rate (LIVE_DEMO_PLAN Q4)", () => {
+  const rep = (percentage: number | null, sampleSize: number) => ({
+    wallet: MOCK_WALLET, keptRate: { percentage, keptDays: 0, missedDays: 0, sampleSize },
+    oathsKept: 0, oathsBroken: 0, streak: { current: 0, best: 0 }, bounties: { joined: 0, completed: 0, out: 0 },
+  });
+  it("is the backend's number as is, and New under 10 days", () => {
+    expect(liveKeptRate(rep(null, 0))).toBeNull();
+    expect(liveKeptRate(rep(100, 9))).toBeNull();
+    expect(liveKeptRate(rep(87.5, 10))).toBe(0.875);
+  });
+});
+
+describe("Live Bounties (LIVE_DEMO_PLAN Q3)", () => {
+  const view = {
+    id: 3, title: "Hydrate Week", objectId: 2, numDays: 7, daySeconds: 86400, startTs: 1_000, endTs: 1_000 + 7 * 86400, joinClosesAt: 1_000 + 86400,
+    joinOpen: true, currentDay: 0, status: "ACTIVE", mint: "m", payer: "p", poolAmount: "50000000000", entrants: 4, stillIn: 3, estimatedShare: "1", paidAt: null,
+  };
+  const entry = { joined: true, daysKept: 0b11, out: false, outDay: null, payoutAmount: null, payoutSignature: null, paidAt: null };
+  const backend = (me: unknown) => jest.fn((url: string, init?: RequestInit) => {
+    const body = url.includes("recently-out") ? { bountyId: 3, total: 1, entries: [{ wallet: "W1", outDay: 1, outAt: "2026-10-10T10:00:00.000Z" }] }
+      : init?.method === "POST" ? { bounty: view, me: entry } : { bounty: view, me };
+    return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+  });
+
+  it("lists the one current Bounty, with its pool, entrants and who's out", async () => {
+    const api = httpBounties(createHttpClient(() => "tok", "http://api", backend(null) as unknown as typeof fetch));
+    const [b] = await api.list();
+    expect(b).toMatchObject({ id: "bounty-3", name: "Hydrate Week", pool: 50_000n * SKR_UNIT, entrants: 4, remaining: 3, category: "Hydration", createdBy: null });
+    expect(b!.recentlyOut).toEqual([{ name: expect.any(String), day: 2, at: expect.any(Number) }]);
+    await expect(api.mine("bounty-3", MOCK_WALLET)).resolves.toBeNull();
+    await expect(api.get("bounty-9")).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(api.create({} as never, MOCK_WALLET)).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("joining returns my entry as a stake-0 solo Oath on the Bounty's days", async () => {
+    const api = httpBounties(createHttpClient(() => "tok", "http://api", backend(entry) as unknown as typeof fetch));
+    const o = await api.join("bounty-3", MOCK_WALLET);
+    expect(o).toMatchObject({ id: "bounty-3", bountyId: "bounty-3", stake: 0n, isSolo: true, day1StartsAt: 1_000, status: "active" });
+    expect(o.members[0]).toMatchObject({ wallet: MOCK_WALLET, daysKept: 0b11 });
+    await expect(api.mine("bounty-3", MOCK_WALLET)).resolves.toMatchObject({ bountyId: "bounty-3" });
   });
 });

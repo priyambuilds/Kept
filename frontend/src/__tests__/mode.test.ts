@@ -1,13 +1,18 @@
 // App mode (state/mode.ts, features/mode.ts): Demo and Live keep separate saved data, leaving Demo
-// wipes it, and release builds use the mode alone (Dev menu overrides are development-only).
+// wipes it, and a chosen mode alone decides the API and the wallet (Demo: mock, Live: http + MWA), in
+// development builds too: the Dev menu's overrides only apply before a mode is chosen.
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getWallet } from "@/chain";
 import { mwaWallet } from "@/chain/mwa";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { SLICES } from "@/api/types";
-import { exitDemo, setAppMode, startDemo, startLive } from "@/features/mode";
+import { exitDemo, setAppMode, skipToTomorrow, startDemo, startLive } from "@/features/mode";
+import { getApi } from "@/api";
+import { oathView } from "@/features/oaths/model";
+import { clock } from "@/lib/clock";
 import { useDeviceOaths } from "@/features/oaths/device";
-import { flags, useDev } from "@/state/dev";
+import { DEFAULT_SCENARIO } from "@/api/mock/scenarios";
+import { flags, mockWalletOn, useDev } from "@/state/dev";
 import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 import { useSettings } from "@/state/settings";
@@ -20,7 +25,7 @@ const settle = () => new Promise((r) => setTimeout(r, 0));
 beforeEach(async () => {
   await setAppMode(null);
   await AsyncStorage.clear();
-  useDev.setState({ overrides: {}, mockWallet: false });
+  useDev.setState({ overrides: {}, mockWallet: false, scenario: DEFAULT_SCENARIO });
 });
 
 describe("app mode", () => {
@@ -71,9 +76,49 @@ describe("app mode", () => {
   });
 });
 
-describe("slices by mode", () => {
-  it("development builds apply Dev menu overrides on top of the mode", async () => {
+describe("Skip to tomorrow (Demo, Q6)", () => {
+  const nowS = () => Math.floor(clock.now() / 1000);
+  afterEach(() => clock.reset());
+  it("ends the day and the mock settles it: an unproved day costs HP", async () => {
+    useDev.setState({ scenario: "judges" }); // the release Demo's account
+    await startDemo();
+    const iron = async () => {
+      const list = await getApi().oaths.list(MOCK_WALLET);
+      return list.map((f) => oathView(f, nowS(), MOCK_WALLET)).find((v) => !v.facts.isSolo && !v.facts.bountyId && v.life === "active")!;
+    };
+    const before = await iron();
+    await skipToTomorrow();
+    const after = await getApi().oaths.list(MOCK_WALLET).then((l) => oathView(l.find((f) => f.id === before.facts.id)!, nowS(), MOCK_WALLET));
+    expect(after.dayNumber).toBe(before.dayNumber + 1);
+    expect(after.hp).not.toBe(before.hp);
+  });
+  it("does nothing in Live", async () => {
     await startLive();
+    await skipToTomorrow();
+    expect(clock.offsetMs()).toBe(0);
+  });
+});
+
+describe("slices by mode", () => {
+  const allMock = Object.fromEntries(SLICES.map((s) => [s, "mock"]));
+
+  it("Live is http + MWA for every slice in a development build, whatever the Dev menu holds", async () => {
+    await startLive();
+    useDev.setState({ overrides: { inbox: "mock", ...allMock }, mockWallet: true });
+    expect(SLICES.every((s) => flags()[s] === "http")).toBe(true);
+    expect(getWallet()).toBe(mwaWallet);
+    expect(mockWalletOn()).toBe(false);
+  });
+
+  it("Demo is the mock for every slice and never http, whatever the Dev menu holds", async () => {
+    await startDemo();
+    useDev.setState({ overrides: Object.fromEntries(SLICES.map((s) => [s, "http"])), mockWallet: false });
+    expect(SLICES.every((s) => flags()[s] === "mock")).toBe(true);
+    expect(getWallet()).not.toBe(mwaWallet);
+  });
+
+  it("Dev menu overrides only apply while no mode is chosen (tests and dev tooling)", () => {
+    expect(useMode.getState().mode).toBeNull();
     useDev.setState({ overrides: { inbox: "mock" } });
     expect(flags().inbox).toBe("mock");
     expect(flags().auth).toBe("http");
@@ -81,7 +126,7 @@ describe("slices by mode", () => {
 
   it("release builds use the mode alone", async () => {
     await startLive();
-    useDev.setState({ overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])), mockWallet: true });
+    useDev.setState({ overrides: allMock, mockWallet: true });
     const g = global as unknown as { __DEV__: boolean };
     const dev = g.__DEV__;
     g.__DEV__ = false;
@@ -91,6 +136,25 @@ describe("slices by mode", () => {
     } finally {
       g.__DEV__ = dev;
     }
+  });
+});
+
+describe("saved Dev menu settings", () => {
+  it("keep the scenario only: overrides and the mock wallet are never saved, and older saves are ignored", async () => {
+    await AsyncStorage.setItem("kept.dev", JSON.stringify({ state: { overrides: { auth: "mock" }, mockWallet: true, scenario: "fresh" }, version: 0 }));
+    await useDev.persist.rehydrate();
+    expect(useDev.getState()).toMatchObject({ overrides: {}, mockWallet: false, scenario: "fresh" });
+
+    useDev.setState({ overrides: { auth: "mock" }, mockWallet: true, scenario: "broken" });
+    await settle();
+    const saved = JSON.parse((await AsyncStorage.getItem("kept.dev"))!) as { state: Record<string, unknown> };
+    expect(saved.state).toEqual({ scenario: "broken" });
+  });
+
+  it("a saved scenario that no longer exists falls back to the default", async () => {
+    await AsyncStorage.setItem("kept.dev", JSON.stringify({ state: { scenario: "gone" }, version: 0 }));
+    await useDev.persist.rehydrate();
+    expect(useDev.getState().scenario).toBe(DEFAULT_SCENARIO);
   });
 });
 

@@ -17,7 +17,7 @@ export const metrics = {
   toast: { top: 58, height: 44, padL: 8, padR: 18, radius: 22, disc: 30, icon: 17, gap: 8 },
   keeperNote: { inset: 14, topHeader: 106, topNav: 104, padL: 9, padR: 12, padY: 9, radius: 24, tile: 58, tileRadius: 18,
     eyebrowMark: 12, actionH: 34, actionPadX: 12, gap: 12, holdMs: 4800, originX: 30, below: 8 },
-  keeperPlacement: { defaultSize: 120, inlineMin: 120, bubbleDelay: 450, chipFloatMs: 4500, bubblePadX: 13, bubblePadY: 10, bubbleRadius: 17, bubbleTail: 4, centreBubbleMax: 176, shadowH: 22 },
+  keeperPlacement: { defaultSize: 120, inlineMin: 120, bubbleDelay: 450, chipFloatMs: 4500, bubblePadX: 13, bubblePadY: 10, bubbleRadius: 17, bubbleTail: 4, centreBubbleMax: 176, shadowH: 22, shadowBlur: 9 },
   button: { height: 54, heightText: 44, heightCard: 50, icon: 19, gap: 8, shineWidthPct: 0.4, pressScale: 0.98, rowIcon: 18 },
   rowButton: { height: 36, padX: 16, radius: 18 },
   pinned: { x: 20, bottom: 34, gap: 6 },
@@ -30,8 +30,10 @@ export const metrics = {
   },
   card: { radius: 26, pad: 16, tile: 40, tileRadius: 12, tileIcon: 22, tileTilt: -4, gap: 11, chevron: 22, sectionGap: 12,
     tagH: 24, tagPadL: 7, tagPadR: 9, tagRadius: 12, tagIcon: 13, tagGap: 4, warnPadX: 12, warnPadY: 10, warnRadius: 14, warnIcon: 16,
-    stack1: { inset: 11, top: -10, radius: 25 }, stack2: { inset: 22, top: -20, radius: 24 }, stackH: 60,
+    stack1: { inset: 11, top: -10, radius: 25 }, stack2: { inset: 22, top: -20, radius: 24 },
     float: { h: 34, right: 14, top: -22, padL: 4, padR: 13, radius: 17, avatar: 26, avatarRadius: 8, tilt: 4 }, dimOpacity: 0.55 },
+  /** Today's card stack pager (D-85). */
+  deck: { arrow: 36, icon: 20, dot: 6, dotOn: 16, dotGap: 5, maxDots: 7 },
   hpBar: { segments: 20, gap: 2, height: 8, radius: 2 },
   hpPanel: { pad: 16, radius: 24, gap: 3, height: 18, segRadius: 4, lostRing: 1.5, mt: 10 },
   grid: { pad: 14, radius: 24, nameCol: 64, nameColBig: 26, gap: 4, gapBig: 3, cell: 26, cellBig: 18, cellRadius: 7, cellRadiusBig: 5,
@@ -70,5 +72,6 @@ export const metrics = {
   hitSlop: 44,
   minTouch: 48,
   press: { inMs: 90, outMs: 140 },
-  skeletonPulseMs: 1200,
+  /** Loading skeleton (D-83): a light band (this share of the screen width) sweeps left → right. */
+  skeleton: { sweepMs: 1300, fadeMs: 250, band: 0.55, title: 30, sub: 14, lineRadius: 8, cards: [132, 84, 84] as const },
 } as const;

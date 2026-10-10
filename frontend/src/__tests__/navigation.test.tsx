@@ -8,7 +8,7 @@ import { queryClient } from "@/api/queries";
 import { SLICES } from "@/api/types";
 import { RootNavigator, routeInvite } from "@/app/RootNavigator";
 import { FxHost } from "@/app/hosts";
-import { navigateTo } from "@/app/nav";
+import { navigateTo, navigationRef } from "@/app/nav";
 import { ROUTES, presentation, routeName } from "@/app/routes";
 import { STILL_OFFLINE } from "@/screens/M2";
 import { useDev } from "@/state/dev";
@@ -24,6 +24,9 @@ import amend from "@/app/routes.amend.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setAppMode } from "@/features/mode";
 import { useMode } from "@/state/mode";
+import { mwaWallet } from "@/chain/mwa";
+import { fakeBackend, fakeWallet, resetWallet, installFakeBackend, installFakeWallet } from "@/testing/fakeLive";
+import { AppState } from "react-native";
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 24, left: 0, right: 0, bottom: 16 } };
 const slow = { timeout: 8000 };
@@ -37,6 +40,9 @@ function App() {
     </SafeAreaProvider>
   );
 }
+
+/** The root stack, by route name (D-86: what back goes to). */
+const rootStack = () => navigationRef.getRootState()!.routes.map((r) => r.name);
 
 describe("routes", () => {
   it("registers every design id with an ASCII name", () => {
@@ -99,6 +105,25 @@ describe("onboarding on mocks", () => {
     expect(useSession.getState()).toMatchObject({ onboarded: true, genesis: true });
     expect(await screen.findByRole("header", { name: t("screens.B1.header.title") }, slow)).toBeTruthy();
     expect(screen.getAllByLabelText(t("additions.mode.badge")).length).toBeGreaterThan(0);
+    await fireEvent.press(screen.getByLabelText(t("additions.a11y.newMenu")));
+    expect(await screen.findByText(t("screens.+.b0.title"))).toBeTruthy();
+  }, 30000);
+
+  it("A4 › Customize: the look saved in the builder comes back to A4 and is the one kept", async () => {
+    await render(<App />);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.demo")));
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A4.pin.1") }, slow));
+    const before = useSession.getState().avatar;
+    // A few shuffles: one random draw could repeat the look.
+    for (let i = 0; i < 3; i++) await fireEvent.press(await screen.findByRole("button", { name: t("additions.avatarBuilder.shuffle") }, slow));
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.I9.pin.0") }));
+    const saved = useSession.getState().avatar;
+    expect(saved).not.toBeNull();
+    expect(saved).not.toBe(before);
+    expect(useSession.getState().onboarded).toBe(false);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A4.pin.0") }, slow));
+    expect(useSession.getState()).toMatchObject({ onboarded: true, avatar: saved });
   }, 30000);
 
   it("I have an invite: straight to Live's wallet step", async () => {
@@ -107,39 +132,6 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("screens.A2.b0.title"), {}, slow)).toBeTruthy();
     expect(useMode.getState().mode).toBe("live");
     expect(useSession.getState().invite).toBe("");
-  }, 30000);
-
-  it("Live: splash → welcome → mode sheet → wallet → signed in → verified → look → tabs → + sheet", async () => {
-    await render(<App />);
-    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
-    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
-    await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r0.t")));
-    expect(await screen.findByText(t("screens.A2·s.b2.title"))).toBeTruthy();
-    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A3.pin.0") }, slow));
-    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A4.pin.0") }));
-    expect(useSession.getState()).toMatchObject({ onboarded: true, genesis: true });
-    expect(await screen.findByRole("header", { name: t("screens.B1.header.title") })).toBeTruthy();
-    await fireEvent.press(screen.getByLabelText(t("additions.a11y.newMenu")));
-    expect(await screen.findByText(t("screens.+.b0.title"))).toBeTruthy();
-  }, 30000);
-
-  it("a declined signature lands on A2·e", async () => {
-    useDev.setState({ scenario: "walletRejected" });
-    await render(<App />);
-    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
-    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
-    await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r1.t")));
-    expect(await screen.findByText(t("screens.A2·e.b2.title"), {}, slow)).toBeTruthy();
-    expect(useSession.getState().token).toBeNull();
-  }, 30000);
-
-  it("a non-Seeker lands on A3·no", async () => {
-    useDev.setState({ scenario: "notEligible" });
-    await render(<App />);
-    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
-    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
-    await fireEvent.press(await screen.findByLabelText(t("screens.A2.b1.r0.t")));
-    expect(await screen.findByText(t("screens.A3·no.b2.title"), {}, slow)).toBeTruthy();
   }, 30000);
 
   it("a signed-in, onboarded user skips straight to the tabs", async () => {
@@ -169,6 +161,10 @@ describe("onboarding on mocks", () => {
     expect(await screen.findByText(t("screens.C8.b0.title"))).toBeTruthy();
     // The moment's coins stay with it: leaving C7·ok clears the FX layer.
     expect(useUi.getState().fx).toBeNull();
+    // D-86: the wizard, the signature and the moment are gone; back from the invite is Today.
+    expect(rootStack()).toEqual(["Tabs", "C8"]);
+    await act(async () => { navigationRef.goBack(); });
+    expect(rootStack()).toEqual(["Tabs"]);
   }, 30000);
 
   it("shows a settled Oath's result once, then the claim screen", async () => {
@@ -179,6 +175,10 @@ describe("onboarding on mocks", () => {
     expect(useDeviceOaths.getState().shownResults).toHaveLength(1);
     await fireEvent.press(await screen.findByRole("button", { name: /Claim/ }));
     expect(await screen.findByText(t("screens.J1.b1.caption"))).toBeTruthy();
+    // D-86: claim → signed → "Done" is the one home, nothing stacked on or under it.
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.J1.pin.0") }));
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.J1·ok.pin.0") }, slow));
+    expect(rootStack()).toEqual(["Tabs"]);
   }, 30000);
 
   it("D2 shows the live Oath and nudges; photo 2 → check → F5 Day kept", async () => {
@@ -231,13 +231,76 @@ describe("onboarding on mocks", () => {
   }, 30000);
 });
 
+describe("onboarding on Live", () => {
+  // Live has no mock path (D-80): the real sign-in code runs against test stand-ins for the wallet app and the
+  // backend (src/testing/fakeLive.ts). The Dev menu holds everything that used to put Live on the mock; it must change nothing.
+  let restoreFetch = () => {};
+  beforeAll(() => {
+    queryClient.setDefaultOptions({ queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity } });
+    Object.defineProperty(AppState, "currentState", { value: "active", configurable: true }); // Jest's AppState is a stub
+  });
+  beforeEach(async () => {
+    await setAppMode(null);
+    await AsyncStorage.clear();
+    await mwaWallet.forget();
+    useDev.setState({ overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])), mockWallet: true, scenario: "notEligible" });
+    useDeviceOaths.setState({ shownResults: [], recapShownOn: null });
+    useSession.setState({ token: null, wallet: null, genesis: false, onboarded: false, avatar: null, invite: null });
+    queryClient.clear();
+  });
+  afterEach(() => { restoreFetch(); resetWallet(); useDev.setState({ overrides: {}, mockWallet: false }); });
+
+  const toWallet = async (row: 0 | 1 | 2) => {
+    await render(<App />);
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A1.pin.0") }, slow));
+    await fireEvent.press(await screen.findByText(t("additions.mode.live")));
+    await fireEvent.press(await screen.findByLabelText(t(`screens.A2.b1.r${row}.t`)));
+  };
+
+  it("Seeker: wallet → signed in → verified → look, on the wallet and backend (not the mock)", async () => {
+    const wallet = fakeWallet();
+    const backend = fakeBackend({ genesis: true });
+    installFakeWallet(wallet);
+    restoreFetch = installFakeBackend(backend);
+    await toWallet(0);
+    expect(await screen.findByText(t("screens.A2·s.b2.title"))).toBeTruthy();
+    await fireEvent.press(await screen.findByRole("button", { name: t("screens.A3.pin.0") }, slow));
+    expect(useSession.getState()).toMatchObject({ token: `fake.${wallet.address}`, wallet: wallet.address, genesis: true });
+    expect(useMode.getState().mode).toBe("live");
+    expect(backend.calls).toEqual(["POST /api/auth/nonce", "POST /api/auth/verify", "GET /api/me"]);
+    // A4 is where Today starts; Today on Live needs the rest of the backend, so the test stops here.
+    expect(await screen.findByRole("button", { name: t("screens.A4.pin.0") })).toBeTruthy();
+  }, 30000);
+
+  it("a declined wallet prompt lands on A2·e and never calls the backend", async () => {
+    const backend = fakeBackend();
+    installFakeWallet(fakeWallet({ declines: "authorize" }));
+    restoreFetch = installFakeBackend(backend);
+    await toWallet(1);
+    expect(await screen.findByText(t("screens.A2·e.b2.title"), {}, slow)).toBeTruthy();
+    expect(useSession.getState().token).toBeNull();
+    expect(backend.calls).toEqual([]);
+  }, 30000);
+
+  it("a non-Seeker is signed in too and lands on A3·no", async () => {
+    const wallet = fakeWallet();
+    installFakeWallet(wallet);
+    restoreFetch = installFakeBackend(fakeBackend({ genesis: false }));
+    await toWallet(0);
+    expect(await screen.findByText(t("screens.A3·no.b2.title"), {}, slow)).toBeTruthy();
+    expect(useSession.getState()).toMatchObject({ wallet: wallet.address, genesis: false });
+    expect(useSession.getState().token).toBe(`fake.${wallet.address}`);
+  }, 30000);
+});
+
 describe("Phase 4 on mocks", () => {
   const WALLET = "7xKpQe9mZ3LbVd2RtYc8NfH4uJs6WgA1oPqE5rTk3F9q";
   const MOMENT_IDS = ["L1", "L2", "L3", "L4", "L4·m", "L4·b", "L5", "L6", "H4", "H5", "R4", "R4·lost"];
   beforeAll(() => queryClient.setDefaultOptions({ queries: { ...queryClient.getDefaultOptions().queries, gcTime: Infinity } }));
   /** Signed in on `scenario`, with every result moment and today's recap already seen. */
   async function signedIn(scenario: Scenario) {
-    useDev.setState({ overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])), mockWallet: true, scenario });
+    await setAppMode("demo"); // the mock backend, wallet and chain, as in the Demo build
+    useDev.setState({ scenario });
     mockOaths.reset();
     queryClient.clear();
     mockOaths.ensureSeeded(scenario, WALLET);
@@ -254,6 +317,8 @@ describe("Phase 4 on mocks", () => {
     await act(async () => { navigateTo("R1", { id: guitar.id }); });
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.R1.pin.0") }, slow));
     expect(await screen.findByText(t("screens.R3.b1.title", { n: 3, total: 4 }), {}, slow)).toBeTruthy();
+    // D-86: back from the lobby is home, not the offer or the signature.
+    expect(rootStack()).toEqual(["Tabs", "R3"]);
   }, 30000);
 
   it("group review: the inbox opens G1 and a vote goes back to D2", async () => {
@@ -275,6 +340,7 @@ describe("Phase 4 on mocks", () => {
     await fireEvent.press(await screen.findByRole("button", { name: t("screens.H2.pin.0") }, slow));
     expect(await screen.findByText(/^You're in\./, {}, slow)).toBeTruthy();
     expect(mockOaths.forBounty(open.id, WALLET)).not.toBeNull();
+    expect(rootStack()).toEqual(["Tabs", "H3"]);
   }, 30000);
 
   it("opens every Phase 4 screen that needs no id without a render error", async () => {

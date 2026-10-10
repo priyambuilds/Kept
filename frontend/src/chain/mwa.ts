@@ -10,6 +10,7 @@ import type { Web3MobileWallet } from "@solana-mobile/mobile-wallet-adapter-prot
 import { env, walletChain } from "@/config/env";
 import { classifyTxError } from "./classify";
 import { connection } from "./connection";
+import { signatureFromSigned } from "./signature";
 import type { WalletSession } from "./types";
 
 const STORAGE_KEY = "kept.mwa";
@@ -82,9 +83,11 @@ export const mwaWallet: WalletSession = {
   connect: async () => (await run(authorize)).toBase58(),
   signMessage: (message) => run(async (w) => {
     const key = await authorize(w);
-    const [signature] = await w.signMessages({ addresses: [Buffer.from(key.toBytes()).toString("base64")], payloads: [new TextEncoder().encode(message)] });
-    if (!signature) throw new Error("Wallet did not return a message signature");
-    return { wallet: key.toBase58(), signature };
+    const payload = new TextEncoder().encode(message);
+    const [signed] = await w.signMessages({ addresses: [Buffer.from(key.toBytes()).toString("base64")], payloads: [payload] });
+    if (!signed) throw new Error("Wallet did not return a message signature");
+    // The wallet returns message + signature; the backend wants the signature alone.
+    return { wallet: key.toBase58(), signature: signatureFromSigned(signed, payload) };
   }),
   forget: () => save(null),
 };
@@ -119,7 +122,7 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
         if (status?.value) {
           if (status.value.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(status.value.err)}`);
           if (status.value.confirmationStatus === "confirmed" || status.value.confirmationStatus === "finalized") return signature;
-        } else if (latest.lastValidBlockHeight !== undefined && (await c.getBlockHeight("confirmed")) > latest.lastValidBlockHeight) {
+        } else if (Date.now() - start > 15_000 && latest.lastValidBlockHeight !== undefined && (await c.getBlockHeight("confirmed")) > latest.lastValidBlockHeight) {
           break; // blockhash expired and the network never saw it: one last lookup below, then fail
         }
       } catch (pollErr: unknown) {
@@ -132,7 +135,7 @@ export async function signAndSend(payer: PublicKey, ixs: TransactionInstruction[
       if (txInfo.meta?.err) throw new Error(`Transaction ${signature} failed on chain: ${JSON.stringify(txInfo.meta.err)}`);
       return signature;
     }
-    if (latest.lastValidBlockHeight !== undefined && (await c.getBlockHeight("confirmed")) > latest.lastValidBlockHeight) {
+    if (Date.now() - start > 15_000 && latest.lastValidBlockHeight !== undefined && (await c.getBlockHeight("confirmed")) > latest.lastValidBlockHeight) {
       throw new Error(`Transaction ${signature} expired before it landed (blockhash too old). Nothing was charged; try again.`);
     }
     throw new Error(`Transaction ${signature} confirmation timed out after 45s`);

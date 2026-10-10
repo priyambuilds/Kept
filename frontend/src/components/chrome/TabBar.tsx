@@ -4,7 +4,7 @@ import { View } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, gradient, metrics, shadow, z } from "@/theme";
-import { Gradient, Icon, PressScale, Text, useAnimationLifecycle } from "../primitives";
+import { Gradient, Icon, PressScale, Text, loopCycles, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 
 export type TabKey = "today" | "oaths" | "bounties" | "profile";
@@ -57,14 +57,14 @@ function TabItem({ icon, label, on, onPress }: { icon: IconName; label: string; 
   );
 }
 
-/** 64 round lime, ambient glow ring 0→9 dp at .14 every 2.6 s; pressed .95. Tap → `+` sheet. */
+/** 64 round lime, ambient glow ring 0→9 dp at .14 every 2.6 s (for LOOP_BUDGET_MS after focus); pressed .95. Tap → `+` sheet. */
 function PlusButton({ onPress }: { onPress: () => void }) {
   const m = metrics.tabBar;
   const reduce = useReducedMotion();
   const g = useSharedValue(0);
   const onLayout = useAnimationLifecycle([g], () => {
     if (reduce) return;
-    g.value = withRepeat(withTiming(1, { duration: duration.glow, easing: Easing.inOut(Easing.ease) }), -1, false);
+    g.value = withRepeat(withTiming(1, { duration: duration.glow, easing: Easing.inOut(Easing.ease) }), loopCycles(duration.glow), false);
   }, [reduce], { pauseOnBlur: true });
   // kGlow: box-shadow 0 0 0 0 → 0 0 0 9px rgba(lime,.14) at 50 % → 0: a ring growing out and back.
   const ring = useAnimatedStyle(() => { const k = 1 - Math.abs(2 * g.value - 1); return { transform: [{ scale: 1 + (9 * 2 * k) / m.plus }], opacity: 0.14 * k }; });

@@ -6,7 +6,7 @@ import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import Svg, { Circle, Defs, Ellipse, FeGaussianBlur, Filter, LinearGradient, Polygon, RadialGradient, Rect, Stop } from "react-native-svg";
 import { color, duration, metrics, svgStop as stop } from "@/theme";
-import { Icon, useAnimationLifecycle } from "../primitives";
+import { Icon, LOOP_BUDGET_MS, loopCycles, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 
 export type Tone = "lime" | "red" | "ember" | "grey" | "lock";
@@ -43,14 +43,19 @@ function ToneWash({ tone, w, h }: { tone: Tone; w: number; h: number }) {
   );
 }
 
-/** One orb: a `closest-side` radial to transparent, drifting (translate 40/30, scale 1.18) and back. */
+/**
+ * One orb: a `closest-side` radial to transparent, drifting (translate 40/30, scale 1.18). Its cycle
+ * (16–19 s, the second offset by 6 s) is longer than LOOP_BUDGET_MS, so each focus plays one slow drift
+ * that ends inside the budget and the orb rests there (D-84).
+ */
 function Orb({ size, c, ms, delayMs, reverse, style }: { size: number; c: string; ms: number; delayMs: number; reverse?: boolean; style: object }) {
   const reduce = useReducedMotion();
   const p = useSharedValue(reverse ? 1 : 0);
   const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
-    const half = { duration: ms / 2, easing: Easing.inOut(Easing.ease) };
-    p.set(withDelay(delayMs, withRepeat(withSequence(withTiming(reverse ? 0 : 1, half), withTiming(reverse ? 1 : 0, half)), -1)));
+    const wait = Math.min(delayMs, LOOP_BUDGET_MS / 4);
+    const to = p.get() > 0.5 ? 0 : 1; // drift the other way each time
+    p.set(withDelay(wait, withTiming(to, { duration: Math.min(ms / 2, LOOP_BUDGET_MS - wait), easing: Easing.inOut(Easing.ease) })));
   }, [reduce, ms, delayMs, reverse], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({
     transform: [{ translateX: A.drift.dx * p.value }, { translateY: A.drift.dy * p.value }, { scale: 1 + (A.drift.scale - 1) * p.value }],
@@ -73,7 +78,7 @@ function Beam({ w }: { w: number }) {
   const onLayout = useAnimationLifecycle([o], () => {
     if (reduce) return;
     const half = { duration: duration.beam / 2 };
-    o.set(withRepeat(withSequence(withTiming(A.beam.opacityMin, half), withTiming(1, half)), -1));
+    o.set(withRepeat(withSequence(withTiming(A.beam.opacityMin, half), withTiming(1, half)), loopCycles(duration.beam)));
   }, [reduce], { pauseOnBlur: true });
   const a = useAnimatedStyle(() => ({ opacity: o.value }));
   const b = A.beam;

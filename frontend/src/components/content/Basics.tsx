@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { View } from "react-native";
+import { View, useWindowDimensions } from "react-native";
+import Animated, { useAnimatedStyle, useReducedMotion } from "react-native-reanimated";
 import { color, fontFamily, metrics, radius, space, type as typeStyles } from "@/theme";
 import { t } from "@/copy";
-import { Icon, Loop, PressScale, RichText, Text } from "../primitives";
+import { Gradient, Icon, PressScale, RichText, Text, useShimmer } from "../primitives";
 import type { IconName } from "../primitives";
 
 // ── Title (`t`) ── fs 30 by default; letter-spacing −1.1, or −1.8 from fs 40; line-height 1.1.
@@ -105,7 +106,10 @@ export function Segmented({ items, value, onChange }: { items: string[]; value: 
         const on = i === value;
         return (
           <PressScale key={t} onPress={() => onChange(i)} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={t} style={{ flex: 1 }} hit={{ w: metrics.segmented.item, h: metrics.segmented.item }}>
-            <View style={{ height: metrics.segmented.item, borderRadius: metrics.segmented.itemRadius, backgroundColor: on ? color.text.primary : color.extra.transparent, alignItems: "center", justifyContent: "center" }}>
+            <View style={{ height: metrics.segmented.item, alignItems: "center", justifyContent: "center" }}>
+              {/* Its own view, mounted with the selection: on Android a background switched on later (from
+                  transparent) was drawn without the unchanged corner radius, a white rectangle. */}
+              {on ? <View style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, borderRadius: metrics.segmented.itemRadius, backgroundColor: color.text.primary }} /> : null}
               <Text variant="chipMd" color={on ? color.text.onLime : color.text.secondary} numberOfLines={1}>{t}</Text>
             </View>
           </PressScale>
@@ -151,12 +155,23 @@ function Hatch() {
   );
 }
 
-// ── Skeleton ── loading blocks in the same geometry (screens.md › States): surface.1, pulse .5↔1 at 1.2 s.
+// ── Skeleton ── loading blocks in the same geometry (screens.md › States): surface.1 with a light band
+// sweeping left → right (D-83; the design's .5 ↔ 1 pulse read as a flicker). Only the band moves, on the
+// UI thread; its travel is the window width, so blocks under one ShimmerProvider sweep as one light.
 export function Skeleton({ height, radiusPx = radius.card, width }: { height: number; radiusPx?: number; width?: number | `${number}%` }) {
+  const p = useShimmer();
+  const reduce = useReducedMotion();
+  const { width: W } = useWindowDimensions();
+  const band = Math.round(W * metrics.skeleton.band);
+  const a = useAnimatedStyle(() => ({ transform: [{ translateX: -band + p.value * (W + band) }] }));
   return (
-    <Loop kind="pulse">
-      <View accessibilityLabel={t("additions.a11y.loading")} style={{ height, width: width ?? "100%", borderRadius: radiusPx, backgroundColor: color.extra.skeleton }} />
-    </Loop>
+    <View accessibilityLabel={t("additions.a11y.loading")} style={{ height, width: width ?? "100%", borderRadius: radiusPx, backgroundColor: color.extra.skeleton, overflow: "hidden" }}>
+      {reduce ? null : (
+        <Animated.View pointerEvents="none" style={[{ position: "absolute", top: 0, bottom: 0, left: 0, width: band }, a]}>
+          <Gradient g={{ colors: color.extra.skeletonShine, start: { x: 0, y: 0.5 }, end: { x: 1, y: 0.5 } }} style={{ flex: 1 }} />
+        </Animated.View>
+      )}
+    </View>
   );
 }
 

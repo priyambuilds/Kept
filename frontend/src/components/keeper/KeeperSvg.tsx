@@ -38,6 +38,9 @@ function phaseOf(key: string): number {
   return (h % 3000) / 1000;
 }
 
+/** The rig advances in 30 fps steps (D-84). */
+const RIG_FRAME_MS = 1000 / 30;
+
 export const KeeperSvg = memo(function KeeperSvg({ mood, prop = "none", anim = "idle", hand, size, bust = false, animate = true }: KeeperSvgProps) {
   const reduce = useReducedMotion();
   const rid = useId();
@@ -47,7 +50,12 @@ export const KeeperSvg = memo(function KeeperSvg({ mood, prop = "none", anim = "
   // The prototype starts idles at a random phase so two Keepers never blink together; peek/popin start at 0.
   const offset = useMemo(() => (anim === "peek" || anim === "popin" ? 0 : phaseOf(rid)), [anim, rid]);
   const t = useSharedValue(0);
-  const cb = useFrameCallback((f) => { t.value = Math.max(0.001, f.timeSinceFirstFrame / 1000 + offset); }, false);
+  // 30 fps is plenty for his idle (bob, blink, hands) and halves the cost: every update redraws the whole
+  // drawing and, on Android, the whole window (D-84).
+  const cb = useFrameCallback((f) => {
+    const next = Math.max(0.001, Math.floor(f.timeSinceFirstFrame / RIG_FRAME_MS) * RIG_FRAME_MS / 1000 + offset);
+    if (next !== t.value) t.value = next;
+  }, false);
   // Frames run only while the drawing is mounted (from its first layout), its screen is focused and it's
   // live; they stop in the commit that removes it (audit P-6: no updates to views that don't exist).
   const focused = useScreenFocused();

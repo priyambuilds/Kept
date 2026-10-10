@@ -1,5 +1,5 @@
 // Dev-only deep link for screenshots and QA (Phase 4.5):
-//   kept://dev/open/<screen>?scenario=<name>&mode=mock&hold=1&quiet=1
+//   kept://dev/open/<screen>?scenario=<name>&hold=1&quiet=1
 // <screen> is a design id or its route name ("C7·no" or "C7_no", "+" or "Plus"). The link resets the
 // mock store and virtual clock to a scenario, signs in on the mock (signed out for onboarding), and
 // opens the screen with the params it needs on top of Today. `hold=1` keeps pending screens pending
@@ -8,7 +8,6 @@ import { LogBox } from "react-native";
 import { CommonActions } from "@react-navigation/native";
 import { resetMockApi } from "@/api";
 import { queryClient } from "@/api/queries";
-import { SLICES } from "@/api/types";
 import { clock } from "@/lib/clock";
 import { SCENARIOS } from "@/api/mock/scenarios";
 import type { Scenario } from "@/api/mock/scenarios";
@@ -121,7 +120,8 @@ function openDevLink(url: string): boolean {
   useMode.setState({ mode: "demo" });
   setStorageScope("demo");
   useDevHold.setState({ hold: q.hold === "1", still: q.still === "1" });
-  useDev.setState({ scenario, mockWallet: true, ...(q.mode === "mock" || !q.mode ? { overrides: Object.fromEntries(SLICES.map((s) => [s, "mock"])) } : {}) });
+  // Demo already means the mock for every slice, with the mock wallet; nothing else to switch on.
+  useDev.setState({ scenario, overrides: {}, mockWallet: false });
   clock.reset();
   mockOaths.reset();
   mockReviews.reset();

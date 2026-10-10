@@ -77,6 +77,10 @@ function frameStats() {
     p90: num(/90th percentile: (\d+)ms/),
     p95: num(/95th percentile: (\d+)ms/),
     p99: num(/99th percentile: (\d+)ms/),
+    // Why frames were late: the app's UI thread (layout, JS-driven mounts) vs drawing on the render thread / GPU.
+    slowUi: num(/Number Slow UI thread: (\d+)/),
+    slowDraw: num(/Number Slow issue draw commands: (\d+)/),
+    slowUpload: num(/Number Slow bitmap uploads: (\d+)/),
   };
 }
 
