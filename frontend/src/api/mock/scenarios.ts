@@ -2,6 +2,8 @@
 // reached on the device without the backend. Phase 2 wires the ones that affect sign-in, balances,
 // inbox and errors; the Oath scenarios get their data in Phase 3.
 export const SCENARIOS = [
+  // Demo mode's account (D-80): the core ideas reachable from Today in two minutes.
+  "judges",
   "fresh", "activeGroup", "deadlineClose", "allDone", "lowHp", "broken", "settledKept", "settledMissed",
   "rematchActive", "bountyJoined", "bountyOut", "notEligible", "offline", "walletRejected", "txFailed", "noSol", "noSkr",
   "proofFail", "proofUnavailable",
@@ -9,7 +11,7 @@ export const SCENARIOS = [
   "soloKept", "soloMissed", "soloBroken", "rematchKept", "rematchLost",
 ] as const;
 export type Scenario = (typeof SCENARIOS)[number];
-export const DEFAULT_SCENARIO: Scenario = "activeGroup";
+export const DEFAULT_SCENARIO: Scenario = "judges";
 
 /** Scenarios whose effect is on the wallet / TxService rather than the API. */
 export const WALLET_SCENARIOS: readonly Scenario[] = ["walletRejected", "txFailed", "noSol", "noSkr"];

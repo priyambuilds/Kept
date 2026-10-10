@@ -6,6 +6,8 @@ import { clock } from "@/api/mock/clock";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { mockOaths } from "@/features/oaths/mockStore";
 import { mockReviews } from "@/features/reviews/mockStore";
+import { RESULT_SCREENS, useDeviceOaths } from "@/features/oaths/device";
+import { mockScenario } from "@/state/dev";
 import { useMode } from "@/state/mode";
 import type { AppMode } from "@/state/mode";
 import { useSession } from "@/state/session";
@@ -17,6 +19,16 @@ function resetDemoWorld(): void {
   mockOaths.reset();
   mockReviews.reset();
   resetMockApi();
+}
+
+/**
+ * The sample account opens on a calm Today: its finished and broken Oaths' result screens and today's
+ * recap count as seen (they're one tap away: the claim banner, D3 in the Oaths tab).
+ */
+function seedDemo(): void {
+  mockOaths.ensureSeeded(mockScenario(), MOCK_WALLET);
+  const ids = mockOaths.list(MOCK_WALLET, { seeded: true }).map((o) => o.id);
+  useDeviceOaths.setState({ shownResults: ids.flatMap((id) => RESULT_SCREENS.map((k) => `${id}:${k}`)), recapShownOn: new Date(clock.now()).toDateString() });
 }
 
 export async function setAppMode(mode: AppMode | null): Promise<void> {
@@ -34,6 +46,7 @@ export async function startDemo(): Promise<void> {
   await setAppMode("demo");
   await rehydrateScoped();
   useSession.getState().signIn({ token: `mock.${MOCK_WALLET}`, wallet: MOCK_WALLET, genesis: true });
+  seedDemo();
 }
 
 /** A1·m › Use my wallet (and invite links): Live; A2 signs in. */
@@ -61,6 +74,7 @@ export async function restartDemo(): Promise<void> {
   await rehydrateScoped();
   useSession.getState().signIn({ token: `mock.${MOCK_WALLET}`, wallet: MOCK_WALLET, genesis: true });
   if (avatar) useSession.getState().finishOnboarding(avatar);
+  seedDemo();
 }
 
 /** Profile › Exit demo: everything from Demo is wiped and the mode is picked again on A1. */

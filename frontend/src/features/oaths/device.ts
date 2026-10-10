@@ -7,6 +7,9 @@ import { registerScoped, scopedPersist } from "@/state/storage";
 import type { ReviewMode } from "./model";
 import { useEffect, useState } from "react";
 
+/** Result screens shown once per Oath (D-29): `${oathId}:${id}` in shownResults. */
+export const RESULT_SCREENS = ["L1", "L2", "L3", "L4", "L4·m", "L4·b", "L5", "L6", "H4", "H5", "R4", "R4·lost"] as const;
+
 export interface DeviceOathState {
   names: Record<string, string>;
   reviewModes: Record<string, ReviewMode>;

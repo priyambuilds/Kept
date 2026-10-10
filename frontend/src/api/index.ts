@@ -2,7 +2,7 @@
 // mode's (Demo: mock, Live: http), plus the Dev menu's overrides in development builds. useApi()
 // rebuilds it when the mode or an override changes.
 import { useMemo } from "react";
-import { useDev, flags as currentFlags } from "@/state/dev";
+import { useDev, flags as currentFlags, mockScenario } from "@/state/dev";
 import { useMode } from "@/state/mode";
 import { useSession } from "@/state/session";
 import { createHttpClient } from "./http/client";
@@ -43,7 +43,7 @@ export function createApi(f: Record<Slice, SliceMode>, mock: KeptApi, getToken: 
 }
 
 const mockContext = {
-  scenario: () => useDev.getState().scenario,
+  scenario: mockScenario,
   wallet: () => useSession.getState().wallet,
   latencyMs: MOCK_LATENCY_MS,
 };

@@ -43,6 +43,9 @@ export function flags(state: Pick<DevState, "overrides"> = useDev.getState(), mo
   return __DEV__ ? { ...defaultFlags(mode), ...state.overrides } : defaultFlags(mode);
 }
 
+/** The mock's scenario: the Dev menu's pick in development builds; release Demo is always the judges' account. */
+export const mockScenario = (): Scenario => (__DEV__ ? useDev.getState().scenario : DEFAULT_SCENARIO);
+
 /** The mock wallet stands in for MWA in Demo, and in Live only when a development build asks for it. */
 export const mockWalletOn = (mode: AppMode | null = useMode.getState().mode): boolean => mode === "demo" || (__DEV__ && useDev.getState().mockWallet);
 

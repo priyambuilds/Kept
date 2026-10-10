@@ -145,6 +145,12 @@ export function seed(scenario: Scenario, wallet: string) {
   }
   // N1's invite: Riya's Dawn Run, Dev already in, the user not yet. Seeded last so earlier ids stay put.
   group("Dawn Run", 4, 7, 1000, wallet, [person("riya", 0), person("dev", 0)], { status: "open", goal: "run 3 km before 8", inviteCode: "DAWN-R7Q2" });
+  if (scenario === "judges") {
+    // Demo (D-80): the same Today, plus a broken Oath with a Rematch offer (D3 → R1) in the Oaths tab.
+    const guitar = group("Guitar Days", 3, 7, 1000, wallet, [me(wallet, { daysKept: mask("kkkkkk") }), person("riya", mask("kkkkkk")), person("arjun", mask("kmkmkm")), person("dev", mask("kmkmmm"))],
+      { goal: "practise guitar for 30 min", day1StartsAt: t - 6 * DAY - 60 });
+    rematchOf(guitar, [PEOPLE.riya.wallet, PEOPLE.dev.wallet], true);
+  }
 }
 
 /** Held per wallet at the original break (D-9): what a Rematch can win back. */

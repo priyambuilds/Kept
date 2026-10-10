@@ -15,7 +15,7 @@ import type { Scenario } from "@/api/mock/scenarios";
 import { MOCK_WALLET } from "@/api/mock/slices";
 import { mockBounties } from "@/features/bounties/mockStore";
 import { PEOPLE, mockOaths } from "@/features/oaths/mockStore";
-import { useDeviceOaths } from "@/features/oaths/device";
+import { RESULT_SCREENS, useDeviceOaths } from "@/features/oaths/device";
 import { mockReviews } from "@/features/reviews/mockStore";
 import { useDev, useDevHold } from "@/state/dev";
 import { useDraft } from "@/state/drafts";
@@ -141,8 +141,7 @@ export function openDevLink(url: string): boolean {
   shot.setup?.();
   // Results and the recap are moments shown once: mark them seen so they don't open over the target.
   const ids = mockOaths.list(W, { seeded: true }).map((o) => o.id);
-  const moments = ["L1", "L2", "L3", "L4", "L4·m", "L4·b", "L5", "L6", "H4", "H5", "R4", "R4·lost"];
-  useDeviceOaths.setState({ shownResults: ids.flatMap((o) => moments.map((k) => `${o}:${k}`)), recapShownOn: new Date(clock.now()).toDateString(), photo1: {}, fails: {}, seenHp: {} });
+  useDeviceOaths.setState({ shownResults: ids.flatMap((o) => RESULT_SCREENS.map((k) => `${o}:${k}`)), recapShownOn: new Date(clock.now()).toDateString(), photo1: {}, fails: {}, seenHp: {} });
 
   const route = (d: DesignId, p?: Params) => { const [name, params] = target(d, p); return { name, params }; };
   // Today's states (B2–B4) are the B1 tab on another scenario.
