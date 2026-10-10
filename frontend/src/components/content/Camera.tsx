@@ -10,6 +10,7 @@ import { color, duration, metrics, space } from "@/theme";
 import { Icon, Loop, PressScale, Shake, Text, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 import { haptic } from "@/lib/haptics";
+import { useHeightScale } from "@/lib/screenScale";
 
 export type CameraState = "idle" | "check" | "fail" | "review" | "scan" | "off";
 const STATE: Record<CameraState, { corner: string; pillBg: string; pillFg: string; icon: IconName; scan?: boolean; spin?: boolean }> = {
@@ -37,10 +38,12 @@ function ScanLine({ height }: { height: number }) {
  * and status pill. `children` is the live preview (expo-camera, Phase 3); without it the frame shows the
  * challenge illustration exactly like the prototype.
  */
-export function ProofCamera({ photo, object, gesture, state, label, height = metrics.camera.height, children }: {
+export function ProofCamera({ photo, object, gesture, state, label, height: designHeight = metrics.camera.height, children }: {
   photo?: 1 | 2; object: IconName; gesture?: GestureKey; state: CameraState; label: string; height?: number; children?: ReactNode;
 }) {
   const c = metrics.camera;
+  // Shorter phones: the frame shrinks with the screen height so the shutter row stays on screen.
+  const height = Math.round(designHeight * useHeightScale());
   const s = STATE[state];
   const objSize = height >= c.objectBigFrom ? c.objectBig : c.objectSmall;
   const g = gesture ? GESTURES.find((x) => x.key === gesture) : undefined;

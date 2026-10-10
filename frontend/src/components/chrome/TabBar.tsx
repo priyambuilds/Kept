@@ -4,7 +4,7 @@ import { View } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "@/copy";
 import { color, duration, gradient, metrics, shadow, z } from "@/theme";
-import { Gradient, Icon, PressScale, Text, useAnimationLifecycle, FadeIn } from "../primitives";
+import { Gradient, Icon, PressScale, Text, useAnimationLifecycle } from "../primitives";
 import type { IconName } from "../primitives";
 
 export type TabKey = "today" | "oaths" | "bounties" | "profile";
@@ -40,6 +40,7 @@ function TabItem({ icon, label, on, onPress }: { icon: IconName; label: string; 
   }, [on, reduce]);
   const grow = useAnimatedStyle(() => ({ flex: 1 + (m.activeFlex - 1) * p.value }));
   const fill = useAnimatedStyle(() => ({ opacity: p.value }));
+  const labelFade = useAnimatedStyle(() => ({ opacity: p.value }));
   const fg = on ? color.text.onLime : color.text.secondary;
   return (
     <Animated.View onLayout={onLayout} style={grow}>
@@ -47,8 +48,9 @@ function TabItem({ icon, label, on, onPress }: { icon: IconName; label: string; 
         <View style={{ height: m.item, borderRadius: m.itemRadius, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: m.labelGap, overflow: "hidden" }}>
           <Animated.View pointerEvents="none" style={[{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, borderRadius: m.itemRadius, backgroundColor: color.text.primary }, fill]} />
           <Icon name={icon} size={m.icon} color={fg} />
-          {/* The label mounts with the active state and fades in on its own (never driven while it unmounts). */}
-          {on ? <FadeIn ms={duration.flex} delay={0} rise={0}><Text variant="tab" color={fg} numberOfLines={1}>{label}</Text></FadeIn> : null}
+          {/* The label mounts with the active state and fades in with the pill: it reads the tab's own value,
+              so a label that mounts late starts where the pill already is instead of missing its fade. */}
+          {on ? <Animated.View style={labelFade}><Text variant="tab" color={fg} numberOfLines={1}>{label}</Text></Animated.View> : null}
         </View>
       </PressScale>
     </Animated.View>

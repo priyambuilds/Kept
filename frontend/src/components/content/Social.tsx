@@ -24,20 +24,24 @@ export function BountyCover({ brand, logo, verified, colors, icon, message, tags
         <View style={{ position: "absolute", right: -24, bottom: -46, transform: [{ rotate: "-12deg" }] }}>
           <Icon name={icon} size={c.bigIcon} color={color.extra.decoWhite16} />
         </View>
-        <View style={{ position: "absolute", left: c.inset, top: c.inset, height: c.pill, paddingLeft: 4, paddingRight: 11, borderRadius: c.pill / 2, backgroundColor: color.extra.onCover28, flexDirection: "row", alignItems: "center", gap: 7 }}>
+        {/* Brand pill left, tags right, in one row: on a narrow phone the brand name truncates instead of
+            running under the tags. */}
+        <View style={{ position: "absolute", left: c.inset, right: c.inset, top: c.inset, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: space[5] }}>
+        <View style={{ flexShrink: 1, minWidth: 0, height: c.pill, paddingLeft: 4, paddingRight: 11, borderRadius: c.pill / 2, backgroundColor: color.extra.onCover28, flexDirection: "row", alignItems: "center", gap: 7 }}>
           <View style={{ width: c.logo, height: c.logo, borderRadius: c.logoRadius, backgroundColor: color.text.primary, alignItems: "center", justifyContent: "center" }}>
             <Text style={{ fontFamily: fontFamily("sans", 800), fontSize: 12, color: color.text.onLime }}>{logo}</Text>
           </View>
-          <Text variant="chipMd">{brand}</Text>
+          <Text variant="chipMd" numberOfLines={1} style={{ flexShrink: 1 }}>{brand}</Text>
           {verified !== false ? <Icon name="check-decagram" size={14} color={color.lime.base} /> : null}
         </View>
-        <View style={{ position: "absolute", right: c.inset, top: c.inset, flexDirection: "row", gap: space[5] }}>
+        <View style={{ flexDirection: "row", gap: space[5], flexShrink: 0 }}>
           {tags.map((tg) => (
             <View key={tg.text} style={{ height: c.tagH, paddingLeft: 7, paddingRight: 9, borderRadius: c.tagH / 2, backgroundColor: color.extra.onCover28, flexDirection: "row", alignItems: "center", gap: space[4] }}>
               <Icon name={tg.icon} size={13} />
               <Text variant="chip" style={{ fontSize: 11 }}>{tg.text}</Text>
             </View>
           ))}
+        </View>
         </View>
         <Text variant="coverMsg" style={{ position: "absolute", left: 16, right: 16, bottom: 16 }}>{message}</Text>
         <Shine period={5000} delay={1200} widthPct={0.35} />
@@ -251,7 +255,8 @@ export function AvatarBuilder({ config, onChange, variant = "full", tab = 0, onT
         <>
           <Segmented items={[0, 1, 2, 3, 4, 5].map((i) => t(`common.avatarTabs.${i}`))} value={tab} onChange={(i) => onTab?.(i)} />
           {"swatches" in T ? (
-            <View style={{ flexDirection: "row", gap: space[10], justifyContent: "center", flexWrap: "wrap" }}>
+            // One row at any width (8 × 32 dp needs 326 dp with the design's 10 dp gaps; a 360 dp phone has 320).
+            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%", maxWidth: T.swatches.length * (a.swatch + space[10]), alignSelf: "center" }}>
               {T.swatches.map((c, i) => (
                 <PressScale key={c} onPress={() => set(T.swatchDigit, i)} accessibilityState={{ selected: d[T.swatchDigit] === i }} accessibilityLabel={t("additions.a11y.colour", { n: i + 1 })} scale={0.92}>
                   <View style={{ width: a.swatch, height: a.swatch, borderRadius: a.swatch / 2, backgroundColor: c, boxShadow: d[T.swatchDigit] === i ? `0 0 0 3px ${color.bg.app}, 0 0 0 5px ${color.text.primary}` : `inset 0 0 0 1px ${color.extra.swatchRing}` }} />

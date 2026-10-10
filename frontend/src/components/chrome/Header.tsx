@@ -105,7 +105,7 @@ export function AppHeader({ title, balance, unreadCount, keeper, onBalance, onBe
   return (
     <View style={{ height: h.height, flexDirection: "row", alignItems: "center", gap: h.gap }}>
       <KeeperMark hasNew={mark.hasNew} onPress={mark.onPress} open={!!host?.open} />
-      <Text variant="headerTitle" numberOfLines={1} accessibilityRole="header" style={{ marginLeft: h.titleMargin, flex: 1 }}>{title}</Text>
+      <Text variant="headerTitle" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} accessibilityRole="header" style={{ marginLeft: h.titleMargin, flex: 1 }}>{title}</Text>
       <BalanceChip amount={balance} {...(onBalance ? { onPress: onBalance } : {})} />
       <Bell count={unreadCount} {...(onBell ? { onPress: onBell } : {})} />
       {extra ? <RoundButton icon={extra.icon} size={h.extra} iconSize={h.extraIcon} label={extra.label} onPress={extra.onPress} /> : null}

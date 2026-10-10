@@ -2,6 +2,8 @@
 // Grouped per component so a screen-level change is a one-line edit here, never in a component.
 export const metrics = {
   frameWidth: 390,
+  /** The design's frame height (Design.pdf): tall heroes scale down on shorter phones. */
+  frameHeight: 844,
   contentWidth: 350,
   statusBar: { height: 48, padX: 30, badgeH: 18, badgePadX: 6, badgeRadius: 5, badgeRow: 24 },
   /** Scroll column (screens.md › Common layout): x 20–370, gap 14; content starts 10 below the bar. */

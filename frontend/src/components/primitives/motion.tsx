@@ -70,6 +70,20 @@ export function Pop({ children, delay = 0, ms = duration.pop, ease = "spring", s
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
 
+/**
+ * A view that mounts late (a busy UI thread, a navigation reset) can miss its whole entrance: updates to
+ * a view that doesn't exist yet are dropped (D-79), and it stays at the start value, invisible. Once the
+ * entrance should be over, apply the end value again (a fresh update) so it always lands.
+ */
+function useLand(p: SharedValue<number>, afterMs: number, deps: unknown[]) {
+  useEffect(() => {
+    let frame = 0;
+    const id = setTimeout(() => { p.value = 1 - 1e-6; frame = requestAnimationFrame(() => { p.value = 1; }); }, afterMs + 150);
+    return () => { clearTimeout(id); cancelAnimationFrame(frame); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
 /** kInA: opacity 0 → 1, translateY 16 → 0, scale .98 → 1 over 500 ms `enter` (block i waits 40 + 65·i ms). */
 export function Enter({ children, index = 0, delay, replay = 0, style }: { children: ReactNode; index?: number; delay?: number; replay?: number; style?: StyleProp<ViewStyle> }) {
   const reduce = useReducedMotion();
@@ -80,6 +94,7 @@ export function Enter({ children, index = 0, delay, replay = 0, style }: { child
     p.value = 0;
     p.value = withDelay(wait, withTiming(1, { duration: duration.enter, easing: easing("enter") }));
   }, [reduce, wait, replay]);
+  useLand(p, wait + duration.enter, [wait, replay]);
   const a = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ translateY: 16 * (1 - p.value) }, { scale: 0.98 + 0.02 * p.value }] }));
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }
@@ -94,6 +109,7 @@ export function FadeIn({ children, delay = 0, ms = 300, rise = 10, style }: { ch
     if (reduce) return;
     p.value = withDelay(delay, withTiming(1, { duration: ms, easing: Easing.out(Easing.ease) }));
   }, [reduce, delay, ms]);
+  useLand(p, delay + ms, [delay, ms]);
   const a = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ translateY: rise * (1 - p.value) }] }));
   return <Animated.View onLayout={onLayout} style={[style, a]}>{children}</Animated.View>;
 }

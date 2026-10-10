@@ -7,6 +7,7 @@ import { color, metrics, shadow, space, svgStop, tile } from "@/theme";
 import type { PaletteName } from "@/theme";
 import { Bubble, CheckK, Icon, Knock, Loop, NoteDrop, PressScale, Text } from "../primitives";
 import { Chip } from "../content/Basics";
+import { useHeightScale } from "@/lib/screenScale";
 import type { ChipTone } from "../content/Basics";
 import type { IconName } from "../primitives";
 import { Keeper } from "./Keeper";
@@ -79,7 +80,11 @@ export interface KeeperPlacementProps {
   orbs?: KeeperOrb[];
 }
 
-export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle", size = metrics.keeperPlacement.defaultSize, side = "l", height, chips = [], orbs = [] }: KeeperPlacementProps) {
+export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle", size: designSize = metrics.keeperPlacement.defaultSize, side = "l", height: designHeight, chips = [], orbs = [] }: KeeperPlacementProps) {
+  // Shorter phones: the hero shrinks with the screen height, its spots move with it (x follows the width).
+  const sy = useHeightScale();
+  const size = Math.round(designSize * sy);
+  const height = designHeight === undefined ? undefined : Math.round(designHeight * sy);
   const [i, setI] = useState(0);
   // The design's spots are in its 350 dp column; narrower phones (360 dp wide → 320) scale x to fit.
   const [W, setW] = useState<number>(metrics.contentWidth);
@@ -100,7 +105,7 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
       <View pointerEvents="none" style={{ position: "absolute", left: Math.round(kx + size / 2 - gs / 2), top: Math.round(ky + size * 0.55 - gs / 2) }}>
         <RadialGlow size={gs} colour={glow} id={`kglow-${mood}`} />
       </View>
-      {orbs.map((o, k) => <Orb key={k} o={o} i={k} sx={sx} />)}
+      {orbs.map((o, k) => <Orb key={k} o={{ ...o, y: Math.round(o.y * sy), size: Math.round(o.size * sy) }} i={k} sx={sx} />)}
       <View pointerEvents="none" style={{ position: "absolute", left: Math.round(kx + size * 0.15), top: h - kp.shadowH, width: Math.round(size * 0.7), height: kp.shadowH, borderRadius: size, backgroundColor: color.extra.keeperShadow, filter: [{ blur: 9 }] }} />
       <Pressable
         onPress={cycle ? () => setI((n) => n + 1) : undefined}
@@ -112,7 +117,7 @@ export function KeeperPlacement({ mood, line, lines, prop = "none", anim = "idle
         <Keeper mood={mood} prop={prop} anim={poseAnim} size={size} />
       </Pressable>
       {chips.map((c, k) => (
-        <View key={`${c.text}${k}`} pointerEvents="none" style={{ position: "absolute", left: Math.round(c.x * sx), top: c.y, zIndex: 4 }}>
+        <View key={`${c.text}${k}`} pointerEvents="none" style={{ position: "absolute", left: Math.round(c.x * sx), top: Math.round(c.y * sy), zIndex: 4 }}>
           <Loop kind="float" period={metrics.keeperPlacement.chipFloatMs} delay={k * 700}>
             <Chip text={c.text} icon={c.icon} {...(c.tone ? { tone: c.tone } : {})} tilt={c.tilt ?? 0} />
           </Loop>
