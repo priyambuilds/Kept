@@ -97,7 +97,6 @@ export interface OathCardProps {
   button?: Omit<ButtonProps, "size">;
   /** Friend float: "Riya kept 07:12" with the member's initial + colour. */
   float?: { text: string; initial: string; bg: string };
-  stack?: boolean;
   tilt?: number;
   variant?: "default" | "sm" | "lime";
   dim?: boolean;
@@ -140,13 +139,7 @@ export function OathCard(p: OathCardProps) {
     </Surface>
   );
   return (
-    <View style={{ opacity: p.dim ? metrics.card.dimOpacity : 1, transform: [{ rotate: `${p.tilt ?? 0}deg` }], marginTop: p.stack ? -metrics.card.stack2.top : 0 }}>
-      {p.stack ? (
-        <>
-          <View style={{ position: "absolute", left: metrics.card.stack2.inset, right: metrics.card.stack2.inset, top: metrics.card.stack2.top, height: metrics.card.stackH, borderRadius: metrics.card.stack2.radius, backgroundColor: color.surface.stack2, boxShadow: `inset 0 0 0 1px ${color.line.hairline}` }} />
-          <View style={{ position: "absolute", left: metrics.card.stack1.inset, right: metrics.card.stack1.inset, top: metrics.card.stack1.top, height: metrics.card.stackH, borderRadius: metrics.card.stack1.radius, backgroundColor: color.surface.stack1, boxShadow: `inset 0 0 0 1px ${color.line.hairline2}` }} />
-        </>
-      ) : null}
+    <View style={{ opacity: p.dim ? metrics.card.dimOpacity : 1, transform: [{ rotate: `${p.tilt ?? 0}deg` }] }}>
       {v === "default" ? <Loop kind="breath">{card}</Loop> : card}
       {p.float ? (
         <Pop delay={600} ms={550} style={{ position: "absolute", right: metrics.card.float.right, top: metrics.card.float.top }}>

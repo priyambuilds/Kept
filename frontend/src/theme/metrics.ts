@@ -30,8 +30,10 @@ export const metrics = {
   },
   card: { radius: 26, pad: 16, tile: 40, tileRadius: 12, tileIcon: 22, tileTilt: -4, gap: 11, chevron: 22, sectionGap: 12,
     tagH: 24, tagPadL: 7, tagPadR: 9, tagRadius: 12, tagIcon: 13, tagGap: 4, warnPadX: 12, warnPadY: 10, warnRadius: 14, warnIcon: 16,
-    stack1: { inset: 11, top: -10, radius: 25 }, stack2: { inset: 22, top: -20, radius: 24 }, stackH: 60,
+    stack1: { inset: 11, top: -10, radius: 25 }, stack2: { inset: 22, top: -20, radius: 24 },
     float: { h: 34, right: 14, top: -22, padL: 4, padR: 13, radius: 17, avatar: 26, avatarRadius: 8, tilt: 4 }, dimOpacity: 0.55 },
+  /** Today's card stack pager (D-85). */
+  deck: { arrow: 36, icon: 20, dot: 6, dotOn: 16, dotGap: 5, maxDots: 7 },
   hpBar: { segments: 20, gap: 2, height: 8, radius: 2 },
   hpPanel: { pad: 16, radius: 24, gap: 3, height: 18, segRadius: 4, lostRing: 1.5, mt: 10 },
   grid: { pad: 14, radius: 24, nameCol: 64, nameColBig: 26, gap: 4, gapBig: 3, cell: 26, cellBig: 18, cellRadius: 7, cellRadiusBig: 5,

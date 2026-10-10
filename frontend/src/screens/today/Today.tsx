@@ -8,6 +8,7 @@ import { Button, ButtonRow } from "@/components/actions";
 import { BottomSheet } from "@/components/chrome";
 import { Banner, BodyText, Skeleton, Title, Chip, ChipRow } from "@/components/content/Basics";
 import { OathCard } from "@/components/content/Oath";
+import { CardDeck } from "@/components/content/Deck";
 import { RowList } from "@/components/content/Rows";
 import type { RowProps } from "@/components/content/Rows";
 import type { BountyFacts as Bounty } from "@/features/bounties/model";
@@ -68,11 +69,11 @@ function Active({ items, pending, claim }: { items: OathView[]; pending: OathVie
   const { go } = useGo();
   const k = keeperLines("B1");
   const brands = useBrands();
-  // The main card is an Oath (a group one first), stacked; pending Bounties follow as small cards
-  // (reference/kept-screens-1.js › B1, D-73); everything else is a row.
+  // Everything still due today is one swipeable stack (D-85): an Oath on top (a group one first), then by
+  // deadline, Bounties as their small cards; what's already kept today follows as rows.
   const main = pending.find((v) => !v.facts.isSolo && !v.facts.bountyId) ?? pending.find((v) => !v.facts.bountyId) ?? pending[0];
-  const bountyCards = pending.filter((v) => v !== main && v.facts.bountyId);
-  const rest = items.filter((v) => v !== main && !bountyCards.includes(v));
+  const deck = main ? [main, ...pending.filter((v) => v !== main)] : [];
+  const rest = items.filter((v) => !pending.includes(v));
   const reset = Math.min(...items.map((v) => v.secondsToReset ?? Infinity));
   return (
     <TabScreen tab="today">
@@ -82,8 +83,7 @@ function Active({ items, pending, claim }: { items: OathView[]; pending: OathVie
           sub={t("screens.B1.b1.sub", { name: claim.facts.name, when: weekday(endOf(claim)) })} onPress={() => go("J1", { id: claim.facts.id })} />
       ) : null}
       {main ? <ScreenKeeper id="B1" lines={[k[1]!]} /> : null}
-      {main ? <TodayCard v={main} stack /> : null}
-      {bountyCards.map((v) => <BountyCard key={v.facts.id} v={v} bounty={brands.get(v.facts.bountyId!)} />)}
+      {deck.length ? <CardDeck cards={deck.map((v) => ({ key: v.facts.id, node: v.facts.bountyId ? <BountyCard v={v} bounty={brands.get(v.facts.bountyId)} /> : <TodayCard v={v} /> }))} /> : null}
       {rest.length ? <RowList rows={rest.map(rowOf(go, brands))} /> : null}
     </TabScreen>
   );
@@ -107,7 +107,7 @@ function BountyCard({ v, bounty }: { v: OathView; bounty: Bounty | undefined }) 
   );
 }
 
-function TodayCard({ v, urgent, stack }: { v: OathView; urgent?: boolean; stack?: boolean }) {
+function TodayCard({ v, urgent }: { v: OathView; urgent?: boolean }) {
   const { go } = useGo();
   const mine = myToday(v)!;
   const photo1 = mine.facts.proofToday === "photo1";
@@ -119,7 +119,7 @@ function TodayCard({ v, urgent, stack }: { v: OathView; urgent?: boolean; stack?
     : t("screens.B1.b3.meta", { names: listNames(others.map(memberName)), day: v.dayNumber, length: v.facts.numDays });
   return (
     <OathCard
-      icon={objectIcon(v.facts.objectId)} name={v.facts.name} meta={meta} hp={v.hp} {...(stack ? { stack } : {})}
+      icon={objectIcon(v.facts.objectId)} name={v.facts.name} meta={meta} hp={v.hp}
       line={t(photo1 ? "screens.B1.b3.line" : "screens.B4.b1.line", { goal: capitalise(goal) })}
       onPress={() => go("D2", { id: v.facts.id })}
       tags={[
