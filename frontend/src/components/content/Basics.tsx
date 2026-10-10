@@ -106,7 +106,10 @@ export function Segmented({ items, value, onChange }: { items: string[]; value: 
         const on = i === value;
         return (
           <PressScale key={t} onPress={() => onChange(i)} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={t} style={{ flex: 1 }} hit={{ w: metrics.segmented.item, h: metrics.segmented.item }}>
-            <View style={{ height: metrics.segmented.item, borderRadius: metrics.segmented.itemRadius, backgroundColor: on ? color.text.primary : color.extra.transparent, alignItems: "center", justifyContent: "center" }}>
+            <View style={{ height: metrics.segmented.item, alignItems: "center", justifyContent: "center" }}>
+              {/* Its own view, mounted with the selection: on Android a background switched on later (from
+                  transparent) was drawn without the unchanged corner radius, a white rectangle. */}
+              {on ? <View style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, borderRadius: metrics.segmented.itemRadius, backgroundColor: color.text.primary }} /> : null}
               <Text variant="chipMd" color={on ? color.text.onLime : color.text.secondary} numberOfLines={1}>{t}</Text>
             </View>
           </PressScale>
