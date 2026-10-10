@@ -6,6 +6,7 @@ import { createHttpClient } from "@/api/http/client";
 import { liveKeptRate } from "@/api/http/slices";
 import { httpBounties } from "@/api/http/bounties";
 import { MOCK_WALLET } from "@/api/mock/slices";
+import { mockOaths } from "@/features/oaths/mockStore";
 import type { Scenario } from "@/api/mock/scenarios";
 import { clock } from "@/lib/clock";
 import { SLICES } from "@/api/types";
@@ -94,6 +95,18 @@ describe("mock api", () => {
     expect((await mockApi("noSkr").wallet.balances(MOCK_WALLET)).skr).toBe(620n * SKR_UNIT);
     await expect(mockApi("offline").inbox.list()).rejects.toBeInstanceOf(ApiError);
     expect((await mockApi("fresh").inbox.list()).items).toHaveLength(0);
+  });
+  it("the balance follows what this session staked and claimed", async () => {
+    const api = mockApi("judges");
+    await api.inbox.list(); // seeds the account
+    const before = (await api.wallet.balances(MOCK_WALLET)).skr;
+    const hydra = (await api.oaths.list(MOCK_WALLET)).find((o) => o.name === "Hydra 14")!;
+    const won = mockOaths.claim(hydra.id, MOCK_WALLET);
+    const dawn = mockOaths.byCode("DAWN-R7Q2")!;
+    mockOaths.join(dawn.id, MOCK_WALLET);
+    expect((await api.wallet.balances(MOCK_WALLET)).skr).toBe(before + won - dawn.stake);
+    mockOaths.leave(dawn.id, MOCK_WALLET);
+    expect((await api.wallet.balances(MOCK_WALLET)).skr).toBe(before + won);
   });
   it("faucet pays once", async () => {
     const api = mockApi();
