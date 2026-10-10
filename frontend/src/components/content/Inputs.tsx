@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TextInput, View } from "react-native";
-import QRCode from "react-native-qrcode-svg";
+import Svg, { Path } from "react-native-svg";
+import { create as createQr } from "qrcode/lib/core/qrcode";
 import { t } from "@/copy";
 import { color, fontFamily, gradient, metrics, shadow, space } from "@/theme";
 import { Avatar } from "../avatar/Avatar";
@@ -182,13 +183,33 @@ export function SeatSlots({ seats }: { seats: Seat[] }) {
   );
 }
 
-// ── QRCard (`qr`) ── real QR from react-native-qrcode-svg.
+/** One path for every dark module, in module units: a rectangle per horizontal run. Error correction M. */
+function qrPath(value: string) {
+  const { size, data } = createQr(value, { errorCorrectionLevel: "M" }).modules;
+  let d = "";
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      if (!data[y * size + x]) continue;
+      let w = 1;
+      while (x + w < size && data[y * size + x + w]) w++;
+      d += `M${x} ${y}h${w}v1h${-w}z`;
+      x += w - 1;
+    }
+  }
+  return { size, d };
+}
+
+// ── QRCard (`qr`) ── a real, scannable QR of the invite link.
 export function QRCard({ code, link }: { code: string; link: string }) {
   const q = metrics.qr;
+  const qr = useMemo(() => qrPath(link), [link]);
+  const side = q.size - q.inner * 2;
   return (
     <View style={{ flexDirection: "row", gap: q.gap, alignItems: "center", padding: q.pad, borderRadius: q.radius, backgroundColor: color.surface[1] }}>
       <View accessibilityLabel={link} style={{ width: q.size, height: q.size, padding: q.inner, borderRadius: q.codeRadius, backgroundColor: color.text.primary, transform: [{ rotate: `${q.tilt}deg` }], boxShadow: "0 10px 24px rgba(0,0,0,0.4)" }}>
-        <QRCode value={link} size={q.size - q.inner * 2} color={color.text.onLime} backgroundColor={color.text.primary} />
+        <Svg width={side} height={side} viewBox={`0 0 ${qr.size} ${qr.size}`}>
+          <Path d={qr.d} fill={color.text.onLime} />
+        </Svg>
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text variant="caption">{t("common.code")}</Text>
