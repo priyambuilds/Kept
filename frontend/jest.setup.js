@@ -38,6 +38,11 @@ jest.mock("expo-secure-store", () => {
     deleteItemAsync: jest.fn(async (k) => { store.delete(k); }),
   };
 });
+// The Keystore's native side exists in tests (lib/secureStore asks before importing the package).
+jest.mock("expo", () => {
+  const actual = jest.requireActual("expo");
+  return { ...actual, requireOptionalNativeModule: (name) => (name === "ExpoSecureStore" ? {} : actual.requireOptionalNativeModule(name)) };
+});
 // expo-camera: a preview that "takes" a fixed picture, and permission already granted.
 jest.mock("expo-camera", () => {
   const React = require("react");

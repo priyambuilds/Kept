@@ -119,16 +119,16 @@ export function Screen({ bar, children, pinned, bottomInset = 0, scroll = true, 
       ) : null}
       {bar ? <View style={{ paddingHorizontal: m.padX, marginTop: m.barGap }}>{bar}</View> : null}
       <View style={{ flex: 1 }}>
-        {!ready ? null : bare ? <View style={{ flex: 1 }}>{children}</View> : scroll ? (
-          // With pinned actions the column ends 14 above them, like the prototype, so content is clipped
-          // there instead of scrolling behind (and showing between) the buttons.
-          <ScrollView style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ ...column, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap }}>
+        {!ready ? null : bare ? <View style={{ flex: 1 }}>{children}</View> : (
+          // One ScrollView whether or not it scrolls: swapping a ScrollView for a plain View under the fading
+          // skeleton made Fabric re-parent native children and crash on the camera (F1: "addViewAt: ... already
+          // has a parent"). With pinned actions the column ends 14 above them, like the prototype, so content is
+          // clipped there instead of scrolling behind (and showing between) the buttons.
+          <ScrollView scrollEnabled={scroll} style={pinned ? { marginBottom: bottom + bottomInset + m.gap } : undefined} keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ ...column, flexGrow: scroll ? undefined : 1, paddingBottom: pinned ? m.contentBottom : insets.bottom + bottomInset + m.gap }}>
             {top}
-            {entered}
+            {scroll ? entered : blocks.map((c, i) => <Fragment key={c.key ?? `b${i}`}>{c}</Fragment>)}
           </ScrollView>
-        ) : (
-          <View style={{ flex: 1, ...column }}>{top}{blocks.map((c, i) => <Fragment key={c.key ?? `b${i}`}>{c}</Fragment>)}</View>
         )}
         {/* The skeleton until the content mounts, then fading out over it as the blocks enter (no blank frame). */}
         {veil && !bare ? (
