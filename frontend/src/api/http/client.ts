@@ -5,6 +5,9 @@ import { ApiError, toApiError } from "../errors";
 
 export type TokenSource = () => string | null;
 
+/** A request that hasn't answered by then is given up on, like no network: M2 offers the retry. */
+export const REQUEST_TIMEOUT_MS = 15_000;
+
 export interface HttpClient {
   get<S extends z.ZodType>(path: string, schema: S): Promise<z.output<S>>;
   post<S extends z.ZodType>(path: string, body: unknown, schema: S): Promise<z.output<S>>;
@@ -13,21 +16,29 @@ export interface HttpClient {
   send(path: string, body: unknown): Promise<void>;
 }
 
-export function createHttpClient(getToken: TokenSource, baseUrl = env.apiUrl, fetchImpl: typeof fetch = fetch): HttpClient {
+export function createHttpClient(getToken: TokenSource, baseUrl = env.apiUrl, fetchImpl: typeof fetch = fetch, timeoutMs = REQUEST_TIMEOUT_MS): HttpClient {
   async function request(method: "GET" | "POST" | "PUT", path: string, body?: unknown): Promise<unknown> {
     const token = getToken();
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), timeoutMs);
     let res: Response;
+    let raw: string;
     try {
       res = await fetchImpl(`${baseUrl}${path}`, {
         method,
         headers: { ...(body !== undefined ? { "content-type": "application/json" } : {}), ...(token ? { authorization: `Bearer ${token}` } : {}) },
         ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+        signal: abort.signal,
       });
+      raw = await res.text();
     } catch (e) {
-      // fetch only rejects when the request never got a response: no network, DNS, refused.
-      throw new ApiError("OFFLINE", e instanceof Error ? e.message : String(e), 0, true);
+      // fetch only rejects when the request never got a whole response: no network, DNS, refused, or
+      // our own timeout.
+      const why = abort.signal.aborted ? `No answer after ${timeoutMs / 1000} s` : e instanceof Error ? e.message : String(e);
+      throw new ApiError("OFFLINE", why, 0, true);
+    } finally {
+      clearTimeout(timer);
     }
-    const raw = await res.text();
     let data: unknown = null;
     try { data = raw ? JSON.parse(raw) : null; } catch { data = raw; }
     if (!res.ok) throw toApiError(`${method} ${path.split("?")[0]}`, res.status, data);

@@ -45,6 +45,13 @@ describe("http client", () => {
     const init = (fetchImpl.mock.calls[0] as unknown as [string, RequestInit])[1];
     expect((init.headers as Record<string, string>).authorization).toBe("Bearer tok");
   });
+  it("gives up on a request that doesn't answer (timeout → OFFLINE, retryable)", async () => {
+    const hang = ((_u: string, init: RequestInit) => new Promise((_r, reject) => {
+      init.signal!.addEventListener("abort", () => reject(new Error("Aborted")));
+    })) as unknown as typeof fetch;
+    const c = createHttpClient(() => null, "http://api", hang, 30);
+    await expect(c.get("/api/me", NonceResponse)).rejects.toMatchObject({ code: "OFFLINE", retryable: true, message: expect.stringContaining("No answer") });
+  });
   it("turns a network failure into OFFLINE and a bad body into SERVER", async () => {
     const down = createHttpClient(() => null, "http://api", (() => Promise.reject(new TypeError("Network request failed"))) as unknown as typeof fetch);
     await expect(down.get("/api/me", NonceResponse)).rejects.toMatchObject({ code: "OFFLINE" });
