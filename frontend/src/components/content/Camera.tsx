@@ -27,10 +27,11 @@ function ScanLine({ height }: { height: number }) {
   const p = useSharedValue(0);
   const onLayout = useAnimationLifecycle([p], () => {
     if (reduce) return;
-    p.value = withRepeat(withTiming(1, { duration: duration.scan, easing: Easing.inOut(Easing.ease) }), -1, true);
+    p.set(withRepeat(withTiming(1, { duration: duration.scan, easing: Easing.inOut(Easing.ease) }), -1, true));
   }, [reduce], { pauseOnBlur: true });
-  const a = useAnimatedStyle(() => ({ top: height * (0.14 + 0.7 * p.value) }));
-  return <Animated.View onLayout={onLayout} pointerEvents="none" style={[{ position: "absolute", left: metrics.camera.scanInset, right: metrics.camera.scanInset, height: 2, backgroundColor: color.lime.base, boxShadow: `0 0 16px 4px ${color.lime.ring45}` }, a]} />;
+  // Moves with a transform (motion rework): its glow is drawn once and the view slides, no layout per frame.
+  const a = useAnimatedStyle(() => ({ transform: [{ translateY: height * 0.7 * p.value }] }));
+  return <Animated.View onLayout={onLayout} pointerEvents="none" style={[{ position: "absolute", top: height * 0.14, left: metrics.camera.scanInset, right: metrics.camera.scanInset, height: 2, backgroundColor: color.lime.base, boxShadow: `0 0 16px 4px ${color.lime.ring45}` }, a]} />;
 }
 
 /**
