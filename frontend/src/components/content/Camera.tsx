@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { GESTURES } from "@kept/config";
@@ -114,7 +114,8 @@ export function Shutter({ onShutter, onFlip, disabled }: { onShutter: () => void
           <View style={{ width: s.inner, height: s.inner, borderRadius: s.inner / 2, backgroundColor: color.text.primary }} />
         </View>
       </PressScale>
-      <Pressable onPress={onFlip} accessibilityRole="button" accessibilityLabel={t("additions.a11y.flip")} style={side}><Icon name="camera-flip-outline" size={22} /></Pressable>
+      {/* Press feedback at touch-down like the shutter (the camera itself takes longer than 100 ms to turn). */}
+      <PressScale onPress={onFlip} scale={s.pressScale} accessibilityLabel={t("additions.a11y.flip")} hit={{ w: s.side, h: s.side }}><View style={side}><Icon name="camera-flip-outline" size={22} /></View></PressScale>
     </View>
   );
 }
