@@ -75,7 +75,7 @@ These strings aren't in `design/copy.json`. They go in `frontend/src/copy/additi
 | D-30 | Solo Oaths on the real program (stake must be 0 today) | Live creates solo Oaths on chain with stake 0 (BACKEND_GAPS P0-7); Demo keeps the designed flow with a stake on the mock. (The old `hybrid` rule, solo on the mock, went with the build-time API mode, D-80.) | ACCEPTED |
 | D-31 | Cancelled Oaths need a per-member claim (BACKEND_GAPS P1-4) | After a cancel, members see a claim row for the refund in J1; the creator's D1·xs → D0 also triggers their own claim. | ACCEPTED |
 | D-32 | Reanimated version | v4 (what SDK 57 ships). motion.md's APIs are unchanged. | ACCEPTED |
-| D-33 | The Keeper character | Phases 1–4 use the supplied PNG busts and poses (`assets/keeper/png`). Phase 5 ports the parametric rig from `reference/Keeper.dc.html` to `react-native-svg`, with the PNGs as the Reduce Motion / low-end fallback. | ACCEPTED |
+| D-33 | The Keeper character | Phases 1–4 use the supplied PNG busts and poses (`assets/keeper/png`). Phase 5 ports the parametric rig from `reference/Keeper.dc.html` to `react-native-svg`. **Updated 2026-10-10:** no screen ever used the PNG fallback, so it was removed (it shipped 4.8 MB of images in the APK); Reduce Motion holds the rig's still pose. The PNGs stay in `design/assets/keeper/png`. | ACCEPTED |
 | D-34 | MWA 3.0 vs 2.3 | Start on 3.0 (latest, peer `@solana/web3.js ^1.99`); fall back to 2.3 if the Seeker wallet misbehaves. | ACCEPTED |
 
 ## E. Phase 2 (navigation shell, mock API, sign-in)
