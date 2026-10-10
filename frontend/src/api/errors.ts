@@ -39,3 +39,15 @@ export function toApiError(route: string, status: number, body: unknown): ApiErr
       : status === 404 ? "NOT_FOUND" : status === 409 ? "DUPLICATE" : status === 429 ? "RATE_LIMITED" : "SERVER";
   return new ApiError(code, message, status, retryable || status >= 500);
 }
+
+/**
+ * A failed read from the Solana RPC (the public Devnet one rate-limits). web3.js already retries a 429 with
+ * backoff; what's left is: still rate-limited → RATE_LIMITED, no answer (network, our timeout) → OFFLINE,
+ * anything else → SERVER. All three are worth retrying.
+ */
+export function fromRpcError(e: unknown): ApiError {
+  const message = e instanceof Error ? e.message : String(e);
+  if (/\b429\b|too many requests|rate limit/i.test(message)) return new ApiError("RATE_LIMITED", message, 429, true);
+  if (/network request failed|failed to fetch|abort|timed? ?out|ENOTFOUND|ECONNREFUSED/i.test(message)) return new ApiError("OFFLINE", message, 0, true);
+  return new ApiError("SERVER", message, 0, true);
+}

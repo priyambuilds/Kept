@@ -1,7 +1,8 @@
 import { SKR_UNIT } from "@kept/config";
 import { createApi, createMockApi } from "@/api";
 import type { Slice, SliceMode } from "@/api";
-import { ApiError, toApiError } from "@/api/errors";
+import { ApiError, fromRpcError, toApiError } from "@/api/errors";
+import { timedFetch } from "@/chain/connection";
 import { createHttpClient } from "@/api/http/client";
 import { liveKeptRate } from "@/api/http/slices";
 import { httpBounties } from "@/api/http/bounties";
@@ -143,6 +144,23 @@ describe("sign-in", () => {
   });
   it("non-Seekers sign in with genesis false", async () => {
     expect((await signIn(mockApi("notEligible"), createMockWallet(() => "notEligible", 0))).genesis).toBe(false);
+  });
+});
+
+describe("RPC failures (public Devnet)", () => {
+  it.each([
+    ["429 Too Many Requests: {\"jsonrpc\":\"2.0\",\"error\":{\"code\": 429}}", "RATE_LIMITED"],
+    ["failed to get info about account x: TypeError: Network request failed", "OFFLINE"],
+    ["RPC timed out after 20 s", "OFFLINE"],
+    ["failed to get program accounts: Internal error", "SERVER"],
+  ])("%s → %s, retryable", (message, code) => {
+    expect(fromRpcError(new Error(message))).toMatchObject({ code, retryable: true });
+  });
+  it("a hung RPC request is dropped after the timeout", async () => {
+    const hang = ((_u: string, init: RequestInit) => new Promise((_r, reject) => {
+      init.signal!.addEventListener("abort", () => reject(new Error("Aborted")));
+    })) as unknown as typeof fetch;
+    await expect(timedFetch(30, hang)("http://rpc", {})).rejects.toThrow(/timed out/);
   });
 });
 

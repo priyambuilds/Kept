@@ -10,7 +10,7 @@ import type { OathFacts } from "@/features/oaths/model";
 import { oathName } from "@/features/oaths/names";
 import { clock } from "@/lib/clock";
 import { useSession } from "@/state/session";
-import { ApiError, isApiError } from "../errors";
+import { ApiError, fromRpcError, isApiError } from "../errors";
 import type { GestureLabel, OathsApi, ProofApi } from "../types";
 import { myLiveBounty } from "./bounties";
 import type { HttpClient } from "./client";
@@ -59,7 +59,7 @@ function toFacts(o: ChainOath, goal: string | null): OathFacts {
 
 export const httpOaths = (c: HttpClient): OathsApi => ({
   list: async (wallet) => {
-    const found = await listOathsOf(wallet).catch((e: unknown) => { throw new ApiError("OFFLINE", String(e), 0, true); });
+    const found = await listOathsOf(wallet).catch((e: unknown) => { throw fromRpcError(e); });
     const known = useDeviceOaths.getState().known.filter((id) => !found.some((o) => o.address === id));
     const extra = (await Promise.all(known.map((id) => readOath(id).catch(() => null)))).filter((o): o is ChainOath => !!o && o.members.some((m) => m.wallet === wallet));
     const [oaths, bounty] = await Promise.all([
@@ -74,7 +74,7 @@ export const httpOaths = (c: HttpClient): OathsApi => ({
       if (!b || b.id !== id) throw new ApiError("NOT_FOUND", `Bounty entry ${id} not found`, 404);
       return b;
     }
-    const o = await readOath(id).catch((e: unknown) => { throw new ApiError("OFFLINE", String(e), 0, true); });
+    const o = await readOath(id).catch((e: unknown) => { throw fromRpcError(e); });
     if (!o) throw new ApiError("NOT_FOUND", `Oath ${id} not found`, 404);
     return toFacts(o, await goalOf(c, id));
   },
