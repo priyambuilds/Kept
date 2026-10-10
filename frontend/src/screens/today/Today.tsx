@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { keeperLines, t } from "@/copy";
+import { clock } from "@/lib/clock";
 import { Button, ButtonRow } from "@/components/actions";
 import { BottomSheet } from "@/components/chrome";
 import { Banner, BodyText, Skeleton, Title, Chip, ChipRow } from "@/components/content/Basics";
@@ -41,7 +42,7 @@ export function TodayTab() {
   const items = todayItems(views);
   const claim = views.find((v) => v.claimable > 0n);
   const recap = recapOf(views);
-  const today = new Date().toDateString();
+  const today = new Date(clock.now()).toDateString(); // Demo's clock can skip a day (D-88)
   useResultMoments(views);
 
   // D-8: the recap shows once, the first time the app opens after a day settles.
